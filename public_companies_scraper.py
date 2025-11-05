@@ -5,15 +5,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from github import Github, Auth
 import time
 from datetime import datetime
-import re
 
 # Configuration
 BASE_URL = "https://www.marketcapwatch.com/united-states/largest-companies-in-united-states/"
-REPO_NAME = "ayeeff/marketcap"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 PUBLIC_CSV = "data/public.csv"
 OUTPUT_CSV = "data/pubtotal.csv"
 
@@ -54,26 +50,20 @@ def normalize_ticker(ticker):
     """Normalize ticker symbol for matching"""
     if pd.isna(ticker):
         return ""
-    # Remove whitespace and convert to uppercase
     return str(ticker).strip().upper()
 
 def extract_ticker_from_row(row):
     """Extract ticker from a table row"""
     try:
-        # The ticker is in a <p> tag within the company cell
-        # Structure: <td> -> <div> -> <div> -> <a> -> <p class="mb-0">TICKER</p>
         cells = row.find_elements(By.TAG_NAME, "td")
         if len(cells) >= 2:
-            # Second cell contains company info
             company_cell = cells[1]
-            # Find all <p> tags in the company cell
             p_tags = company_cell.find_elements(By.TAG_NAME, "p")
             for p in p_tags:
                 text = p.text.strip()
-                # Ticker is usually short (2-5 chars) and all uppercase
                 if text and len(text) <= 6 and text.isupper():
                     return normalize_ticker(text)
-    except Exception as e:
+    except Exception:
         pass
     return None
 
@@ -84,17 +74,12 @@ def scrape_all_pages(driver, target_tickers):
     
     found_companies = {}
     page = 1
-    max_pages = 50  # Safety limit
+    max_pages = 50
     
-    # Normalize target tickers
     normalized_targets = {normalize_ticker(ticker): ticker for ticker in target_tickers.keys()}
     
     while page <= max_pages and len(found_companies) < len(target_tickers):
-        if page == 1:
-            url = BASE_URL
-        else:
-            url = f"{BASE_URL}?pn={page}"
-        
+        url = BASE_URL if page == 1 else f"{BASE_URL}?pn={page}"
         print(f"\nScraping page {page}: {url}")
         
         try:
@@ -110,15 +95,13 @@ def scrape_all_pages(driver, target_tickers):
             rows = table.find_elements(By.TAG_NAME, "tr")
             
             companies_on_page = 0
-            for row in rows[1:]:  # Skip header
+            for row in rows[1:]:
                 cells = row.find_elements(By.TAG_NAME, "td")
                 if len(cells) >= 3:
                     try:
                         rank = cells[0].text.strip()
                         company_name = cells[1].text.strip()
                         market_cap = cells[2].text.strip()
-                        
-                        # Extract ticker from the row
                         ticker = extract_ticker_from_row(row)
                         
                         if ticker and ticker in normalized_targets:
@@ -142,19 +125,17 @@ def scrape_all_pages(driver, target_tickers):
             print(f"  Processed {companies_on_page} companies on page {page}")
             print(f"  Progress: {len(found_companies)}/{len(target_tickers)} tickers found")
             
-            # Check if there's a next page
             if companies_on_page == 0:
                 print(f"  No companies found on page {page}, stopping")
                 break
             
             page += 1
-            time.sleep(2)  # Be nice to the server
+            time.sleep(2)
             
         except Exception as e:
             print(f"  ❌ Error scraping page {page}: {e}")
             break
     
-    # Report missing companies
     missing = set(target_tickers.keys()) - set(found_companies.keys())
     if missing:
         print(f"\n⚠️ Could not find {len(missing)} tickers:")
@@ -169,10 +150,8 @@ def main():
     print("PUBLIC COMPANIES MARKET CAP SCRAPER")
     print("="*80)
     
-    # Ensure data directory exists
     os.makedirs('data', exist_ok=True)
     
-    # Load target companies
     if not os.path.exists(PUBLIC_CSV):
         print(f"❌ Error: {PUBLIC_CSV} not found!")
         return
@@ -180,7 +159,6 @@ def main():
     df_public = pd.read_csv(PUBLIC_CSV)
     print(f"\n✓ Loaded {len(df_public)} companies from {PUBLIC_CSV}")
     
-    # Create dictionary of tickers to company info
     target_tickers = {}
     for _, row in df_public.iterrows():
         ticker = normalize_ticker(row['Ticker'])
@@ -190,7 +168,6 @@ def main():
                 'Ticker': row['Ticker']
             }
     
-    # Setup driver and scrape
     driver = setup_driver()
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
@@ -201,21 +178,15 @@ def main():
             print("\n❌ No companies found!")
             return
         
-        # Create output dataframe
         df_output = pd.DataFrame(found_companies.values())
         df_output['Date'] = today
-        
-        # Reorder columns
         df_output = df_output[['Company', 'Ticker', 'Full Name', 'Market Cap', 'Market Cap Numeric', 'Rank', 'Date']]
-        
-        # Sort by market cap
         df_output = df_output.sort_values('Market Cap Numeric', ascending=False)
         
-        # Save to CSV
-        df_output.to_csv(OUTPUT_CSV, index=False)
+        # Save with overwrite
+        df_output.to_csv(OUTPUT_CSV, index=False, mode='w')
         print(f"\n✓ Saved {len(df_output)} companies to {OUTPUT_CSV}")
         
-        # Print summary
         print("\n" + "="*80)
         print("SUMMARY")
         print("="*80)
@@ -224,38 +195,6 @@ def main():
         print(f"\nTop 5 by Market Cap:")
         for idx, row in df_output.head().iterrows():
             print(f"  {row['Rank']}. {row['Company']} ({row['Ticker']}): {row['Market Cap']}")
-        
-        # Upload to GitHub
-        if GITHUB_TOKEN:
-            print("\n" + "="*80)
-            print("UPLOADING TO GITHUB")
-            print("="*80)
-            
-            try:
-                auth = Auth.Token(GITHUB_TOKEN)
-                g = Github(auth=auth)
-                repo = g.get_repo(REPO_NAME)
-                timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
-                
-                with open(OUTPUT_CSV, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                commit_msg = f"Update pubtotal.csv - {timestamp}"
-                
-                try:
-                    file_obj = repo.get_contents(OUTPUT_CSV)
-                    repo.update_file(OUTPUT_CSV, commit_msg, content, file_obj.sha)
-                    print(f"✓ Updated {OUTPUT_CSV} on GitHub")
-                except:
-                    repo.create_file(OUTPUT_CSV, commit_msg, content)
-                    print(f"✓ Created {OUTPUT_CSV} on GitHub")
-                
-                print("\n✅ Upload successful!")
-                
-            except Exception as e:
-                print(f"\n❌ GitHub upload error: {e}")
-        else:
-            print("\n⚠️ No GitHub token found, skipping upload")
         
         print("\n" + "="*80)
         print("✅ SCRAPING COMPLETED SUCCESSFULLY!")
