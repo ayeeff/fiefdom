@@ -6,6 +6,10 @@ on:
     - cron: '0 9 * * *'
   workflow_dispatch:  # Allow manual trigger
 
+# Add permissions for the GITHUB_TOKEN
+permissions:
+  contents: write
+
 jobs:
   update-portfolio:
     runs-on: ubuntu-latest
@@ -13,6 +17,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Fetch all history to avoid conflicts
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,21 +35,13 @@ jobs:
         run: |
           python process_portfolios.py
       
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git diff --quiet data/sumtotal.csv || echo "changed=true" >> $GITHUB_OUTPUT
-      
       - name: Commit and push if changed
-        if: steps.check_changes.outputs.changed == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
           git add data/sumtotal.csv
-          git commit -m "Update sumtotal.csv - $(date +'%Y-%m-%d')"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git pull origin main --rebase --autostash
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update sumtotal.csv - $(date -u +'%Y-%m-%d %H:%M UTC')" && git push origin main)
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
