@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Power Blocs: Three Camps</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 p-4">
+    <div class="max-w-[1800px] mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                AI Power Blocs: Three Camps
+            </h1>
+            <p class="text-gray-400 text-lg">Competing Visions for America's Tech Future & China Strategy</p>
+        </div>
+
+        <!-- Three Columns: Camp Explanations -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- MUSK CAMP -->
+            <div class="bg-gradient-to-br from-red-950/50 to-orange-950/50 border border-red-800/30 rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                    <span>🚀</span> MUSK CAMP
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <h3 class="font-semibold text-red-300 mb-1">Ideology</h3>
+                        <p class="text-gray-300">Libertarian techno-authoritarianism — shrink the state, build orbital factories & defense shields</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-red-300 mb-1">Power Source</h3>
+                        <p class="text-gray-300"><span class="text-red-400 font-bold">Executive branch control</span> via DOGE + VP office. Smallest equity (~$7T), biggest policy leverage</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-red-300 mb-1">Moat</h3>
+                        <p class="text-gray-300">SpaceX launch monopoly, federal procurement authority, defense budget allocation power</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-red-300 mb-1">China Strategy</h3>
+                        <p class="text-gray-300"><span class="font-semibold">Space-Dominant Resource Competition</span> — Win in orbit where US is 10+ years ahead. Secure critical minerals.</p>
+                    </div>
+                    <div class="bg-red-950/30 border border-red-800/50 rounded p-3 mt-3">
+                        <h3 class="font-semibold text-red-300 mb-1">Warfare Evolution</h3>
+                        <p class="text-gray-300">America's shipyards are failing → <span class="text-red-400 font-semibold">warfare moves to Low Earth Orbit</span>. Satellites, space-based weapons, and orbital surveillance replace naval dominance. Perfect fit for SpaceX.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STARGATE CAMP -->
+            <div class="bg-gradient-to-br from-blue-950/50 to-cyan-950/50 border border-blue-800/30 rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                    <span>🌐</span> STARGATE CAMP
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <h3 class="font-semibold text-blue-300 mb-1">Ideology</h3>
+                        <p class="text-gray-300">Neoliberal AI-exceptionalism — centralize compute in friendly corporate hands, control the GPU layer</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-blue-300 mb-1">Power Source</h3>
+                        <p class="text-gray-300"><span class="text-blue-400 font-bold">Infrastructure control</span> — GPU allocation bottleneck. Medium equity (~$8T), chokepoint on AI compute</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-blue-300 mb-1">Moat</h3>
+                        <p class="text-gray-300">$500B data center buildout, Oracle landlord position, decides who gets scarce GPU capacity</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-blue-300 mb-1">China Strategy</h3>
+                        <p class="text-gray-300"><span class="font-semibold">Silicon & Maritime Supremacy</span> — Control chips + protect undersea cables. Strangle China's AI ambitions.</p>
+                    </div>
+                    <div class="bg-blue-950/30 border border-blue-800/50 rounded p-3 mt-3">
+                        <h3 class="font-semibold text-blue-300 mb-1">Warfare Evolution</h3>
+                        <p class="text-gray-300">95% of global data travels via undersea cables → <span class="text-blue-400 font-semibold">warfare moves to submarine networks</span>. Protecting/cutting cables becomes decisive. AUKUS naval expansion critical.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- META CAMP -->
+            <div class="bg-gradient-to-br from-purple-950/50 to-pink-950/50 border border-purple-800/30 rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                    <span>🌍</span> META CAMP
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <h3 class="font-semibold text-purple-300 mb-1">Ideology</h3>
+                        <p class="text-gray-300">ESG techno-progressivism — AI should be aligned, carbon-neutral, overseen by multilateral bodies</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-purple-300 mb-1">Power Source</h3>
+                        <p class="text-gray-300"><span class="text-purple-400 font-bold">Market leverage</span> — consumer data moats. Largest equity (~$11T), but politically isolated</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-purple-300 mb-1">Moat</h3>
+                        <p class="text-gray-300">3B+ user platforms, open-source ecosystem (Llama), EU regulatory alignment, international alliances</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-purple-300 mb-1">China Strategy</h3>
+                        <p class="text-gray-300"><span class="font-semibold">Soft Power & Multilateral Norms</span> — Isolate Beijing ideologically. Make Global South adopt Western AI standards.</p>
+                    </div>
+                    <div class="bg-purple-950/30 border border-purple-800/50 rounded p-3 mt-3">
+                        <h3 class="font-semibold text-purple-300 mb-1">Warfare Evolution</h3>
+                        <p class="text-gray-300">US can't match China's naval numbers → <span class="text-purple-400 font-semibold">warfare moves to alliance networks</span>. NATO spending, coalition warfare, shared intelligence. Leverage 60% of global GDP.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treemap Visualizations -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-center">Equity Distribution by Camp</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                <div id="musk-treemap" class="h-96"></div>
+                <div id="stargate-treemap" class="h-96"></div>
+                <div id="meta-treemap" class="h-96"></div>
+            </div>
+            <div id="combined-treemap" class="h-[600px]"></div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-red-950/20 border border-red-800/30 rounded-lg p-4">
+                <h3 class="font-bold text-red-400 mb-2">MUSK: Policy > Market Cap</h3>
+                <p class="text-sm text-gray-300">Adding defense primes (NOC, HII, TXT, Boeing) reflects DOGE budget authority. Overlapping tech stakes (Nvidia, Broadcom) for xAI compute. Total equity smaller, but policy leverage asymmetric.</p>
+            </div>
+            <div class="bg-blue-950/20 border border-blue-800/30 rounded-lg p-4">
+                <h3 class="font-bold text-blue-400 mb-2">STARGATE: Infrastructure > Ownership</h3>
+                <p class="text-sm text-gray-300">Reduced stakes don't weaken Stargate buildout. Oracle + SoftBank + Anthropic core 100% aligned. $500B private capital proceeds regardless of public market positions.</p>
+            </div>
+            <div class="bg-purple-950/20 border border-purple-800/30 rounded-lg p-4">
+                <h3 class="font-bold text-purple-400 mb-2">META: Market Power, No Political Power</h3>
+                <p class="text-sm text-gray-300">Largest equity (~$11.4T) but shut out of Trump admin. Walmart/Berkshire = "old economy" allies. Long-term bet: EU norms become global standards by 2030s.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample equity data based on rebalanced allocations
+        const equityData = {
+            MUSK: [
+                { company: 'Tesla', value: 1332, allocation: '90%' },
+                { company: 'Palantir', value: 452.5, allocation: '100%' },
+                { company: 'SpaceX', value: 400, allocation: '100%' },
+                { company: 'Nvidia', value: 724.5, allocation: '15%' },
+                { company: 'xAI', value: 200, allocation: '100%' },
+                { company: 'RTX', value: 235.5, allocation: '100%' },
+                { company: 'GE', value: 224.6, allocation: '70%' },
+                { company: 'Lockheed Martin', value: 112.2, allocation: '100%' },
+                { company: 'Anduril', value: 66, allocation: '100%' },
+                { company: 'Northrop Grumman', value: 64, allocation: '80%' },
+                { company: 'Broadcom', value: 664, allocation: '40%' },
+                { company: 'Qualcomm', value: 92.6, allocation: '50%' },
+                { company: 'Boeing', value: 52.5, allocation: '35%' },
+                { company: 'Scale AI', value: 29, allocation: '100%' },
+                { company: 'Rocket Lab', value: 27.4, allocation: '100%' },
+                { company: 'AMD', value: 81.2, allocation: '20%' },
+                { company: 'Intel', value: 26.5, allocation: '15%' },
+                { company: 'Textron', value: 10.5, allocation: '70%' },
+                { company: 'Huntington Ingalls', value: 7.5, allocation: '75%' },
+                { company: 'C3.ai', value: 2.5, allocation: '100%' }
+            ],
+            STARGATE: [
+                { company: 'Nvidia', value: 1207.5, allocation: '25%' },
+                { company: 'Amazon/AWS', value: 934.5, allocation: '35%' },
+                { company: 'Oracle', value: 707.5, allocation: '100%' },
+                { company: 'Broadcom', value: 996, allocation: '60%' },
+                { company: 'JPMorgan Chase', value: 336.7, allocation: '40%' },
+                { company: 'Cisco Systems', value: 285, allocation: '100%' },
+                { company: 'SoftBank', value: 233.6, allocation: '100%' },
+                { company: 'Anthropic', value: 183, allocation: '100%' },
+                { company: 'Goldman Sachs', value: 124.1, allocation: '50%' },
+                { company: 'GE', value: 96.3, allocation: '30%' },
+                { company: 'Stripe', value: 92, allocation: '100%' },
+                { company: 'Arista Networks', value: 77.2, allocation: '40%' },
+                { company: 'Qualcomm', value: 64.8, allocation: '35%' },
+                { company: 'Revolut', value: 45, allocation: '100%' },
+                { company: 'Affirm', value: 23.3, allocation: '100%' },
+                { company: 'Terawatt Infra', value: 5, allocation: '100%' },
+                { company: 'Plug Power', value: 3, allocation: '100%' }
+            ],
+            META: [
+                { company: 'Apple', value: 3192, allocation: '80%' },
+                { company: 'Microsoft', value: 2292, allocation: '60%' },
+                { company: 'Alphabet', value: 2512.5, allocation: '75%' },
+                { company: 'Meta', value: 1580, allocation: '100%' },
+                { company: 'Netflix', value: 463.1, allocation: '100%' },
+                { company: 'AMD', value: 202.9, allocation: '50%' },
+                { company: 'Salesforce', value: 242.2, allocation: '100%' },
+                { company: 'Uber', value: 197.4, allocation: '100%' },
+                { company: 'Intel', value: 61.8, allocation: '35%' },
+                { company: 'Databricks', value: 121.5, allocation: '100%' },
+                { company: 'Snowflake', value: 89.9, allocation: '100%' },
+                { company: 'Berkshire Hathaway', value: 150, allocation: '15%' },
+                { company: 'Walmart', value: 180, allocation: '25%' }
+            ]
+        };
+
+        // Calculate totals
+        const totals = {
+            MUSK: equityData.MUSK.reduce((sum, item) => sum + item.value, 0),
+            STARGATE: equityData.STARGATE.reduce((sum, item) => sum + item.value, 0),
+            META: equityData.META.reduce((sum, item) => sum + item.value, 0)
+        };
+
+        // Color schemes
+        const colors = {
+            MUSK: ['#7f1d1d', '#991b1b', '#b91c1c', '#dc2626', '#ef4444', '#f87171', '#fca5a5'],
+            STARGATE: ['#1e3a8a', '#1e40af', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'],
+            META: ['#581c87', '#6b21a8', '#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe']
+        };
+
+        function createTreemap(elementId, data, camp, title) {
+            const labels = data.map(d => d.company);
+            const parents = data.map(() => camp);
+            const values = data.map(d => d.value);
+            const allocations = data.map(d => d.allocation);
+            
+            labels.unshift(camp);
+            parents.unshift('');
+            values.unshift(0);
+            allocations.unshift('');
+
+            const trace = {
+                type: 'treemap',
+                labels: labels,
+                parents: parents,
+                values: values,
+                text: labels.map((l, i) => i === 0 ? `${l}<br>$${(totals[camp] / 1000).toFixed(1)}T` : `${l}<br>$${values[i].toFixed(1)}B<br>${allocations[i]}`),
+                textposition: 'middle center',
+                marker: {
+                    colors: colors[camp],
+                    line: { width: 2, color: '#1f2937' }
+                },
+                hovertemplate: '<b>%{label}</b><br>Equity: $%{value:.1f}B<br>%{text}<extra></extra>',
+                textfont: { size: 11, color: 'white' }
+            };
+
+            const layout = {
+                title: {
+                    text: `${title}<br>$${(totals[camp] / 1000).toFixed(1)}T Total`,
+                    font: { size: 16, color: '#e5e7eb' }
+                },
+                paper_bgcolor: '#111827',
+                plot_bgcolor: '#111827',
+                margin: { t: 50, l: 0, r: 0, b: 0 }
+            };
+
+            Plotly.newPlot(elementId, [trace], layout, { responsive: true });
+        }
+
+        function createCombinedTreemap() {
+            const allLabels = ['Total'];
+            const allParents = [''];
+            const allValues = [0];
+            const allText = [`Total Equity<br>$${((totals.MUSK + totals.STARGATE + totals.META) / 1000).toFixed(1)}T`];
+            const allColors = ['#374151'];
+
+            Object.keys(equityData).forEach(camp => {
+                allLabels.push(camp);
+                allParents.push('Total');
+                allValues.push(totals[camp]);
+                allText.push(`${camp}<br>$${(totals[camp] / 1000).toFixed(1)}T`);
+                allColors.push(colors[camp][3]);
+
+                equityData[camp].forEach(item => {
+                    allLabels.push(`${camp} - ${item.company}`);
+                    allParents.push(camp);
+                    allValues.push(item.value);
+                    allText.push(`${item.company}<br>$${item.value.toFixed(1)}B<br>${item.allocation}`);
+                    allColors.push(colors[camp][Math.floor(Math.random() * colors[camp].length)]);
+                });
+            });
+
+            const trace = {
+                type: 'treemap',
+                labels: allLabels,
+                parents: allParents,
+                values: allValues,
+                text: allText,
+                textposition: 'middle center',
+                marker: {
+                    colors: allColors,
+                    line: { width: 2, color: '#1f2937' }
+                },
+                hovertemplate: '<b>%{label}</b><br>Equity: $%{value:.1f}B<br><extra></extra>',
+                textfont: { size: 10, color: 'white' }
+            };
+
+            const layout = {
+                title: {
+                    text: 'Combined Equity Distribution Across All Three Camps',
+                    font: { size: 18, color: '#e5e7eb' }
+                },
+                paper_bgcolor: '#111827',
+                plot_bgcolor: '#111827',
+                margin: { t: 50, l: 0, r: 0, b: 0 }
+            };
+
+            Plotly.newPlot('combined-treemap', [trace], layout, { responsive: true });
+        }
+
+        // Create all treemaps
+        createTreemap('musk-treemap', equityData.MUSK, 'MUSK', '🚀 MUSK CAMP');
+        createTreemap('stargate-treemap', equityData.STARGATE, 'STARGATE', '🌐 STARGATE CAMP');
+        createTreemap('meta-treemap', equityData.META, 'META', '🌍 META CAMP');
+        createCombinedTreemap();
+    </script>
+</body>
+</html>
