@@ -1,51 +1,52 @@
-name: Scrape Public Companies Market Cap
+name: Daily Portfolio Update
 
 on:
   schedule:
-    # Run every day at 2:00 AM UTC
-    - cron: '0 2 * * *'
+    # Run daily at 9 AM UTC (adjust timezone as needed)
+    - cron: '0 9 * * *'
   workflow_dispatch:  # Allow manual trigger
 
-# Add permissions for the GITHUB_TOKEN
-permissions:
-  contents: write
-
 jobs:
-  scrape:
+  update-portfolio:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0  # Fetch all history to avoid conflicts
-    
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install selenium pandas webdriver-manager
-    
-    - name: Install Chrome
-      run: |
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-    
-    - name: Run scraper
-      run: |
-        python public_companies_scraper.py
-    
-    - name: Commit and push if changed
-      run: |
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-        git add data/pubtotal.csv
-        git pull origin main --rebase --autostash
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update public companies market cap data - $(date -u +'%Y-%m-%d %H:%M UTC')" && git push origin main)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+      
+      - name: Run portfolio processor
+        run: |
+          python process_portfolios.py
+      
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet data/sumtotal.csv || echo "changed=true" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/sumtotal.csv
+          git commit -m "Update sumtotal.csv - $(date +'%Y-%m-%d')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sumtotal-csv
+          path: data/sumtotal.csv
+          retention-days: 30
