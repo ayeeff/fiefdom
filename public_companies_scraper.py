@@ -61,7 +61,9 @@ def extract_ticker_from_row(row):
             p_tags = company_cell.find_elements(By.TAG_NAME, "p")
             for p in p_tags:
                 text = p.text.strip()
-                if text and len(text) <= 6 and text.isupper():
+                # Handle tickers with prefixes like OTC-, NYSE-, etc.
+                # Match pattern: all uppercase, may contain hyphens, 2-10 chars
+                if text and 2 <= len(text) <= 10 and text.replace('-', '').isupper():
                     return normalize_ticker(text)
     except Exception:
         pass
