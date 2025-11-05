@@ -1,0 +1,46 @@
+CAMP,company,status,equity($bn)
+META,Apple,public,3990.0
+META,Microsoft,public,3820.0
+META,Alphabet,public,3350.0
+META,Meta,public,1580.0
+META,Netflix,public,463.1
+META,AMD,public,284.1
+META,Salesforce,public,242.2
+META,Uber,public,197.4
+META,Databricks,private,121.5
+META,Snowflake,public,89.9
+META,Intel,public,88.2
+META,LinkedIn-Greylock,private,0.0
+META,Salesforce founder,private,0.0
+META,Governor of California,gov,0.0
+MUSK,Tesla,public,1332.0
+MUSK,Palantir,public,452.5
+MUSK,SpaceX,private,400.0
+MUSK,xAI,private,200.0
+MUSK,General Electric,public,192.5
+MUSK,RTX (Raytheon),public,188.4
+MUSK,Lockheed Martin,public,89.8
+MUSK,Anduril,private,66.0
+MUSK,Scale AI,private,29.0
+MUSK,Rocket Lab,public,27.4
+MUSK,C3.ai,public,2.5
+MUSK,Dept Gov Efficiency,gov,0.0
+MUSK,Office of VP,gov,0.0
+STARGATE,Nvidia,public,3139.5
+STARGATE,Amazon / AWS,public,2670.0
+STARGATE,Broadcom,public,1660.0
+STARGATE,JPMorgan Chase,public,841.8
+STARGATE,Oracle,public,707.5
+STARGATE,Cisco Systems,public,285.0
+STARGATE,Goldman Sachs,public,248.1
+STARGATE,SoftBank,public,233.6
+STARGATE,Anthropic,private,183.0
+STARGATE,General Electric,public,128.3
+STARGATE,Stripe,private,92.0
+STARGATE,Arista Networks,public,77.2
+STARGATE,Qualcomm,public,74.1
+STARGATE,Revolut,private,45.0
+STARGATE,Affirm,public,23.2
+STARGATE,Terawatt Infra,private,5.0
+STARGATE,Plug Power,public,3.0
+STARGATE,State Department,gov,0.0
