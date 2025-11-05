@@ -60,17 +60,20 @@ def normalize_ticker(ticker):
 def extract_ticker_from_row(row):
     """Extract ticker from a table row"""
     try:
-        # Try to find a link in the company name cell (cells[1])
-        links = row.find_elements(By.TAG_NAME, "a")
-        for link in links:
-            href = link.get_attribute("href")
-            if href and "/stock/" in href:
-                # Extract ticker from URL like /stock/AAPL/apple/
-                parts = href.split("/stock/")
-                if len(parts) > 1:
-                    ticker = parts[1].split("/")[0]
-                    return normalize_ticker(ticker)
-    except:
+        # The ticker is in a <p> tag within the company cell
+        # Structure: <td> -> <div> -> <div> -> <a> -> <p class="mb-0">TICKER</p>
+        cells = row.find_elements(By.TAG_NAME, "td")
+        if len(cells) >= 2:
+            # Second cell contains company info
+            company_cell = cells[1]
+            # Find all <p> tags in the company cell
+            p_tags = company_cell.find_elements(By.TAG_NAME, "p")
+            for p in p_tags:
+                text = p.text.strip()
+                # Ticker is usually short (2-5 chars) and all uppercase
+                if text and len(text) <= 6 and text.isupper():
+                    return normalize_ticker(text)
+    except Exception as e:
         pass
     return None
 
