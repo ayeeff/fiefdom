@@ -50,28 +50,43 @@ def parse_market_cap(value):
     except (ValueError, AttributeError):
         return 0
 
-def normalize_company_name(name):
-    """Normalize company name for matching"""
-    # Remove common suffixes and punctuation
-    name = re.sub(r'\s+(Inc\.?|Corp\.?|Corporation|Ltd\.?|Limited|LLC|L\.P\.|LP)\s*$', '', name, flags=re.IGNORECASE)
-    # Remove special characters and extra spaces
-    name = re.sub(r'[^\w\s]', '', name)
-    name = re.sub(r'\s+', ' ', name).strip().lower()
-    return name
+def normalize_ticker(ticker):
+    """Normalize ticker symbol for matching"""
+    if pd.isna(ticker):
+        return ""
+    # Remove whitespace and convert to uppercase
+    return str(ticker).strip().upper()
 
-def scrape_all_pages(driver, target_companies):
-    """Scrape all pages until we find all target companies or run out of pages"""
-    print(f"\nTarget companies to find: {len(target_companies)}")
-    print("Companies:", ', '.join(target_companies.keys()))
+def extract_ticker_from_row(row):
+    """Extract ticker from a table row"""
+    try:
+        # Try to find a link in the company name cell (cells[1])
+        links = row.find_elements(By.TAG_NAME, "a")
+        for link in links:
+            href = link.get_attribute("href")
+            if href and "/stock/" in href:
+                # Extract ticker from URL like /stock/AAPL/apple/
+                parts = href.split("/stock/")
+                if len(parts) > 1:
+                    ticker = parts[1].split("/")[0]
+                    return normalize_ticker(ticker)
+    except:
+        pass
+    return None
+
+def scrape_all_pages(driver, target_tickers):
+    """Scrape all pages until we find all target tickers or run out of pages"""
+    print(f"\nTarget tickers to find: {len(target_tickers)}")
+    print("Tickers:", ', '.join(sorted(target_tickers.keys())))
     
     found_companies = {}
     page = 1
     max_pages = 50  # Safety limit
     
-    # Normalize target company names for matching
-    normalized_targets = {normalize_company_name(name): name for name in target_companies.keys()}
+    # Normalize target tickers
+    normalized_targets = {normalize_ticker(ticker): ticker for ticker in target_tickers.keys()}
     
-    while page <= max_pages and len(found_companies) < len(target_companies):
+    while page <= max_pages and len(found_companies) < len(target_tickers):
         if page == 1:
             url = BASE_URL
         else:
@@ -100,29 +115,29 @@ def scrape_all_pages(driver, target_companies):
                         company_name = cells[1].text.strip()
                         market_cap = cells[2].text.strip()
                         
-                        # Normalize the scraped company name
-                        normalized_name = normalize_company_name(company_name)
+                        # Extract ticker from the row
+                        ticker = extract_ticker_from_row(row)
                         
-                        # Check if this company matches any target
-                        if normalized_name in normalized_targets:
-                            original_name = normalized_targets[normalized_name]
-                            if original_name not in found_companies:
-                                found_companies[original_name] = {
-                                    'Company': original_name,
-                                    'Ticker': target_companies[original_name],
+                        if ticker and ticker in normalized_targets:
+                            original_ticker = normalized_targets[ticker]
+                            if original_ticker not in found_companies:
+                                company_info = target_tickers[original_ticker]
+                                found_companies[original_ticker] = {
+                                    'Company': company_info['Company'],
+                                    'Ticker': original_ticker,
                                     'Full Name': company_name,
                                     'Market Cap': market_cap,
                                     'Market Cap Numeric': parse_market_cap(market_cap),
                                     'Rank': rank
                                 }
-                                print(f"  ✓ Found: {original_name} ({company_name}) - {market_cap} (Rank: {rank})")
+                                print(f"  ✓ Found: {original_ticker} - {company_info['Company']} ({company_name}) - {market_cap} (Rank: {rank})")
                         
                         companies_on_page += 1
                     except Exception as e:
                         print(f"  ⚠️ Error parsing row: {e}")
             
             print(f"  Processed {companies_on_page} companies on page {page}")
-            print(f"  Progress: {len(found_companies)}/{len(target_companies)} companies found")
+            print(f"  Progress: {len(found_companies)}/{len(target_tickers)} tickers found")
             
             # Check if there's a next page
             if companies_on_page == 0:
@@ -137,11 +152,12 @@ def scrape_all_pages(driver, target_companies):
             break
     
     # Report missing companies
-    missing = set(target_companies.keys()) - set(found_companies.keys())
+    missing = set(target_tickers.keys()) - set(found_companies.keys())
     if missing:
-        print(f"\n⚠️ Could not find {len(missing)} companies:")
-        for company in missing:
-            print(f"  - {company}")
+        print(f"\n⚠️ Could not find {len(missing)} tickers:")
+        for ticker in sorted(missing):
+            company_info = target_tickers[ticker]
+            print(f"  - {ticker} ({company_info['Company']})")
     
     return found_companies
 
@@ -161,15 +177,22 @@ def main():
     df_public = pd.read_csv(PUBLIC_CSV)
     print(f"\n✓ Loaded {len(df_public)} companies from {PUBLIC_CSV}")
     
-    # Create dictionary of company names to tickers
-    target_companies = dict(zip(df_public['Company'], df_public['Ticker']))
+    # Create dictionary of tickers to company info
+    target_tickers = {}
+    for _, row in df_public.iterrows():
+        ticker = normalize_ticker(row['Ticker'])
+        if ticker:
+            target_tickers[ticker] = {
+                'Company': row['Company'],
+                'Ticker': row['Ticker']
+            }
     
     # Setup driver and scrape
     driver = setup_driver()
     today = datetime.utcnow().strftime('%Y-%m-%d')
     
     try:
-        found_companies = scrape_all_pages(driver, target_companies)
+        found_companies = scrape_all_pages(driver, target_tickers)
         
         if not found_companies:
             print("\n❌ No companies found!")
