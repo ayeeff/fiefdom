@@ -69,6 +69,20 @@ def main():
         'ANDUR': 'Anduril',
     }
     
+    # Ticker aliases for public companies (alternate ticker symbols)
+    ticker_aliases = {
+        'SFTBY': 'OTC-SFTBY',  # SoftBank alternate ticker
+        'GOOGL': 'GOOG',        # Alphabet alternate ticker
+    }
+    
+    # Default valuations for companies not in datasets (in billions)
+    default_valuations = {
+        'C3.AI': 2.5,  # Small-cap AI company
+        'Terawatt Infra': 5.0,  # Estimated for infrastructure startup
+        'LinkedIn-Greylock': 0.0,  # Individual investor, no equity value
+        'Salesforce founder': 0.0,  # Individual investor, no equity value
+    }
+    
     # Process core.csv
     results = []
     
@@ -86,11 +100,20 @@ def main():
             
             if status == 'public':
                 ticker = row['Ticker']
-                company = row.get('Company', ticker)  # Use ticker as fallback
-                valuation = public_valuations.get(ticker, 0)
+                company = row.get('Company', ticker)
+                
+                # Check for ticker alias
+                lookup_ticker = ticker_aliases.get(ticker, ticker)
+                valuation = public_valuations.get(lookup_ticker, 0)
+                
+                # Check default valuations if not found
+                if valuation == 0 and ticker in default_valuations:
+                    valuation = default_valuations[ticker]
+                elif valuation == 0 and company in default_valuations:
+                    valuation = default_valuations[company]
                 
                 if valuation == 0:
-                    print(f"Warning: No valuation found for ticker {ticker}")
+                    print(f"Warning: No valuation found for ticker {ticker} (looked up as {lookup_ticker})")
                 
                 equity_value = valuation * allocation_pct
                 
@@ -112,6 +135,12 @@ def main():
                     lookup_company = company
                 
                 valuation = private_valuations.get(lookup_company, 0)
+                
+                # Check default valuations if not found
+                if valuation == 0 and lookup_company in default_valuations:
+                    valuation = default_valuations[lookup_company]
+                elif valuation == 0 and company in default_valuations:
+                    valuation = default_valuations[company]
                 
                 if valuation == 0:
                     print(f"Warning: No valuation found for private company {lookup_company} (ticker: {ticker})")
