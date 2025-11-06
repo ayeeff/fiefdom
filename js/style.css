@@ -1,4 +1,16 @@
-/* Skin Cancer Dashboard Styles */
+/* Video Container */
+.video-container {
+    margin-bottom: 30px;
+}
+
+.video-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Rest of your existing CSS remains the same */
 .skin-cancer-dashboard {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 1200px;
@@ -245,5 +257,10 @@
     
     .chart {
         height: 300px;
+    }
+    
+    .video-wrapper iframe {
+        width: 100%;
+        height: 250px;
     }
 }
