@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skin Cancer Incidence Dashboard</title>
-    <!-- ✅ Fixed CDN links -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Added responsive video + chart layout */
+        .video-chart-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .video-container, .chart-group {
+            flex: 1;
+            min-width: 300px;
+        }
+        .chart-group .chart-container {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .video-chart-section {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="skin-cancer-dashboard">
@@ -16,15 +37,44 @@
             <p>Racial disparities in melanoma rates across Five Eyes countries</p>
         </div>
 
-        <!-- YouTube Video -->
-        <div class="video-container">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h2>Understanding Skin Cancer Risks</h2>
-                    <p>Learn about the factors affecting skin cancer incidence</p>
+        <!-- Video + Charts Side-by-Side -->
+        <div class="video-chart-section">
+            <!-- YouTube Video -->
+            <div class="video-container">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Understanding Skin Cancer Risks</h2>
+                        <p>Learn about the factors affecting skin cancer incidence</p>
+                    </div>
+                    <div class="video-wrapper">
+                        <iframe width="500" height="275" src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
                 </div>
-                <div class="video-wrapper">
-                    <iframe width="500" height="275" src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+
+            <!-- Country Comparison + Regional Breakdown -->
+            <div class="chart-group">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Country Comparison</h2>
+                        <p>Melanoma incidence rates per 100,000 people</p>
+                    </div>
+                    <div id="countryComparison" class="chart"></div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Regional Breakdown</h2>
+                        <p>Select a country to view regional data</p>
+                    </div>
+                    <div class="country-selector">
+                        <button class="country-btn active" data-country="australia">Australia</button>
+                        <button class="country-btn" data-country="canada">Canada</button>
+                        <button class="country-btn" data-country="newzealand">New Zealand</button>
+                        <button class="country-btn" data-country="uk">United Kingdom</button>
+                        <button class="country-btn" data-country="usa">United States</button>
+                    </div>
+                    <div id="regionalChart" class="chart"></div>
                 </div>
             </div>
         </div>
@@ -62,57 +112,13 @@
             </div>
         </div>
 
-        <!-- Key Insights -->
-        <div class="key-insights">
-            <div class="insight-card">
-                <i class="fas fa-chart-bar"></i>
-                <h3>Global Disparity</h3>
-                <p>Whites face 5–30x higher risk than other races</p>
-            </div>
-            <div class="insight-card">
-                <i class="fas fa-globe-americas"></i>
-                <h3>Geographic Pattern</h3>
-                <p>Rates peak in sunny areas for white populations</p>
-            </div>
-            <div class="insight-card">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Prevention</h3>
-                <p>Sunscreen and early detection are vital in high-UV zones</p>
-            </div>
-        </div>
-
-        <!-- Country Comparison -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2>Country Comparison</h2>
-                <p>Melanoma incidence rates per 100,000 people</p>
-            </div>
-            <div id="countryComparison" class="chart"></div>
-        </div>
-
-        <!-- Regional Breakdown -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2>Regional Breakdown</h2>
-                <p>Select a country to view regional data</p>
-            </div>
-            <div class="country-selector">
-                <button class="country-btn active" data-country="australia">Australia</button>
-                <button class="country-btn" data-country="canada">Canada</button>
-                <button class="country-btn" data-country="newzealand">New Zealand</button>
-                <button class="country-btn" data-country="uk">United Kingdom</button>
-                <button class="country-btn" data-country="usa">United States</button>
-            </div>
-            <div id="regionalChart" class="chart"></div>
-        </div>
-
         <!-- Data Source -->
         <div class="data-source">
             <p>Data Sources: Australian Institute of Health and Welfare, Canadian Cancer Society, Ministry of Health New Zealand, Cancer Research UK, US CDC and NCI</p>
         </div>
     </div>
 
-    <!-- ✅ Fixed JS CDN link -->
+    <!-- JS -->
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/script.js"></script>
 </body>
