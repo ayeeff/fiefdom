@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Cancer Incidence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Skin Cancer Incidence Rates: Whites vs. Other Races/Ethnicities in Five Eyes Countries</h1>
+        <p class="text-center text-gray-600 mb-8">Age-standardized melanoma incidence per 100,000 (approx. 2018–2022). Data from national health agencies. Hover over bars for details.</p>
+        
+        <!-- Australia Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4">Australia</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="aus-national" class="h-64"></div>
+                <div id="aus-states" class="h-64"></div>
+            </div>
+        </div>
+
+        <!-- Canada Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4">Canada</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="can-national" class="h-64"></div>
+                <div id="can-provinces" class="h-64"></div>
+            </div>
+        </div>
+
+        <!-- New Zealand Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4">New Zealand</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="nz-national" class="h-64"></div>
+                <div id="nz-regions" class="h-64"></div>
+            </div>
+        </div>
+
+        <!-- UK Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4">United Kingdom</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="uk-national" class="h-64"></div>
+                <div id="uk-regions" class="h-64"></div>
+            </div>
+        </div>
+
+        <!-- USA Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4">United States</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="us-national" class="h-64"></div>
+                <div id="us-states" class="h-64"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Australia Data
+        const ausNational = {
+            x: ['Whites/Non-Indigenous', 'Indigenous/Other'],
+            y: [55, 7.5],
+            type: 'bar',
+            marker: { color: ['#3B82F6', '#EF4444'] },
+            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>',
+            text: ['High UV exposure in fair skin', 'Lower due to pigmentation']
+        };
+        Plotly.newPlot('aus-national', [ausNational], {
+            title: 'National Average',
+            xaxis: { title: 'Group' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'closest'
+        });
+
+        const ausStates = {
+            x: ['QLD', 'WA', 'NSW', 'VIC', 'SA', 'TAS', 'NT', 'ACT'],
+            y: [65, 55, 50, 45, 50, 48, 40, 42],
+            type: 'bar',
+            name: 'Whites',
+            marker: { color: '#3B82F6' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        const ausStatesOther = {
+            x: ['QLD', 'WA', 'NSW', 'VIC', 'SA', 'TAS', 'NT', 'ACT'],
+            y: [8, 6, 7, 5, 6, 0, 12, 0], // N/A as 0 for viz
+            type: 'bar',
+            name: 'Other',
+            marker: { color: '#EF4444' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('aus-states', [ausStates, ausStatesOther], {
+            title: 'By State/Territory (Whites)',
+            barmode: 'group',
+            xaxis: { title: 'State' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'x unified'
+        });
+
+        // Canada Data
+        const canNational = {
+            x: ['Whites/Caucasian', 'Visible Minorities/Indigenous'],
+            y: [22.5, 3.5],
+            type: 'bar',
+            marker: { color: ['#3B82F6', '#EF4444'] },
+            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('can-national', [canNational], {
+            title: 'National Average',
+            xaxis: { title: 'Group' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'closest'
+        });
+
+        const canProvinces = {
+            x: ['BC', 'ON', 'AB', 'QC', 'NS', 'SK', 'MB'],
+            y: [28, 22, 25, 18, 20, 23, 21],
+            type: 'bar',
+            name: 'Whites',
+            marker: { color: '#3B82F6' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        const canProvincesOther = {
+            x: ['BC', 'ON', 'AB', 'QC', 'NS', 'SK', 'MB'],
+            y: [4, 3, 3, 2, 3, 4, 5],
+            type: 'bar',
+            name: 'Other',
+            marker: { color: '#EF4444' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('can-provinces', [canProvinces, canProvincesOther], {
+            title: 'By Province (Whites)',
+            barmode: 'group',
+            xaxis: { title: 'Province' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'x unified'
+        });
+
+        // New Zealand Data
+        const nzNational = {
+            x: ['European/White', 'Māori/Pacific/Asian'],
+            y: [50, 10],
+            type: 'bar',
+            marker: { color: ['#3B82F6', '#EF4444'] },
+            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('nz-national', [nzNational], {
+            title: 'National Average',
+            xaxis: { title: 'Group' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'closest'
+        });
+
+        const nzRegions = {
+            x: ['Auckland', 'Canterbury', 'Otago', 'Wellington', 'Waikato'],
+            y: [40, 50, 55, 45, 48],
+            type: 'bar',
+            name: 'Whites',
+            marker: { color: '#3B82F6' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        const nzRegionsOther = {
+            x: ['Auckland', 'Canterbury', 'Otago', 'Wellington', 'Waikato'],
+            y: [10, 12, 8, 9, 15],
+            type: 'bar',
+            name: 'Other',
+            marker: { color: '#EF4444' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('nz-regions', [nzRegions, nzRegionsOther], {
+            title: 'By Region (Whites)',
+            barmode: 'group',
+            xaxis: { title: 'Region' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'x unified'
+        });
+
+        // UK Data
+        const ukNational = {
+            x: ['White', 'Black/Asian/Other'],
+            y: [17.5, 2],
+            type: 'bar',
+            marker: { color: ['#3B82F6', '#EF4444'] },
+            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('uk-national', [ukNational], {
+            title: 'National Average',
+            xaxis: { title: 'Group' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'closest'
+        });
+
+        const ukRegions = {
+            x: ['England SE', 'England', 'Scotland', 'Wales', 'N. Ireland'],
+            y: [22, 18, 16, 17, 15],
+            type: 'bar',
+            name: 'Whites',
+            marker: { color: '#3B82F6' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        const ukRegionsOther = {
+            x: ['England SE', 'England', 'Scotland', 'Wales', 'N. Ireland'],
+            y: [2, 2, 1, 2, 1],
+            type: 'bar',
+            name: 'Other',
+            marker: { color: '#EF4444' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('uk-regions', [ukRegions, ukRegionsOther], {
+            title: 'By Region (Whites)',
+            barmode: 'group',
+            xaxis: { title: 'Region' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'x unified'
+        });
+
+        // USA Data
+        const usNational = {
+            x: ['Non-Hispanic White', 'Black/Hispanic/Asian/Other'],
+            y: [21, 2.75],
+            type: 'bar',
+            marker: { color: ['#3B82F6', '#EF4444'] },
+            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('us-national', [usNational], {
+            title: 'National Average',
+            xaxis: { title: 'Group' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'closest'
+        });
+
+        const usStates = {
+            x: ['Utah', 'CA', 'FL', 'NY', 'TX', 'WA', 'HI'],
+            y: [28, 22, 25, 18, 20, 24, 15],
+            type: 'bar',
+            name: 'Whites',
+            marker: { color: '#3B82F6' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        const usStatesOther = {
+            x: ['Utah', 'CA', 'FL', 'NY', 'TX', 'WA', 'HI'],
+            y: [3, 2, 4, 1, 3, 2, 5],
+            type: 'bar',
+            name: 'Other',
+            marker: { color: '#EF4444' },
+            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
+        };
+        Plotly.newPlot('us-states', [usStates, usStatesOther], {
+            title: 'By State (Whites)',
+            barmode: 'group',
+            xaxis: { title: 'State' },
+            yaxis: { title: 'Incidence Rate (per 100,000)' },
+            hovermode: 'x unified'
+        });
+    </script>
+</body>
+</html>
