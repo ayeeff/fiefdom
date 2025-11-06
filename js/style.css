@@ -1,225 +1,135 @@
-/* === GENERAL DASHBOARD STYLE === */
+/* === GENERAL === */
+body {
+  margin: 0;
+  background-color: #f8fafc;
+  overflow-x: hidden;
+}
+
 .skin-cancer-dashboard {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    color: #333;
-    background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
 }
 
 /* === HEADER === */
 .dashboard-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-header h1 {
-    margin: 0 0 10px 0;
-    font-size: 2.2rem;
+/* === GRID LAYOUT === */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
 }
 
-.dashboard-header p {
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-/* === VIDEO + CHARTS LAYOUT === */
-.video-chart-section {
-    display: flex;
-    align-items: stretch;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.video-container, .chart-group {
-    flex: 1;
-    min-width: 300px;
-    display: flex;
-    flex-direction: column;
-}
-
-.chart-group .chart-container {
-    flex: 1;
-    margin-bottom: 20px;
-}
-
-.chart-container:last-child {
-    margin-bottom: 0;
-}
-
-/* === VIDEO WRAPPER === */
-.video-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.video-container .climate-warning {
-    margin-top: 20px;
+.dashboard-item {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
 }
 
 /* === CLIMATE WARNING === */
 .climate-warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fef7ed 100%);
-    border-left: 5px solid #f59e0b;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #fef3c7 0%, #fef7ed 100%);
+  border-left: 5px solid #f59e0b;
+  border-radius: 10px;
+  padding: 25px;
 }
 
 .warning-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .warning-header i {
-    font-size: 2rem;
-    color: #d97706;
-    margin-right: 15px;
+  font-size: 2rem;
+  color: #d97706;
+  margin-right: 15px;
 }
 
 .warning-header h2 {
-    margin: 0;
-    color: #92400e;
-}
-
-.climate-factors {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.factor {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.factor i {
-    font-size: 1.5rem;
-    color: #f59e0b;
-    margin-bottom: 10px;
-}
-
-.factor h3 {
-    margin: 0 0 10px 0;
-    color: #92400e;
-    font-size: 1.1rem;
-}
-
-.factor p {
-    margin: 0;
-    color: #64748b;
-    line-height: 1.5;
-}
-
-.factor strong {
-    color: #dc2626;
-}
-
-.climate-summary {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    border-left: 4px solid #dc2626;
-}
-
-.climate-summary p {
-    margin: 0;
-    color: #92400e;
-    font-size: 1.05rem;
+  margin: 0;
+  color: #92400e;
 }
 
 /* === CHARTS === */
-.chart-container {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
 .chart-header {
-    margin-bottom: 15px;
-    text-align: center;
+  text-align: center;
+  margin-bottom: 15px;
 }
 
 .chart-header h2 {
-    margin: 0 0 5px 0;
-    color: #1e40af;
+  margin: 0 0 5px 0;
+  color: #1e40af;
 }
 
 .chart-header p {
-    margin: 0;
-    color: #64748b;
+  margin: 0;
+  color: #64748b;
 }
 
 .chart {
-    height: 400px;
-    width: 100%;
+  height: 400px;
+  width: 100%;
 }
 
-/* === COUNTRY SELECTOR === */
+/* === COUNTRY BUTTONS === */
 .country-selector {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .country-btn {
-    padding: 10px 20px;
-    background-color: #e2e8f0;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
+  padding: 10px 20px;
+  background-color: #e2e8f0;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .country-btn:hover {
-    background-color: #cbd5e1;
+  background-color: #cbd5e1;
 }
 
 .country-btn.active {
-    background-color: #3b82f6;
-    color: white;
+  background-color: #3b82f6;
+  color: white;
 }
 
-/* === DATA SOURCE === */
-.data-source {
-    text-align: center;
-    padding: 15px;
-    background-color: #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: #64748b;
+/* === ANIMATIONS === */
+.fade-in {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 900px) {
-    .video-chart-section {
-        flex-direction: column;
-    }
-
-    .video-wrapper iframe {
-        width: 100%;
-        height: 250px;
-    }
-
-    .climate-factors {
-        grid-template-columns: 1fr;
-    }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
