@@ -1,110 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skin Cancer Incidence Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skin Cancer Incidence Dashboard</title>
 
-    <!-- External Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- External CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Plotly JS Library -->
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
 </head>
 <body>
-    <div class="skin-cancer-dashboard">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <h1><i class="fas fa-sun"></i> Skin Cancer Incidence Dashboard</h1>
-            <p>Racial disparities in melanoma rates across Five Eyes countries</p>
-        </div>
-
-        <!-- Video + Charts Layout -->
-        <div class="video-chart-section">
-            <!-- Left Column: Video + Climate Section -->
-            <div class="video-container">
-                <div class="chart-container">
-                    <div class="video-wrapper">
-                        <iframe width="500" height="275" 
-                                src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" 
-                                title="YouTube video player" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                referrerpolicy="strict-origin-when-cross-origin" 
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                </div>
-
-                <!-- Climate Change Warning below video -->
-                <div class="climate-warning">
-                    <div class="warning-header">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h2>Climate Change is Making Skin Cancer Rates Worse</h2>
-                    </div>
-                    <div class="climate-factors">
-                        <div class="factor">
-                            <i class="fas fa-sun"></i>
-                            <h3>Rising UV Radiation</h3>
-                            <p>As the ozone layer thins and temperatures rise, UV exposure intensifies. For every <strong>1% decrease in ozone</strong>, melanoma incidence is projected to increase by <strong>1–2%</strong>, and squamous cell carcinoma by <strong>3–4.6%</strong>.</p>
-                        </div>
-                        <div class="factor">
-                            <i class="fas fa-temperature-high"></i>
-                            <h3>Hotter Temperatures</h3>
-                            <p>Warmer weather encourages more outdoor activity and less clothing, increasing UV exposure. Mouse studies show <strong>UV carcinogenicity increases 5% per °C</strong> of warming.</p>
-                        </div>
-                        <div class="factor">
-                            <i class="fas fa-calendar-alt"></i>
-                            <h3>Longer Summers & Heatwaves</h3>
-                            <p>Extended warm seasons and more frequent heatwaves are linked to <strong>>4% annual increases in melanoma incidence</strong> over the past two decades.</p>
-                        </div>
-                        <div class="factor">
-                            <i class="fas fa-smog"></i>
-                            <h3>Air Pollution & Behavior Changes</h3>
-                            <p>Climate change also alters behavior and increases air pollution, both of which may contribute to rising skin cancer rates.</p>
-                        </div>
-                    </div>
-                    <div class="climate-summary">
-                        <p><strong>In short, climate change is amplifying the environmental and behavioral drivers of skin cancer, leading to higher incidence rates globally.</strong></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Charts -->
-            <div class="chart-group">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h2>Country Comparison</h2>
-                        <p>Melanoma incidence rates per 100,000 people</p>
-                    </div>
-                    <div id="countryComparison" class="chart"></div>
-                </div>
-
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h2>Regional Breakdown</h2>
-                        <p>Select a country to view regional data</p>
-                    </div>
-                    <div class="country-selector">
-                        <button class="country-btn active" data-country="australia">Australia</button>
-                        <button class="country-btn" data-country="canada">Canada</button>
-                        <button class="country-btn" data-country="newzealand">New Zealand</button>
-                        <button class="country-btn" data-country="uk">United Kingdom</button>
-                        <button class="country-btn" data-country="usa">United States</button>
-                    </div>
-                    <div id="regionalChart" class="chart"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Source -->
-        <div class="data-source">
-            <p>Data Sources: Australian Institute of Health and Welfare, Canadian Cancer Society, Ministry of Health New Zealand, Cancer Research UK, US CDC and NCI</p>
-        </div>
+  <div class="skin-cancer-dashboard fade-in">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <h1><i class="fas fa-sun"></i> Skin Cancer Incidence Dashboard</h1>
+      <p>Racial disparities in melanoma rates across Five Eyes countries</p>
     </div>
 
-    <!-- External JS -->
-    <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/script.js"></script>
+    <!-- 2x2 GRID LAYOUT -->
+    <div class="dashboard-grid">
+      <!-- Top-left: YouTube video -->
+      <div class="dashboard-item video fade-in">
+        <iframe width="500" height="275"
+                src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+
+      <!-- Top-right: Country Comparison -->
+      <div class="dashboard-item chart fade-in">
+        <div class="chart-header">
+          <h2>Country Comparison</h2>
+          <p>Melanoma incidence rates per 100,000 people</p>
+        </div>
+        <div id="countryComparison" class="chart"></div>
+      </div>
+
+      <!-- Bottom-left: Climate Change Section -->
+      <div class="dashboard-item fade-in">
+        <div class="climate-warning">
+          <div class="warning-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h2>Climate Change is Making Skin Cancer Rates Worse</h2>
+          </div>
+          <div class="climate-factors">
+            <div class="factor">
+              <i class="fas fa-sun"></i>
+              <h3>Rising UV Radiation</h3>
+              <p>As the ozone layer thins and temperatures rise, UV exposure intensifies. For every <strong>1% decrease in ozone</strong>, melanoma incidence is projected to increase by <strong>1–2%</strong>, and squamous cell carcinoma by <strong>3–4.6%</strong>.</p>
+            </div>
+            <div class="factor">
+              <i class="fas fa-temperature-high"></i>
+              <h3>Hotter Temperatures</h3>
+              <p>Warmer weather encourages more outdoor activity and less clothing, increasing UV exposure. Mouse studies show <strong>UV carcinogenicity increases 5% per °C</strong> of warming.</p>
+            </div>
+            <div class="factor">
+              <i class="fas fa-calendar-alt"></i>
+              <h3>Longer Summers & Heatwaves</h3>
+              <p>Extended warm seasons and more frequent heatwaves are linked to <strong>>4% annual increases in melanoma incidence</strong> over the past two decades.</p>
+            </div>
+            <div class="factor">
+              <i class="fas fa-smog"></i>
+              <h3>Air Pollution & Behavior Changes</h3>
+              <p>Climate change also alters behavior and increases air pollution, both of which may contribute to rising skin cancer rates.</p>
+            </div>
+          </div>
+          <div class="climate-summary">
+            <p><strong>In short, climate change is amplifying the environmental and behavioral drivers of skin cancer, leading to higher incidence rates globally.</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom-right: Regional Breakdown -->
+      <div class="dashboard-item chart fade-in">
+        <div class="chart-header">
+          <h2>Regional Breakdown</h2>
+          <p>Select a country to view regional data</p>
+        </div>
+        <div class="country-selector">
+          <button class="country-btn active" data-country="australia">Australia</button>
+          <button class="country-btn" data-country="canada">Canada</button>
+          <button class="country-btn" data-country="newzealand">New Zealand</button>
+          <button class="country-btn" data-country="uk">United Kingdom</button>
+          <button class="country-btn" data-country="usa">United States</button>
+        </div>
+        <div id="regionalChart" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- Data Source -->
+    <div class="data-source">
+      <p>Data Sources: Australian Institute of Health and Welfare, Canadian Cancer Society, Ministry of Health New Zealand, Cancer Research UK, US CDC and NCI</p>
+    </div>
+  </div>
+
+  <!-- External JS -->
+  <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/script.js"></script>
 </body>
 </html>
