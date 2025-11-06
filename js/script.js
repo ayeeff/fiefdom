@@ -1,6 +1,6 @@
-// === PLOTLY CHART SETUP ===
+// === PLOTLY CHARTS ===
 
-// Sample data for demonstration
+// Country Comparison
 const countryData = {
   x: ["Australia", "Canada", "New Zealand", "UK", "USA"],
   y: [55, 18, 50, 25, 28],
@@ -18,7 +18,6 @@ const otherData = {
 };
 
 const layoutCountry = {
-  title: "",
   barmode: "group",
   legend: {
     orientation: "v",
@@ -32,10 +31,9 @@ const layoutCountry = {
   paper_bgcolor: "#fff"
 };
 
-// Render country comparison chart
 Plotly.newPlot("countryComparison", [countryData, otherData], layoutCountry, { responsive: true });
 
-// === REGIONAL CHART EXAMPLE ===
+// Regional Breakdown
 function drawRegionalChart(country) {
   const regions = {
     australia: ["NSW", "VIC", "QLD", "WA", "SA"],
@@ -65,7 +63,6 @@ function drawRegionalChart(country) {
   };
 
   const layoutRegional = {
-    title: "",
     barmode: "group",
     legend: {
       orientation: "v",
@@ -82,15 +79,14 @@ function drawRegionalChart(country) {
   Plotly.newPlot("regionalChart", [traceWhite, traceOther], layoutRegional, { responsive: true });
 }
 
-// Default render
+// Initial chart load
 drawRegionalChart("australia");
 
-// === COUNTRY BUTTON INTERACTIVITY ===
+// Country selector
 document.querySelectorAll(".country-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".country-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    const country = btn.getAttribute("data-country");
-    drawRegionalChart(country);
+    drawRegionalChart(btn.dataset.country);
   });
 });
