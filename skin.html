@@ -4,256 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skin Cancer Incidence Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/ayeeff/fiefdom/main/js/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Skin Cancer Incidence Rates: Whites vs. Other Races/Ethnicities in Five Eyes Countries</h1>
-        <p class="text-center text-gray-600 mb-8">Age-standardized melanoma incidence per 100,000 (approx. 2018–2022). Data from national health agencies. Hover over bars for details.</p>
-        
-        <!-- Australia Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4">Australia</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="aus-national" class="h-64"></div>
-                <div id="aus-states" class="h-64"></div>
+<body>
+    <div class="skin-cancer-dashboard">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1><i class="fas fa-sun"></i> Skin Cancer Incidence Dashboard</h1>
+            <p>Racial disparities in melanoma rates across Five Eyes countries</p>
+        </div>
+
+        <!-- YouTube Video -->
+        <div class="video-container">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Understanding Skin Cancer Risks</h2>
+                    <p>Learn about the factors affecting skin cancer incidence</p>
+                </div>
+                <div class="video-wrapper">
+                    <iframe width="500" height="275" src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
             </div>
         </div>
 
-        <!-- Canada Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4">Canada</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="can-national" class="h-64"></div>
-                <div id="can-provinces" class="h-64"></div>
+        <!-- Climate Change Warning -->
+        <div class="climate-warning">
+            <div class="warning-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Climate Change is Making Skin Cancer Rates Worse</h2>
+            </div>
+            <div class="climate-factors">
+                <div class="factor">
+                    <i class="fas fa-sun"></i>
+                    <h3>Rising UV Radiation</h3>
+                    <p>As the ozone layer thins and temperatures rise, UV exposure intensifies. For every <strong>1% decrease in ozone</strong>, melanoma incidence is projected to increase by <strong>1–2%</strong>, and squamous cell carcinoma by <strong>3–4.6%</strong>.</p>
+                </div>
+                <div class="factor">
+                    <i class="fas fa-temperature-high"></i>
+                    <h3>Hotter Temperatures</h3>
+                    <p>Warmer weather encourages more outdoor activity and less clothing, increasing UV exposure. Mouse studies show <strong>UV carcinogenicity increases 5% per °C</strong> of warming.</p>
+                </div>
+                <div class="factor">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Longer Summers & Heatwaves</h3>
+                    <p>Extended warm seasons and more frequent heatwaves are linked to <strong>>4% annual increases in melanoma incidence</strong> over the past two decades.</p>
+                </div>
+                <div class="factor">
+                    <i class="fas fa-smog"></i>
+                    <h3>Air Pollution & Behavior Changes</h3>
+                    <p>Climate change also alters behavior and increases air pollution, both of which may contribute to rising skin cancer rates.</p>
+                </div>
+            </div>
+            <div class="climate-summary">
+                <p><strong>In short, climate change is amplifying the environmental and behavioral drivers of skin cancer, leading to higher incidence rates globally.</strong></p>
             </div>
         </div>
 
-        <!-- New Zealand Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4">New Zealand</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="nz-national" class="h-64"></div>
-                <div id="nz-regions" class="h-64"></div>
+        <!-- Key Insights -->
+        <div class="key-insights">
+            <div class="insight-card">
+                <i class="fas fa-chart-bar"></i>
+                <h3>Global Disparity</h3>
+                <p>Whites face 5–30x higher risk than other races</p>
+            </div>
+            <div class="insight-card">
+                <i class="fas fa-globe-americas"></i>
+                <h3>Geographic Pattern</h3>
+                <p>Rates peak in sunny areas for white populations</p>
+            </div>
+            <div class="insight-card">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Prevention</h3>
+                <p>Sunscreen and early detection are vital in high-UV zones</p>
             </div>
         </div>
 
-        <!-- UK Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4">United Kingdom</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="uk-national" class="h-64"></div>
-                <div id="uk-regions" class="h-64"></div>
+        <!-- Country Comparison -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Country Comparison</h2>
+                <p>Melanoma incidence rates per 100,000 people</p>
             </div>
+            <div id="countryComparison" class="chart"></div>
         </div>
 
-        <!-- USA Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-2xl font-semibold mb-4">United States</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div id="us-national" class="h-64"></div>
-                <div id="us-states" class="h-64"></div>
+        <!-- Regional Breakdown -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Regional Breakdown</h2>
+                <p>Select a country to view regional data</p>
             </div>
+            <div class="country-selector">
+                <button class="country-btn active" data-country="australia">Australia</button>
+                <button class="country-btn" data-country="canada">Canada</button>
+                <button class="country-btn" data-country="newzealand">New Zealand</button>
+                <button class="country-btn" data-country="uk">United Kingdom</button>
+                <button class="country-btn" data-country="usa">United States</button>
+            </div>
+            <div id="regionalChart" class="chart"></div>
+        </div>
+
+        <!-- Data Source -->
+        <div class="data-source">
+            <p>Data Sources: Australian Institute of Health and Welfare, Canadian Cancer Society, Ministry of Health New Zealand, Cancer Research UK, US CDC and NCI</p>
         </div>
     </div>
 
-    <script>
-        // Australia Data
-        const ausNational = {
-            x: ['Whites/Non-Indigenous', 'Indigenous/Other'],
-            y: [55, 7.5],
-            type: 'bar',
-            marker: { color: ['#3B82F6', '#EF4444'] },
-            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>',
-            text: ['High UV exposure in fair skin', 'Lower due to pigmentation']
-        };
-        Plotly.newPlot('aus-national', [ausNational], {
-            title: 'National Average',
-            xaxis: { title: 'Group' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'closest'
-        });
-
-        const ausStates = {
-            x: ['QLD', 'WA', 'NSW', 'VIC', 'SA', 'TAS', 'NT', 'ACT'],
-            y: [65, 55, 50, 45, 50, 48, 40, 42],
-            type: 'bar',
-            name: 'Whites',
-            marker: { color: '#3B82F6' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        const ausStatesOther = {
-            x: ['QLD', 'WA', 'NSW', 'VIC', 'SA', 'TAS', 'NT', 'ACT'],
-            y: [8, 6, 7, 5, 6, 0, 12, 0], // N/A as 0 for viz
-            type: 'bar',
-            name: 'Other',
-            marker: { color: '#EF4444' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('aus-states', [ausStates, ausStatesOther], {
-            title: 'By State/Territory (Whites)',
-            barmode: 'group',
-            xaxis: { title: 'State' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'x unified'
-        });
-
-        // Canada Data
-        const canNational = {
-            x: ['Whites/Caucasian', 'Visible Minorities/Indigenous'],
-            y: [22.5, 3.5],
-            type: 'bar',
-            marker: { color: ['#3B82F6', '#EF4444'] },
-            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('can-national', [canNational], {
-            title: 'National Average',
-            xaxis: { title: 'Group' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'closest'
-        });
-
-        const canProvinces = {
-            x: ['BC', 'ON', 'AB', 'QC', 'NS', 'SK', 'MB'],
-            y: [28, 22, 25, 18, 20, 23, 21],
-            type: 'bar',
-            name: 'Whites',
-            marker: { color: '#3B82F6' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        const canProvincesOther = {
-            x: ['BC', 'ON', 'AB', 'QC', 'NS', 'SK', 'MB'],
-            y: [4, 3, 3, 2, 3, 4, 5],
-            type: 'bar',
-            name: 'Other',
-            marker: { color: '#EF4444' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('can-provinces', [canProvinces, canProvincesOther], {
-            title: 'By Province (Whites)',
-            barmode: 'group',
-            xaxis: { title: 'Province' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'x unified'
-        });
-
-        // New Zealand Data
-        const nzNational = {
-            x: ['European/White', 'Māori/Pacific/Asian'],
-            y: [50, 10],
-            type: 'bar',
-            marker: { color: ['#3B82F6', '#EF4444'] },
-            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('nz-national', [nzNational], {
-            title: 'National Average',
-            xaxis: { title: 'Group' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'closest'
-        });
-
-        const nzRegions = {
-            x: ['Auckland', 'Canterbury', 'Otago', 'Wellington', 'Waikato'],
-            y: [40, 50, 55, 45, 48],
-            type: 'bar',
-            name: 'Whites',
-            marker: { color: '#3B82F6' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        const nzRegionsOther = {
-            x: ['Auckland', 'Canterbury', 'Otago', 'Wellington', 'Waikato'],
-            y: [10, 12, 8, 9, 15],
-            type: 'bar',
-            name: 'Other',
-            marker: { color: '#EF4444' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('nz-regions', [nzRegions, nzRegionsOther], {
-            title: 'By Region (Whites)',
-            barmode: 'group',
-            xaxis: { title: 'Region' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'x unified'
-        });
-
-        // UK Data
-        const ukNational = {
-            x: ['White', 'Black/Asian/Other'],
-            y: [17.5, 2],
-            type: 'bar',
-            marker: { color: ['#3B82F6', '#EF4444'] },
-            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('uk-national', [ukNational], {
-            title: 'National Average',
-            xaxis: { title: 'Group' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'closest'
-        });
-
-        const ukRegions = {
-            x: ['England SE', 'England', 'Scotland', 'Wales', 'N. Ireland'],
-            y: [22, 18, 16, 17, 15],
-            type: 'bar',
-            name: 'Whites',
-            marker: { color: '#3B82F6' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        const ukRegionsOther = {
-            x: ['England SE', 'England', 'Scotland', 'Wales', 'N. Ireland'],
-            y: [2, 2, 1, 2, 1],
-            type: 'bar',
-            name: 'Other',
-            marker: { color: '#EF4444' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('uk-regions', [ukRegions, ukRegionsOther], {
-            title: 'By Region (Whites)',
-            barmode: 'group',
-            xaxis: { title: 'Region' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'x unified'
-        });
-
-        // USA Data
-        const usNational = {
-            x: ['Non-Hispanic White', 'Black/Hispanic/Asian/Other'],
-            y: [21, 2.75],
-            type: 'bar',
-            marker: { color: ['#3B82F6', '#EF4444'] },
-            hovertemplate: '<b>%{x}</b><br>Incidence Rate: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('us-national', [usNational], {
-            title: 'National Average',
-            xaxis: { title: 'Group' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'closest'
-        });
-
-        const usStates = {
-            x: ['Utah', 'CA', 'FL', 'NY', 'TX', 'WA', 'HI'],
-            y: [28, 22, 25, 18, 20, 24, 15],
-            type: 'bar',
-            name: 'Whites',
-            marker: { color: '#3B82F6' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        const usStatesOther = {
-            x: ['Utah', 'CA', 'FL', 'NY', 'TX', 'WA', 'HI'],
-            y: [3, 2, 4, 1, 3, 2, 5],
-            type: 'bar',
-            name: 'Other',
-            marker: { color: '#EF4444' },
-            hovertemplate: '<b>%{x}</b><br>%{fullData.name}: %{y:.1f} per 100,000<extra></extra>'
-        };
-        Plotly.newPlot('us-states', [usStates, usStatesOther], {
-            title: 'By State (Whites)',
-            barmode: 'group',
-            xaxis: { title: 'State' },
-            yaxis: { title: 'Incidence Rate (per 100,000)' },
-            hovermode: 'x unified'
-        });
-    </script>
+    <!-- Load external JS -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://raw.githubusercontent.com/ayeeff/fiefdom/main/js/script.js"></script>
 </body>
 </html>
