@@ -4,35 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skin Cancer Incidence Dashboard</title>
+
+    <!-- External Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Layout for video + charts */
-        .video-chart-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .video-container, .chart-group {
-            flex: 1;
-            min-width: 300px;
-        }
-        .chart-group .chart-container {
-            margin-bottom: 20px;
-        }
 
-        /* Ensure climate warning below video looks neat */
-        .video-container .climate-warning {
-            margin-top: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .video-chart-section {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <!-- Plotly JS Library -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
 </head>
 <body>
     <div class="skin-cancer-dashboard">
@@ -48,11 +26,18 @@
             <div class="video-container">
                 <div class="chart-container">
                     <div class="video-wrapper">
-                        <iframe width="500" height="275" src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <iframe width="500" height="275" 
+                                src="https://www.youtube.com/embed/cweq_tTYPgg?si=TqDNkt1wqMCUbF6L" 
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="strict-origin-when-cross-origin" 
+                                allowfullscreen>
+                        </iframe>
                     </div>
                 </div>
 
-                <!-- Climate Change Warning moved below video -->
+                <!-- Climate Change Warning below video -->
                 <div class="climate-warning">
                     <div class="warning-header">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -119,8 +104,7 @@
         </div>
     </div>
 
-    <!-- JS -->
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <!-- External JS -->
     <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom/js/script.js"></script>
 </body>
 </html>
