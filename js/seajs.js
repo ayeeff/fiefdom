@@ -1,1 +1,165 @@
+// Historical Migration Routes to Australia - Main JavaScript
 
+var routes = {
+  'first-fleet': {
+    name: 'First Fleet Route (1787-1788)',
+    color: '#16a34a',
+    stops: [
+      { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed May 13, 1787', distance: 'Start' },
+      { name: 'Santa Cruz, Tenerife', lat: 28.4636, lng: -16.2518, info: 'Loaded water, vegetables, meat. 21 days', distance: '~1,200 nm' },
+      { name: 'Rio de Janeiro, Brazil', lat: -22.9068, lng: -43.1729, info: 'Arrived August 5, 1787. Ship cleaning, repairs, ~1 month', distance: '~4,800 nm' },
+      { name: 'Table Bay, Cape Town', lat: -33.9249, lng: 18.4241, info: 'Arrived October 13, 1787. Livestock, seeds, plants loaded', distance: '~3,900 nm' },
+      { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived January 26, 1788 (relocated from Botany Bay)', distance: '~5,100 nm' }
+    ]
+  },
+  'second-fleet': {
+    name: 'Second Fleet Route (1790)',
+    color: '#dc2626',
+    stops: [
+      { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed January 19, 1790', distance: 'Start' },
+      { name: 'Tenerife, Canary Islands', lat: 28.4636, lng: -16.2518, info: 'Brief water stop, 10-14 days', distance: '~1,200 nm' },
+      { name: 'Cape Town, South Africa', lat: -33.9249, lng: 18.4241, info: 'Arrived April 13-22, 1790. High mortality, 30-40 day resupply', distance: '~5,500 nm' },
+      { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived June 26-28, 1790. ~160 deaths total', distance: '~6,000 nm' }
+    ]
+  },
+  'guangzhou-ballarat': {
+    name: 'Chinese Gold Rush Route (1850s-1860s)',
+    color: '#2563eb',
+    stops: [
+      { name: 'Guangzhou/Hong Kong, China', lat: 23.1291, lng: 113.2644, info: 'Departure point, 70-90 day voyage', distance: 'Start' },
+      { name: 'South China Sea Exit (Luzon)', lat: 18.5, lng: 120.5, info: 'Southeast sail, 7-10 days. Early disease risks', distance: '~800 nm' },
+      { name: 'Coral Sea (near PNG)', lat: -8, lng: 147, info: 'East-southeast through Pacific, 18-25 days. Typhoon hazards', distance: '~2,000 nm' },
+      { name: 'Java Sea', lat: -12, lng: 110, info: 'Westward loop through Indonesian waters', distance: '~1,500 nm' },
+      { name: 'Indian Ocean (West Australia)', lat: -25, lng: 105, info: 'Entered Indian Ocean off Western Australia', distance: '~1,200 nm' },
+      { name: 'Indian Ocean Loop (40°S)', lat: -40, lng: 115, info: 'South for Roaring Forties westerlies, 10-15 days. Stormy, sea burials', distance: '~1,000 nm' },
+      { name: 'Great Australian Bight', lat: -35, lng: 130, info: 'Eastward push with gales, 8-12 days', distance: '~900 nm' },
+      { name: 'Robe, South Australia', lat: -37.1625, lng: 139.7583, info: 'Landed 1856-1863, ~17,000 migrants to evade Victorian taxes', distance: 'Landfall' },
+      { name: 'Lake Hawdon/Penola', lat: -37.3772, lng: 140.8394, info: 'First camps, well-digging. Dragon lines formed. 3-5 days', distance: '50-60 km' },
+      { name: 'Casterton', lat: -37.5863, lng: 141.4003, info: 'Crossed Glenelg River. Indigenous/settler encounters. 5-7 days', distance: '80-100 km' },
+      { name: 'Coleraine/Hamilton', lat: -37.7427, lng: 142.0156, info: 'Hilly terrain. Inn resupplies often denied due to racism. 5-7 days', distance: '80-100 km' },
+      { name: 'Dunkeld', lat: -37.6500, lng: 142.3333, info: 'Volcanic plains, rising dysentery. Some settled Ararat. 4-5 days', distance: '60-70 km' },
+      { name: 'Skipton/Linton', lat: -37.6833, lng: 143.3667, info: 'Grampians foothills. Outbreaks, starvation. Trail markers. 7-8 days', distance: '100-110 km' },
+      { name: 'Smythesdale', lat: -37.7167, lng: 143.7667, info: 'Nearing goldfields. Tensions with Europeans. Teams formed. 5-6 days', distance: '80-90 km' },
+      { name: 'Ballarat', lat: -37.5622, lng: 143.8503, info: 'Black Hill ascent. ~9,000 by 1858 at Golden Point. 3-4 days', distance: '50-60 km' }
+    ]
+  }
+};
+
+var map;
+var routeLayers = {};
+var visibleRoutes = {
+  'first-fleet': true,
+  'second-fleet': true,
+  'guangzhou-ballarat': true
+};
+
+function initMap() {
+  map = L.map('map', {
+    center: [-10, 100],
+    zoom: 3,
+    minZoom: 2,
+    maxZoom: 10
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  drawAllRoutes();
+}
+
+function drawAllRoutes() {
+  var allBounds = [];
+  
+  for (var routeId in routes) {
+    if (routes.hasOwnProperty(routeId)) {
+      if (routeLayers[routeId]) {
+        var layers = routeLayers[routeId];
+        for (var i = 0; i < layers.length; i++) {
+          map.removeLayer(layers[i]);
+        }
+      }
+      
+      if (visibleRoutes[routeId]) {
+        routeLayers[routeId] = [];
+        var route = routes[routeId];
+        var coordinates = [];
+        var stopsLen = route.stops.length;
+        
+        for (var j = 0; j < stopsLen; j++) {
+          coordinates.push([route.stops[j].lat, route.stops[j].lng]);
+        }
+
+        var polyline = L.polyline(coordinates, {
+          color: route.color,
+          weight: 3,
+          opacity: 0.7
+        }).addTo(map);
+        
+        routeLayers[routeId].push(polyline);
+        allBounds.push(polyline.getBounds());
+
+        for (var k = 0; k < stopsLen; k++) {
+          var stop = route.stops[k];
+          var index = k + 1;
+          var markerHtml = '<div style="background-color: ' + route.color + '; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 10px;">' + index + '</div>';
+          
+          var marker = L.marker([stop.lat, stop.lng], {
+            icon: L.divIcon({
+              className: 'custom-marker',
+              html: markerHtml,
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            })
+          }).addTo(map);
+
+          marker.stopData = stop;
+          marker.routeColor = route.color;
+          marker.on('click', function(e) {
+            showStopInfo(e.target.stopData, e.target.routeColor);
+          });
+          routeLayers[routeId].push(marker);
+        }
+      }
+    }
+  }
+  
+  if (allBounds.length > 0) {
+    var combinedBounds = allBounds[0];
+    for (var m = 1; m < allBounds.length; m++) {
+      combinedBounds.extend(allBounds[m]);
+    }
+    map.fitBounds(combinedBounds, { padding: [50, 50] });
+  }
+}
+
+function showStopInfo(stop, color) {
+  document.getElementById('stop-name').textContent = stop.name;
+  document.getElementById('stop-description').textContent = stop.info;
+  document.getElementById('stop-distance').textContent = 'Distance: ' + stop.distance;
+  document.getElementById('stop-route-color').style.backgroundColor = color;
+  document.getElementById('stop-info').classList.remove('hidden');
+}
+
+// Event Listeners
+document.getElementById('check-first-fleet').addEventListener('change', function(e) {
+  visibleRoutes['first-fleet'] = e.target.checked;
+  drawAllRoutes();
+});
+
+document.getElementById('check-second-fleet').addEventListener('change', function(e) {
+  visibleRoutes['second-fleet'] = e.target.checked;
+  drawAllRoutes();
+});
+
+document.getElementById('check-guangzhou').addEventListener('change', function(e) {
+  visibleRoutes['guangzhou-ballarat'] = e.target.checked;
+  drawAllRoutes();
+});
+
+document.getElementById('close-info').addEventListener('click', function() {
+  document.getElementById('stop-info').classList.add('hidden');
+});
+
+// Initialize map on window load
+window.addEventListener('load', initMap);
