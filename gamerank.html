@@ -3,355 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Game Industry Dashboard</title>
+    <title>Country Video Game Industry Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
-        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,rgba(15,23,42,1) 0%,rgba(30,41,59,1) 50%,rgba(12,30,61,1) 100%)!important;min-height:100vh;position:relative;overflow-x:hidden}
-        .orbitron{font-family:'Orbitron',sans-serif}
-        .country-name-text{color:#fff!important}
-        .cyber-grid{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(180deg,rgba(59,130,246,.03) 1px,transparent 1px);background-size:50px 50px;z-index:0;animation:gridScroll 20s linear infinite;pointer-events:none}
-        @keyframes gridScroll{0%{transform:translateY(0)}100%{transform:translateY(50px)}}
-        .tab-button{transition:all .3s ease;border-bottom:3px solid transparent;color:#94a3b8}
-        .tab-button.active{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(139,92,246,.2));border-bottom-color:#3b82f6;color:#60a5fa}
-        .tab-button:hover:not(.active){background:rgba(255,255,255,.05);color:#cbd5e1}
-        .tab-button.rank-1{background:linear-gradient(135deg,rgba(255,215,0,.3),rgba(218,165,32,.2));border-color:rgba(255,215,0,.5)}
-        .tab-button.rank-1.active{background:linear-gradient(135deg,rgba(255,215,0,.4),rgba(218,165,32,.3));border-bottom-color:#FFD700}
-        .tab-button.rank-2{background:linear-gradient(135deg,rgba(192,192,192,.3),rgba(169,169,169,.2));border-color:rgba(192,192,192,.5)}
-        .tab-button.rank-2.active{background:linear-gradient(135deg,rgba(192,192,192,.4),rgba(169,169,169,.3));border-bottom-color:#C0C0C0}
-        .tab-button.rank-3{background:linear-gradient(135deg,rgba(205,127,50,.3),rgba(184,115,51,.2));border-color:rgba(205,127,50,.5)}
-        .tab-button.rank-3.active{background:linear-gradient(135deg,rgba(205,127,50,.4),rgba(184,115,51,.3));border-bottom-color:#CD7F32}
-        .tab-button.system-glow{background:rgba(59,130,246,.35)!important;box-shadow:0 0 30px rgba(59,130,246,.6);border-color:rgba(59,130,246,.8)!important}
-        .country-card{background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
-        .country-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.3);border-color:rgba(59,130,246,.5)}
-        .flag-badge{box-shadow:0 4px 6px rgba(0,0,0,.3)}
-        .loading-spinner{border:3px solid rgba(255,255,255,.1);border-top-color:#3b82f6;animation:spin 1s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .speed-card{background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
-        .speed-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .6s}
-        .speed-card:hover::before{left:100%}
-        .speed-card:hover{transform:translateY(-2px);box-shadow:0 25px 50px rgba(0,0,0,.4);border-color:rgba(255,255,255,.3)}
-        .shimmer-text{background:linear-gradient(90deg,#fff 0%,#60a5fa 50%,#fff 100%);background-size:1000px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
-        @keyframes shimmer{0%{background-position:-1000px 0}100%{background-position:1000px 0}}
-        .metric-display{color:#fff}
-        .subsystem-item{padding:8px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)}
-        .tab-loading{display:flex;align-items:center;justify-content:center;min-height:400px}
-        .tab-loading .loading-spinner{width:48px;height:48px}
-        .info-icon{cursor:help;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);font-size:10px;font-weight:700;color:#60a5fa;transition:all .2s ease}
-        .info-icon:hover{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.6);transform:scale(1.1)}
-        .info-icon-wide{width:18px;height:18px;font-size:12px}
-        .tooltip{position:relative;z-index:99999 !important}
-        .tooltip-text{visibility:hidden;opacity:0;position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:linear-gradient(135deg,rgba(30,41,59,.98),rgba(15,23,42,.98));color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:12px;width:140px;max-width:140px;z-index:99999 !important;border:1px solid rgba(59,130,246,.3);box-shadow:0 10px 25px rgba(0,0,0,.5);transition:all .3s ease;pointer-events:none;line-height:1.4;white-space:normal;}
-        .tooltip:hover .tooltip-text{visibility:visible;opacity:1}
-        .tooltip-text::before{content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-right-color:rgba(30,41,59,.98)}
-        .tooltip-left .tooltip-text{left:auto;right:calc(100% + 10px);}
-        .tooltip-left .tooltip-text::before{left:auto;right:-6px;border-right-color:transparent;border-left-color:rgba(30,41,59,.98)}
-        .core-badge { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2)); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; }
-        .core-badge:hover { background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3)); border-color: #3b82f6; transform: scale(1.05); box-shadow: 0 0 10px rgba(59,130,246,0.4); }
-        .multi-vendor-penalty { background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(220,38,38,0.2)); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; animation: pulse 2s infinite; display: inline-flex; align-items: center; }
-        .multi-vendor-penalty:hover { background: linear-gradient(135deg, rgba(239,68,68,0.4), rgba(220,38,38,0.3)); border-color: #ef4444; transform: scale(1.05); }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        #coreModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
-        #coreModal.show { opacity: 1; transform: translateY(0); }
-        #closeModalBtn { background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        #closeModalBtn:hover { color: #ef4444; background: rgba(239,68,68,0.2); transform: rotate(90deg); }
-        .modal-overlay { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
-        .li-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-start; align-items: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; }
-        .li-card { flex: 0 0 auto; min-width: 80px; text-align: center; }
-        .li-score-card { background: linear-gradient(to right, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); padding: 8px; border-radius: 8px; }
-        .li-score { font-size: 1.25rem; font-weight: bold; color: #fbbf24; font-family: 'Orbitron', sans-serif; }
-        .li-flag { width: 20px; height: 15px; margin-top: 4px; border-radius: 2px; }
-        .li-country-li { background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 6px; margin: 1px; font-size: 10px; color: #e2e8f0; min-width: 120px; }
-        .country-li-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(to right, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; font-family: 'Orbitron', sans-serif; white-space: nowrap; }
-        .li-header { text-align: center; margin-bottom: 1rem; }
-        .li-header h3 { color: #fbbf24; font-family: 'Orbitron', sans-serif; font-size: 1.25rem; font-weight: bold; }
-        .product-button { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,185,129,0.2)); border: 1px solid rgba(34,197,94,0.4); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; margin: 2px; display: inline-flex; align-items: center; }
-        .product-button:hover { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(16,185,129,0.3)); border-color: #10b981; transform: scale(1.05); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
-        .company-button { background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; margin: 2px; display: inline-flex; align-items: center; }
-        .company-button:hover { background: linear-gradient(135deg, rgba(234,179,8,0.3), rgba(251,191,36,0.3)); border-color: #fbbf24; transform: scale(1.05); box-shadow: 0 0 8px rgba(234,179,8,0.4); }
-        #productModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
-        #productModal.show { opacity: 1; transform: translateY(0); }
-        #companyModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
-        #companyModal.show { opacity: 1; transform: translateY(0); }
+        /* Custom styles if needed, but using Tailwind primarily */
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="cyber-grid"></div>
-    <div class="relative z-10 max-w-[1800px] mx-auto">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-6xl font-black mb-2 orbitron bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent shimmer-text">VIDEO GAME INDUSTRY DASHBOARD</h1>
-            <p class="text-lg md:text-xl text-slate-300">Global Gaming Industry Performance Analysis</p>
-        </div>
-        <div id="loading" class="text-center py-20">
-            <div class="loading-spinner w-16 h-16 rounded-full mx-auto mb-4"></div>
-            <p class="text-slate-400">Loading gaming data...</p>
-        </div>
-        <div id="mainContent" class="hidden">
-            <div id="tabButtons" class="flex flex-wrap gap-2 mb-6 speed-card p-4 rounded-xl"></div>
-            <div class="grid grid-cols-1 lg:grid-cols-[70%_30%] gap-6">
-                <div id="countryContent">
-                    <div id="tabContent" class="min-h-screen"></div>
-                </div>
-                <div>
-                    <div class="sticky top-4">
-                        <div class="speed-card rounded-2xl p-6 mb-6" id="countryPerformance">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-4">
-                                    <img id="perfFlag" src="" alt="" class="w-16 h-10 flag-badge rounded-lg">
-                                    <h2 id="perfCountryName" class="text-2xl font-bold orbitron country-name-text">United States</h2>
-                                    <p id="perfRank" class="text-slate-400">Rank #1</p>
-                                </div>
-                                <div class="text-right flex items-center gap-2">
-                                    <span class="text-sm text-cyan-400 font-semibold">Overall Score:</span>
-                                    <div id="perfOverallContainer" class="flex flex-wrap gap-1 items-center"></div>
-                                </div>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <!-- Top Nav: Ranked Countries -->
+        <div class="bg-white shadow-md rounded-lg p-4 mb-6 overflow-x-auto">
+            <h1 class="text-2xl font-bold mb-4 text-center">Global Video Game Industry Rankings</h1>
+            <div class="flex space-x-4">
+                <script>
+                    const data = [{"Rank":1,"Country":"United States","A. Talent (/100)":98,"B. Output (/100)":99,"C. Innovation (/100)":97,"D. Sustain (/100)":95,"E. Earnings (/100)":91,"F. Tournaments (/100)":60,"G. Investments (/100)":24,"Overall (/100)":87.4,"Standouts":"Epic (Fortnite), Blizzard; indie explosion (Hades II)","Notes":"AAA/live ops dominance; esports earnings YTD $7.6M lead global.","Earnings ($M)":296.9,"Key Tournaments":"LCS, DreamHack (15 total)","Investments ($B)":1.2,"Core Mythology":"Greco-Roman","Heroes":"Hercules, Achilles","Biggest IP":"Assassin's Creed","Most Popular Games":"Call of Duty"},{"Rank":2,"Country":"China","A. Talent (/100)":90,"B. Output (/100)":95,"C. Innovation (/100)":92,"D. Sustain (/100)":85,"E. Earnings (/100)":100,"F. Tournaments (/100)":80,"G. Investments (/100)":100,"Overall (/100)":86.5,"Standouts":"Tencent (PUBG Mobile), miHoYo (Genshin); AI dev tools","Notes":"Tencent $3.2B H1 iAP + $3B M&A; Worlds co-host peaks 6.4M viewers.","Earnings ($M)":326.7,"Key Tournaments":"KPL, Worlds 2025 (20 total)","Investments ($B)":5.0,"Core Mythology":"Chinese","Heroes":"Sun Wukong, Nezha","Biggest IP":"Genshin Impact","Most Popular Games":"Honor of Kings"},{"Rank":3,"Country":"South Korea","A. Talent (/100)":85,"B. Output (/100)":88,"C. Innovation (/100)":90,"D. Sustain (/100)":88,"E. Earnings (/100)":48,"F. Tournaments (/100)":100,"G. Investments (/100)":16,"Overall (/100)":74.3,"Standouts":"Nexon (MapleStory), Krafton (PUBG)","Notes":"LCK Cup 1M+ viewers; STEM pipeline fuels 36% East Asia events share.","Earnings ($M)":156.6,"Key Tournaments":"LCK 2025, VCT Masters (25 total)","Investments ($B)":0.8,"Core Mythology":"Korean","Heroes":"Dangun, Hong Gil-dong","Biggest IP":"PUBG","Most Popular Games":"League of Legends"},{"Rank":4,"Country":"Japan","A. Talent (/100)":92,"B. Output (/100)":90,"C. Innovation (/100)":95,"D. Sustain (/100)":82,"E. Earnings (/100)":13,"F. Tournaments (/100)":32,"G. Investments (/100)":6,"Overall (/100)":68.1,"Standouts":"Nintendo (Switch 2), FromSoftware (Elden Ring DLC)","Notes":"Console innovation strong; mobile slowdown docks esports.","Earnings ($M)":41.2,"Key Tournaments":"Capcom Pro Tour (8 total)","Investments ($B)":0.3,"Core Mythology":"Japanese","Heroes":"Yamato Takeru, Amaterasu","Biggest IP":"Elden Ring","Most Popular Games":"Monster Hunter"},{"Rank":5,"Country":"United Kingdom","A. Talent (/100)":82,"B. Output (/100)":85,"C. Innovation (/100)":88,"D. Sustain (/100)":90,"E. Earnings (/100)":15,"F. Tournaments (/100)":28,"G. Investments (/100)":8,"Overall (/100)":63.9,"Standouts":"Rockstar (GTA VI tease), Hello Games (No Man's Sky+)","Notes":"Narrative edge; ESL UK boosts, but funding trails US.","Earnings ($M)":49.2,"Key Tournaments":"ESL UK, BLAST (7 total)","Investments ($B)":0.4,"Core Mythology":"Celtic/British","Heroes":"King Arthur, Cú Chulainn","Biggest IP":"Grand Theft Auto","Most Popular Games":"Total War"},{"Rank":6,"Country":"Canada","A. Talent (/100)":88,"B. Output (/100)":84,"C. Innovation (/100)":86,"D. Sustain (/100)":92,"E. Earnings (/100)":15,"F. Tournaments (/100)":24,"G. Investments (/100)":10,"Overall (/100)":63.0,"Standouts":"Ubisoft Montreal (Assassin's Creed), BioWare","Notes":"Tax rebates shine; ELITE League aids LatAm ties.","Earnings ($M)":50.2,"Key Tournaments":"ELITE League (6 total)","Investments ($B)":0.5,"Core Mythology":"Indigenous/Norse-Influenced","Heroes":"Raven (Trickster), Glooscap","Biggest IP":"Assassin's Creed","Most Popular Games":"Overwatch"},{"Rank":7,"Country":"Germany","A. Talent (/100)":80,"B. Output (/100)":82,"C. Innovation (/100)":84,"D. Sustain (/100)":88,"E. Earnings (/100)":16,"F. Tournaments (/100)":36,"G. Investments (/100)":4,"Overall (/100)":62.7,"Standouts":"Yager (The Cycle), Daedalic (Deponia)","Notes":"PC/strategy hub; Gamescom integrates 9 events.","Earnings ($M)":52.7,"Key Tournaments":"Gamescom majors (9 total)","Investments ($B)":0.2,"Core Mythology":"Germanic/Norse","Heroes":"Siegfried, Brunhild","Biggest IP":"Anno","Most Popular Games":"The Settlers"},{"Rank":8,"Country":"France","A. Talent (/100)":78,"B. Output (/100)":80,"C. Innovation (/100)":82,"D. Sustain (/100)":86,"E. Earnings (/100)":19,"F. Tournaments (/100)":32,"G. Investments (/100)":6,"Overall (/100)":62.0,"Standouts":"Ubisoft (Far Cry), Dontnod (Life is Strange)","Notes":"Adventure/RPGs; VCT France peaks, Karmine Corp funding.","Earnings ($M)":61.2,"Key Tournaments":"ESL France, VCT (8 total)","Investments ($B)":0.3,"Core Mythology":"Gallic/Celtic","Heroes":"Vercingetorix, Melusine","Biggest IP":"Far Cry","Most Popular Games":"Life is Strange"},{"Rank":9,"Country":"Sweden","A. Talent (/100)":83,"B. Output (/100)":78,"C. Innovation (/100)":85,"D. Sustain (/100)":90,"E. Earnings (/100)":18,"F. Tournaments (/100)":20,"G. Investments (/100)":2,"Overall (/100)":59.3,"Standouts":"Paradox (Stellaris), DICE (Battlefield)","Notes":"Per-capita elite; DreamHack anchors Nordic scene.","Earnings ($M)":58.4,"Key Tournaments":"DreamHack Stockholm (5 total)","Investments ($B)":0.1,"Core Mythology":"Nordic","Heroes":"Thor, Loki","Biggest IP":"Battlefield","Most Popular Games":"Stellaris"},{"Rank":10,"Country":"Finland","A. Talent (/100)":84,"B. Output (/100)":76,"C. Innovation (/100)":87,"D. Sustain (/100)":92,"E. Earnings (/100)":10,"F. Tournaments (/100)":16,"G. Investments (/100)":4,"Overall (/100)":57.5,"Standouts":"Supercell (Clash of Clans), Remedy (Alan Wake 2)","Notes":"Mobile/AA #1 per cap; Slush event niche but innovative.","Earnings ($M)":34.0,"Key Tournaments":"Slush esports (4 total)","Investments ($B)":0.2,"Core Mythology":"Finnish","Heroes":"Väinämöinen, Lemminkäinen","Biggest IP":"Clash of Clans","Most Popular Games":"Alan Wake"},{"Rank":11,"Country":"Brazil","A. Talent (/100)":70,"B. Output (/100)":75,"C. Innovation (/100)":78,"D. Sustain (/100)":80,"E. Earnings (/100)":22,"F. Tournaments (/100)":40,"G. Investments (/100)":8,"Overall (/100)":57.2,"Standouts":"Wildlife (mobile), Hoplon Infotainment","Notes":"LatAm leader +6.4%; CBLoL/Free Fire 10 events, LOUD funding.","Earnings ($M)":71.7,"Key Tournaments":"CBLoL, Free Fire (10 total)","Investments ($B)":0.4,"Core Mythology":"Indigenous/Afro-Brazilian","Heroes":"Curupira, Iara","Biggest IP":"Free Fire","Most Popular Games":"Dota 2"},{"Rank":12,"Country":"Australia","A. Talent (/100)":72,"B. Output (/100)":72,"C. Innovation (/100)":80,"D. Sustain (/100)":82,"E. Earnings (/100)":11,"F. Tournaments (/100)":20,"G. Investments (/100)":2,"Overall (/100)":55.3,"Standouts":"Big Ant (Sports titles), PlaySide (mobile)","Notes":"VR/AR growth; PAX Aus steady, Oceania hubs emerging.","Earnings ($M)":34.3,"Key Tournaments":"PAX Aus (5 total)","Investments ($B)":0.1,"Core Mythology":"Aboriginal","Heroes":"Rainbow Serpent, Bunyip","Biggest IP":"Cricket 22","Most Popular Games":"Minecraft"},{"Rank":13,"Country":"India","A. Talent (/100)":68,"B. Output (/100)":70,"C. Innovation (/100)":75,"D. Sustain (/100)":78,"E. Earnings (/100)":2,"F. Tournaments (/100)":24,"G. Investments (/100)":6,"Overall (/100)":54.0,"Standouts":"Nazara (mobile hits), Moonfrog Labs","Notes":"Outsourcing +15% YoY; BGMI Masters 6 events, Nodwin $0.3B.","Earnings ($M)":7.8,"Key Tournaments":"BGMI Masters (6 total)","Investments ($B)":0.3,"Core Mythology":"Hindu","Heroes":"Arjuna, Hanuman","Biggest IP":"BGMI (Battlegrounds Mobile India)","Most Popular Games":"Ludo King"},{"Rank":14,"Country":"Netherlands","A. Talent (/100)":74,"B. Output (/100)":68,"C. Innovation (/100)":82,"D. Sustain (/100)":84,"E. Earnings (/100)":6,"F. Tournaments (/100)":16,"G. Investments (/100)":2,"Overall (/100)":53.1,"Standouts":"Guerrilla (Horizon), Triumph (Age of Wonders)","Notes":"Tech indies; ESL Benelux co-op focus.","Earnings ($M)":19.1,"Key Tournaments":"ESL Benelux (4 total)","Investments ($B)":0.1,"Core Mythology":"Germanic/Dutch Folklore","Heroes":"Heer Halewijn, Kobus van der Hell","Biggest IP":"Horizon Zero Dawn","Most Popular Games":"Age of Wonders"},{"Rank":15,"Country":"Poland","A. Talent (/100)":76,"B. Output (/100)":65,"C. Innovation (/100)":80,"D. Sustain (/100)":82,"E. Earnings (/100)":10,"F. Tournaments (/100)":20,"G. Investments (/100)":4,"Overall (/100)":52.8,"Standouts":"CD Projekt RED (Cyberpunk 2), Techland (Dying Light 3)","Notes":"EE quality #1; ESL Impact rebounds post-2024.","Earnings ($M)":31.7,"Key Tournaments":"ESL Impact (5 total)","Investments ($B)":0.2,"Core Mythology":"Slavic","Heroes":"Krakus, Leshy","Biggest IP":"The Witcher","Most Popular Games":"Cyberpunk 2077"},{"Rank":16,"Country":"Singapore","A. Talent (/100)":70,"B. Output (/100)":66,"C. Innovation (/100)":78,"D. Sustain (/100)":80,"E. Earnings (/100)":2,"F. Tournaments (/100)":12,"G. Investments (/100)":8,"Overall (/100)":51.4,"Standouts":"Razer (hardware tie-ins), The Gentlebros","Notes":"APAC hub; SEA Games 3 events, Razer SEA $0.4B.","Earnings ($M)":7.8,"Key Tournaments":"SEA Games (3 total)","Investments ($B)":0.4,"Core Mythology":"Chinese/Malay/Indian Fusion","Heroes":"Sang Nila Utama, Pontianak","Biggest IP":"Razer Hardware tie-ins","Most Popular Games":"Hearthstone"},{"Rank":17,"Country":"Denmark","A. Talent (/100)":72,"B. Output (/100)":62,"C. Innovation (/100)":84,"D. Sustain (/100)":86,"E. Earnings (/100)":20,"F. Tournaments (/100)":24,"G. Investments (/100)":2,"Overall (/100)":50.9,"Standouts":"IO Interactive (Hitman), Playdead (Inside)","Notes":"Narrative indies; CS majors 6, Astralis funding.","Earnings ($M)":63.7,"Key Tournaments":"CS majors (6 total)","Investments ($B)":0.1,"Core Mythology":"Nordic","Heroes":"Beowulf (shared), Holger Danske","Biggest IP":"Hitman","Most Popular Games":"Inside"},{"Rank":18,"Country":"Italy","A. Talent (/100)":68,"B. Output (/100)":64,"C. Innovation (/100)":76,"D. Sustain (/100)":78,"E. Earnings (/100)":3,"F. Tournaments (/100)":12,"G. Investments (/100)":2,"Overall (/100)":50.2,"Standouts":"Milestone (MotoGP), 505 Games (Control ports)","Notes":"Mobile growth; Milan Games Week 3 events.","Earnings ($M)":8.4,"Key Tournaments":"Milan Games Week (3 total)","Investments ($B)":0.1,"Core Mythology":"Roman","Heroes":"Aeneas, Romulus","Biggest IP":"Control","Most Popular Games":"MotoGP"},{"Rank":19,"Country":"Spain","A. Talent (/100)":70,"B. Output (/100)":62,"C. Innovation (/100)":78,"D. Sustain (/100)":80,"E. Earnings (/100)":5,"F. Tournaments (/100)":16,"G. Investments (/100)":4,"Overall (/100)":50.0,"Standouts":"MercurySteam (Metroid Dread), Nomada (Gris)","Notes":"Console mix; Madrid Majors 4, Karmine $0.2B.","Earnings ($M)":16.2,"Key Tournaments":"Madrid Majors (4 total)","Investments ($B)":0.2,"Core Mythology":"Iberian/Celtic","Heroes":"El Cid, Durandal","Biggest IP":"Metroid Dread","Most Popular Games":"Gris"},{"Rank":20,"Country":"Russia","A. Talent (/100)":75,"B. Output (/100)":60,"C. Innovation (/100)":82,"D. Sustain (/100)":70,"E. Earnings (/100)":29,"F. Tournaments (/100)":28,"G. Investments (/100)":6,"Overall (/100)":49.3,"Standouts":"Owlcat (Pathfinder), Mundfish (Atomic Heart)","Notes":"PC sims resilient; YTD earnings $6.8M lead, geopolitics dock sustain.","Earnings ($M)":95.9,"Key Tournaments":"WePlay, EPIC (7 total)","Investments ($B)":0.3,"Core Mythology":"Slavic","Heroes":"Ilya Muromets, Baba Yaga","Biggest IP":"Atomic Heart","Most Popular Games":"Pathfinder"},{"Rank":21,"Country":"Israel","A. Talent (/100)":68,"B. Output (/100)":58,"C. Innovation (/100)":80,"D. Sustain (/100)":76,"E. Earnings (/100)":3,"F. Tournaments (/100)":8,"G. Investments (/100)":10,"Overall (/100)":48.6,"Standouts":"Moon Active (Coin Master), Playtika (casual)","Notes":"AI crossover; BLAST Israel 2, Playtika IPOs.","Earnings ($M)":10.5,"Key Tournaments":"BLAST Israel (2 total)","Investments ($B)":0.5,"Core Mythology":"Judeo-Biblical","Heroes":"Samson, David","Biggest IP":"Coin Master","Most Popular Games":"Solitaire Grand Harvest"},{"Rank":22,"Country":"Czech Republic","A. Talent (/100)":72,"B. Output (/100)":56,"C. Innovation (/100)":78,"D. Sustain (/100)":78,"E. Earnings (/100)":2,"F. Tournaments (/100)":12,"G. Investments (/100)":2,"Overall (/100)":48.5,"Standouts":"Amanita (Machinarium), Warhorse (Kingdom Come 2)","Notes":"EE indies riser; MSL Prague 3 events.","Earnings ($M)":6.9,"Key Tournaments":"MSL Prague (3 total)","Investments ($B)":0.1,"Core Mythology":"Slavic","Heroes":"Forefather Čech, Krakonoš","Biggest IP":"Kingdom Come: Deliverance","Most Popular Games":"Machinarium"},{"Rank":23,"Country":"Mexico","A. Talent (/100)":66,"B. Output (/100)":60,"C. Innovation (/100)":74,"D. Sustain (/100)":74,"E. Earnings (/100)":3,"F. Tournaments (/100)":16,"G. Investments (/100)":4,"Overall (/100)":48.0,"Standouts":"Squad (mobile), HyperBeard (indies)","Notes":"LatAm outsourcing; Free Fire LatAm 4 events.","Earnings ($M)":10.7,"Key Tournaments":"Free Fire LatAm (4 total)","Investments ($B)":0.2,"Core Mythology":"Mesoamerican","Heroes":"Quetzalcoatl, Huitzilopochtli","Biggest IP":"HyperBeard indies","Most Popular Games":"Free Fire"},{"Rank":24,"Country":"Norway","A. Talent (/100)":70,"B. Output (/100)":54,"C. Innovation (/100)":76,"D. Sustain (/100)":80,"E. Earnings (/100)":4,"F. Tournaments (/100)":8,"G. Investments (/100)":2,"Overall (/100)":46.6,"Standouts":"Funcom (Dune), Avalanche Oslo","Notes":"Exploration focus; Nordic Champs 2.","Earnings ($M)":13.9,"Key Tournaments":"Nordic Champs (2 total)","Investments ($B)":0.1,"Core Mythology":"Nordic","Heroes":"Odin, Freyja","Biggest IP":"Dune","Most Popular Games":"Just Cause"},{"Rank":25,"Country":"Vietnam","A. Talent (/100)":64,"B. Output (/100)":58,"C. Innovation (/100)":72,"D. Sustain (/100)":72,"E. Earnings (/100)":6,"F. Tournaments (/100)":20,"G. Investments (/100)":6,"Overall (/100)":45.3,"Standouts":"VNG (Free Fire), Axie devs (blockchain)","Notes":"Cost-efficiency; VCS/AoV 5 events, VNG Garena.","Earnings ($M)":19.4,"Key Tournaments":"VCS, AoV (5 total)","Investments ($B)":0.3,"Core Mythology":"Vietnamese","Heroes":"Lạc Long Quân, Âu Cơ","Biggest IP":"Free Fire","Most Popular Games":"Arena of Valor"},{"Rank":26,"Country":"Ukraine","A. Talent (/100)":68,"B. Output (/100)":52,"C. Innovation (/100)":74,"D. Sustain (/100)":68,"E. Earnings (/100)":12,"F. Tournaments (/100)":16,"G. Investments (/100)":4,"Overall (/100)":45.3,"Standouts":"GSC Game World (Stalker 2), Frogwares","Notes":"Resilient outsourcing; WePlay proxies 4.","Earnings ($M)":40.3,"Key Tournaments":"WePlay proxies (4 total)","Investments ($B)":0.2,"Core Mythology":"Slavic","Heroes":"Taras Bulba, Marichka","Biggest IP":"S.T.A.L.K.E.R.","Most Popular Games":"Sherlock Holmes"},{"Rank":27,"Country":"Ireland","A. Talent (/100)":66,"B. Output (/100)":50,"C. Innovation (/100)":72,"D. Sustain (/100)":76,"E. Earnings (/100)":0,"F. Tournaments (/100)":4,"G. Investments (/100)":2,"Overall (/100)":44.9,"Standouts":"Demonware (Call of Duty), Keywords (outsourcing)","Notes":"EU tax haven; Insomnia Dublin 1.","Earnings ($M)":1.5,"Key Tournaments":"Insomnia Dublin (1 total)","Investments ($B)":0.1,"Core Mythology":"Celtic","Heroes":"Cú Chulainn, Banshee","Biggest IP":"Call of Duty (support)","Most Popular Games":"Dark Souls (support)"},{"Rank":28,"Country":"Philippines","A. Talent (/100)":62,"B. Output (/100)":56,"C. Innovation (/100)":70,"D. Sustain (/100)":70,"E. Earnings (/100)":8,"F. Tournaments (/100)":24,"G. Investments (/100)":4,"Overall (/100)":43.5,"Standouts":"Anino Games (local mobile), Razer SEA ties","Notes":"96% penetration; MPL PH 6 events, Blacklist.","Earnings ($M)":26.7,"Key Tournaments":"MPL PH (6 total)","Investments ($B)":0.2,"Core Mythology":"Philippine","Heroes":"Maria Makiling, Bernardo Carpio","Biggest IP":"MPL PH titles","Most Popular Games":"Dota 2"},{"Rank":29,"Country":"Turkey","A. Talent (/100)":64,"B. Output (/100)":54,"C. Innovation (/100)":68,"D. Sustain (/100)":68,"E. Earnings (/100)":4,"F. Tournaments (/100)":16,"G. Investments (/100)":6,"Overall (/100)":43.4,"Standouts":"Peak Games (mobile), Taleworlds (Mount & Blade)","Notes":"MENA boom +7.5%; TESF 4, Peak $0.1B round.","Earnings ($M)":14.5,"Key Tournaments":"TESF Turkey (4 total)","Investments ($B)":0.3,"Core Mythology":"Turko-Persian","Heroes":"Köroğlu, Erzurumlu Emrah","Biggest IP":"Mount & Blade","Most Popular Games":"Coin Master"},{"Rank":30,"Country":"United Arab Emirates","A. Talent (/100)":60,"B. Output (/100)":52,"C. Innovation (/100)":66,"D. Sustain (/100)":66,"E. Earnings (/100)":1,"F. Tournaments (/100)":12,"G. Investments (/100)":12,"Overall (/100)":41.9,"Standouts":"The NineHertz (outsourcing), AR/VR focus","Notes":"MENA hub; Dubai Expo proxies 3, PIF spillover.","Earnings ($M)":2.0,"Key Tournaments":"Dubai Expo proxies (3 total)","Investments ($B)":0.6,"Core Mythology":"Arab/Islamic","Heroes":"Antarah ibn Shaddad, Layla and Majnun","Biggest IP":"AR/VR Experiences","Most Popular Games":"FIFA Mobile"},{"Rank":31,"Country":"Saudi Arabia","A. Talent (/100)":55,"B. Output (/100)":70,"C. Innovation (/100)":75,"D. Sustain (/100)":60,"E. Earnings (/100)":5,"F. Tournaments (/100)":100,"G. Investments (/100)":98,"Overall (/100)":48.7,"Standouts":"Savvy Games (EWC), Falcons Esports","Notes":"EWC 25 events/3M visitors, PIF $55B EA; Vision 2030 sportswash risk.","Earnings ($M)":15.3,"Key Tournaments":"EWC 2025 (25 total)","Investments ($B)":55.5,"Core Mythology":"Arab/Islamic","Heroes":"Hatim al-Tai, Antar","Biggest IP":"EWC (Esports World Cup)","Most Popular Games":"FIFA"}];
+                    const countryCodes = {"United States":"US","China":"CN","South Korea":"KR","Japan":"JP","United Kingdom":"GB","Canada":"CA","Germany":"DE","France":"FR","Sweden":"SE","Finland":"FI","Brazil":"BR","Australia":"AU","India":"IN","Netherlands":"NL","Poland":"PL","Singapore":"SG","Denmark":"DK","Italy":"IT","Spain":"ES","Russia":"RU","Israel":"IL","Czech Republic":"CZ","Mexico":"MX","Norway":"NO","Vietnam":"VN","Ukraine":"UA","Ireland":"IE","Philippines":"PH","Turkey":"TR","United Arab Emirates":"AE","Saudi Arabia":"SA"};
+                    data.forEach(country => {
+                        const code = countryCodes[country.Country] || 'xx';
+                        document.write(`
+                            <div class="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-md min-w-max">
+                                <span class="font-bold">${country.Rank}</span>
+                                <img src="https://flagcdn.com/w20/${code.toLowerCase()}.png" alt="${country.Country} flag" class="w-5 h-5">
+                                <span class="font-semibold">${country.Country}</span>
+                                <span class="text-blue-600 font-bold">${country["Overall (/100)"]}</span>
                             </div>
-                            <div id="perfContext" class="mb-6 p-4 bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg border border-slate-600/30">
-                                <div class="text-sm text-slate-300 leading-relaxed">
-                                    <span class="text-yellow-400 font-semibold">Standouts:</span> <span id="perfStandouts">Epic (Fortnite), Blizzard; indie explosion (Hades II)</span>
+                        `);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- Main Layout: Left 70% Cards, Right 30% Details -->
+        <div class="flex space-x-4">
+            <!-- Left: Country Cards 70% -->
+            <div class="w-3/4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pr-4 overflow-y-auto max-h-screen">
+                <div id="country-cards"></div>
+                <script>
+                    function createCountryCard(country, index) {
+                        const code = countryCodes[country.Country] || 'xx';
+                        const metrics = [
+                            {name: 'Talent', value: country["A. Talent (/100)"]},
+                            {name: 'Output', value: country["B. Output (/100)"]},
+                            {name: 'Innovation', value: country["C. Innovation (/100)"]},
+                            {name: 'Sustain', value: country["D. Sustain (/100)"]},
+                            {name: 'Earnings', value: country["E. Earnings (/100)"]},
+                            {name: 'Tournaments', value: country["F. Tournaments (/100)"]},
+                            {name: 'Investments', value: country["G. Investments (/100)"]}
+                        ];
+                        const divId = `card-${index}`;
+                        return `
+                            <div class="bg-white shadow-lg rounded-lg p-4 cursor-pointer hover:shadow-xl transition-shadow" onclick="selectCountry(${index})">
+                                <div class="flex items-center mb-4">
+                                    <img src="https://flagcdn.com/w40/${code.toLowerCase()}.png" alt="${country.Country} flag" class="w-10 h-6 mr-3">
+                                    <div>
+                                        <h3 class="font-bold text-lg">${country.Country}</h3>
+                                        <p class="text-sm text-gray-600">Overall: ${country["Overall (/100)"]}/100</p>
+                                    </div>
                                 </div>
+                                <div id="${divId}" class="h-48"></div>
+                                <script>
+                                    const trace = {
+                                        x: [${metrics.map(m => m.value).join(',')}],
+                                        y: [${metrics.map(m => m.name).join('","')}],
+                                        orientation: 'h',
+                                        type: 'bar',
+                                        marker: {color: 'rgba(54, 162, 235, 0.8)'}
+                                    };
+                                    const layout = {
+                                        margin: {t: 0, b: 20, l: 100, r: 0},
+                                        height: 200,
+                                        width: '100%',
+                                        xaxis: {range: [0, 100], showgrid: false},
+                                        yaxis: {showgrid: false},
+                                        bargap: 0.1
+                                    };
+                                    Plotly.newPlot('${divId}', [trace], layout, {displayModeBar: false});
+                                </script>
                             </div>
-                            <div id="sidebarMetrics" class="grid grid-cols-1 gap-4"></div>
-                        </div>
-                    </div>
-                </div>
+                        `;
+                    }
+                    document.getElementById('country-cards').innerHTML = data.map((country, index) => createCountryCard(country, index)).join('');
+                </script>
+            </div>
+
+            <!-- Right: Details 30% -->
+            <div id="country-details" class="w-1/4 bg-white shadow-lg rounded-lg p-4 max-h-screen overflow-y-auto">
+                <!-- Default: United States -->
+                <script>
+                    function showDetails(index) {
+                        const country = data[index];
+                        const fields = [
+                            {title: 'Standouts', value: country.Standouts},
+                            {title: 'Notes', value: country.Notes},
+                            {title: 'Earnings ($M)', value: country["Earnings ($M)"]},
+                            {title: 'Key Tournaments', value: country["Key Tournaments"]},
+                            {title: 'Investments ($B)', value: country["Investments ($B)"]},
+                            {title: 'Core Mythology', value: country["Core Mythology"]},
+                            {title: 'Heroes', value: country.Heroes},
+                            {title: 'Biggest IP', value: country["Biggest IP"]},
+                            {title: 'Most Popular Games', value: country["Most Popular Games"]}
+                        ];
+                        let html = `<h2 class="text-xl font-bold mb-4">${country.Country}</h2>`;
+                        fields.forEach(field => {
+                            html += `
+                                <div class="mb-4 p-3 bg-gray-50 rounded">
+                                    <h3 class="font-semibold text-sm">${field.title}</h3>
+                                    <p class="text-sm">${field.value}</p>
+                                </div>
+                            `;
+                        });
+                        document.getElementById('country-details').innerHTML = html;
+                    }
+                    // Default to highest (index 0: United States)
+                    showDetails(0);
+                    function selectCountry(index) {
+                        showDetails(index);
+                    }
+                </script>
             </div>
         </div>
     </div>
-<script>
-const countries=[
-    {code:'us',name:'United States',flag:'https://flagcdn.com/w80/us.png'},
-    {code:'cn',name:'China',flag:'https://flagcdn.com/w80/cn.png'},
-    {code:'kr',name:'South Korea',flag:'https://flagcdn.com/w80/kr.png'},
-    {code:'jp',name:'Japan',flag:'https://flagcdn.com/w80/jp.png'},
-    {code:'gb',name:'United Kingdom',flag:'https://flagcdn.com/w80/gb.png'},
-    {code:'ca',name:'Canada',flag:'https://flagcdn.com/w80/ca.png'},
-    {code:'de',name:'Germany',flag:'https://flagcdn.com/w80/de.png'},
-    {code:'fr',name:'France',flag:'https://flagcdn.com/w80/fr.png'},
-    {code:'se',name:'Sweden',flag:'https://flagcdn.com/w80/se.png'},
-    {code:'fi',name:'Finland',flag:'https://flagcdn.com/w80/fi.png'},
-    {code:'br',name:'Brazil',flag:'https://flagcdn.com/w80/br.png'},
-    {code:'au',name:'Australia',flag:'https://flagcdn.com/w80/au.png'},
-    {code:'in',name:'India',flag:'https://flagcdn.com/w80/in.png'},
-    {code:'nl',name:'Netherlands',flag:'https://flagcdn.com/w80/nl.png'},
-    {code:'pl',name:'Poland',flag:'https://flagcdn.com/w80/pl.png'},
-    {code:'sg',name:'Singapore',flag:'https://flagcdn.com/w80/sg.png'},
-    {code:'dk',name:'Denmark',flag:'https://flagcdn.com/w80/dk.png'},
-    {code:'it',name:'Italy',flag:'https://flagcdn.com/w80/it.png'},
-    {code:'es',name:'Spain',flag:'https://flagcdn.com/w80/es.png'},
-    {code:'ru',name:'Russia',flag:'https://flagcdn.com/w80/ru.png'},
-    {code:'il',name:'Israel',flag:'https://flagcdn.com/w80/il.png'},
-    {code:'cz',name:'Czech Republic',flag:'https://flagcdn.com/w80/cz.png'},
-    {code:'mx',name:'Mexico',flag:'https://flagcdn.com/w80/mx.png'},
-    {code:'no',name:'Norway',flag:'https://flagcdn.com/w80/no.png'},
-    {code:'vn',name:'Vietnam',flag:'https://flagcdn.com/w80/vn.png'},
-    {code:'ua',name:'Ukraine',flag:'https://flagcdn.com/w80/ua.png'},
-    {code:'ie',name:'Ireland',flag:'https://flagcdn.com/w80/ie.png'},
-    {code:'ph',name:'Philippines',flag:'https://flagcdn.com/w80/ph.png'},
-    {code:'tr',name:'Turkey',flag:'https://flagcdn.com/w80/tr.png'},
-    {code:'ae',name:'United Arab Emirates',flag:'https://flagcdn.com/w80/ae.png'},
-    {code:'sa',name:'Saudi Arabia',flag:'https://flagcdn.com/w80/sa.png'}
-];
-
-const metricLabels = {
-    Talent: { name: 'Talent', weight: '', color: 'blue', tooltip: 'Industry talent pool and expertise' },
-    Output: { name: 'Output', weight: '', color: 'purple', tooltip: 'Game production and release volume' },
-    Innovation: { name: 'Innovation', weight: '', color: 'red', tooltip: 'Technological and creative innovation' },
-    Sustain: { name: 'Sustain', weight: '', color: 'green', tooltip: 'Industry sustainability and growth potential' },
-    Earnings: { name: 'Earnings', weight: '', color: 'orange', tooltip: 'Revenue and financial performance' },
-    Tournaments: { name: 'Tournaments', weight: '', color: 'cyan', tooltip: 'Esports and competitive gaming events' },
-    Investments: { name: 'Investments', weight: '', color: 'pink', tooltip: 'Capital investments in gaming' }
-};
-
-let gamingData = {};
-let activeTab = 'us';
-
-function createTabs() {
-    const container = document.getElementById('tabButtons');
-    let html = '';
-    countries.forEach((country, i) => {
-        const gameData = gamingData[country.code] || {};
-        const overallScore = gameData.Overall || 0;
-        const rankClass = i < 3 ? `rank-${i+1}` : '';
-        html += `<button class="tab-button ${rankClass} px-6 py-3 rounded-lg text-sm font-semibold ${country.code === activeTab ? 'active' : ''}" data-country-code="${country.code}" onclick="switchToTab('${country.code}')">
-            <img src="${country.flag}" alt="${country.code}" class="w-5 h-4 inline-block mr-2 rounded">
-            <span class="country-name-text">${country.code.toUpperCase()}</span>
-            <span class="ml-2 text-xs opacity-75">#${i+1}</span>
-            <span class="ml-2 text-xs bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-300 px-2 py-1 rounded-full">${overallScore}</span>
-        </button>`;
-    });
-    container.innerHTML = html;
-}
-
-function switchToTab(cc) {
-    activeTab = cc;
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.countryCode === cc) {
-            btn.classList.add('active');
-        }
-    });
-    renderTabContent(cc);
-    updatePerformancePanel(cc);
-}
-
-function updatePerformancePanel(cc) {
-    const country = countries.find(c => c.code === cc);
-    const gameData = gamingData[cc] || {};
-    
-    document.getElementById('perfFlag').src = country.flag;
-    document.getElementById('perfCountryName').textContent = country.name;
-    document.getElementById('perfRank').textContent = `Rank #${countries.findIndex(c => c.code === cc) + 1}`;
-    
-    const overallScore = gameData.Overall || 0;
-    document.getElementById('perfOverallContainer').innerHTML = `<span class="text-2xl font-bold orbitron text-cyan-300">${overallScore}</span>`;
-    
-    document.getElementById('perfStandouts').textContent = gameData.Standouts || 'N/A';
-    
-    const sidebarMetrics = document.getElementById('sidebarMetrics');
-    sidebarMetrics.innerHTML = `
-        <div class="p-3 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg border border-blue-500/30">
-            <div class="text-xs text-blue-400 font-semibold mb-1">Earnings ($M)</div>
-            <div class="text-lg font-bold text-white">${gameData['Earnings ($M)'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg border border-purple-500/30">
-            <div class="text-xs text-purple-400 font-semibold mb-1">Investments ($B)</div>
-            <div class="text-lg font-bold text-white">${gameData['Investments ($B)'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg border border-green-500/30">
-            <div class="text-xs text-green-400 font-semibold mb-1">Core Mythology</div>
-            <div class="text-sm text-white">${gameData['Core Mythology'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-lg border border-yellow-500/30">
-            <div class="text-xs text-yellow-400 font-semibold mb-1">Heroes</div>
-            <div class="text-sm text-white">${gameData.Heroes || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-lg border border-red-500/30">
-            <div class="text-xs text-red-400 font-semibold mb-1">Biggest IP</div>
-            <div class="text-sm text-white">${gameData['Biggest IP'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-lg border border-pink-500/30">
-            <div class="text-xs text-pink-400 font-semibold mb-1">Most Popular Games</div>
-            <div class="text-sm text-white">${gameData['Most Popular Games'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 rounded-lg border border-indigo-500/30">
-            <div class="text-xs text-indigo-400 font-semibold mb-1">Key Tournaments</div>
-            <div class="text-sm text-white">${gameData['Key Tournaments'] || 'N/A'}</div>
-        </div>
-        <div class="p-3 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-lg border border-cyan-500/30">
-            <div class="text-xs text-cyan-400 font-semibold mb-1">Notes</div>
-            <div class="text-sm text-white">${gameData.Notes || 'N/A'}</div>
-        </div>
-    `;
-}
-
-function renderTabContent(cc) {
-    const country = countries.find(c => c.code === cc);
-    const gameData = gamingData[cc] || {};
-    const tabContent = document.getElementById('tabContent');
-    
-    const metricHTML = Object.keys(metricLabels).map(key => {
-        const info = metricLabels[key];
-        const value = parseInt(gameData[`${key[0]}. ${key}`]) || 0;
-        return `<div class="p-3 bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg border border-slate-600/30">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs text-${info.color}-400 font-semibold flex items-center gap-1">${key}<span class="tooltip"><span class="info-icon">?</span><span class="tooltip-text">${info.tooltip}</span></span></span>
-            </div>
-            <div class="text-2xl font-black orbitron text-white">${value}</div>
-        </div>`;
-    }).join('');
-    
-    tabContent.innerHTML = `
-        <div class="country-card rounded-2xl p-4 md:p-6 mb-6">
-            <div class="flex items-center gap-4 mb-4">
-                <img src="${country.flag}" alt="${country.name}" class="w-16 h-10 flag-badge rounded-lg">
-                <h3 class="text-xl font-bold orbitron country-name-text">${country.name} - Industry Metrics</h3>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">${metricHTML}</div>
-        </div>
-        <div id="plotlyChart" class="country-card rounded-2xl p-4 md:p-6"></div>
-    `;
-    
-    // Create Plotly chart
-    const metrics = Object.keys(metricLabels);
-    const values = metrics.map(metric => parseInt(gameData[`${metric[0]}. ${metric}`]) || 0);
-    
-    const trace = {
-        type: 'bar',
-        x: metrics,
-        y: values,
-        marker: {
-            color: ['#3b82f6', '#8b5cf6', '#ef4444', '#10b981', '#f59e0b', '#06b6d4', '#ec4899']
-        }
-    };
-    
-    const layout = {
-        title: `${country.name} Gaming Metrics`,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: { color: '#e2e8f0' },
-        xaxis: { tickangle: -45 },
-        yaxis: { range: [0, 100] }
-    };
-    
-    Plotly.newPlot('plotlyChart', [trace], layout, { responsive: true });
-}
-
-async function loadGamingData() {
-    const url = 'https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@main/data/gamecalcs.csv';
-    
-    return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                results.data.forEach(row => {
-                    if (row.Country) {
-                        const countryObj = countries.find(c => c.name === row.Country.trim());
-                        if (countryObj) {
-                            gamingData[countryObj.code] = row;
-                        }
-                    }
-                });
-                resolve();
-            },
-            error: (error) => reject(error)
-        });
-    });
-}
-
-async function init() {
-    try {
-        await loadGamingData();
-        
-        // Sort countries by Overall score
-        countries.sort((a, b) => {
-            const scoreA = parseFloat(gamingData[a.code]?.Overall || 0);
-            const scoreB = parseFloat(gamingData[b.code]?.Overall || 0);
-            return scoreB - scoreA;
-        });
-        
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
-        createTabs();
-        renderTabContent('us');
-        updatePerformancePanel('us');
-    } catch (error) {
-        console.error('Error initializing dashboard:', error);
-        document.getElementById('loading').innerHTML = `
-            <div class="text-center">
-                <p class="text-red-400 mb-4">Error loading data</p>
-                <p class="text-slate-400 text-sm">${error.message}</p>
-            </div>`;
-    }
-}
-
-init();
-</script>
 </body>
 </html>
