@@ -52,6 +52,20 @@ var visibleRoutes = {
   'guangzhou-ballarat': true
 };
 
+// 🌍 Distance calculator (nautical miles)
+function getDistanceNM(lat1, lon1, lat2, lon2) {
+  const R = 3440; // nautical miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function initMap() {
   map = L.map('map', {
     center: [-10, 100],
@@ -162,9 +176,7 @@ function showStopInfo(stop, color) {
 function animateShip(routeId, coordinates, color) {
   if (coordinates.length < 2) return;
   
-  // Create ship icon - larger size
   var shipHtml = '<div style="font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(0deg);">🚢</div>';
-  
   var shipIcon = L.divIcon({
     className: 'ship-marker',
     html: shipHtml,
@@ -177,33 +189,36 @@ function animateShip(routeId, coordinates, color) {
   
   var currentSegment = 0;
   var progress = 0;
-  var speed = 0.03; // Increased speed (4x faster)
-  
+  var baseTime = 8000; // base time (ms) for ~2000 nm
+  var speedMultiplier = 2.5; // global speed factor 🚀
+
   function calculateBearing(start, end) {
     var startLat = start[0] * Math.PI / 180;
     var startLng = start[1] * Math.PI / 180;
     var endLat = end[0] * Math.PI / 180;
     var endLng = end[1] * Math.PI / 180;
-    
     var dLng = endLng - startLng;
     var y = Math.sin(dLng) * Math.cos(endLat);
     var x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
     var bearing = Math.atan2(y, x) * 180 / Math.PI;
-    
     return (bearing + 360) % 360;
   }
-  
+
   animationIntervals[routeId] = setInterval(function() {
     if (currentSegment >= coordinates.length - 1) {
       currentSegment = 0;
       progress = 0;
     }
-    
+
     var start = coordinates[currentSegment];
     var end = coordinates[currentSegment + 1];
-    
+
+    var segmentDistance = getDistanceNM(start[0], start[1], end[0], end[1]);
+    var segmentDuration = (segmentDistance / 2000) * baseTime;
+    var speed = (50 / segmentDuration) * speedMultiplier;
+
     progress += speed;
-    
+
     if (progress >= 1) {
       progress = 0;
       currentSegment++;
@@ -213,21 +228,20 @@ function animateShip(routeId, coordinates, color) {
       start = coordinates[currentSegment];
       end = coordinates[currentSegment + 1];
     }
-    
+
     var lat = start[0] + (end[0] - start[0]) * progress;
     var lng = start[1] + (end[1] - start[1]) * progress;
-    
+
     var bearing = calculateBearing(start, end);
-    var rotation = bearing - 90; // Adjust for ship icon orientation
-    
-    var rotatedShipHtml = '<div style="font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(' + rotation + 'deg); transition: transform 0.3s ease;">🚢</div>';
-    
+    var rotation = bearing - 90;
+
+    var rotatedShipHtml = '<div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(' + rotation + 'deg); transition: transform 0.3s ease;">🚢</div>';
     shipMarker.setLatLng([lat, lng]);
     shipMarker.setIcon(L.divIcon({
       className: 'ship-marker',
       html: rotatedShipHtml,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
     }));
   }, 50);
 }
@@ -252,5 +266,4 @@ document.getElementById('close-info').addEventListener('click', function() {
   document.getElementById('stop-info').classList.add('hidden');
 });
 
-// Initialize map on window load
 window.addEventListener('load', initMap);
