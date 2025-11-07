@@ -207,7 +207,7 @@ function animateShip(routeId, coordinates, color) {
  
   var currentSegment = 0;
   var progress = 0;
-  var speed = 0.09; // Doubled from 0.01 for faster ship speed
+  var speed = 0.03; // Doubled from 0.01 for faster ship speed
  
   function calculateBearing(start, end) {
     var startLat = start[0] * Math.PI / 180;
