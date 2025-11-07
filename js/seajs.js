@@ -34,12 +34,9 @@ var routes = {
       { name: 'Indian Ocean Loop (40°S)', lat: -40, lng: 115, info: 'South for Roaring Forties westerlies, 10-15 days. Stormy, sea burials', distance: '~1,000 nm' },
       { name: 'Great Australian Bight', lat: -35, lng: 130, info: 'Eastward push with gales, 8-12 days', distance: '~900 nm' },
       { name: 'Robe, South Australia', lat: -37.1625, lng: 139.7583, info: 'Landed 1856-1863, ~17,000 migrants to evade Victorian taxes', distance: 'Landfall' },
-      { name: 'Lake Hawdon/Penola', lat: -37.3772, lng: 140.8394, info: 'First camps, well-digging. Dragon lines formed. 3-5 days', distance: '50-60 km' },
       { name: 'Casterton', lat: -37.5863, lng: 141.4003, info: 'Crossed Glenelg River. Indigenous/settler encounters. 5-7 days', distance: '80-100 km' },
       { name: 'Coleraine/Hamilton', lat: -37.7427, lng: 142.0156, info: 'Hilly terrain. Inn resupplies often denied due to racism. 5-7 days', distance: '80-100 km' },
-      { name: 'Dunkeld', lat: -37.6500, lng: 142.3333, info: 'Volcanic plains, rising dysentery. Some settled Ararat. 4-5 days', distance: '60-70 km' },
       { name: 'Skipton/Linton', lat: -37.6833, lng: 143.3667, info: 'Grampians foothills. Outbreaks, starvation. Trail markers. 7-8 days', distance: '100-110 km' },
-      { name: 'Smythesdale', lat: -37.7167, lng: 143.7667, info: 'Nearing goldfields. Tensions with Europeans. Teams formed. 5-6 days', distance: '80-90 km' },
       { name: 'Ballarat', lat: -37.5622, lng: 143.8503, info: 'Black Hill ascent. ~9,000 by 1858 at Golden Point. 3-4 days', distance: '50-60 km' }
     ]
   }
