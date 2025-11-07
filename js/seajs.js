@@ -44,6 +44,8 @@ var routes = {
 
 var map;
 var routeLayers = {};
+var shipMarkers = {};
+var animationIntervals = {};
 var visibleRoutes = {
   'first-fleet': true,
   'second-fleet': true,
@@ -67,6 +69,22 @@ function initMap() {
 
 function drawAllRoutes() {
   var allBounds = [];
+  
+  // Stop any existing animations
+  for (var animId in animationIntervals) {
+    if (animationIntervals.hasOwnProperty(animId)) {
+      clearInterval(animationIntervals[animId]);
+    }
+  }
+  animationIntervals = {};
+  
+  // Remove existing ship markers
+  for (var shipId in shipMarkers) {
+    if (shipMarkers.hasOwnProperty(shipId) && shipMarkers[shipId]) {
+      map.removeLayer(shipMarkers[shipId]);
+    }
+  }
+  shipMarkers = {};
   
   for (var routeId in routes) {
     if (routes.hasOwnProperty(routeId)) {
@@ -117,6 +135,9 @@ function drawAllRoutes() {
           });
           routeLayers[routeId].push(marker);
         }
+        
+        // Start ship animation for this route
+        animateShip(routeId, coordinates, route.color);
       }
     }
   }
@@ -136,6 +157,79 @@ function showStopInfo(stop, color) {
   document.getElementById('stop-distance').textContent = 'Distance: ' + stop.distance;
   document.getElementById('stop-route-color').style.backgroundColor = color;
   document.getElementById('stop-info').classList.remove('hidden');
+}
+
+function animateShip(routeId, coordinates, color) {
+  if (coordinates.length < 2) return;
+  
+  // Create ship icon
+  var shipHtml = '<div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(0deg);">🚢</div>';
+  
+  var shipIcon = L.divIcon({
+    className: 'ship-marker',
+    html: shipHtml,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+  
+  var shipMarker = L.marker(coordinates[0], { icon: shipIcon }).addTo(map);
+  shipMarkers[routeId] = shipMarker;
+  
+  var currentSegment = 0;
+  var progress = 0;
+  var speed = 0.002; // Adjust this to change ship speed (lower = slower)
+  
+  function calculateBearing(start, end) {
+    var startLat = start[0] * Math.PI / 180;
+    var startLng = start[1] * Math.PI / 180;
+    var endLat = end[0] * Math.PI / 180;
+    var endLng = end[1] * Math.PI / 180;
+    
+    var dLng = endLng - startLng;
+    var y = Math.sin(dLng) * Math.cos(endLat);
+    var x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+    var bearing = Math.atan2(y, x) * 180 / Math.PI;
+    
+    return (bearing + 360) % 360;
+  }
+  
+  animationIntervals[routeId] = setInterval(function() {
+    if (currentSegment >= coordinates.length - 1) {
+      currentSegment = 0;
+      progress = 0;
+    }
+    
+    var start = coordinates[currentSegment];
+    var end = coordinates[currentSegment + 1];
+    
+    progress += speed;
+    
+    if (progress >= 1) {
+      progress = 0;
+      currentSegment++;
+      if (currentSegment >= coordinates.length - 1) {
+        currentSegment = 0;
+      }
+      start = coordinates[currentSegment];
+      end = coordinates[currentSegment + 1];
+    }
+    
+    var lat = start[0] + (end[0] - start[0]) * progress;
+    var lng = start[1] + (end[1] - start[1]) * progress;
+    
+    var bearing = calculateBearing(start, end);
+    var rotation = bearing - 90; // Adjust for ship icon orientation
+    
+    var rotatedShipHtml = '<div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(' + rotation + 'deg); transition: transform 0.3s ease;">🚢</div>';
+    
+    shipMarker.setLatLng([lat, lng]);
+    shipMarker.setIcon(L.divIcon({
+      className: 'ship-marker',
+      html: rotatedShipHtml,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    }));
+  }, 50);
 }
 
 // Event Listeners
