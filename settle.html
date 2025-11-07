@@ -14,8 +14,22 @@
       font-family: system-ui, -apple-system, sans-serif;
     }
     #map {
-      height: calc(100vh - 140px);
+      height: calc(100vh - 200px);
       width: 100%;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .legend-color {
+      width: 24px;
+      height: 4px;
+      border-radius: 2px;
+    }
+    .route-checkbox {
+      margin-right: 8px;
     }
   </style>
 </head>
@@ -23,13 +37,30 @@
   <header class="bg-white shadow-md p-6">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Historical Migration Routes to Australia</h1>
     
-    <div class="flex gap-3 flex-wrap">
-      <button id="btn-second-fleet" class="px-4 py-2 rounded-lg font-medium transition-all bg-red-600 text-white shadow-md">
-        Second Fleet (1790)
-      </button>
-      <button id="btn-guangzhou" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300">
-        Guangzhou to Ballarat (1850s-60s)
-      </button>
+    <div class="flex gap-6 flex-wrap items-start">
+      <div class="flex items-center">
+        <input type="checkbox" id="check-first-fleet" class="route-checkbox w-5 h-5" checked>
+        <label for="check-first-fleet" class="flex items-center gap-2 cursor-pointer">
+          <div class="legend-color" style="background-color: #16a34a; width: 30px;"></div>
+          <span class="font-medium text-gray-700">First Fleet (1787-1788)</span>
+        </label>
+      </div>
+      
+      <div class="flex items-center">
+        <input type="checkbox" id="check-second-fleet" class="route-checkbox w-5 h-5" checked>
+        <label for="check-second-fleet" class="flex items-center gap-2 cursor-pointer">
+          <div class="legend-color" style="background-color: #dc2626; width: 30px;"></div>
+          <span class="font-medium text-gray-700">Second Fleet (1790)</span>
+        </label>
+      </div>
+      
+      <div class="flex items-center">
+        <input type="checkbox" id="check-guangzhou" class="route-checkbox w-5 h-5" checked>
+        <label for="check-guangzhou" class="flex items-center gap-2 cursor-pointer">
+          <div class="legend-color" style="background-color: #2563eb; width: 30px;"></div>
+          <span class="font-medium text-gray-700">Chinese Miners (1850s-60s)</span>
+        </label>
+      </div>
     </div>
   </header>
 
@@ -38,32 +69,56 @@
     
     <div id="stop-info" class="hidden absolute top-4 right-4 bg-white rounded-lg shadow-xl p-4 max-w-sm" style="z-index: 1000;">
       <button id="close-info" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
+      <div id="stop-route-color" class="w-full h-1 rounded-full mb-3"></div>
       <h3 id="stop-name" class="font-bold text-lg text-gray-800 mb-2 pr-6"></h3>
       <p id="stop-description" class="text-sm text-gray-600 mb-2"></p>
       <p id="stop-distance" class="text-xs text-gray-500 font-medium"></p>
     </div>
 
-    <div id="route-summary" class="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-md" style="z-index: 1000;">
-      <h3 id="route-title" class="font-bold text-gray-800 mb-2"></h3>
-      <div id="route-stats" class="text-sm text-gray-600 space-y-1"></div>
+    <div class="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-2xl" style="z-index: 1000;">
+      <h3 class="font-bold text-gray-800 mb-3">Route Information</h3>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div id="info-first-fleet">
+          <h4 class="font-semibold text-green-700 mb-1">First Fleet (1787-88)</h4>
+          <p class="text-xs text-gray-600">252 days, ~15,000-16,000 nm</p>
+          <p class="text-xs text-gray-600">3% mortality, 11 ships</p>
+        </div>
+        <div id="info-second-fleet">
+          <h4 class="font-semibold text-red-700 mb-1">Second Fleet (1790)</h4>
+          <p class="text-xs text-gray-600">158-160 days, ~18,000-20,000 nm</p>
+          <p class="text-xs text-gray-600">26% mortality (~160 deaths)</p>
+        </div>
+        <div id="info-guangzhou">
+          <h4 class="font-semibold text-blue-700 mb-1">Chinese Miners (1850s-60s)</h4>
+          <p class="text-xs text-gray-600">3-5 months, ~10,500 km total</p>
+          <p class="text-xs text-gray-600">~17,000 via Robe, 5-10% mortality</p>
+        </div>
+      </div>
     </div>
   </main>
 
-  <footer class="bg-gray-800 text-white p-6 mt-auto">
+  <footer class="bg-gray-800 text-white p-6">
     <div class="max-w-6xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid md:grid-cols-3 gap-6">
         <div>
-          <h3 class="font-bold text-lg mb-2">About These Routes</h3>
+          <h3 class="font-bold text-lg mb-2">First Fleet (1787-1788)</h3>
           <p class="text-sm text-gray-300">
-            These maps trace two significant migration journeys to Australia: the brutal Second Fleet convict voyage of 1790, 
-            and the arduous journey of Chinese gold miners in the 1850s-60s who traveled from Guangzhou to the Ballarat goldfields.
+            11 ships with careful planning and multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town. 
+            Low mortality (3%) due to better provisions and Captain Arthur Phillip's humane approach.
           </p>
         </div>
         <div>
-          <h3 class="font-bold text-lg mb-2">Historical Context</h3>
+          <h3 class="font-bold text-lg mb-2">Second Fleet (1790)</h3>
           <p class="text-sm text-gray-300">
-            The Second Fleet had a 26% mortality rate, while Chinese miners faced discrimination and harsh conditions 
-            during their 500km overland walk. These journeys shaped Australia's multicultural history.
+            Brutal voyage with 26% mortality due to deliberate starvation and abuse by private contractors. 
+            Convicts chained below decks. Known as the "Death Fleet."
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-2">Chinese Gold Miners (1850s-60s)</h3>
+          <p class="text-sm text-gray-300">
+            Journey from Guangzhou via Roaring Forties winds, landing at Robe to avoid Victorian taxes. 
+            The 500km "Robe Walk" to Ballarat faced discrimination and hardship.
           </p>
         </div>
       </div>
@@ -73,27 +128,40 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   <script>
     var routes = {
+      'first-fleet': {
+        name: 'First Fleet Route (1787-1788)',
+        color: '#16a34a',
+        stops: [
+          { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed May 13, 1787', distance: 'Start' },
+          { name: 'Santa Cruz, Tenerife', lat: 28.4636, lng: -16.2518, info: 'Loaded water, vegetables, meat. 21 days', distance: '~1,200 nm' },
+          { name: 'Rio de Janeiro, Brazil', lat: -22.9068, lng: -43.1729, info: 'Arrived August 5, 1787. Ship cleaning, repairs, ~1 month', distance: '~4,800 nm' },
+          { name: 'Table Bay, Cape Town', lat: -33.9249, lng: 18.4241, info: 'Arrived October 13, 1787. Livestock, seeds, plants loaded', distance: '~3,900 nm' },
+          { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived January 26, 1788 (relocated from Botany Bay)', distance: '~5,100 nm' }
+        ]
+      },
       'second-fleet': {
         name: 'Second Fleet Route (1790)',
         color: '#dc2626',
-        stats: '<p>• Journey: 158-160 days (January-June 1790)</p><p>• Distance: ~18,000-20,000 nautical miles</p><p>• Mortality: 26% (~160 deaths)</p><p>• Ships: Neptune, Scarborough, Surprize</p>',
         stops: [
           { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed January 19, 1790', distance: 'Start' },
-          { name: 'Tenerife, Canary Islands', lat: 28.4636, lng: -16.2518, info: 'Brief water stop, 10-14 days', distance: '~1,200 nm from Portsmouth' },
-          { name: 'Cape Town, South Africa', lat: -33.9249, lng: 18.4241, info: 'Arrived April 13-22, 1790. High mortality, 30-40 day resupply', distance: '~5,500 nm from Tenerife' },
-          { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived June 26-28, 1790. ~160 deaths total', distance: '~6,000 nm from Cape Town' }
+          { name: 'Tenerife, Canary Islands', lat: 28.4636, lng: -16.2518, info: 'Brief water stop, 10-14 days', distance: '~1,200 nm' },
+          { name: 'Cape Town, South Africa', lat: -33.9249, lng: 18.4241, info: 'Arrived April 13-22, 1790. High mortality, 30-40 day resupply', distance: '~5,500 nm' },
+          { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived June 26-28, 1790. ~160 deaths total', distance: '~6,000 nm' }
         ]
       },
       'guangzhou-ballarat': {
-        name: 'Guangzhou to Ballarat (1850s-1860s)',
+        name: 'Chinese Gold Rush Route (1850s-1860s)',
         color: '#2563eb',
-        stats: '<p>• Journey: 3-5 months total (1850s-1860s)</p><p>• Sea voyage: 70-90 days (~10,000 km)</p><p>• Overland walk: 4-5 weeks (~500 km)</p><p>• Total migrants: ~17,000 via Robe</p>',
         stops: [
           { name: 'Guangzhou/Hong Kong, China', lat: 23.1291, lng: 113.2644, info: 'Departure point, 70-90 day voyage', distance: 'Start' },
-          { name: 'Robe, South Australia', lat: -37.1625, lng: 139.7583, info: 'Landed 1856-1863, ~17,000 migrants', distance: '~6,000 nm (~10,000 km)' },
-          { name: 'Lake Hawdon/Penola', lat: -37.3772, lng: 140.8394, info: 'First camps, 3-5 days walk', distance: '50-60 km from Robe' },
+          { name: 'South China Sea Exit (Luzon)', lat: 18.5, lng: 120.5, info: 'Southeast sail, 7-10 days. Early disease risks', distance: '~800 nm' },
+          { name: 'Coral Sea (near New Guinea)', lat: -10, lng: 150, info: 'East-southeast through Pacific, 18-25 days', distance: '~2,000 nm' },
+          { name: 'Indian Ocean Loop (40°S)', lat: -40, lng: 130, info: 'South for Roaring Forties westerlies, 10-15 days', distance: '~1,200 nm' },
+          { name: 'Great Australian Bight', lat: -35, lng: 135, info: 'Eastward push with gales, 8-12 days', distance: '~900 nm' },
+          { name: 'Robe, South Australia', lat: -37.1625, lng: 139.7583, info: 'Landed 1856-1863, ~17,000 migrants', distance: 'Landfall' },
+          { name: 'Lake Hawdon/Penola', lat: -37.3772, lng: 140.8394, info: 'First camps, 3-5 days walk', distance: '50-60 km' },
           { name: 'Casterton', lat: -37.5863, lng: 141.4003, info: 'Crossed Glenelg River, 5-7 days', distance: '80-100 km' },
-          { name: 'Hamilton', lat: -37.7427, lng: 142.0156, info: 'Resupplied at inns, faced discrimination', distance: '80-100 km' },
+          { name: 'Coleraine/Hamilton', lat: -37.7427, lng: 142.0156, info: 'Resupplied at inns, faced discrimination', distance: '80-100 km' },
           { name: 'Dunkeld', lat: -37.6500, lng: 142.3333, info: 'Volcanic plains, rising sickness', distance: '60-70 km' },
           { name: 'Skipton/Linton', lat: -37.6833, lng: 143.3667, info: 'Grampians foothills, 7-8 days', distance: '100-110 km' },
           { name: 'Smythesdale', lat: -37.7167, lng: 143.7667, info: 'Approaching goldfields, 5-6 days', distance: '80-90 km' },
@@ -103,13 +171,16 @@
     };
 
     var map;
-    var currentRoute = 'second-fleet';
-    var markers = [];
-    var polyline;
+    var routeLayers = {};
+    var visibleRoutes = {
+      'first-fleet': true,
+      'second-fleet': true,
+      'guangzhou-ballarat': true
+    };
 
     function initMap() {
       map = L.map('map', {
-        center: [-20, 100],
+        center: [-10, 100],
         zoom: 3,
         minZoom: 2,
         maxZoom: 10
@@ -119,83 +190,95 @@
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
 
-      drawRoute(currentRoute);
+      drawAllRoutes();
     }
 
-    function drawRoute(routeId) {
-      var i;
-      var len = markers.length;
-      for (i = 0; i < len; i++) {
-        map.removeLayer(markers[i]);
-      }
-      markers = [];
+    function drawAllRoutes() {
+      var allBounds = [];
       
-      if (polyline) {
-        map.removeLayer(polyline);
-      }
+      for (var routeId in routes) {
+        if (routes.hasOwnProperty(routeId)) {
+          if (routeLayers[routeId]) {
+            var layers = routeLayers[routeId];
+            for (var i = 0; i < layers.length; i++) {
+              map.removeLayer(layers[i]);
+            }
+          }
+          
+          if (visibleRoutes[routeId]) {
+            routeLayers[routeId] = [];
+            var route = routes[routeId];
+            var coordinates = [];
+            var stopsLen = route.stops.length;
+            
+            for (var j = 0; j < stopsLen; j++) {
+              coordinates.push([route.stops[j].lat, route.stops[j].lng]);
+            }
 
-      var route = routes[routeId];
-      var coordinates = [];
-      var stopsLen = route.stops.length;
+            var polyline = L.polyline(coordinates, {
+              color: route.color,
+              weight: 3,
+              opacity: 0.7
+            }).addTo(map);
+            
+            routeLayers[routeId].push(polyline);
+            allBounds.push(polyline.getBounds());
+
+            for (var k = 0; k < stopsLen; k++) {
+              var stop = route.stops[k];
+              var index = k + 1;
+              var markerHtml = '<div style="background-color: ' + route.color + '; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 10px;">' + index + '</div>';
+              
+              var marker = L.marker([stop.lat, stop.lng], {
+                icon: L.divIcon({
+                  className: 'custom-marker',
+                  html: markerHtml,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })
+              }).addTo(map);
+
+              marker.stopData = stop;
+              marker.routeColor = route.color;
+              marker.on('click', function(e) {
+                showStopInfo(e.target.stopData, e.target.routeColor);
+              });
+              routeLayers[routeId].push(marker);
+            }
+          }
+        }
+      }
       
-      for (i = 0; i < stopsLen; i++) {
-        coordinates.push([route.stops[i].lat, route.stops[i].lng]);
+      if (allBounds.length > 0) {
+        var combinedBounds = allBounds[0];
+        for (var m = 1; m < allBounds.length; m++) {
+          combinedBounds.extend(allBounds[m]);
+        }
+        map.fitBounds(combinedBounds, { padding: [50, 50] });
       }
-
-      polyline = L.polyline(coordinates, {
-        color: route.color,
-        weight: 3,
-        opacity: 0.7
-      }).addTo(map);
-
-      for (i = 0; i < stopsLen; i++) {
-        var stop = route.stops[i];
-        var index = i + 1;
-        var markerHtml = '<div style="background-color: ' + route.color + '; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 12px;">' + index + '</div>';
-        
-        var marker = L.marker([stop.lat, stop.lng], {
-          icon: L.divIcon({
-            className: 'custom-marker',
-            html: markerHtml,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-          })
-        }).addTo(map);
-
-        marker.stopData = stop;
-        marker.on('click', function(e) {
-          showStopInfo(e.target.stopData);
-        });
-        markers.push(marker);
-      }
-
-      map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
-
-      document.getElementById('route-title').textContent = route.name;
-      document.getElementById('route-stats').innerHTML = route.stats;
     }
 
-    function showStopInfo(stop) {
+    function showStopInfo(stop, color) {
       document.getElementById('stop-name').textContent = stop.name;
       document.getElementById('stop-description').textContent = stop.info;
       document.getElementById('stop-distance').textContent = 'Distance: ' + stop.distance;
+      document.getElementById('stop-route-color').style.backgroundColor = color;
       document.getElementById('stop-info').classList.remove('hidden');
     }
 
-    document.getElementById('btn-second-fleet').addEventListener('click', function() {
-      currentRoute = 'second-fleet';
-      drawRoute(currentRoute);
-      document.getElementById('btn-second-fleet').className = 'px-4 py-2 rounded-lg font-medium transition-all bg-red-600 text-white shadow-md';
-      document.getElementById('btn-guangzhou').className = 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300';
-      document.getElementById('stop-info').classList.add('hidden');
+    document.getElementById('check-first-fleet').addEventListener('change', function(e) {
+      visibleRoutes['first-fleet'] = e.target.checked;
+      drawAllRoutes();
     });
 
-    document.getElementById('btn-guangzhou').addEventListener('click', function() {
-      currentRoute = 'guangzhou-ballarat';
-      drawRoute(currentRoute);
-      document.getElementById('btn-guangzhou').className = 'px-4 py-2 rounded-lg font-medium transition-all bg-blue-600 text-white shadow-md';
-      document.getElementById('btn-second-fleet').className = 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300';
-      document.getElementById('stop-info').classList.add('hidden');
+    document.getElementById('check-second-fleet').addEventListener('change', function(e) {
+      visibleRoutes['second-fleet'] = e.target.checked;
+      drawAllRoutes();
+    });
+
+    document.getElementById('check-guangzhou').addEventListener('change', function(e) {
+      visibleRoutes['guangzhou-ballarat'] = e.target.checked;
+      drawAllRoutes();
     });
 
     document.getElementById('close-info').addEventListener('click', function() {
