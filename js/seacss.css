@@ -1,5 +1,13 @@
 /* Historical Migration Routes to Australia - Custom Styles */
 
+/* Base Styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
 /* Map Container */
 #map {
   height: calc(100vh - 200px);
@@ -27,6 +35,11 @@
 
 /* Custom Marker Styles */
 .custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.ship-marker {
   background: transparent;
   border: none;
 }
