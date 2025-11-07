@@ -52,6 +52,12 @@
       background: transparent;
       border: none;
     }
+    /* Change Arrow Styles */
+    .change-arrow {
+      font-size: 20px;
+      color: #eab308;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
     /* Stop Information Panel */
     #stop-info {
       max-width: 320px;
@@ -274,6 +280,17 @@
       'second-fleet': true,
       'guangzhou-ballarat': true
     };
+    // Route Change Arrows Data (arrows at significant course changes)
+    var routeChangeArrows = [
+      // First Fleet
+      { lat: -22.9068, lng: -43.1729, bearing: 116.3, name: 'First Fleet: Course change at Rio de Janeiro' },
+      // Second Fleet
+      { lat: 28.4636, lng: -16.2518, bearing: 149.9, name: 'Second Fleet: Course change at Tenerife' },
+      // Guangzhou
+      { lat: -8, lng: 147, bearing: 260.6, name: 'Chinese Route: Course change in Coral Sea' },
+      { lat: -12, lng: 110, bearing: 199.3, name: 'Chinese Route: Course change in Java Sea' },
+      { lat: -40, lng: 115, bearing: 71.9, name: 'Chinese Route: Course change in Roaring Forties' }
+    ];
     function initMap() {
       map = L.map('map', {
         center: [-10, 100],
@@ -284,7 +301,24 @@
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
+      // Add route change arrows
+      addRouteChangeArrows();
       drawAllRoutes();
+    }
+    function addRouteChangeArrows() {
+      routeChangeArrows.forEach(function(arrow) {
+        var rotation = arrow.bearing - 90; // Adjust for arrow orientation (➤ points right by default)
+        var arrowHtml = '<div class="change-arrow" style="transform: rotate(' + rotation + 'deg);">➤</div>';
+        var arrowIcon = L.divIcon({
+          className: 'change-arrow-marker',
+          html: arrowHtml,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+          popupAnchor: [0, -12]
+        });
+        var marker = L.marker([arrow.lat, arrow.lng], { icon: arrowIcon }).addTo(map);
+        marker.bindPopup('Course Change: ' + arrow.name + '<br>New Direction: ' + arrow.bearing.toFixed(1) + '°');
+      });
     }
     function drawAllRoutes() {
       var allBounds = [];
@@ -408,7 +442,7 @@
       }
      
       // Wind/current effect: bobbing motion to simulate waves and currents
-      function getWindOffset(progress, segmentIndex) {
+      function getWindOffset(progress, segmentIndex, start) {
         var waveFreq = 20; // Frequency of bobbing
         var waveAmp = 0.05; // Amplitude of bobbing (degrees)
         var currentOffset = 0.01 * Math.sin(segmentIndex * Math.PI / coordinates.length); // Slight current deviation per segment
@@ -441,7 +475,7 @@
         var baseLat = start[0] + (end[0] - start[0]) * progress;
         var baseLng = start[1] + (end[1] - start[1]) * progress;
        
-        var windOffset = getWindOffset(progress, currentSegment);
+        var windOffset = getWindOffset(progress, currentSegment, start);
         var lat = baseLat + windOffset.lat;
         var lng = baseLng + windOffset.lng;
        
