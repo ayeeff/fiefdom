@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE 2034 COUNTDOWN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px #ef4444; }
+            50% { box-shadow: 0 0 20px #ef4444; }
+        }
+        .timeline-dot {
+            transition: all 0.3s ease;
+        }
+        .timeline-dot:hover {
+            transform: scale(1.2);
+        }
+        .countdown-digit {
+            animation: pulseGlow 1s ease-in-out infinite alternate;
+        }
+        
+        /* Snake Timeline Styles */
+        .snake-timeline {
+            position: relative;
+            margin: 40px 0;
+            padding: 20px 0;
+        }
+        .snake-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+        .snake-timeline-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, #ef4444, #f59e0b, #3b82f6);
+            z-index: 2;
+            transition: width 1s ease;
+        }
+        .snake-timeline-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            position: relative;
+            padding-top: 40px;
+        }
+        .snake-timeline-event {
+            width: 30%;
+            margin-bottom: 40px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .snake-timeline-event.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .snake-timeline-event:nth-child(odd) {
+            align-self: flex-start;
+        }
+        .snake-timeline-event:nth-child(even) {
+            align-self: flex-end;
+            margin-top: 80px;
+        }
+        .snake-timeline-event::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            top: -42px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            transition: all 0.3s ease;
+        }
+        .snake-timeline-event:hover::before {
+            transform: translateX(-50%) scale(1.2);
+        }
+        .snake-timeline-event.china::before {
+            background: #ef4444;
+        }
+        .snake-timeline-event.ohio::before {
+            background: #f59e0b;
+        }
+        .snake-timeline-event.columbia::before {
+            background: #3b82f6;
+        }
+        .snake-timeline-event::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background: #e5e7eb;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        .snake-timeline-content {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            border-radius: 8px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .snake-timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .snake-timeline-year {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .snake-timeline-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        .snake-timeline-badge.china {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        .snake-timeline-badge.ohio {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+        .snake-timeline-badge.columbia {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+        .snake-timeline-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .snake-timeline-detail {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .snake-timeline-event {
+                width: 45%;
+            }
+        }
+        @media (max-width: 768px) {
+            .snake-timeline-event {
+                width: 100%;
+            }
+            .snake-timeline-event:nth-child(even) {
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in-up">
+            <h1 class="text-5xl font-bold mb-3 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-transparent">THE 2034 COUNTDOWN</h1>
+            <p class="text-xl text-slate-300 mb-2">When Rare Earths Force America to Choose Which Hemisphere to Abandon</p>
+            <p class="text-sm text-slate-400 italic">A resource war the West is still treating as a trade issue</p>
+        </div>
+
+        <!-- Countdown Clock -->
+        <div id="countdown" class="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-2 border-red-500/50 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h2 class="text-3xl font-bold">Time Until First Ohio-Class Retirement</h2>
+            </div>
+            <div class="flex justify-center gap-8">
+                <div class="text-center">
+                    <div id="years" class="text-6xl font-bold text-red-400 countdown-digit">0</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wider">Years</div>
+                </div>
+                <div class="text-6xl font-bold text-red-400">:</div>
+                <div class="text-center">
+                    <div id="days" class="text-6xl font-bold text-red-400 countdown-digit">0</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wider">Days</div>
+                </div>
+                <div class="text-6xl font-bold text-red-400">:</div>
+                <div class="text-center">
+                    <div id="hours" class="text-6xl font-bold text-red-400 countdown-digit">0</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wider">Hours</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Stats Dashboard -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 fade-in-up">
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
+                <div class="text-3xl font-bold text-red-400 mb-1">90%</div>
+                <div class="text-xs text-slate-300">China's refining control</div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
+                <div class="text-3xl font-bold text-red-400 mb-1">92%</div>
+                <div class="text-xs text-slate-300">Magnet production</div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
+                <div class="text-3xl font-bold text-orange-400 mb-1">14</div>
+                <div class="text-xs text-slate-300">Ohio-class SSBNs</div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
+                <div class="text-3xl font-bold text-yellow-400 mb-1">5+ tons</div>
+                <div class="text-xs text-slate-300">REE per Columbia</div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
+                <div class="text-3xl font-bold text-red-400 mb-1">2028</div>
+                <div class="text-xs text-slate-300">First U.S. magnet line</div>
+            </div>
+        </div>
+
+        <!-- Strategic Context -->
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8 backdrop-blur fade-in-up">
+            <h2 class="text-2xl font-bold mb-4 text-orange-400">The Strategic Trilemma</h2>
+            <p class="text-slate-300 mb-4 leading-relaxed">China didn't just mine rare earths—it <strong class="text-red-400">engineered a full-stack supply chain monopoly</strong> while the West was distracted. From ore to magnet, China controls 90% of refining and 92% of the highest-value production stage. With 26,000 rare earth patents filed (1950-2019) versus only 9,810 in the U.S., China has established technological supremacy.</p>
+            <p class="text-slate-300 mb-4 leading-relaxed">The December 2025 export rules extend this control to <strong class="text-red-400">foreign-made magnets containing even trace Chinese material</strong>. Every Virginia-class boat needs ~4.6 tons of REEs; each Columbia-class needs over 5 tons of sintered NdFeB magnets for propulsion and silent-running systems. <strong class="text-orange-400">No Western plant can yet produce these at scale with non-Chinese feedstock.</strong></p>
+            <div class="bg-red-900/20 border-l-4 border-red-500 p-4 rounded">
+                <p class="text-slate-200 font-semibold">Bottom Line: The West is trying to replicate in under 10 years what took China over 20 years, under stricter environmental rules, higher labor costs, and without the scientific-industrial base China accumulated. If magnet and heavy REE separation capacity is not operationally proven by 2028, the Columbia-class schedule slips, the SSBN gap widens, and extended deterrence commitments become mutually exclusive.</p>
+            </div>
+        </div>
+
+        <!-- Snake Timeline -->
+        <div class="mb-8 fade-in-up">
+            <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
+            
+            <div class="snake-timeline">
+                <div class="snake-timeline-line" id="snake-timeline-line"></div>
+                <div class="snake-timeline-container" id="snake-timeline-container">
+                    <!-- Events will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Three Theater Columns -->
+        <div class="mb-8 fade-in-up">
+            <h2 class="text-3xl font-bold mb-2 text-center">The Impossible Choice</h2>
+            <p class="text-center text-slate-400 mb-6 text-lg">Which hemisphere gets abandoned when SSBN coverage gaps emerge?</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-red-600 to-orange-500 rounded-xl p-6 transform transition-transform hover:scale-105">
+                    <div class="flex items-start justify-between mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">HIGHEST</span>
+                    </div>
+                    <div class="text-3xl mb-3">🇺🇸🇯🇵🇰🇷🇦🇺</div>
+                    <h3 class="text-2xl font-bold mb-3">Indo-Pacific</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><strong>Threat:</strong> China & North Korea</div>
+                        <div><strong>Required Coverage:</strong> 5-6 SSBNs</div>
+                        <div class="pt-2 border-t border-white/20 text-white/90 text-xs leading-relaxed">Primary peer adversary; nuclear-armed DPRK; AUKUS commitments</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-500 rounded-xl p-6 transform transition-transform hover:scale-105">
+                    <div class="flex items-start justify-between mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">HIGH</span>
+                    </div>
+                    <div class="text-3xl mb-3">🇺🇸🇬🇧🇫🇷🇩🇪</div>
+                    <h3 class="text-2xl font-bold mb-3">European Theater</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><strong>Threat:</strong> Resurgent Russia</div>
+                        <div><strong>Required Coverage:</strong> 2-3 SSBNs</div>
+                        <div class="pt-2 border-t border-white/20 text-white/90 text-xs leading-relaxed">NATO Article 5 guarantee; alliance credibility at stake</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-600 to-orange-500 rounded-xl p-6 transform transition-transform hover:scale-105">
+                    <div class="flex items-start justify-between mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">MEDIUM</span>
+                    </div>
+                    <div class="text-3xl mb-3">🇺🇸🇸🇦🇮🇱</div>
+                    <h3 class="text-2xl font-bold mb-3">Middle East</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><strong>Threat:</strong> Iranian Influence</div>
+                        <div><strong>Required Coverage:</strong> 1-2 SSBNs</div>
+                        <div class="pt-2 border-t border-white/20 text-white/90 text-xs leading-relaxed">Nuclear proliferation risk; regional stability critical</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Dependencies -->
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
+            <h2 class="text-2xl font-bold mb-4 text-red-400">China's Weaponization Moment</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold mb-3 text-lg text-red-400">Critical Military Dependencies:</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• <strong>Electric propulsion</strong> - Every Virginia needs ~4.6t REEs</li>
+                        <li>• <strong>Sintered NdFeB magnets</strong> - Silent-running systems</li>
+                        <li>• <strong>Heavy REEs</strong> - Dysprosium, terbium (China-only refining)</li>
+                        <li>• <strong>Missile guidance</strong> - Precision actuators and sensors</li>
+                        <li>• <strong>Radar systems</strong> - Advanced phased arrays</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-3 text-lg text-orange-400">Why Western Recovery Fails:</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• <strong>Environmental arbitrage</strong> - China tolerated ecological cost; West faces NIMBY + ESG litigation</li>
+                        <li>• <strong>Dumping discipline</strong> - Beijing floods market when competitors emerge, crashes prices</li>
+                        <li>• <strong>Case-by-case licensing</strong> - China vetos who builds what, where</li>
+                        <li>• <strong>Lost expertise</strong> - Generation of knowledge gone</li>
+                        <li>• <strong>Timeline mismatch</strong> - Need 10-15 years; have less than 10</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Warning -->
+        <div class="bg-gradient-to-br from-red-900/40 to-slate-800/40 border-2 border-red-500/50 rounded-xl p-8 text-center fade-in-up">
+            <h2 class="text-2xl font-bold mb-4 text-red-400">2034 Is Not Just a Retirement Date</h2>
+            <p class="text-lg text-slate-300 italic leading-relaxed max-w-4xl mx-auto">"It is the first hard deadline in a resource war the West is still treating as a trade issue. Once Ohio boats start decommissioning faster than Columbia boats enter service, the U.S. faces a hard grand-strategy choice: Keep full SSBN patrol tempo and strip other programs, accept gaps in Europe or Middle East to prioritize Indo-Pacific deterrence, or extend Ohio service life by cannibalizing scarce REE-qualified components. All paths lead to the definitive end of American global primacy—not with a bang, but with a forced retirement."</p>
+        </div>
+    </div>
+
+    <script>
+        // Countdown Clock
+        function updateCountdown() {
+            const target = new Date('2034-01-01');
+            const now = new Date();
+            const difference = target - now;
+            if (difference > 0) {
+                const years = Math.floor(difference / (1000 * 60 * 60 * 24 * 365));
+                const days = Math.floor((difference / (1000 * 60 * 60 * 24)) % 365);
+                const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+                document.getElementById('years').textContent = years;
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+            } else {
+                document.getElementById('countdown').innerHTML = '<h2 class="text-3xl font-bold text-red-400">Countdown Complete</h2>';
+            }
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 3600000); // Update every hour for efficiency
+
+        // Timeline Data
+        const chinaTimeline = [
+            { year: 2004, event: 'Strategic consolidation begins', detail: 'China starts systematic acquisition of rare earth mining operations globally', color: 'red', type: 'china' },
+            { year: 2010, event: '97% market control achieved', detail: 'Dominates extraction; begins refining infrastructure buildout', color: 'red', type: 'china' },
+            { year: 2012, event: 'Export restrictions imposed', detail: 'WTO challenge filed but ineffective; control remains', color: 'red', type: 'china' },
+            { year: 2015, event: 'Magnet production dominance', detail: '92% of global sintered NdFeB magnet manufacturing', color: 'red', type: 'china' },
+            { year: 2019, event: '26,000 REE patents filed', detail: 'vs. 9,810 in U.S. - technological supremacy established', color: 'red', type: 'china' },
+            { year: 2023, event: 'Heavy REE monopoly complete', detail: 'Only source for dysprosium, terbium separation at scale', color: 'red', type: 'china' },
+            { year: 2025, event: 'EXPORT CONTROLS EXTENDED', detail: 'New rules control foreign-made magnets with Chinese material', color: 'red', type: 'china' }
+        ];
+
+        const ohioTimeline = [
+            { year: 1981, event: 'USS Ohio commissioned', detail: 'First of 18 Ohio-class SSBNs enters service', color: 'orange', type: 'ohio' },
+            { year: 2002, event: 'Four boats converted to SSGN', detail: 'Fleet reduced to 14 ballistic missile submarines', color: 'orange', type: 'ohio' },
+            { year: 2027, event: 'Maintenance crisis begins', detail: 'Multiple boats hit service limits; availability drops', color: 'orange', type: 'ohio' },
+            { year: 2031, event: 'Fleet stress intensifies', detail: 'Several boats exceed designed service life', color: 'orange', type: 'ohio' },
+            { year: 2034, event: 'FIRST RETIREMENT FORCED', detail: '50-year hull life reached - no choice but decommission', color: 'orange', type: 'ohio' },
+            { year: 2036, event: 'Second boat retired', detail: 'Deterrent gap widens; patrol coverage compromised', color: 'orange', type: 'ohio' },
+            { year: 2040, event: 'Cascading retirements', detail: 'Multiple Ohio-class boats reach end of life', color: 'orange', type: 'ohio' }
+        ];
+
+        const columbiaTimeline = [
+            { year: 2014, event: 'Program initiated', detail: 'Columbia-class program approved; original target: 2031', color: 'blue', type: 'columbia' },
+            { year: 2020, event: 'Construction begins', detail: 'USS District of Columbia keel laid', color: 'blue', type: 'columbia' },
+            { year: 2024, event: 'Schedule slips to 2033', detail: 'Cost overruns and technical delays accumulate', color: 'blue', type: 'columbia' },
+            { year: 2025, event: 'REE supply crisis emerges', detail: 'China export controls threaten magnet supply chain', color: 'blue', type: 'columbia' },
+            { year: 2027, event: 'Heavy REE separation gap', detail: 'Western facilities not yet operational for critical elements', color: 'blue', type: 'columbia' },
+            { year: 2028, event: 'U.S. magnet line target', detail: 'First domestic sintered-magnet production (if on schedule)', color: 'blue', type: 'columbia' },
+            { year: 2030, event: 'Schedule slips to late 2030s', detail: 'Each boat needs >5 tons NdFeB magnets - supply uncertain', color: 'blue', type: 'columbia' }
+        ];
+
+        let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline].sort((a, b) => a.year - b.year);
+
+        // Render Snake Timeline Events
+        function renderSnakeTimeline() {
+            const container = document.getElementById('snake-timeline-container');
+            container.innerHTML = '';
+            
+            allEvents.forEach((event, index) => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `snake-timeline-event ${event.type}`;
+                
+                const typeLabel = event.type === 'china' ? 'China' : event.type === 'ohio' ? 'Ohio' : 'Columbia';
+                const badgeClass = `snake-timeline-badge ${event.type}`;
+                
+                eventElement.innerHTML = `
+                    <div class="snake-timeline-content">
+                        <div class="snake-timeline-year">
+                            <span>${event.year}</span>
+                            <span class="${badgeClass}">${typeLabel}</span>
+                        </div>
+                        <div class="snake-timeline-title">${event.event}</div>
+                        <div class="snake-timeline-detail">${event.detail}</div>
+                    </div>
+                `;
+                
+                container.appendChild(eventElement);
+                
+                // Add animation delay based on index
+                setTimeout(() => {
+                    eventElement.classList.add('visible');
+                }, 100 + (index * 100));
+            });
+        }
+
+        // Animate timeline line
+        function animateTimelineLine() {
+            const line = document.getElementById('snake-timeline-line');
+            line.style.width = '0%';
+            
+            setTimeout(() => {
+                line.style.width = '100%';
+            }, 500);
+        }
+
+        // Intersection Observer for Animations
+        function initAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.animationPlayState = 'running';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Initialize
+        renderSnakeTimeline();
+        animateTimelineLine();
+        initAnimations();
+
+        // Re-render on resize for responsive adjustments
+        window.addEventListener('resize', () => {
+            renderSnakeTimeline();
+            animateTimelineLine();
+        });
+    </script>
+</body>
+</html>
