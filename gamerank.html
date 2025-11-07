@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Game Industry Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,rgba(15,23,42,1) 0%,rgba(30,41,59,1) 50%,rgba(12,30,61,1) 100%)!important;min-height:100vh;position:relative;overflow-x:hidden}
+        .orbitron{font-family:'Orbitron',sans-serif}
+        .country-name-text{color:#fff!important}
+        .cyber-grid{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(180deg,rgba(59,130,246,.03) 1px,transparent 1px);background-size:50px 50px;z-index:0;animation:gridScroll 20s linear infinite;pointer-events:none}
+        @keyframes gridScroll{0%{transform:translateY(0)}100%{transform:translateY(50px)}}
+        .tab-button{transition:all .3s ease;border-bottom:3px solid transparent;color:#94a3b8}
+        .tab-button.active{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(139,92,246,.2));border-bottom-color:#3b82f6;color:#60a5fa}
+        .tab-button:hover:not(.active){background:rgba(255,255,255,.05);color:#cbd5e1}
+        .tab-button.rank-1{background:linear-gradient(135deg,rgba(255,215,0,.3),rgba(218,165,32,.2));border-color:rgba(255,215,0,.5)}
+        .tab-button.rank-1.active{background:linear-gradient(135deg,rgba(255,215,0,.4),rgba(218,165,32,.3));border-bottom-color:#FFD700}
+        .tab-button.rank-2{background:linear-gradient(135deg,rgba(192,192,192,.3),rgba(169,169,169,.2));border-color:rgba(192,192,192,.5)}
+        .tab-button.rank-2.active{background:linear-gradient(135deg,rgba(192,192,192,.4),rgba(169,169,169,.3));border-bottom-color:#C0C0C0}
+        .tab-button.rank-3{background:linear-gradient(135deg,rgba(205,127,50,.3),rgba(184,115,51,.2));border-color:rgba(205,127,50,.5)}
+        .tab-button.rank-3.active{background:linear-gradient(135deg,rgba(205,127,50,.4),rgba(184,115,51,.3));border-bottom-color:#CD7F32}
+        .tab-button.system-glow{background:rgba(59,130,246,.35)!important;box-shadow:0 0 30px rgba(59,130,246,.6);border-color:rgba(59,130,246,.8)!important}
+        .country-card{background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
+        .country-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.3);border-color:rgba(59,130,246,.5)}
+        .flag-badge{box-shadow:0 4px 6px rgba(0,0,0,.3)}
+        .loading-spinner{border:3px solid rgba(255,255,255,.1);border-top-color:#3b82f6;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .speed-card{background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+        .speed-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .6s}
+        .speed-card:hover::before{left:100%}
+        .speed-card:hover{transform:translateY(-2px);box-shadow:0 25px 50px rgba(0,0,0,.4);border-color:rgba(255,255,255,.3)}
+        .shimmer-text{background:linear-gradient(90deg,#fff 0%,#60a5fa 50%,#fff 100%);background-size:1000px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+        @keyframes shimmer{0%{background-position:-1000px 0}100%{background-position:1000px 0}}
+        .metric-display{color:#fff}
+        .subsystem-item{padding:8px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)}
+        .tab-loading{display:flex;align-items:center;justify-content:center;min-height:400px}
+        .tab-loading .loading-spinner{width:48px;height:48px}
+        .info-icon{cursor:help;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);font-size:10px;font-weight:700;color:#60a5fa;transition:all .2s ease}
+        .info-icon:hover{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.6);transform:scale(1.1)}
+        .info-icon-wide{width:18px;height:18px;font-size:12px}
+        .tooltip{position:relative;z-index:99999 !important}
+        .tooltip-text{visibility:hidden;opacity:0;position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:linear-gradient(135deg,rgba(30,41,59,.98),rgba(15,23,42,.98));color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:12px;width:140px;max-width:140px;z-index:99999 !important;border:1px solid rgba(59,130,246,.3);box-shadow:0 10px 25px rgba(0,0,0,.5);transition:all .3s ease;pointer-events:none;line-height:1.4;white-space:normal;}
+        .tooltip:hover .tooltip-text{visibility:visible;opacity:1}
+        .tooltip-text::before{content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-right-color:rgba(30,41,59,.98)}
+        .tooltip-left .tooltip-text{left:auto;right:calc(100% + 10px);}
+        .tooltip-left .tooltip-text::before{left:auto;right:-6px;border-right-color:transparent;border-left-color:rgba(30,41,59,.98)}
+        .core-badge { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2)); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; }
+        .core-badge:hover { background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3)); border-color: #3b82f6; transform: scale(1.05); box-shadow: 0 0 10px rgba(59,130,246,0.4); }
+        .multi-vendor-penalty { background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(220,38,38,0.2)); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; animation: pulse 2s infinite; display: inline-flex; align-items: center; }
+        .multi-vendor-penalty:hover { background: linear-gradient(135deg, rgba(239,68,68,0.4), rgba(220,38,38,0.3)); border-color: #ef4444; transform: scale(1.05); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        #coreModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        #coreModal.show { opacity: 1; transform: translateY(0); }
+        #closeModalBtn { background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        #closeModalBtn:hover { color: #ef4444; background: rgba(239,68,68,0.2); transform: rotate(90deg); }
+        .modal-overlay { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
+        .li-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-start; align-items: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; }
+        .li-card { flex: 0 0 auto; min-width: 80px; text-align: center; }
+        .li-score-card { background: linear-gradient(to right, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); padding: 8px; border-radius: 8px; }
+        .li-score { font-size: 1.25rem; font-weight: bold; color: #fbbf24; font-family: 'Orbitron', sans-serif; }
+        .li-flag { width: 20px; height: 15px; margin-top: 4px; border-radius: 2px; }
+        .li-country-li { background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 6px; margin: 1px; font-size: 10px; color: #e2e8f0; min-width: 120px; }
+        .country-li-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(to right, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; font-family: 'Orbitron', sans-serif; white-space: nowrap; }
+        .li-header { text-align: center; margin-bottom: 1rem; }
+        .li-header h3 { color: #fbbf24; font-family: 'Orbitron', sans-serif; font-size: 1.25rem; font-weight: bold; }
+        .product-button { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,185,129,0.2)); border: 1px solid rgba(34,197,94,0.4); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; margin: 2px; display: inline-flex; align-items: center; }
+        .product-button:hover { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(16,185,129,0.3)); border-color: #10b981; transform: scale(1.05); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+        .company-button { background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(251,191,36,0.2)); border: 1px solid rgba(234,179,8,0.4); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; margin: 2px; display: inline-flex; align-items: center; }
+        .company-button:hover { background: linear-gradient(135deg, rgba(234,179,8,0.3), rgba(251,191,36,0.3)); border-color: #fbbf24; transform: scale(1.05); box-shadow: 0 0 8px rgba(234,179,8,0.4); }
+        #productModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        #productModal.show { opacity: 1; transform: translateY(0); }
+        #companyModal { opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        #companyModal.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="cyber-grid"></div>
+    <div class="relative z-10 max-w-[1800px] mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-6xl font-black mb-2 orbitron bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent shimmer-text">VIDEO GAME INDUSTRY DASHBOARD</h1>
+            <p class="text-lg md:text-xl text-slate-300">Global Gaming Industry Performance Analysis</p>
+        </div>
+        <div id="loading" class="text-center py-20">
+            <div class="loading-spinner w-16 h-16 rounded-full mx-auto mb-4"></div>
+            <p class="text-slate-400">Loading gaming data...</p>
+        </div>
+        <div id="mainContent" class="hidden">
+            <div id="tabButtons" class="flex flex-wrap gap-2 mb-6 speed-card p-4 rounded-xl"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-[70%_30%] gap-6">
+                <div id="countryContent">
+                    <div id="tabContent" class="min-h-screen"></div>
+                </div>
+                <div>
+                    <div class="sticky top-4">
+                        <div class="speed-card rounded-2xl p-6 mb-6" id="countryPerformance">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <img id="perfFlag" src="" alt="" class="w-16 h-10 flag-badge rounded-lg">
+                                    <h2 id="perfCountryName" class="text-2xl font-bold orbitron country-name-text">United States</h2>
+                                    <p id="perfRank" class="text-slate-400">Rank #1</p>
+                                </div>
+                                <div class="text-right flex items-center gap-2">
+                                    <span class="text-sm text-cyan-400 font-semibold">Overall Score:</span>
+                                    <div id="perfOverallContainer" class="flex flex-wrap gap-1 items-center"></div>
+                                </div>
+                            </div>
+                            <div id="perfContext" class="mb-6 p-4 bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg border border-slate-600/30">
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    <span class="text-yellow-400 font-semibold">Standouts:</span> <span id="perfStandouts">Epic (Fortnite), Blizzard; indie explosion (Hades II)</span>
+                                </div>
+                            </div>
+                            <div id="sidebarMetrics" class="grid grid-cols-1 gap-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+const countries=[
+    {code:'us',name:'United States',flag:'https://flagcdn.com/w80/us.png'},
+    {code:'cn',name:'China',flag:'https://flagcdn.com/w80/cn.png'},
+    {code:'kr',name:'South Korea',flag:'https://flagcdn.com/w80/kr.png'},
+    {code:'jp',name:'Japan',flag:'https://flagcdn.com/w80/jp.png'},
+    {code:'gb',name:'United Kingdom',flag:'https://flagcdn.com/w80/gb.png'},
+    {code:'ca',name:'Canada',flag:'https://flagcdn.com/w80/ca.png'},
+    {code:'de',name:'Germany',flag:'https://flagcdn.com/w80/de.png'},
+    {code:'fr',name:'France',flag:'https://flagcdn.com/w80/fr.png'},
+    {code:'se',name:'Sweden',flag:'https://flagcdn.com/w80/se.png'},
+    {code:'fi',name:'Finland',flag:'https://flagcdn.com/w80/fi.png'},
+    {code:'br',name:'Brazil',flag:'https://flagcdn.com/w80/br.png'},
+    {code:'au',name:'Australia',flag:'https://flagcdn.com/w80/au.png'},
+    {code:'in',name:'India',flag:'https://flagcdn.com/w80/in.png'},
+    {code:'nl',name:'Netherlands',flag:'https://flagcdn.com/w80/nl.png'},
+    {code:'pl',name:'Poland',flag:'https://flagcdn.com/w80/pl.png'},
+    {code:'sg',name:'Singapore',flag:'https://flagcdn.com/w80/sg.png'},
+    {code:'dk',name:'Denmark',flag:'https://flagcdn.com/w80/dk.png'},
+    {code:'it',name:'Italy',flag:'https://flagcdn.com/w80/it.png'},
+    {code:'es',name:'Spain',flag:'https://flagcdn.com/w80/es.png'},
+    {code:'ru',name:'Russia',flag:'https://flagcdn.com/w80/ru.png'},
+    {code:'il',name:'Israel',flag:'https://flagcdn.com/w80/il.png'},
+    {code:'cz',name:'Czech Republic',flag:'https://flagcdn.com/w80/cz.png'},
+    {code:'mx',name:'Mexico',flag:'https://flagcdn.com/w80/mx.png'},
+    {code:'no',name:'Norway',flag:'https://flagcdn.com/w80/no.png'},
+    {code:'vn',name:'Vietnam',flag:'https://flagcdn.com/w80/vn.png'},
+    {code:'ua',name:'Ukraine',flag:'https://flagcdn.com/w80/ua.png'},
+    {code:'ie',name:'Ireland',flag:'https://flagcdn.com/w80/ie.png'},
+    {code:'ph',name:'Philippines',flag:'https://flagcdn.com/w80/ph.png'},
+    {code:'tr',name:'Turkey',flag:'https://flagcdn.com/w80/tr.png'},
+    {code:'ae',name:'United Arab Emirates',flag:'https://flagcdn.com/w80/ae.png'},
+    {code:'sa',name:'Saudi Arabia',flag:'https://flagcdn.com/w80/sa.png'}
+];
+
+const metricLabels = {
+    Talent: { name: 'Talent', weight: '', color: 'blue', tooltip: 'Industry talent pool and expertise' },
+    Output: { name: 'Output', weight: '', color: 'purple', tooltip: 'Game production and release volume' },
+    Innovation: { name: 'Innovation', weight: '', color: 'red', tooltip: 'Technological and creative innovation' },
+    Sustain: { name: 'Sustain', weight: '', color: 'green', tooltip: 'Industry sustainability and growth potential' },
+    Earnings: { name: 'Earnings', weight: '', color: 'orange', tooltip: 'Revenue and financial performance' },
+    Tournaments: { name: 'Tournaments', weight: '', color: 'cyan', tooltip: 'Esports and competitive gaming events' },
+    Investments: { name: 'Investments', weight: '', color: 'pink', tooltip: 'Capital investments in gaming' }
+};
+
+let gamingData = {};
+let activeTab = 'us';
+
+function createTabs() {
+    const container = document.getElementById('tabButtons');
+    let html = '';
+    countries.forEach((country, i) => {
+        const gameData = gamingData[country.code] || {};
+        const overallScore = gameData.Overall || 0;
+        const rankClass = i < 3 ? `rank-${i+1}` : '';
+        html += `<button class="tab-button ${rankClass} px-6 py-3 rounded-lg text-sm font-semibold ${country.code === activeTab ? 'active' : ''}" data-country-code="${country.code}" onclick="switchToTab('${country.code}')">
+            <img src="${country.flag}" alt="${country.code}" class="w-5 h-4 inline-block mr-2 rounded">
+            <span class="country-name-text">${country.code.toUpperCase()}</span>
+            <span class="ml-2 text-xs opacity-75">#${i+1}</span>
+            <span class="ml-2 text-xs bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-300 px-2 py-1 rounded-full">${overallScore}</span>
+        </button>`;
+    });
+    container.innerHTML = html;
+}
+
+function switchToTab(cc) {
+    activeTab = cc;
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.countryCode === cc) {
+            btn.classList.add('active');
+        }
+    });
+    renderTabContent(cc);
+    updatePerformancePanel(cc);
+}
+
+function updatePerformancePanel(cc) {
+    const country = countries.find(c => c.code === cc);
+    const gameData = gamingData[cc] || {};
+    
+    document.getElementById('perfFlag').src = country.flag;
+    document.getElementById('perfCountryName').textContent = country.name;
+    document.getElementById('perfRank').textContent = `Rank #${countries.findIndex(c => c.code === cc) + 1}`;
+    
+    const overallScore = gameData.Overall || 0;
+    document.getElementById('perfOverallContainer').innerHTML = `<span class="text-2xl font-bold orbitron text-cyan-300">${overallScore}</span>`;
+    
+    document.getElementById('perfStandouts').textContent = gameData.Standouts || 'N/A';
+    
+    const sidebarMetrics = document.getElementById('sidebarMetrics');
+    sidebarMetrics.innerHTML = `
+        <div class="p-3 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg border border-blue-500/30">
+            <div class="text-xs text-blue-400 font-semibold mb-1">Earnings ($M)</div>
+            <div class="text-lg font-bold text-white">${gameData['Earnings ($M)'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg border border-purple-500/30">
+            <div class="text-xs text-purple-400 font-semibold mb-1">Investments ($B)</div>
+            <div class="text-lg font-bold text-white">${gameData['Investments ($B)'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg border border-green-500/30">
+            <div class="text-xs text-green-400 font-semibold mb-1">Core Mythology</div>
+            <div class="text-sm text-white">${gameData['Core Mythology'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-lg border border-yellow-500/30">
+            <div class="text-xs text-yellow-400 font-semibold mb-1">Heroes</div>
+            <div class="text-sm text-white">${gameData.Heroes || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-lg border border-red-500/30">
+            <div class="text-xs text-red-400 font-semibold mb-1">Biggest IP</div>
+            <div class="text-sm text-white">${gameData['Biggest IP'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-lg border border-pink-500/30">
+            <div class="text-xs text-pink-400 font-semibold mb-1">Most Popular Games</div>
+            <div class="text-sm text-white">${gameData['Most Popular Games'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 rounded-lg border border-indigo-500/30">
+            <div class="text-xs text-indigo-400 font-semibold mb-1">Key Tournaments</div>
+            <div class="text-sm text-white">${gameData['Key Tournaments'] || 'N/A'}</div>
+        </div>
+        <div class="p-3 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-lg border border-cyan-500/30">
+            <div class="text-xs text-cyan-400 font-semibold mb-1">Notes</div>
+            <div class="text-sm text-white">${gameData.Notes || 'N/A'}</div>
+        </div>
+    `;
+}
+
+function renderTabContent(cc) {
+    const country = countries.find(c => c.code === cc);
+    const gameData = gamingData[cc] || {};
+    const tabContent = document.getElementById('tabContent');
+    
+    const metricHTML = Object.keys(metricLabels).map(key => {
+        const info = metricLabels[key];
+        const value = parseInt(gameData[`${key[0]}. ${key}`]) || 0;
+        return `<div class="p-3 bg-gradient-to-br from-slate-700/40 to-slate-800/40 rounded-lg border border-slate-600/30">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs text-${info.color}-400 font-semibold flex items-center gap-1">${key}<span class="tooltip"><span class="info-icon">?</span><span class="tooltip-text">${info.tooltip}</span></span></span>
+            </div>
+            <div class="text-2xl font-black orbitron text-white">${value}</div>
+        </div>`;
+    }).join('');
+    
+    tabContent.innerHTML = `
+        <div class="country-card rounded-2xl p-4 md:p-6 mb-6">
+            <div class="flex items-center gap-4 mb-4">
+                <img src="${country.flag}" alt="${country.name}" class="w-16 h-10 flag-badge rounded-lg">
+                <h3 class="text-xl font-bold orbitron country-name-text">${country.name} - Industry Metrics</h3>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">${metricHTML}</div>
+        </div>
+        <div id="plotlyChart" class="country-card rounded-2xl p-4 md:p-6"></div>
+    `;
+    
+    // Create Plotly chart
+    const metrics = Object.keys(metricLabels);
+    const values = metrics.map(metric => parseInt(gameData[`${metric[0]}. ${metric}`]) || 0);
+    
+    const trace = {
+        type: 'bar',
+        x: metrics,
+        y: values,
+        marker: {
+            color: ['#3b82f6', '#8b5cf6', '#ef4444', '#10b981', '#f59e0b', '#06b6d4', '#ec4899']
+        }
+    };
+    
+    const layout = {
+        title: `${country.name} Gaming Metrics`,
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#e2e8f0' },
+        xaxis: { tickangle: -45 },
+        yaxis: { range: [0, 100] }
+    };
+    
+    Plotly.newPlot('plotlyChart', [trace], layout, { responsive: true });
+}
+
+async function loadGamingData() {
+    const url = 'https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@main/data/gamecalcs.csv';
+    
+    return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                results.data.forEach(row => {
+                    if (row.Country) {
+                        const countryObj = countries.find(c => c.name === row.Country.trim());
+                        if (countryObj) {
+                            gamingData[countryObj.code] = row;
+                        }
+                    }
+                });
+                resolve();
+            },
+            error: (error) => reject(error)
+        });
+    });
+}
+
+async function init() {
+    try {
+        await loadGamingData();
+        
+        // Sort countries by Overall score
+        countries.sort((a, b) => {
+            const scoreA = parseFloat(gamingData[a.code]?.Overall || 0);
+            const scoreB = parseFloat(gamingData[b.code]?.Overall || 0);
+            return scoreB - scoreA;
+        });
+        
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        createTabs();
+        renderTabContent('us');
+        updatePerformancePanel('us');
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        document.getElementById('loading').innerHTML = `
+            <div class="text-center">
+                <p class="text-red-400 mb-4">Error loading data</p>
+                <p class="text-slate-400 text-sm">${error.message}</p>
+            </div>`;
+    }
+}
+
+init();
+</script>
+</body>
+</html>
