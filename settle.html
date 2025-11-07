@@ -54,50 +54,42 @@
       <p id="stop-description" class="text-sm text-gray-600 mb-2"></p>
       <p id="stop-distance" class="text-xs text-gray-500 font-medium"></p>
     </div>
-    <div class="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-2xl" style="z-index: 1000;">
-      <h3 class="font-bold text-gray-800 mb-3">Route Information</h3>
-      <div class="grid md:grid-cols-3 gap-4 text-sm">
-        <div id="info-first-fleet">
-          <h4 class="font-semibold text-green-700 mb-1">First Fleet (1787-88)</h4>
-          <p class="text-xs text-gray-600">252 days, ~15,000-16,000 nm</p>
-          <p class="text-xs text-gray-600">3% mortality, 11 ships</p>
-        </div>
-        <div id="info-second-fleet">
-          <h4 class="font-semibold text-red-700 mb-1">Second Fleet (1790)</h4>
-          <p class="text-xs text-gray-600">158-160 days, ~18,000-20,000 nm</p>
-          <p class="text-xs text-gray-600">26% mortality (~160 deaths)</p>
-        </div>
-        <div id="info-guangzhou">
-          <h4 class="font-semibold text-blue-700 mb-1">Chinese Miners (1850s-60s)</h4>
-          <p class="text-xs text-gray-600">3-5 months, ~10,500 km total</p>
-          <p class="text-xs text-gray-600">~17,000 via Robe, 5-10% mortality</p>
-        </div>
-      </div>
-    </div>
   </main>
   <footer class="bg-gray-800 text-white p-6">
     <div class="max-w-6xl mx-auto">
-      <div class="grid md:grid-cols-3 gap-6">
+      <div class="mb-4">
+        <h2 class="font-bold text-xl mb-2">Route Information: Historical Voyages to Australia</h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
         <div>
-          <h3 class="font-bold text-lg mb-2">First Fleet (1787-1788)</h3>
-          <p class="text-sm text-gray-300">
-            11 ships with careful planning and multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town.
-            Low mortality (3%) due to better provisions and Captain Arthur Phillip's humane approach.
-          </p>
+          <h3 class="font-bold text-lg mb-2">First Fleet (1787–1788)</h3>
+          <ul class="text-sm text-gray-300 list-disc list-inside space-y-1">
+            <li><strong>Duration:</strong> 252 days (~15,000–16,000 nautical miles)</li>
+            <li><strong>Fleet:</strong> 11 ships</li>
+            <li><strong>Mortality:</strong> ~3%</li>
+            <li><strong>Details:</strong> Carefully planned voyage with multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town. Strong leadership by Captain Arthur Phillip ensured humane treatment and adequate provisions, resulting in low mortality.</li>
+          </ul>
         </div>
         <div>
-          <h3 class="font-bold text-lg mb-2">Second Fleet (1790)</h3>
-          <p class="text-sm text-gray-300">
-            Brutal voyage with 26% mortality due to deliberate starvation and abuse by private contractors.
-            Convicts chained below decks. Known as the "Death Fleet."
-          </p>
-        </div>
-        <div>
-          <h3 class="font-bold text-lg mb-2">Chinese Gold Miners (1850s-60s)</h3>
-          <p class="text-sm text-gray-300">
-            Journey from Guangzhou via Roaring Forties winds, landing at Robe to avoid Victorian taxes.
-            The 500km "Robe Walk" to Ballarat faced discrimination and hardship.
-          </p>
+          <h3 class="font-bold text-lg mb-4">Second Fleet (1790) & Chinese Gold Miners (1850s–1860s)</h3>
+          <div class="mb-6">
+            <h4 class="font-semibold text-lg mb-2">Second Fleet (1790)</h4>
+            <ul class="text-sm text-gray-300 list-disc list-inside space-y-1">
+              <li><strong>Duration:</strong> 158–160 days (~18,000–20,000 nautical miles)</li>
+              <li><strong>Fleet:</strong> 6 ships (private contractors)</li>
+              <li><strong>Mortality:</strong> ~26% (~160 deaths)</li>
+              <li><strong>Details:</strong> Known as the “Death Fleet.” Poorly managed voyage marked by deliberate starvation, overcrowding, and brutality. Convicts were kept chained below deck with minimal rations.</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-lg mb-2">Chinese Gold Miners (1850s–1860s)</h4>
+            <ul class="text-sm text-gray-300 list-disc list-inside space-y-1">
+              <li><strong>Duration:</strong> 3–5 months (~10,500 km total)</li>
+              <li><strong>Migrants:</strong> ~17,000 via Robe, South Australia</li>
+              <li><strong>Mortality:</strong> 5–10%</li>
+              <li><strong>Details:</strong> Sailed from Guangzhou or Hong Kong, often around the Roaring Forties to reach South Australia, then forced to trek over 500 km (“Robe Walk”) to the Victorian goldfields to avoid discriminatory taxes. Faced severe hardship and racism during the journey.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -106,6 +98,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   
   <!-- Custom JavaScript -->
-  <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/js/shipjs.js"></script></script>
+  <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/js/shipjs.js"></script>
 </body>
 </html>
