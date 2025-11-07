@@ -4,51 +4,137 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Historical Migration Routes to Australia</title>
-
+ 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
+ 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-
+ 
   <style>
+    /* Historical Migration Routes to Australia - Custom Styles */
+   
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: system-ui, -apple-system, sans-serif;
     }
-    #map { height: calc(100vh - 200px); width: 100%; }
-    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .legend-color { width: 24px; height: 4px; border-radius: 2px; }
-    .route-checkbox { margin-right: 8px; cursor: pointer; }
-    .custom-marker, .ship-marker { background: transparent; border: none; }
-    #stop-info { max-width: 320px; transition: opacity 0.3s ease; }
-    #stop-info.hidden { display: none; }
-    #stop-route-color { height: 4px; border-radius: 2px; }
-    #route-summary { backdrop-filter: blur(10px); }
-
+   
+    /* Map Container */
+    #map {
+      height: calc(100vh - 200px);
+      width: 100%;
+    }
+    /* Legend and Route Controls */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .legend-color {
+      width: 24px;
+      height: 4px;
+      border-radius: 2px;
+    }
+    .route-checkbox {
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    /* Custom Marker Styles */
+    .custom-marker {
+      background: transparent;
+      border: none;
+    }
+   
+    .ship-marker {
+      background: transparent;
+      border: none;
+    }
+    /* Stop Information Panel */
+    #stop-info {
+      max-width: 320px;
+      transition: opacity 0.3s ease;
+    }
+    #stop-info.hidden {
+      display: none;
+    }
+    #stop-route-color {
+      height: 4px;
+      border-radius: 2px;
+    }
+    /* Route Summary Panel */
+    #route-summary {
+      backdrop-filter: blur(10px);
+    }
+    /* Responsive Design */
     @media (max-width: 768px) {
-      #map { height: calc(100vh - 250px); }
-      #stop-info { max-width: 280px; left: 1rem; right: 1rem; }
-      .legend-item { font-size: 0.875rem; }
+      #map {
+        height: calc(100vh - 250px);
+      }
+     
+      #stop-info {
+        max-width: 280px;
+        left: 1rem;
+        right: 1rem;
+      }
+     
+      .legend-item {
+        font-size: 0.875rem;
+      }
     }
+    /* Print Styles */
     @media print {
-      header, footer { display: none; }
-      #map { height: 100vh; page-break-after: always; }
-      #stop-info, #route-summary { display: none; }
+      header,
+      footer {
+        display: none;
+      }
+     
+      #map {
+        height: 100vh;
+        page-break-after: always;
+      }
+     
+      #stop-info,
+      #route-summary {
+        display: none;
+      }
     }
-    .route-checkbox:focus, button:focus { outline: 2px solid #2563eb; outline-offset: 2px; }
-    .custom-marker:hover { transform: scale(1.1); transition: transform 0.2s ease; }
-    .leaflet-popup-content-wrapper { border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .leaflet-popup-content { margin: 12px; }
-    .leaflet-interactive:hover { stroke-width: 5; transition: stroke-width 0.2s ease; }
+    /* Accessibility */
+    .route-checkbox:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    button:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    /* Animation for marker clicks */
+    .custom-marker:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
+    }
+    /* Leaflet Popup Customization */
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .leaflet-popup-content {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 12px;
+    }
+    /* Route Line Hover Effect */
+    .leaflet-interactive:hover {
+      stroke-width: 5;
+      transition: stroke-width 0.2s ease;
+    }
   </style>
 </head>
-
 <body class="bg-gray-50">
   <header class="bg-white shadow-md p-6">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Historical Migration Routes to Australia</h1>
+   
     <div class="flex gap-6 flex-wrap items-start">
       <div class="flex items-center">
         <input type="checkbox" id="check-first-fleet" class="route-checkbox w-5 h-5" checked>
@@ -57,6 +143,7 @@
           <span class="font-medium text-gray-700">First Fleet (1787-1788)</span>
         </label>
       </div>
+     
       <div class="flex items-center">
         <input type="checkbox" id="check-second-fleet" class="route-checkbox w-5 h-5" checked>
         <label for="check-second-fleet" class="flex items-center gap-2 cursor-pointer">
@@ -64,6 +151,7 @@
           <span class="font-medium text-gray-700">Second Fleet (1790)</span>
         </label>
       </div>
+     
       <div class="flex items-center">
         <input type="checkbox" id="check-guangzhou" class="route-checkbox w-5 h-5" checked>
         <label for="check-guangzhou" class="flex items-center gap-2 cursor-pointer">
@@ -73,10 +161,9 @@
       </div>
     </div>
   </header>
-
   <main class="relative">
     <div id="map"></div>
-
+   
     <div id="stop-info" class="hidden absolute top-4 right-4 bg-white rounded-lg shadow-xl p-4 max-w-sm" style="z-index: 1000;">
       <button id="close-info" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
       <div id="stop-route-color" class="w-full h-1 rounded-full mb-3"></div>
@@ -84,97 +171,201 @@
       <p id="stop-description" class="text-sm text-gray-600 mb-2"></p>
       <p id="stop-distance" class="text-xs text-gray-500 font-medium"></p>
     </div>
-
     <div class="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-2xl" style="z-index: 1000;">
       <h3 class="font-bold text-gray-800 mb-3">Route Information</h3>
       <div class="grid md:grid-cols-3 gap-4 text-sm">
         <div id="info-first-fleet">
           <h4 class="font-semibold text-green-700 mb-1">First Fleet (1787-88)</h4>
-          <p class="text-xs text-gray-600">252 days, ~15,000–16,000 nm</p>
+          <p class="text-xs text-gray-600">252 days, ~15,000-16,000 nm</p>
           <p class="text-xs text-gray-600">3% mortality, 11 ships</p>
         </div>
         <div id="info-second-fleet">
           <h4 class="font-semibold text-red-700 mb-1">Second Fleet (1790)</h4>
-          <p class="text-xs text-gray-600">158–160 days, ~18,000–20,000 nm</p>
+          <p class="text-xs text-gray-600">158-160 days, ~18,000-20,000 nm</p>
           <p class="text-xs text-gray-600">26% mortality (~160 deaths)</p>
         </div>
         <div id="info-guangzhou">
-          <h4 class="font-semibold text-blue-700 mb-1">Chinese Miners (1850s–60s)</h4>
-          <p class="text-xs text-gray-600">3–5 months, ~10,500 km total</p>
-          <p class="text-xs text-gray-600">~17,000 via Robe, 5–10% mortality</p>
+          <h4 class="font-semibold text-blue-700 mb-1">Chinese Miners (1850s-60s)</h4>
+          <p class="text-xs text-gray-600">3-5 months, ~10,500 km total</p>
+          <p class="text-xs text-gray-600">~17,000 via Robe, 5-10% mortality</p>
         </div>
       </div>
     </div>
   </main>
-
   <footer class="bg-gray-800 text-white p-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-      <div>
-        <h3 class="font-bold text-lg mb-2">First Fleet (1787–1788)</h3>
-        <p class="text-sm text-gray-300">11 ships with careful planning and resupply stops at Tenerife, Rio de Janeiro, and Cape Town. Low mortality (3%) due to better provisions and Captain Phillip’s humane approach.</p>
-      </div>
-      <div>
-        <h3 class="font-bold text-lg mb-2">Second Fleet (1790)</h3>
-        <p class="text-sm text-gray-300">Brutal voyage with 26% mortality due to starvation and abuse by contractors. Known as the “Death Fleet.”</p>
-      </div>
-      <div>
-        <h3 class="font-bold text-lg mb-2">Chinese Gold Miners (1850s–60s)</h3>
-        <p class="text-sm text-gray-300">Voyage from Guangzhou via the Roaring Forties, landing at Robe to avoid Victorian taxes, then walking 500 km to Ballarat under harsh conditions.</p>
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div>
+          <h3 class="font-bold text-lg mb-2">First Fleet (1787-1788)</h3>
+          <p class="text-sm text-gray-300">
+            11 ships with careful planning and multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town.
+            Low mortality (3%) due to better provisions and Captain Arthur Phillip's humane approach.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-2">Second Fleet (1790)</h3>
+          <p class="text-sm text-gray-300">
+            Brutal voyage with 26% mortality due to deliberate starvation and abuse by private contractors.
+            Convicts chained below decks. Known as the "Death Fleet."
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-2">Chinese Gold Miners (1850s-60s)</h3>
+          <p class="text-sm text-gray-300">
+            Journey from Guangzhou via Roaring Forties winds, landing at Robe to avoid Victorian taxes.
+            The 500km "Robe Walk" to Ballarat faced discrimination and hardship.
+          </p>
+        </div>
       </div>
     </div>
   </footer>
-
   <!-- Leaflet JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-
+ 
   <script>
-    var speedMultiplier = 2.5; // ✅ Increase to speed up the ships (e.g. 5 = twice as fast)
-
-    var map, routeLayers = {}, shipMarkers = {}, animationIntervals = {};
-    var visibleRoutes = { 'first-fleet': true, 'second-fleet': true, 'guangzhou-ballarat': true };
-
-    // (routes object stays the same)
-    // ... your routes data here (unchanged for brevity)
-
+    // Historical Migration Routes to Australia - Main JavaScript
+    var routes = {
+      'first-fleet': {
+        name: 'First Fleet Route (1787-1788)',
+        color: '#16a34a',
+        stops: [
+          { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed May 13, 1787', distance: 'Start' },
+          { name: 'Santa Cruz, Tenerife', lat: 28.4636, lng: -16.2518, info: 'Loaded water, vegetables, meat. 21 days', distance: '~1,200 nm' },
+          { name: 'Rio de Janeiro, Brazil', lat: -22.9068, lng: -43.1729, info: 'Arrived August 5, 1787. Ship cleaning, repairs, ~1 month', distance: '~4,800 nm' },
+          { name: 'Table Bay, Cape Town', lat: -33.9249, lng: 18.4241, info: 'Arrived October 13, 1787. Livestock, seeds, plants loaded', distance: '~3,900 nm' },
+          { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived January 26, 1788 (relocated from Botany Bay)', distance: '~5,100 nm' }
+        ]
+      },
+      'second-fleet': {
+        name: 'Second Fleet Route (1790)',
+        color: '#dc2626',
+        stops: [
+          { name: 'Portsmouth, England', lat: 50.8198, lng: -1.0880, info: 'Departed January 19, 1790', distance: 'Start' },
+          { name: 'Tenerife, Canary Islands', lat: 28.4636, lng: -16.2518, info: 'Brief water stop, 10-14 days', distance: '~1,200 nm' },
+          { name: 'Cape Town, South Africa', lat: -33.9249, lng: 18.4241, info: 'Arrived April 13-22, 1790. High mortality, 30-40 day resupply', distance: '~5,500 nm' },
+          { name: 'Sydney Cove, Australia', lat: -33.8568, lng: 151.2153, info: 'Arrived June 26-28, 1790. ~160 deaths total', distance: '~6,000 nm' }
+        ]
+      },
+      'guangzhou-ballarat': {
+        name: 'Chinese Gold Rush Route (1850s-1860s)',
+        color: '#2563eb',
+        stops: [
+          { name: 'Guangzhou/Hong Kong, China', lat: 23.1291, lng: 113.2644, info: 'Departure point, 70-90 day voyage', distance: 'Start' },
+          { name: 'South China Sea Exit (Luzon)', lat: 18.5, lng: 120.5, info: 'Southeast sail, 7-10 days. Early disease risks', distance: '~800 nm' },
+          { name: 'Coral Sea (near PNG)', lat: -8, lng: 147, info: 'East-southeast through Pacific, 18-25 days. Typhoon hazards', distance: '~2,000 nm' },
+          { name: 'Java Sea', lat: -12, lng: 110, info: 'Westward loop through Indonesian waters', distance: '~1,500 nm' },
+          { name: 'Indian Ocean (West Australia)', lat: -25, lng: 105, info: 'Entered Indian Ocean off Western Australia', distance: '~1,200 nm' },
+          { name: 'Indian Ocean Loop (40°S)', lat: -40, lng: 115, info: 'South for Roaring Forties westerlies, 10-15 days. Stormy, sea burials', distance: '~1,000 nm' },
+          { name: 'Great Australian Bight', lat: -35, lng: 130, info: 'Eastward push with gales, 8-12 days', distance: '~900 nm' },
+          { name: 'Robe, South Australia', lat: -37.1625, lng: 139.7583, info: 'Landed 1856-1863, ~17,000 migrants to evade Victorian taxes', distance: 'Landfall' },
+          { name: 'Casterton', lat: -37.5863, lng: 141.4003, info: 'Crossed Glenelg River. Indigenous/settler encounters. 5-7 days', distance: '80-100 km' },
+          { name: 'Coleraine/Hamilton', lat: -37.7427, lng: 142.0156, info: 'Hilly terrain. Inn resupplies often denied due to racism. 5-7 days', distance: '80-100 km' },
+          { name: 'Skipton/Linton', lat: -37.6833, lng: 143.3667, info: 'Grampians foothills. Outbreaks, starvation. Trail markers. 7-8 days', distance: '100-110 km' },
+          { name: 'Ballarat', lat: -37.5622, lng: 143.8503, info: 'Black Hill ascent. ~9,000 by 1858 at Golden Point. 3-4 days', distance: '50-60 km' }
+        ]
+      }
+    };
+    var map;
+    var routeLayers = {};
+    var shipMarkers = {};
+    var animationIntervals = {};
+    var visibleRoutes = {
+      'first-fleet': true,
+      'second-fleet': true,
+      'guangzhou-ballarat': true
+    };
     function initMap() {
-      map = L.map('map', { center: [-10, 100], zoom: 3, minZoom: 2, maxZoom: 10 });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      map = L.map('map', {
+        center: [-10, 100],
+        zoom: 3,
+        minZoom: 2,
+        maxZoom: 10
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
       drawAllRoutes();
     }
-
     function drawAllRoutes() {
-      for (var animId in animationIntervals) clearInterval(animationIntervals[animId]);
-      for (var shipId in shipMarkers) if (shipMarkers[shipId]) map.removeLayer(shipMarkers[shipId]);
-      shipMarkers = {}; animationIntervals = {};
-
       var allBounds = [];
-      for (var routeId in routes) {
-        if (!visibleRoutes[routeId]) continue;
-
-        var route = routes[routeId];
-        var coords = route.stops.map(s => [s.lat, s.lng]);
-        var polyline = L.polyline(coords, { color: route.color, weight: 3, opacity: 0.7 }).addTo(map);
-        (routeLayers[routeId] = [polyline]);
-        allBounds.push(polyline.getBounds());
-
-        route.stops.forEach((stop, i) => {
-          var markerHtml = `<div style="background-color:${route.color};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:10px;">${i+1}</div>`;
-          var marker = L.marker([stop.lat, stop.lng], { icon: L.divIcon({ className:'custom-marker', html:markerHtml, iconSize:[20,20], iconAnchor:[10,10] }) }).addTo(map);
-          marker.stopData = stop; marker.routeColor = route.color;
-          marker.on('click', e => showStopInfo(e.target.stopData, e.target.routeColor));
-          routeLayers[routeId].push(marker);
-        });
-
-        animateShip(routeId, coords, route.color);
+     
+      // Stop any existing animations
+      for (var animId in animationIntervals) {
+        if (animationIntervals.hasOwnProperty(animId)) {
+          clearInterval(animationIntervals[animId]);
+        }
       }
-
+      animationIntervals = {};
+     
+      // Remove existing ship markers
+      for (var shipId in shipMarkers) {
+        if (shipMarkers.hasOwnProperty(shipId) && shipMarkers[shipId]) {
+          map.removeLayer(shipMarkers[shipId]);
+        }
+      }
+      shipMarkers = {};
+     
+      for (var routeId in routes) {
+        if (routes.hasOwnProperty(routeId)) {
+          if (routeLayers[routeId]) {
+            var layers = routeLayers[routeId];
+            for (var i = 0; i < layers.length; i++) {
+              map.removeLayer(layers[i]);
+            }
+          }
+         
+          if (visibleRoutes[routeId]) {
+            routeLayers[routeId] = [];
+            var route = routes[routeId];
+            var coordinates = [];
+            var stopsLen = route.stops.length;
+           
+            for (var j = 0; j < stopsLen; j++) {
+              coordinates.push([route.stops[j].lat, route.stops[j].lng]);
+            }
+            var polyline = L.polyline(coordinates, {
+              color: route.color,
+              weight: 3,
+              opacity: 0.7
+            }).addTo(map);
+           
+            routeLayers[routeId].push(polyline);
+            allBounds.push(polyline.getBounds());
+            for (var k = 0; k < stopsLen; k++) {
+              var stop = route.stops[k];
+              var index = k + 1;
+              var markerHtml = '<div style="background-color: ' + route.color + '; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 10px;">' + index + '</div>';
+             
+              var marker = L.marker([stop.lat, stop.lng], {
+                icon: L.divIcon({
+                  className: 'custom-marker',
+                  html: markerHtml,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })
+              }).addTo(map);
+              marker.stopData = stop;
+              marker.routeColor = route.color;
+              marker.on('click', function(e) {
+                showStopInfo(e.target.stopData, e.target.routeColor);
+              });
+              routeLayers[routeId].push(marker);
+            }
+           
+            // Start ship animation for this route
+            animateShip(routeId, coordinates, route.color);
+          }
+        }
+      }
+     
       if (allBounds.length > 0) {
-        var bounds = allBounds[0];
-        for (var i=1; i<allBounds.length; i++) bounds.extend(allBounds[i]);
-        map.fitBounds(bounds, { padding:[50,50] });
+        var combinedBounds = allBounds[0];
+        for (var m = 1; m < allBounds.length; m++) {
+          combinedBounds.extend(allBounds[m]);
+        }
+        map.fitBounds(combinedBounds, { padding: [50, 50] });
       }
     }
-
     function showStopInfo(stop, color) {
       document.getElementById('stop-name').textContent = stop.name;
       document.getElementById('stop-description').textContent = stop.info;
@@ -182,40 +373,109 @@
       document.getElementById('stop-route-color').style.backgroundColor = color;
       document.getElementById('stop-info').classList.remove('hidden');
     }
-
-    function animateShip(routeId, coords, color) {
-      if (coords.length < 2) return;
-
-      var shipMarker = L.marker(coords[0], { icon: L.divIcon({ className: 'ship-marker', html: '🚢', iconSize: [24,24], iconAnchor:[12,12] }) }).addTo(map);
+    function animateShip(routeId, coordinates, color) {
+      if (coordinates.length < 2) return;
+     
+      // Create ship icon
+      var shipHtml = '<div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(0deg);">🚢</div>';
+     
+      var shipIcon = L.divIcon({
+        className: 'ship-marker',
+        html: shipHtml,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+     
+      var shipMarker = L.marker(coordinates[0], { icon: shipIcon }).addTo(map);
       shipMarkers[routeId] = shipMarker;
-
-      var currentSegment = 0, progress = 0;
-      var baseSpeed = 0.002 * speedMultiplier; // ✅ speed controlled here
-
-      function bearing(start, end) {
-        var [lat1, lon1, lat2, lon2] = [start[0], start[1], end[0], end[1]].map(d => d*Math.PI/180);
-        var y = Math.sin(lon2-lon1) * Math.cos(lat2);
-        var x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1);
-        return (Math.atan2(y,x)*180/Math.PI + 360) % 360;
+     
+      var currentSegment = 0;
+      var progress = 0;
+      var speed = 0.02; // Doubled from 0.01 for faster ship speed
+     
+      function calculateBearing(start, end) {
+        var startLat = start[0] * Math.PI / 180;
+        var startLng = start[1] * Math.PI / 180;
+        var endLat = end[0] * Math.PI / 180;
+        var endLng = end[1] * Math.PI / 180;
+       
+        var dLng = endLng - startLng;
+        var y = Math.sin(dLng) * Math.cos(endLat);
+        var x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+        var bearing = Math.atan2(y, x) * 180 / Math.PI;
+       
+        return (bearing + 360) % 360;
       }
-
-      animationIntervals[routeId] = setInterval(() => {
-        var start = coords[currentSegment], end = coords[currentSegment+1];
-        progress += baseSpeed;
-        if (progress >= 1) { progress = 0; currentSegment = (currentSegment+1) % (coords.length-1); start = coords[currentSegment]; end = coords[currentSegment+1]; }
-        var lat = start[0] + (end[0]-start[0])*progress;
-        var lng = start[1] + (end[1]-start[1])*progress;
-        var rot = bearing(start,end)-90;
-        var html = `<div style="font-size:20px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));transform:rotate(${rot}deg);transition:transform 0.3s ease;">🚢</div>`;
-        shipMarker.setLatLng([lat,lng]).setIcon(L.divIcon({ className:'ship-marker', html, iconSize:[24,24], iconAnchor:[12,12] }));
+     
+      // Wind/current effect: bobbing motion to simulate waves and currents
+      function getWindOffset(progress, segmentIndex) {
+        var waveFreq = 20; // Frequency of bobbing
+        var waveAmp = 0.05; // Amplitude of bobbing (degrees)
+        var currentOffset = 0.01 * Math.sin(segmentIndex * Math.PI / coordinates.length); // Slight current deviation per segment
+        var latOffset = Math.sin(progress * Math.PI * waveFreq) * waveAmp;
+        var lngOffset = Math.cos(progress * Math.PI * waveFreq) * waveAmp * Math.cos((start[0] + latOffset) * Math.PI / 180); // Approximate for longitude scaling
+        return { lat: latOffset + currentOffset, lng: lngOffset };
+      }
+     
+      animationIntervals[routeId] = setInterval(function() {
+        if (currentSegment >= coordinates.length - 1) {
+          currentSegment = 0;
+          progress = 0;
+        }
+       
+        var start = coordinates[currentSegment];
+        var end = coordinates[currentSegment + 1];
+       
+        progress += speed;
+       
+        if (progress >= 1) {
+          progress = 0;
+          currentSegment++;
+          if (currentSegment >= coordinates.length - 1) {
+            currentSegment = 0;
+          }
+          start = coordinates[currentSegment];
+          end = coordinates[currentSegment + 1];
+        }
+       
+        var baseLat = start[0] + (end[0] - start[0]) * progress;
+        var baseLng = start[1] + (end[1] - start[1]) * progress;
+       
+        var windOffset = getWindOffset(progress, currentSegment);
+        var lat = baseLat + windOffset.lat;
+        var lng = baseLng + windOffset.lng;
+       
+        var bearing = calculateBearing(start, end);
+        var rotation = bearing - 90; // Adjust for ship icon orientation
+       
+        var rotatedShipHtml = '<div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform: rotate(' + rotation + 'deg); transition: transform 0.3s ease;">🚢</div>';
+       
+        shipMarker.setLatLng([lat, lng]);
+        shipMarker.setIcon(L.divIcon({
+          className: 'ship-marker',
+          html: rotatedShipHtml,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        }));
       }, 50);
     }
-
-    document.getElementById('check-first-fleet').onchange = e => { visibleRoutes['first-fleet'] = e.target.checked; drawAllRoutes(); };
-    document.getElementById('check-second-fleet').onchange = e => { visibleRoutes['second-fleet'] = e.target.checked; drawAllRoutes(); };
-    document.getElementById('check-guangzhou').onchange = e => { visibleRoutes['guangzhou-ballarat'] = e.target.checked; drawAllRoutes(); };
-    document.getElementById('close-info').onclick = () => document.getElementById('stop-info').classList.add('hidden');
-
+    // Event Listeners
+    document.getElementById('check-first-fleet').addEventListener('change', function(e) {
+      visibleRoutes['first-fleet'] = e.target.checked;
+      drawAllRoutes();
+    });
+    document.getElementById('check-second-fleet').addEventListener('change', function(e) {
+      visibleRoutes['second-fleet'] = e.target.checked;
+      drawAllRoutes();
+    });
+    document.getElementById('check-guangzhou').addEventListener('change', function(e) {
+      visibleRoutes['guangzhou-ballarat'] = e.target.checked;
+      drawAllRoutes();
+    });
+    document.getElementById('close-info').addEventListener('click', function() {
+      document.getElementById('stop-info').classList.add('hidden');
+    });
+    // Initialize map on window load
     window.addEventListener('load', initMap);
   </script>
 </body>
