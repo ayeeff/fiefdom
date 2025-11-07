@@ -176,7 +176,7 @@ function animateShip(routeId, coordinates, color) {
   shipMarkers[routeId] = shipMarker;
   
   var currentSegment = 0;
-  var progress = 0;
+  var progress = 2;
   var speed = 0.118; // Increased speed (4x faster)
   
   function calculateBearing(start, end) {
