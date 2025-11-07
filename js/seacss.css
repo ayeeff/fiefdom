@@ -1,17 +1,18 @@
 /* Historical Migration Routes to Australia - Custom Styles */
- 
+
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: system-ui, -apple-system, sans-serif;
 }
- 
+
 /* Map Container */
 #map {
   height: calc(100vh - 200px);
   width: 100%;
 }
+
 /* Legend and Route Controls */
 .legend-item {
   display: flex;
@@ -19,47 +20,56 @@ body, html {
   gap: 8px;
   margin-bottom: 8px;
 }
+
 .legend-color {
   width: 24px;
   height: 4px;
   border-radius: 2px;
 }
+
 .route-checkbox {
   margin-right: 8px;
   cursor: pointer;
 }
+
 /* Custom Marker Styles */
 .custom-marker {
   background: transparent;
   border: none;
 }
- 
+
 .ship-marker {
   background: transparent;
   border: none;
 }
+
 /* Change Arrow Styles */
 .change-arrow {
   font-size: 20px;
   color: #eab308;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
+
 /* Stop Information Panel */
 #stop-info {
   max-width: 320px;
   transition: opacity 0.3s ease;
 }
+
 #stop-info.hidden {
   display: none;
 }
+
 #stop-route-color {
   height: 4px;
   border-radius: 2px;
 }
+
 /* Route Summary Panel */
 #route-summary {
   backdrop-filter: blur(10px);
 }
+
 /* Responsive Design */
 @media (max-width: 768px) {
   #map {
@@ -76,6 +86,7 @@ body, html {
     font-size: 0.875rem;
   }
 }
+
 /* Print Styles */
 @media print {
   header,
@@ -93,29 +104,35 @@ body, html {
     display: none;
   }
 }
+
 /* Accessibility */
 .route-checkbox:focus {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
 button:focus {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
 /* Animation for marker clicks */
 .custom-marker:hover {
   transform: scale(1.1);
   transition: transform 0.2s ease;
 }
+
 /* Leaflet Popup Customization */
 .leaflet-popup-content-wrapper {
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .leaflet-popup-content {
   font-family: system-ui, -apple-system, sans-serif;
   margin: 12px;
 }
+
 /* Route Line Hover Effect */
 .leaflet-interactive:hover {
   stroke-width: 5;
