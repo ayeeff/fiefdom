@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Historical Migration Routes to Australia</title>
-  
+ 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+ 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
   
-  <!-- Custom CSS from CDN -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/js/seacss.css">
 </head>
 <body class="bg-gray-50">
   <header class="bg-white shadow-md p-6">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Historical Migration Routes to Australia</h1>
-    
+   
     <div class="flex gap-6 flex-wrap items-start">
       <div class="flex items-center">
         <input type="checkbox" id="check-first-fleet" class="route-checkbox w-5 h-5" checked>
@@ -26,7 +26,7 @@
           <span class="font-medium text-gray-700">First Fleet (1787-1788)</span>
         </label>
       </div>
-      
+     
       <div class="flex items-center">
         <input type="checkbox" id="check-second-fleet" class="route-checkbox w-5 h-5" checked>
         <label for="check-second-fleet" class="flex items-center gap-2 cursor-pointer">
@@ -34,7 +34,7 @@
           <span class="font-medium text-gray-700">Second Fleet (1790)</span>
         </label>
       </div>
-      
+     
       <div class="flex items-center">
         <input type="checkbox" id="check-guangzhou" class="route-checkbox w-5 h-5" checked>
         <label for="check-guangzhou" class="flex items-center gap-2 cursor-pointer">
@@ -44,10 +44,9 @@
       </div>
     </div>
   </header>
-
   <main class="relative">
     <div id="map"></div>
-    
+   
     <div id="stop-info" class="hidden absolute top-4 right-4 bg-white rounded-lg shadow-xl p-4 max-w-sm" style="z-index: 1000;">
       <button id="close-info" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
       <div id="stop-route-color" class="w-full h-1 rounded-full mb-3"></div>
@@ -55,7 +54,6 @@
       <p id="stop-description" class="text-sm text-gray-600 mb-2"></p>
       <p id="stop-distance" class="text-xs text-gray-500 font-medium"></p>
     </div>
-
     <div class="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-2xl" style="z-index: 1000;">
       <h3 class="font-bold text-gray-800 mb-3">Route Information</h3>
       <div class="grid md:grid-cols-3 gap-4 text-sm">
@@ -77,39 +75,37 @@
       </div>
     </div>
   </main>
-
   <footer class="bg-gray-800 text-white p-6">
     <div class="max-w-6xl mx-auto">
       <div class="grid md:grid-cols-3 gap-6">
         <div>
           <h3 class="font-bold text-lg mb-2">First Fleet (1787-1788)</h3>
           <p class="text-sm text-gray-300">
-            11 ships with careful planning and multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town. 
+            11 ships with careful planning and multiple resupply stops at Tenerife, Rio de Janeiro, and Cape Town.
             Low mortality (3%) due to better provisions and Captain Arthur Phillip's humane approach.
           </p>
         </div>
         <div>
           <h3 class="font-bold text-lg mb-2">Second Fleet (1790)</h3>
           <p class="text-sm text-gray-300">
-            Brutal voyage with 26% mortality due to deliberate starvation and abuse by private contractors. 
+            Brutal voyage with 26% mortality due to deliberate starvation and abuse by private contractors.
             Convicts chained below decks. Known as the "Death Fleet."
           </p>
         </div>
         <div>
           <h3 class="font-bold text-lg mb-2">Chinese Gold Miners (1850s-60s)</h3>
           <p class="text-sm text-gray-300">
-            Journey from Guangzhou via Roaring Forties winds, landing at Robe to avoid Victorian taxes. 
+            Journey from Guangzhou via Roaring Forties winds, landing at Robe to avoid Victorian taxes.
             The 500km "Robe Walk" to Ballarat faced discrimination and hardship.
           </p>
         </div>
       </div>
     </div>
   </footer>
-
   <!-- Leaflet JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   
-  <!-- Custom JS from CDN -->
+  <!-- Custom JavaScript -->
   <script src="https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/js/seajs.js"></script></script>
 </body>
 </html>
