@@ -45,175 +45,16 @@
         .countdown-digit {
             animation: pulseGlow 1s ease-in-out infinite alternate;
         }
-        
-        /* Snake Timeline Styles */
-        .snake-timeline {
-            position: relative;
-            margin: 40px 0;
-            padding: 20px 0;
-        }
-        .snake-timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, #ef4444 0%, #f59e0b 50%, #3b82f6 100%);
-            z-index: 1;
-            transform: translateX(-50%);
-        }
-        .snake-timeline-container {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            position: relative;
-            padding-top: 0;
-        }
-        .snake-timeline-event {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 80px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
-            min-height: 120px;
-        }
-        .snake-timeline-event.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .snake-timeline-event:nth-child(odd) {
-            justify-content: flex-end;
-        }
-        .snake-timeline-event:nth-child(even) {
-            justify-content: flex-start;
-        }
-        .snake-timeline-event::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #e5e7eb;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-            transition: all 0.3s ease;
-        }
-        .snake-timeline-event:hover::before {
-            transform: translate(-50%, -50%) scale(1.2);
-        }
-        .snake-timeline-event.china::before {
-            background: #ef4444;
-        }
-        .snake-timeline-event.ohio::before {
-            background: #f59e0b;
-        }
-        .snake-timeline-event.columbia::before {
-            background: #3b82f6;
-        }
-        .snake-timeline-event::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            height: 2px;
-            background: #e5e7eb;
-            z-index: 2;
-            transform: translateY(-50%);
-            transition: all 0.3s ease;
-        }
-        .snake-timeline-event:nth-child(odd)::after {
-            right: 50%;
-            width: 50%;
-        }
-        .snake-timeline-event:nth-child(even)::after {
-            left: 50%;
-            width: 50%;
-        }
-        .snake-timeline-content {
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(100, 116, 139, 0.5);
-            border-radius: 8px;
-            padding: 16px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            max-width: 40%;
-            width: 40%;
-            flex-shrink: 0;
-        }
-        .snake-timeline-content:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        .snake-timeline-year {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .snake-timeline-badge {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: bold;
-        }
-        .snake-timeline-badge.china {
-            background: #fecaca;
-            color: #991b1b;
-        }
-        .snake-timeline-badge.ohio {
-            background: #fed7aa;
-            color: #9a3412;
-        }
-        .snake-timeline-badge.columbia {
-            background: #bfdbfe;
-            color: #1e40af;
-        }
-        .snake-timeline-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .snake-timeline-detail {
-            font-size: 0.875rem;
-            color: #cbd5e1;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 1024px) {
-            .snake-timeline-content {
-                max-width: 45%;
-                width: 45%;
-            }
-        }
-        @media (max-width: 768px) {
-            .snake-timeline-event {
-                justify-content: center !important;
-                margin-bottom: 60px;
-            }
-            .snake-timeline-event::after {
-                display: none;
-            }
-            .snake-timeline-content {
-                max-width: 90%;
-                width: 90%;
-            }
-            .snake-timeline::before {
-                left: 20px;
-                transform: none;
-            }
-            .snake-timeline-event::before {
-                left: 20px;
-                transform: translateX(0);
-            }
+        #chartdiv {
+          width: 100%;
+          height: 600px;
         }
     </style>
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/timeline.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
     <div class="max-w-7xl mx-auto">
@@ -282,15 +123,10 @@
             </div>
         </div>
 
-        <!-- Snake Timeline -->
+        <!-- Serpentine Timeline -->
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
-            
-            <div class="snake-timeline">
-                <div class="snake-timeline-container" id="snake-timeline-container">
-                    <!-- Events will be inserted here by JavaScript -->
-                </div>
-            </div>
+            <div id="chartdiv"></div>
         </div>
 
         <!-- Three Theater Columns -->
@@ -427,37 +263,143 @@
 
         let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline].sort((a, b) => a.year - b.year);
 
-        // Render Snake Timeline Events
-        function renderSnakeTimeline() {
-            const container = document.getElementById('snake-timeline-container');
-            container.innerHTML = '';
-            
-            allEvents.forEach((event, index) => {
-                const eventElement = document.createElement('div');
-                eventElement.className = `snake-timeline-event ${event.type}`;
-                
-                const typeLabel = event.type === 'china' ? 'China' : event.type === 'ohio' ? 'Ohio' : 'Columbia';
-                const badgeClass = `snake-timeline-badge ${event.type}`;
-                
-                eventElement.innerHTML = `
-                    <div class="snake-timeline-content">
-                        <div class="snake-timeline-year">
-                            <span>${event.year}</span>
-                            <span class="${badgeClass}">${typeLabel}</span>
-                        </div>
-                        <div class="snake-timeline-title">${event.event}</div>
-                        <div class="snake-timeline-detail">${event.detail}</div>
-                    </div>
-                `;
-                
-                container.appendChild(eventElement);
-                
-                // Add animation delay based on index
-                setTimeout(() => {
-                    eventElement.classList.add('visible');
-                }, 100 + (index * 100));
+        // AmCharts Serpentine Timeline
+        am5.ready(function() {
+            var root = am5.Root.new("chartdiv");
+
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            var chart = root.container.children.push(am5timeline.SerpentineChart.new(root, {
+                levelCount: 5,
+                startLocation: 0.2,
+                endLocation: 1,
+                wheelX: "zoomX"
+            }));
+
+            chart.set("scrollbarX", am5.Scrollbar.new(root, {
+                orientation: "horizontal"
+            }));
+
+            var yRenderer = am5timeline.AxisRendererCurveY.new(root, {});
+
+            yRenderer.labels.template.setAll({
+                centerY: am5.p50,
+                centerX: am5.p100,
+                fontSize: 11
             });
-        }
+
+            yRenderer.grid.template.set("forceHidden", true);
+
+            var xRenderer = am5timeline.AxisRendererCurveX.new(root, {
+                yRenderer: yRenderer,
+                strokeDasharray: [2, 3],
+                strokeOpacity: 0.5,
+                stroke: am5.color(0x000000)
+            });
+
+            xRenderer.labels.template.setAll({
+                centerY: am5.p50,
+                fontSize: 11,
+                minPosition: 0.01
+            });
+
+            xRenderer.labels.template.setup = function(target) {
+                target.set("layer", 30);
+                target.set("background", am5.Rectangle.new(root, {
+                    fill: am5.color(0xffffff),
+                    fillOpacity: 1
+                }));
+            }
+
+            var yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(root, {
+                maxDeviation: 0,
+                categoryField: "category",
+                renderer: yRenderer
+            }));
+
+            var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+                baseInterval: { timeUnit: "year", count: 1 },
+                renderer: xRenderer,
+                tooltip: am5.Tooltip.new(root, {})
+            }));
+
+            yAxis.data.setAll([
+                { category: "Ohio" },
+                { category: "" },
+                { category: "China" },
+                { category: "" },
+                { category: "Columbia" }
+            ]);
+
+            function createSeries(category, colorHex) {
+                var series = chart.series.push(am5timeline.CurveLineSeries.new(root, {
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    categoryYField: "category",
+                    valueXField: "date",
+                    tooltip: am5.Tooltip.new(root, {
+                        labelText: "{valueX.formatDate('yyyy')}\n{task}\n{description}",
+                        autoTextColor: false
+                    })
+                }));
+
+                series.strokes.template.set("forceHidden", true);
+
+                series.bullets.push(function() {
+                    var circle = am5.Circle.new(root, {
+                        radius: 6,
+                        strokeWidth: 2,
+                        stroke: am5.color(colorHex),
+                        fill: am5.color(colorHex)
+                    });
+
+                    return am5.Bullet.new(root, {
+                        sprite: circle,
+                        locationX: 1,
+                        locationY: 0.5
+                    });
+                });
+
+                return series;
+            }
+
+            var ohioSeries = createSeries("Ohio", "#f59e0b");
+            ohioSeries.data.setAll(ohioTimeline.map(e => ({
+                category: "Ohio",
+                date: new Date(e.year, 0, 1).getTime(),
+                task: e.event,
+                description: e.detail
+            })));
+
+            var chinaSeries = createSeries("China", "#ef4444");
+            chinaSeries.data.setAll(chinaTimeline.map(e => ({
+                category: "China",
+                date: new Date(e.year, 0, 1).getTime(),
+                task: e.event,
+                description: e.detail
+            })));
+
+            var columbiaSeries = createSeries("Columbia", "#3b82f6");
+            columbiaSeries.data.setAll(columbiaTimeline.map(e => ({
+                category: "Columbia",
+                date: new Date(e.year, 0, 1).getTime(),
+                task: e.event,
+                description: e.detail
+            })));
+
+            var cursor = chart.set("cursor", am5timeline.CurveCursor.new(root, {
+                behavior: "zoomX",
+                xAxis: xAxis,
+                yAxis: yAxis
+            }));
+
+            ohioSeries.appear(1000, 100);
+            chinaSeries.appear(1000, 100);
+            columbiaSeries.appear(1000, 100);
+            chart.appear(1000, 100);
+        });
 
         // Intersection Observer for Animations
         function initAnimations() {
@@ -476,13 +418,7 @@
         }
 
         // Initialize
-        renderSnakeTimeline();
         initAnimations();
-
-        // Re-render on resize for responsive adjustments
-        window.addEventListener('resize', () => {
-            renderSnakeTimeline();
-        });
     </script>
 </body>
 </html>
