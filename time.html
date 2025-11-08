@@ -20,37 +20,15 @@
         }
     </script>
     <style>
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 5px #ef4444; }
-            50% { box-shadow: 0 0 20px #ef4444; }
-        }
-        .timeline-dot {
-            transition: all 0.3s ease;
-        }
-        .timeline-dot:hover {
-            transform: scale(1.2);
-        }
-        .countdown-digit {
-            animation: pulseGlow 1s ease-in-out infinite alternate;
-        }
-        #chartdiv {
-          width: 100%;
-          height: 600px;
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 5px #ef4444; } 50% { box-shadow: 0 0 20px #ef4444; } }
+        .timeline-dot { transition: all 0.3s ease; }
+        .timeline-dot:hover { transform: scale(1.2); }
+        .countdown-digit { animation: pulseGlow 1s ease-in-out infinite alternate; }
+        #chartdiv { width: 100%; height: 600px; }
     </style>
-    <!-- Resources -->
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/timeline.js"></script>
@@ -58,14 +36,12 @@
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
     <div class="max-w-7xl mx-auto">
-        <!-- Header -->
         <div class="text-center mb-8 fade-in-up">
             <h1 class="text-5xl font-bold mb-3 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-transparent">THE 2034 COUNTDOWN</h1>
             <p class="text-xl text-slate-300 mb-2">When Rare Earths Force America to Choose Which Hemisphere to Abandon</p>
             <p class="text-sm text-slate-400 italic">A resource war the West is still treating as a trade issue</p>
         </div>
 
-        <!-- Countdown Clock -->
         <div id="countdown" class="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-2 border-red-500/50 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
             <div class="flex items-center justify-center gap-4 mb-4">
                 <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -89,7 +65,6 @@
             </div>
         </div>
 
-        <!-- Key Stats Dashboard -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 fade-in-up">
             <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
                 <div class="text-3xl font-bold text-red-400 mb-1">90%</div>
@@ -113,7 +88,6 @@
             </div>
         </div>
 
-        <!-- Strategic Context -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8 backdrop-blur fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-orange-400">The Strategic Trilemma</h2>
             <p class="text-slate-300 mb-4 leading-relaxed">China didn't just mine rare earths—it <strong class="text-red-400">engineered a full-stack supply chain monopoly</strong> while the West was distracted. From ore to magnet, China controls 90% of refining and 92% of the highest-value production stage. With 26,000 rare earth patents filed (1950-2019) versus only 9,810 in the U.S., China has established technological supremacy.</p>
@@ -123,13 +97,11 @@
             </div>
         </div>
 
-        <!-- Serpentine Timeline -->
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
             <div id="chartdiv"></div>
         </div>
 
-        <!-- Three Theater Columns -->
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-2 text-center">The Impossible Choice</h2>
             <p class="text-center text-slate-400 mb-6 text-lg">Which hemisphere gets abandoned when SSBN coverage gaps emerge?</p>
@@ -176,7 +148,6 @@
             </div>
         </div>
 
-        <!-- Critical Dependencies -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-red-400">China's Weaponization Moment</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -203,7 +174,6 @@
             </div>
         </div>
 
-        <!-- Final Warning -->
         <div class="bg-gradient-to-br from-red-900/40 to-slate-800/40 border-2 border-red-500/50 rounded-xl p-8 text-center fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-red-400">2034 Is Not Just a Retirement Date</h2>
             <p class="text-lg text-slate-300 italic leading-relaxed max-w-4xl mx-auto">"It is the first hard deadline in a resource war the West is still treating as a trade issue. Once Ohio boats start decommissioning faster than Columbia boats enter service, the U.S. faces a hard grand-strategy choice: Keep full SSBN patrol tempo and strip other programs, accept gaps in Europe or Middle East to prioritize Indo-Pacific deterrence, or extend Ohio service life by cannibalizing scarce REE-qualified components. All paths lead to the definitive end of American global primacy—not with a bang, but with a forced retirement."</p>
@@ -211,7 +181,6 @@
     </div>
 
     <script>
-        // Countdown Clock
         function updateCountdown() {
             const target = new Date('2034-01-01');
             const now = new Date();
@@ -228,9 +197,8 @@
             }
         }
         updateCountdown();
-        setInterval(updateCountdown, 3600000); // Update every hour for efficiency
+        setInterval(updateCountdown, 3600000);
 
-        // Timeline Data
         const chinaTimeline = [
             { year: 2004, event: 'Strategic consolidation begins', detail: 'China starts systematic acquisition of rare earth mining operations globally', color: 'red', type: 'china' },
             { year: 2010, event: '97% market control achieved', detail: 'Dominates extraction; begins refining infrastructure buildout', color: 'red', type: 'china' },
@@ -261,15 +229,9 @@
             { year: 2030, event: 'Schedule slips to late 2030s', detail: 'Each boat needs >5 tons NdFeB magnets - supply uncertain', color: 'blue', type: 'columbia' }
         ];
 
-        let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline].sort((a, b) => a.year - b.year);
-
-        // AmCharts Serpentine Timeline
         am5.ready(function() {
             var root = am5.Root.new("chartdiv");
-
-            root.setThemes([
-                am5themes_Animated.new(root)
-            ]);
+            root.setThemes([am5themes_Animated.new(root)]);
 
             var chart = root.container.children.push(am5timeline.SerpentineChart.new(root, {
                 levelCount: 5,
@@ -282,12 +244,18 @@
                 orientation: "horizontal"
             }));
 
+            chart.plotContainer.set("background", am5.Rectangle.new(root, {
+                fill: am5.color(0x1e293b),
+                fillOpacity: 0
+            }));
+
             var yRenderer = am5timeline.AxisRendererCurveY.new(root, {});
 
             yRenderer.labels.template.setAll({
                 centerY: am5.p50,
                 centerX: am5.p100,
-                fontSize: 11
+                fontSize: 11,
+                fill: am5.color(0xffffff)
             });
 
             yRenderer.grid.template.set("forceHidden", true);
@@ -295,21 +263,24 @@
             var xRenderer = am5timeline.AxisRendererCurveX.new(root, {
                 yRenderer: yRenderer,
                 strokeDasharray: [2, 3],
-                strokeOpacity: 0.5,
-                stroke: am5.color(0x000000)
+                strokeOpacity: 0.8,
+                stroke: am5.color(0xffffff)
             });
 
             xRenderer.labels.template.setAll({
                 centerY: am5.p50,
                 fontSize: 11,
-                minPosition: 0.01
+                minPosition: 0.01,
+                fill: am5.color(0xffffff)
             });
 
             xRenderer.labels.template.setup = function(target) {
                 target.set("layer", 30);
                 target.set("background", am5.Rectangle.new(root, {
-                    fill: am5.color(0xffffff),
-                    fillOpacity: 1
+                    fill: am5.color(0x1e293b),
+                    fillOpacity: 1,
+                    stroke: am5.color(0xffffff),
+                    strokeWidth: 1
                 }));
             }
 
@@ -324,6 +295,11 @@
                 renderer: xRenderer,
                 tooltip: am5.Tooltip.new(root, {})
             }));
+
+            xAxis.get("renderer").grid.template.setAll({
+                stroke: am5.color(0xffffff),
+                strokeOpacity: 0.3
+            });
 
             yAxis.data.setAll([
                 { category: "Ohio" },
@@ -341,7 +317,12 @@
                     valueXField: "date",
                     tooltip: am5.Tooltip.new(root, {
                         labelText: "{valueX.formatDate('yyyy')}\n{task}\n{description}",
-                        autoTextColor: false
+                        autoTextColor: false,
+                        getFillFromSprite: false,
+                        getStrokeFromSprite: false,
+                        fill: am5.color(0x1e293b),
+                        stroke: am5.color(0xffffff),
+                        labelFill: am5.color(0xffffff)
                     })
                 }));
 
@@ -395,13 +376,22 @@
                 yAxis: yAxis
             }));
 
+            cursor.lineX.setAll({
+                stroke: am5.color(0xffffff),
+                strokeOpacity: 0.5
+            });
+
+            cursor.lineY.setAll({
+                stroke: am5.color(0xffffff),
+                strokeOpacity: 0.5
+            });
+
             ohioSeries.appear(1000, 100);
             chinaSeries.appear(1000, 100);
             columbiaSeries.appear(1000, 100);
             chart.appear(1000, 100);
         });
 
-        // Intersection Observer for Animations
         function initAnimations() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -417,7 +407,6 @@
             });
         }
 
-        // Initialize
         initAnimations();
     </script>
 </body>
