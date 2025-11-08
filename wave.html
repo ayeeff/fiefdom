@@ -20,7 +20,11 @@
       const timelineRef = useRef(null);
       const productionRef = useRef(null);
       const geoRef = useRef(null);
-
+      const countryFlags = {
+        'China': '🇨🇳',
+        'Brazil': '🇧🇷',
+        'Chile': '🇨🇱'
+      };
       const waves = [
         {
           id: 1,
@@ -28,11 +32,11 @@
           era: "1945-1970",
           color: "#3b82f6",
           elements: [
-            { symbol: "Si", year: 1947, name: "Silicon", use: "Transistors invented" },
-            { symbol: "Al", year: 1950, name: "Aluminium", use: "Jet aircraft frames" },
-            { symbol: "Cu", year: 1952, name: "Copper", use: "Electric motor windings" },
-            { symbol: "Ni", year: 1958, name: "Nickel", use: "Jet engine turbine discs" },
-            { symbol: "Cr", year: 1962, name: "Chromium", use: "Stainless steel hulls" }
+            { symbol: "Si", year: 1947, name: "Silicon", use: "Transistors invented", refining: "Carbothermic reduction of quartz", solidWaste: 2.8, liquidEffluent: 0.02, gaseous: 4.5, country: "China", share: "~75%", notes: "Slag is Ca-SiO₂; dust contains crystalline silica" },
+            { symbol: "Al", year: 1950, name: "Aluminium", use: "Jet aircraft frames", refining: "Bayer → Hall-Héroult", solidWaste: 2.2, liquidEffluent: 0.3, gaseous: 12.5, country: "China", share: "~60%", notes: "Red-mud 1.1 kg; effluent is Bayer liquor" },
+            { symbol: "Cu", year: 1952, name: "Copper", use: "Electric motor windings", refining: "Concentrate → matte → electrorefining", solidWaste: 52, liquidEffluent: 0.4, gaseous: 3.8, country: "China", share: "~40%", notes: "Tailings dominate; acid-rock drainage risk" },
+            { symbol: "Ni", year: 1958, name: "Nickel", use: "Jet engine turbine discs", refining: "Laterite HPAL → mixed sulfide → electrowinning", solidWaste: 58, liquidEffluent: 1.1, gaseous: 5.2, country: "China", share: "~35%", notes: "Laterite leach residue 55 kg; effluent Mn, NH₃" },
+            { symbol: "Cr", year: 1962, name: "Chromium", use: "Stainless steel hulls", refining: "Ferro-chrome smelting (chromite + coke)", solidWaste: 3.5, liquidEffluent: 0.05, gaseous: 5.1, country: "China", share: "~55%", notes: "Slag Cr-rich; dust can contain Cr-VI" }
           ],
           physics: "Band-gap semiconductors & conductivity",
           icon: "⚙️"
@@ -43,15 +47,15 @@
           era: "1970-2000",
           color: "#8b5cf6",
           elements: [
-            { symbol: "Ga", year: 1972, name: "Gallium", use: "First GaAs LEDs" },
-            { symbol: "Ge", year: 1975, name: "Germanium", use: "Fiber optic systems" },
-            { symbol: "In", year: 1978, name: "Indium", use: "ITO touchscreens" },
-            { symbol: "Nb", year: 1982, name: "Niobium", use: "MRI superconducting magnets" },
-            { symbol: "Ta", year: 1985, name: "Tantalum", use: "High-k dielectric capacitors" },
-            { symbol: "Re", year: 1988, name: "Rhenium", use: "Jet engine single-crystal blades" },
-            { symbol: "Zr", year: 1992, name: "Zirconium", use: "EUV photoresists" },
-            { symbol: "Sb", year: 1995, name: "Antimony", use: "Phase-change memory" },
-            { symbol: "Sn", year: 1998, name: "Tin", use: "Lead-free solders" }
+            { symbol: "Ga", year: 1972, name: "Gallium", use: "First GaAs LEDs", refining: "Bayer liquor side-stream → SX → electrolysis", solidWaste: 110, liquidEffluent: 0.8, gaseous: 13, country: "China", share: "~95%", notes: "Wastes allocated from Al refining; Ga 0.01% of Al" },
+            { symbol: "Ge", year: 1975, name: "Germanium", use: "Fiber optic systems", refining: "Zn roaster fume → leach → SX → zone-refining", solidWaste: 45, liquidEffluent: 0.3, gaseous: 2.8, country: "China", share: "~70%", notes: "Residue is Zn leach cake; Ge 0.03% in Zn conc." },
+            { symbol: "In", year: 1978, name: "Indium", use: "ITO touchscreens", refining: "Zn leach residue → acid leach → cementation → EW", solidWaste: 48, liquidEffluent: 0.4, gaseous: 3.0, country: "China", share: "~65%", notes: "Same upstream chain as Ge; In 0.01% in Zn conc." },
+            { symbol: "Nb", year: 1982, name: "Niobium", use: "MRI superconducting magnets", refining: "Pyrochlore flotation → aluminothermic reduction", solidWaste: 28, liquidEffluent: 0.2, gaseous: 2.6, country: "Brazil", share: "~85%", notes: "Slag is Ca-Nb oxide; dust Nb₂O₅" },
+            { symbol: "Ta", year: 1985, name: "Tantalum", use: "High-k dielectric capacitors", refining: "Coltan gravity → acid leach → SX → reduction", solidWaste: 120, liquidEffluent: 1.5, gaseous: 4.1, country: "China", share: "~55%", notes: "Tailings high U-Th; effluent contains F⁻" },
+            { symbol: "Re", year: 1988, name: "Rhenium", use: "Jet engine single-crystal blades", refining: "By-product Cu-Mo roaster fume → IX", solidWaste: 1500, liquidEffluent: 0.6, gaseous: 6, country: "Chile", share: "~50%", notes: "Re 0.0003% in Mo conc.; huge mass allocated" },
+            { symbol: "Zr", year: 1992, name: "Zirconium", use: "EUV photoresists", refining: "Zircon chlorination → reduction → purification", solidWaste: 4.2, liquidEffluent: 0.1, gaseous: 3.9, country: "China", share: "~70%", notes: "Silica residue 2.9 kg; effluent Cl⁻" },
+            { symbol: "Sb", year: 1995, name: "Antimony", use: "Phase-change memory", refining: "Stibnite volatilization roasting → reduction", solidWaste: 6.5, liquidEffluent: 0.08, gaseous: 2.4, country: "China", share: ">80%", notes: "Slag Fe-Si-O; gas can carry As if present" },
+            { symbol: "Sn", year: 1998, name: "Tin", use: "Lead-free solders", refining: "Cassiterite smelting in blast / electric furnace", solidWaste: 3.1, liquidEffluent: 0.06, gaseous: 2.7, country: "China", share: "~50%", notes: "Slag silicate; low tailings because ore ~60% SnO₂" }
           ],
           physics: "Quantum optics & superconductivity",
           icon: "💡"
@@ -62,12 +66,12 @@
           era: "2000-2025",
           color: "#ec4899",
           elements: [
-            { symbol: "Nd", year: 2002, name: "Neodymium", use: "Permanent magnets for HDD" },
-            { symbol: "Dy", year: 2005, name: "Dysprosium", use: "High-temp magnets" },
-            { symbol: "Tb", year: 2008, name: "Terbium", use: "Green phosphors" },
-            { symbol: "Eu", year: 2010, name: "Europium", use: "Red OLED emitters" },
-            { symbol: "Li", year: 2015, name: "Lithium", use: "Li-ion EV batteries" },
-            { symbol: "Co", year: 2020, name: "Cobalt", use: "NMC cathodes" }
+            { symbol: "Nd", year: 2002, name: "Neodymium", use: "Permanent magnets for HDD", refining: "REE acid bake → SX → reduction", solidWaste: 75, liquidEffluent: 1.2, gaseous: 9.5, country: "China", share: "~90%", notes: "Tailings Th-U radionuclides; effluent SO₄²⁻" },
+            { symbol: "Dy", year: 2005, name: "Dysprosium", use: "High-temp magnets", refining: "Same REE chain (ion-exchange)", solidWaste: 85, liquidEffluent: 1.3, gaseous: 10, country: "China", share: "~90%", notes: "Dy 4-7% of Nd-Dy mix; scaled by separation" },
+            { symbol: "Tb", year: 2008, name: "Terbium", use: "Green phosphors", refining: "Same REE chain", solidWaste: 90, liquidEffluent: 1.3, gaseous: 10, country: "China", share: "~90%", notes: "Tb 1% of REE concentrate" },
+            { symbol: "Eu", year: 2010, name: "Europium", use: "Red OLED emitters", refining: "Same REE chain", solidWaste: 92, liquidEffluent: 1.3, gaseous: 10, country: "China", share: "~90%", notes: "Eu 0.2% of REE concentrate; highest waste kg⁻¹" },
+            { symbol: "Li", year: 2015, name: "Lithium", use: "Li-ion EV batteries", refining: "Brine evaporation → lime precipitation", solidWaste: 22, liquidEffluent: 0.9, gaseous: 3.8, country: "China", share: "50-70%", notes: "Tailings salt crust; effluent B, Mg" },
+            { symbol: "Co", year: 2020, name: "Cobalt", use: "NMC cathodes", refining: "Cu-Co concentrate → matte → leach → EW", solidWaste: 65, liquidEffluent: 1.0, gaseous: 6.2, country: "China", share: "50-70%", notes: "Tailings 60 kg; effluent Co, Cu, Mn" }
           ],
           physics: "4f-shell magnetism & ionic storage",
           icon: "🧲"
@@ -110,9 +114,15 @@
       const [hoveredElement, setHoveredElement] = useState(null);
       const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+      const getPollutionIcon = (value, thresholds) => {
+        if (value > thresholds.extreme) return { icon: '☠️', size: 24, color: '#dc2626' };
+        if (value > thresholds.high) return { icon: '🏭', size: 20, color: '#ea580c' };
+        if (value > thresholds.medium) return { icon: '💨', size: 16, color: '#f59e0b' };
+        return { icon: '✓', size: 12, color: '#22c55e' };
+      };
+
       useEffect(() => {
-        // Create custom serpentine timeline with SVG
-        const allElements = waves.flatMap(wave => 
+        const allElements = waves.flatMap(wave =>
           wave.elements.map(el => ({
             ...el,
             wave: wave.name,
@@ -123,7 +133,6 @@
           }))
         );
 
-        // Calculate positions for serpentine layout
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('width', '100%');
         svg.setAttribute('height', '800');
@@ -142,12 +151,10 @@
           const x = startX + (isReversed ? (10 - yearInRow) * yearWidth : yearInRow * yearWidth);
           const y = row * rowHeight + 50;
 
-          // Create group for element
           const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
           group.setAttribute('class', 'element-group');
           group.style.cursor = 'pointer';
 
-          // Circle for element
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           circle.setAttribute('cx', x);
           circle.setAttribute('cy', y);
@@ -157,7 +164,6 @@
           circle.setAttribute('stroke-width', '3');
           circle.style.transition = 'all 0.3s';
 
-          // Element symbol text
           const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           text.setAttribute('x', x);
           text.setAttribute('y', y + 5);
@@ -167,7 +173,6 @@
           text.setAttribute('font-size', '14');
           text.textContent = el.symbol;
 
-          // Year label
           const yearText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           yearText.setAttribute('x', x);
           yearText.setAttribute('y', y - 30);
@@ -177,7 +182,6 @@
           yearText.setAttribute('font-weight', 'bold');
           yearText.textContent = el.year;
 
-          // Element name
           const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           nameText.setAttribute('x', x);
           nameText.setAttribute('y', y + 35);
@@ -186,7 +190,16 @@
           nameText.setAttribute('font-size', '10');
           nameText.textContent = el.name;
 
-          // Add hover effects
+          if (el.country) {
+            const flagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            flagText.setAttribute('x', x + 25);
+            flagText.setAttribute('y', y - 20);
+            flagText.setAttribute('text-anchor', 'middle');
+            flagText.setAttribute('font-size', '20');
+            flagText.textContent = countryFlags[el.country] || '🌍';
+            group.appendChild(flagText);
+          }
+
           group.addEventListener('mouseenter', (e) => {
             circle.setAttribute('r', '24');
             text.setAttribute('font-size', '16');
@@ -195,9 +208,9 @@
 
           group.addEventListener('mousemove', (e) => {
             const rect = timelineRef.current.getBoundingClientRect();
-            setMousePosition({ 
-              x: e.clientX - rect.left, 
-              y: e.clientY - rect.top 
+            setMousePosition({
+              x: e.clientX - rect.left,
+              y: e.clientY - rect.top
             });
           });
 
@@ -214,11 +227,9 @@
           svg.appendChild(group);
         });
 
-        // Add timeline lines and wave icons
         for (let row = 0; row <= 9; row++) {
           const y = row * rowHeight + 50;
-          
-          // Timeline line
+         
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           line.setAttribute('x1', startX);
           line.setAttribute('y1', y);
@@ -229,7 +240,6 @@
           line.setAttribute('stroke-dasharray', '5,5');
           svg.insertBefore(line, svg.firstChild);
 
-          // Wave icon
           const wave = waves.find(w => {
             const waveStart = parseInt(w.era.split('-')[0]);
             const waveEnd = parseInt(w.era.split('-')[1]);
@@ -247,7 +257,6 @@
             svg.appendChild(iconText);
           }
 
-          // Decade labels
           const decadeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           decadeText.setAttribute('x', row % 2 === 0 ? startX - 20 : startX + 1020);
           decadeText.setAttribute('y', y + 5);
@@ -262,7 +271,6 @@
         timelineRef.current.innerHTML = '';
         timelineRef.current.appendChild(svg);
 
-        // Rare Earth Production Over Time
         const productionData = [
           {
             x: rareEarthData.map(d => d.year),
@@ -338,7 +346,6 @@
           displayModeBar: false
         });
 
-        // Total Production Growth
         const totalData = [{
           x: rareEarthData.map(d => d.year),
           y: rareEarthData.map(d => d.total),
@@ -390,9 +397,15 @@
         });
       }, []);
 
+      const solidWasteIcon = hoveredElement && hoveredElement.solidWaste ?
+        getPollutionIcon(hoveredElement.solidWaste, { extreme: 100, high: 50, medium: 20 }) : null;
+      const liquidIcon = hoveredElement && hoveredElement.liquidEffluent ?
+        getPollutionIcon(hoveredElement.liquidEffluent, { extreme: 1.5, high: 1, medium: 0.5 }) : null;
+      const gaseousIcon = hoveredElement && hoveredElement.gaseous ?
+        getPollutionIcon(hoveredElement.gaseous, { extreme: 10, high: 6, medium: 3 }) : null;
+
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-          {/* Header */}
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-12 px-6">
             <div className="max-w-7xl mx-auto">
               <h1 className="text-5xl font-bold mb-4">🧲 The End of Magic</h1>
@@ -404,56 +417,93 @@
               </p>
             </div>
           </div>
-
-          {/* Main Content */}
           <div className="max-w-7xl mx-auto px-6 py-12">
-
-            {/* Serpentine Timeline */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 relative">
               <h2 className="text-2xl font-bold text-slate-800 mb-4">Timeline of Material Innovation</h2>
               <p className="text-sm text-slate-600 mb-6">
-                Hover over elements to see details • Each element colored by its wave • Years show first major application
+                Hover over elements to see details • Each element colored by its wave • Country flags show refining dominance • Pollution levels indicated
               </p>
               <div ref={timelineRef} className="overflow-x-auto relative"></div>
-              
-              {/* Floating hover tooltip */}
-              {hoveredElement && (
-                <div 
-                  className="absolute z-50 bg-white rounded-lg shadow-2xl p-4 border-2 pointer-events-none"
-                  style={{ 
-                    left: `${mousePosition.x + 20}px`, 
+             
+              {hoveredElement && hoveredElement.refining && (
+                <div
+                  className="absolute z-50 bg-white rounded-lg shadow-2xl p-5 border-2 pointer-events-none"
+                  style={{
+                    left: `${mousePosition.x + 20}px`,
                     top: `${mousePosition.y + 20}px`,
                     borderColor: hoveredElement.color,
-                    minWidth: '300px',
-                    maxWidth: '400px'
+                    minWidth: '450px',
+                    maxWidth: '500px'
                   }}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0" style={{ backgroundColor: hoveredElement.color }}>
                       {hoveredElement.symbol}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-slate-800 mb-1">{hoveredElement.name}</h3>
-                      <p className="text-xs text-slate-600 mb-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-bold text-slate-800">{hoveredElement.name}</h3>
+                        <span className="text-2xl">{countryFlags[hoveredElement.country]}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 mb-1">
                         <span className="font-semibold">{hoveredElement.wave}</span> • {hoveredElement.year}
                       </p>
+                      <p className="text-xs text-slate-700 italic mb-2">{hoveredElement.use}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3 text-xs">
+                    <div className="bg-slate-50 p-3 rounded">
+                      <p className="font-semibold text-slate-700 mb-1">Refining Route</p>
+                      <p className="text-slate-600">{hoveredElement.refining}</p>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded">
+                      <p className="font-semibold text-slate-700 mb-2">Refining Control</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{countryFlags[hoveredElement.country]}</span>
+                        <span className="text-slate-800 font-bold">{hoveredElement.country}</span>
+                        <span className="ml-auto text-slate-600">{hoveredElement.share}</span>
+                      </div>
+                    </div>
+                    <div className="bg-red-50 border border-red-200 p-3 rounded">
+                      <p className="font-semibold text-red-700 mb-2">Environmental Impact (per kg refined)</p>
                       <div className="space-y-2">
-                        <div>
-                          <p className="text-xs font-semibold text-slate-500 uppercase">Physics</p>
-                          <p className="text-xs text-slate-700">{hoveredElement.physics}</p>
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: `${solidWasteIcon.size}px` }}>
+                            {solidWasteIcon.icon}
+                          </span>
+                          <span className="font-semibold text-slate-700">Solid waste:</span>
+                          <span className="ml-auto font-bold" style={{ color: solidWasteIcon.color }}>
+                            {hoveredElement.solidWaste} kg
+                          </span>
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold text-slate-500 uppercase">Key Application</p>
-                          <p className="text-xs text-slate-700">{hoveredElement.use}</p>
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: `${liquidIcon.size}px` }}>
+                            {liquidIcon.icon}
+                          </span>
+                          <span className="font-semibold text-slate-700">Liquid effluent:</span>
+                          <span className="ml-auto font-bold" style={{ color: liquidIcon.color }}>
+                            {hoveredElement.liquidEffluent} kg
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: `${gaseousIcon.size}px` }}>
+                            {gaseousIcon.icon}
+                          </span>
+                          <span className="font-semibold text-slate-700">Gaseous/particulate:</span>
+                          <span className="ml-auto font-bold" style={{ color: gaseousIcon.color }}>
+                            {hoveredElement.gaseous} kg
+                          </span>
                         </div>
                       </div>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 p-3 rounded">
+                      <p className="font-semibold text-amber-800 mb-1">Contaminants & Notes</p>
+                      <p className="text-slate-700">{hoveredElement.notes}</p>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Key Insight Banner */}
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl p-8 mb-12 shadow-xl">
               <h2 className="text-3xl font-bold mb-4">🔮 Why Wave 3 Is the Endgame</h2>
               <div className="grid md:grid-cols-2 gap-6 text-lg">
@@ -475,44 +525,20 @@
                 </div>
               </div>
             </div>
-
-            {/* Rare Earth Production Section */}
             <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
               <h2 className="text-3xl font-bold text-slate-800 mb-6">📊 The Rare-Earth Wave: Production Data</h2>
-              
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-6 border-l-4 border-red-500">
-                  <div className="text-sm font-semibold text-red-700 uppercase mb-2">China Dominance</div>
-                  <div className="text-3xl font-bold text-red-900 mb-1">68%</div>
-                  <div className="text-sm text-red-700">of global production (240kt in 2023)</div>
-                </div>
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border-l-4 border-blue-500">
-                  <div className="text-sm font-semibold text-blue-700 uppercase mb-2">U.S. Comeback</div>
-                  <div className="text-3xl font-bold text-blue-900 mb-1">43kt</div>
-                  <div className="text-sm text-blue-700">in 2023 (from 15.4kt in 2017)</div>
-                </div>
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg p-6 border-l-4 border-pink-500">
-                  <div className="text-sm font-semibold text-pink-700 uppercase mb-2">Global Growth</div>
-                  <div className="text-3xl font-bold text-pink-900 mb-1">4.6×</div>
-                  <div className="text-sm text-pink-700">increase from 75.7kt (1995) to 350kt (2023)</div>
-                </div>
-              </div>
-
+             
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div ref={productionRef}></div>
                 <div ref={geoRef}></div>
               </div>
             </div>
-
-            {/* Final Quote */}
             <div className="bg-slate-900 text-slate-100 rounded-xl p-8 shadow-xl border-l-4 border-pink-500">
               <p className="text-2xl italic leading-relaxed">
                 "Wave 3 is the endgame of mass-market physics — the moment humanity harvested every stable quantum lever before entering the nuclear age. What follows is not another wave, but a <span className="text-pink-400 font-bold">bleed-stream of brilliance measured in grams, not megatons.</span>"
               </p>
             </div>
           </div>
-
-          {/* Footer */}
           <div className="bg-slate-800 text-slate-400 py-6 px-6 text-center text-sm">
             <p>Modern civilization moves in material waves — each defined by a new class of elements unlocking a new kind of physics.</p>
           </div>
