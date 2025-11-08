@@ -504,22 +504,23 @@
                 </div>
               )}
             </div>
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl p-8 mb-12 shadow-xl">
-              <h2 className="text-3xl font-bold mb-4">🔮 Why Wave 3 Is the Endgame</h2>
-              <div className="grid md:grid-cols-2 gap-6 text-lg">
-                <div>
-                  <p className="mb-3">
+            {/* Fixed Banner Section - No More Cutoff */}
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl p-8 pb-12 mb-12 shadow-xl overflow-hidden">
+              <h2 className="text-3xl font-bold mb-6 text-center sm:text-left">🔮 Why Wave 3 Is the Endgame</h2>
+              <div className="flex flex-col md:grid md:grid-cols-2 gap-6 text-lg">
+                <div className="space-y-3">
+                  <p className="mb-3 break-words hyphens-auto">
                     <span className="font-semibold">Last stable quantum playground:</span> The 4f-orbitals are the deepest, most complex shells that still interact with light and magnetism.
                   </p>
-                  <p>
+                  <p className="break-words hyphens-auto">
                     <span className="font-semibold">Closed energy loop:</span> From photons to spins to ions — all major degrees of freedom are now engineerable.
                   </p>
                 </div>
-                <div>
-                  <p className="mb-3">
+                <div className="space-y-3">
+                  <p className="mb-3 break-words hyphens-auto">
                     <span className="font-semibold">Scalable physics:</span> These elements exist in recoverable ores, measurable in kilotons.
                   </p>
-                  <p>
+                  <p className="break-words hyphens-auto">
                     <span className="font-semibold">The end of mass-market matter:</span> Everything beyond is radioactive, vanishingly rare, or both — measured in grams, not megatons.
                   </p>
                 </div>
