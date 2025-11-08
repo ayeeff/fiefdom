@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2034 COUNTDOWN</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script>
         tailwind.config = {
             theme: {
@@ -28,242 +27,22 @@
         .timeline-dot { transition: all 0.3s ease; }
         .timeline-dot:hover { transform: scale(1.2); }
         .countdown-digit { animation: pulseGlow 1s ease-in-out infinite alternate; }
-        body {
-          font-family: sans-serif;
-          padding: 20px 0;
-        }
-        .main-timeline {
-          font-family: sans-serif;
-          padding: 10px 0;
-          position: relative;
-          max-width: 1500px;
-          margin: 0 auto;
-        }
-        .main-timeline::before,
-        .main-timeline::after {
-          content: "";
-          height: 30px;
-          width: 30px;
-          background-color: #e7e7e7;
-          border-radius: 50%;
-          border: 8px solid #303334;
-          transform: translatex(-50%);
-          position: absolute;
-          left: 50%;
-          top: -10px;
-          z-index: 2;
-        }
-        .main-timeline::after {
-          top: auto;
-          bottom: 10px;
-        }
-        .main-timeline .timeline {
-          padding: 20px 0;
-          margin-top: -15px;
-          position: relative;
-          z-index: 1;
-        }
-        .main-timeline .timeline::before,
-        .main-timeline .timeline::after {
-          content: "";
-          height: 100%;
-          width: 50%;
-          border-radius: 80px 0 0 80px;
-          border: 8px solid #46b2bc;
-          border-right: none;
-          position: absolute;
-          left: 0;
-          top: 0;
-          z-index: -1;
-        }
-        .main-timeline .timeline::after {
-          height: calc(100% - 20px);
-          width: calc(50% - 8px);
-          border-color: #65c7d0;
-          left: 8px;
-          top: 10px;
-        }
-        .main-timeline .timeline-content {
-          display: inline-block;
-          text-decoration: none;
-        }
-        .main-timeline .timeline-content:hover {
-          text-decoration: none;
-        }
-        .main-timeline .timeline-year {
-          color: #65c7d0;
-          font-size: 30px;
-          font-weight: 600;
-          display: inline-block;
-          transform: translatey(-50%);
-          position: absolute;
-          top: 50%;
-          left: 8%;
-          z-index: 3;
-        }
-        .main-timeline .timeline-icon {
-            color: #65c7d0;
-            font-size: 40px;
-            display: inline-block;
-            transform: translateY(-50%);
-            position: absolute;
-            left: 28%;
-            top: 50%;
-            z-index: 3;
-        }
-        .main-timeline .content {
-          color: #cbd5e1;
-          width: 55%;
-          padding: 15px;
-          display: inline-block;
-          float: right;
-          margin-right: 5%;
-          box-sizing: border-box;
-        }
-        .main-timeline .title {
-          color: #65c7d0;
-          font-size: 16px;
-          font-weight: 600;
-          text-transform: uppercase;
-          margin: 0 0 5px 0;
-        }
-        .main-timeline .description {
-          font-size: 14px;
-          margin: 0;
-          line-height: 1.4;
-        }
-        .main-timeline .timeline:nth-child(even)::before {
-          left: auto;
-          right: 0;
-          border-radius: 0 80px 80px 0;
-          border: 8px solid #46b2bc;
-          border-left: none;
-        }
-        .main-timeline .timeline:nth-child(even)::after {
-          left: auto;
-          right: 8px;
-          border-radius: 0 70px 70px 0;
-          border: 8px solid #65c7d0;
-          border-left: none;
-        }
-        .main-timeline .timeline:nth-child(even) .content {
-          float: left;
-          margin-left: 5%;
-          margin-right: 0;
-        }
-        .main-timeline .timeline:nth-child(even) .timeline-year {
-            left: auto;
-            right: 8%;
-        }
-        .main-timeline .timeline:nth-child(even) .timeline-icon {
-          left: auto;
-          right: 28%;
-        }
-        .main-timeline .timeline.china::before,
-        .main-timeline .timeline.china:nth-child(even)::before {
-          border-color: #ef4444;
-        }
-        .main-timeline .timeline.china::after,
-        .main-timeline .timeline.china:nth-child(even)::after {
-          border-color: #f87171;
-        }
-        .main-timeline .timeline.china .timeline-icon,
-        .main-timeline .timeline.china .timeline-year,
-        .main-timeline .timeline.china .title {
-          color: #ef4444;
-        }
-        .main-timeline .timeline.ohio::before,
-        .main-timeline .timeline.ohio:nth-child(even)::before {
-          border-color: #f59e0b;
-        }
-        .main-timeline .timeline.ohio::after,
-        .main-timeline .timeline.ohio:nth-child(even)::after {
-          border-color: #fbbf24;
-        }
-        .main-timeline .timeline.ohio .timeline-icon,
-        .main-timeline .timeline.ohio .timeline-year,
-        .main-timeline .timeline.ohio .title {
-          color: #f59e0b;
-        }
-        .main-timeline .timeline.columbia::before,
-        .main-timeline .timeline.columbia:nth-child(even)::before {
-          border-color: #3b82f6;
-        }
-        .main-timeline .timeline.columbia::after,
-        .main-timeline .timeline.columbia:nth-child(even)::after {
-          border-color: #60a5fa;
-        }
-        .main-timeline .timeline.columbia .timeline-icon,
-        .main-timeline .timeline.columbia .timeline-year,
-        .main-timeline .timeline.columbia .title {
-          color: #3b82f6;
-        }
-        @media screen and (max-width:1200px){
-            .main-timeline .timeline:after{ border-radius: 60px 0 0 60px; }
-            .main-timeline .timeline:nth-child(even):after{ border-radius: 0 60px 60px 0; }
-        }
-        @media screen and (max-width:767px){
-            .main-timeline .timeline{ margin-top: -10px; padding: 15px 0; }
-            .main-timeline .timeline:before {
-                border-radius: 40px 0 0 40px;
-                border-width: 6px;
-            }
-            .main-timeline .timeline:after {
-                height: calc(100% - 12px);
-                width: calc(50% - 6px);
-                border-radius: 30px 0 0 30px;
-                border-width:6px;
-                top: 6px;
-                left: 6px;
-            }
-            .main-timeline .timeline:nth-child(even):before {
-                border-radius: 0 40px 40px 0;
-                border-width: 6px;
-            }
-            .main-timeline .timeline:nth-child(even):after {
-                height: calc(100% - 12px);
-                width: calc(50% - 6px);
-                border-radius: 0 30px 30px 0;
-                border-width: 6px;
-                top: 6px;
-                right: 6px;
-            }
-            .main-timeline .timeline-icon{ font-size: 30px; left: 20% !important; right: 20% !important; }
-            .main-timeline .timeline-year{ font-size: 24px; left: 5% !important; right: 5% !important; }
-            .main-timeline .content{ width: 70%; padding: 10px; margin-right: 2% !important; margin-left: 2% !important; }
-        }
-        @media screen and (max-width:479px){
-            .main-timeline .timeline-icon{
-                font-size: 25px;
-                transform:translateY(0);
-                top: 20%;
-                left: 5% !important;
-                right: 5% !important;
-            }
-            .main-timeline .timeline-year{
-                font-size: 20px;
-                transform:translateY(0);
-                top: 50%;
-                left: 5% !important;
-                right: 5% !important;
-            }
-            .main-timeline .content{
-                width: 85%;
-                padding: 8px;
-                float: none !important;
-                margin: 0 auto !important;
-                text-align: center;
-            }
-            .main-timeline .title{ font-size: 14px; }
-            .main-timeline .timeline:nth-child(even) .timeline-icon{
-                left: 5% !important;
-                right: auto !important;
-            }
-            .main-timeline .timeline:nth-child(even) .timeline-year{
-                left: 5% !important;
-                right: auto !important;
-            }
-        }
+        /* Basic styles for timeline (inspired by daisyUI/flyonUI) */
+        .timeline { display: flex; flex-direction: column; position: relative; list-style: none; padding: 0; margin: 0; }
+        .timeline li { display: flex; align-items: center; position: relative; min-height: 4rem; }
+        .timeline-vertical li { flex-direction: row; }
+        .timeline-horizontal { flex-direction: row; overflow-x: auto; }
+        .timeline-horizontal li { flex-direction: column; min-height: auto; min-width: 10rem; }
+        .timeline-start { order: 1; flex-shrink: 0; padding-right: 1rem; text-align: right; }
+        .timeline-horizontal .timeline-start { padding-right: 0; padding-bottom: 1rem; text-align: center; writing-mode: vertical-rl; }
+        .timeline-middle { order: 2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+        .timeline-end { order: 3; flex: 1; padding-left: 1rem; }
+        .timeline-horizontal .timeline-end { padding-left: 0; padding-top: 1rem; text-align: center; }
+        .timeline-box { background-color: rgba(51, 65, 85, 0.5); border: 1px solid #475569; border-radius: 0.5rem; padding: 1rem; }
+        hr { border: none; border-left: 1px solid #475569; height: 100%; position: absolute; left: 50%; top: 0; bottom: 0; margin: 0; transform: translateX(-50%); }
+        .timeline-horizontal hr { border-left: none; border-top: 1px solid #475569; width: 100%; position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); }
+        .timeline li:first-child hr { display: none; }
+        .timeline li:last-child hr { display: none; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
@@ -331,260 +110,7 @@
 
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
-            <div class="main-timeline">
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">1981</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">USS Ohio commissioned</h3>
-                            <p class="description">First of 18 Ohio-class SSBNs enters service</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2002</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Four boats converted to SSGN</h3>
-                            <p class="description">Fleet reduced to 14 ballistic missile submarines</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2004</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Strategic consolidation begins</h3>
-                            <p class="description">China starts systematic acquisition of rare earth mining operations globally</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2010</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">97% market control achieved</h3>
-                            <p class="description">Dominates extraction; begins refining infrastructure buildout</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2012</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Export restrictions imposed</h3>
-                            <p class="description">WTO challenge filed but ineffective; control remains</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2014</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Program initiated</h3>
-                            <p class="description">Columbia-class program approved; original target: 2031</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2015</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Magnet production dominance</h3>
-                            <p class="description">92% of global sintered NdFeB magnet manufacturing</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2019</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">26,000 REE patents filed</h3>
-                            <p class="description">vs. 9,810 in U.S. - technological supremacy established</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2020</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Construction begins</h3>
-                            <p class="description">USS District of Columbia keel laid</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2023</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Heavy REE monopoly complete</h3>
-                            <p class="description">Only source for dysprosium, terbium separation at scale</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2024</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Schedule slips to 2033</h3>
-                            <p class="description">Cost overruns and technical delays accumulate</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline china">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2025</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-industry" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">EXPORT CONTROLS EXTENDED</h3>
-                            <p class="description">New rules control foreign-made magnets with Chinese material</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2025</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">REE supply crisis emerges</h3>
-                            <p class="description">China export controls threaten magnet supply chain</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2027</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Maintenance crisis begins</h3>
-                            <p class="description">Multiple boats hit service limits; availability drops</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2027</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Heavy REE separation gap</h3>
-                            <p class="description">Western facilities not yet operational for critical elements</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2028</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">U.S. magnet line target</h3>
-                            <p class="description">First domestic sintered-magnet production (if on schedule)</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline columbia">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2030</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-rocket" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Schedule slips to late 2030s</h3>
-                            <p class="description">Each boat needs >5 tons NdFeB magnets - supply uncertain</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2031</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Fleet stress intensifies</h3>
-                            <p class="description">Several boats exceed designed service life</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2034</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">FIRST RETIREMENT FORCED</h3>
-                            <p class="description">50-year hull life reached - no choice but decommission</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2036</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Second boat retired</h3>
-                            <p class="description">Deterrent gap widens; patrol coverage compromised</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="timeline ohio">
-                    <a href="#" class="timeline-content">
-                        <span class="timeline-year">2040</span>
-                        <div class="timeline-icon">
-                            <i class="fa fa-ship" aria-hidden="true"></i>
-                        </div>
-                        <div class="content">
-                            <h3 class="title">Cascading retirements</h3>
-                            <p class="description">Multiple Ohio-class boats reach end of life</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
+            <div id="timelinediv"></div>
         </div>
 
         <div class="mb-8 fade-in-up">
@@ -683,6 +209,73 @@
         }
         updateCountdown();
         setInterval(updateCountdown, 3600000);
+
+        const chinaTimeline = [
+            { year: 2004, event: 'Strategic consolidation begins', detail: 'China starts systematic acquisition of rare earth mining operations globally', color: 'red', type: 'china' },
+            { year: 2010, event: '97% market control achieved', detail: 'Dominates extraction; begins refining infrastructure buildout', color: 'red', type: 'china' },
+            { year: 2012, event: 'Export restrictions imposed', detail: 'WTO challenge filed but ineffective; control remains', color: 'red', type: 'china' },
+            { year: 2015, event: 'Magnet production dominance', detail: '92% of global sintered NdFeB magnet manufacturing', color: 'red', type: 'china' },
+            { year: 2019, event: '26,000 REE patents filed', detail: 'vs. 9,810 in U.S. - technological supremacy established', color: 'red', type: 'china' },
+            { year: 2023, event: 'Heavy REE monopoly complete', detail: 'Only source for dysprosium, terbium separation at scale', color: 'red', type: 'china' },
+            { year: 2025, event: 'EXPORT CONTROLS EXTENDED', detail: 'New rules control foreign-made magnets with Chinese material', color: 'red', type: 'china' }
+        ];
+
+        const ohioTimeline = [
+            { year: 1981, event: 'USS Ohio commissioned', detail: 'First of 18 Ohio-class SSBNs enters service', color: 'orange', type: 'ohio' },
+            { year: 2002, event: 'Four boats converted to SSGN', detail: 'Fleet reduced to 14 ballistic missile submarines', color: 'orange', type: 'ohio' },
+            { year: 2027, event: 'Maintenance crisis begins', detail: 'Multiple boats hit service limits; availability drops', color: 'orange', type: 'ohio' },
+            { year: 2031, event: 'Fleet stress intensifies', detail: 'Several boats exceed designed service life', color: 'orange', type: 'ohio' },
+            { year: 2034, event: 'FIRST RETIREMENT FORCED', detail: '50-year hull life reached - no choice but decommission', color: 'orange', type: 'ohio' },
+            { year: 2036, event: 'Second boat retired', detail: 'Deterrent gap widens; patrol coverage compromised', color: 'orange', type: 'ohio' },
+            { year: 2040, event: 'Cascading retirements', detail: 'Multiple Ohio-class boats reach end of life', color: 'orange', type: 'ohio' }
+        ];
+
+        const columbiaTimeline = [
+            { year: 2014, event: 'Program initiated', detail: 'Columbia-class program approved; original target: 2031', color: 'blue', type: 'columbia' },
+            { year: 2020, event: 'Construction begins', detail: 'USS District of Columbia keel laid', color: 'blue', type: 'columbia' },
+            { year: 2024, event: 'Schedule slips to 2033', detail: 'Cost overruns and technical delays accumulate', color: 'blue', type: 'columbia' },
+            { year: 2025, event: 'REE supply crisis emerges', detail: 'China export controls threaten magnet supply chain', color: 'blue', type: 'columbia' },
+            { year: 2027, event: 'Heavy REE separation gap', detail: 'Western facilities not yet operational for critical elements', color: 'blue', type: 'columbia' },
+            { year: 2028, event: 'U.S. magnet line target', detail: 'First domestic sintered-magnet production (if on schedule)', color: 'blue', type: 'columbia' },
+            { year: 2030, event: 'Schedule slips to late 2030s', detail: 'Each boat needs >5 tons NdFeB magnets - supply uncertain', color: 'blue', type: 'columbia' }
+        ];
+
+        function generateTimeline() {
+            let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline];
+            allEvents.sort((a, b) => a.year - b.year);
+
+            let html = '<ul class="timeline timeline-vertical lg:timeline-horizontal">';
+            allEvents.forEach((event, index) => {
+                const colorClass = event.type === 'china' ? 'red' : event.type === 'ohio' ? 'orange' : 'blue';
+                let li = '<li>';
+                if (index > 0) {
+                    li += '<hr class="border-slate-600" />';
+                }
+                li += `
+                    <div class="timeline-start text-slate-300 font-medium">${event.year}</div>
+                    <div class="timeline-middle">
+                        <span class="bg-${colorClass}-500/20 flex h-4 w-4 items-center justify-center rounded-full">
+                            <div class="h-2 w-2 rounded-full bg-${colorClass}-500"></div>
+                        </span>
+                    </div>
+                    <div class="timeline-end">
+                        <div class="timeline-box">
+                            <div class="font-bold text-${colorClass}-400 mb-1">${event.event}</div>
+                            <p class="text-sm text-slate-300">${event.detail}</p>
+                        </div>
+                    </div>
+                `;
+                if (index < allEvents.length - 1) {
+                    li += '<hr class="border-slate-600" />';
+                }
+                li += '</li>';
+                html += li;
+            });
+            html += '</ul>';
+            document.getElementById('timelinediv').innerHTML = html;
+        }
+
+        generateTimeline();
 
         function initAnimations() {
             const observer = new IntersectionObserver((entries) => {
