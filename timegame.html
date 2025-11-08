@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2034 COUNTDOWN</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@6/build/vega-core.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     animation: {
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-                        'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
-                        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
                         'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
                     }
                 }
@@ -20,28 +21,37 @@
         }
     </script>
     <style>
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 5px #ef4444; } 50% { box-shadow: 0 0 20px #ef4444; } }
-        .timeline-dot { transition: all 0.3s ease; }
-        .timeline-dot:hover { transform: scale(1.2); }
-        .countdown-digit { animation: pulseGlow 1s ease-in-out infinite alternate; }
-        #chartdiv { width: 100%; height: 600px; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px #ef4444; }
+            50% { box-shadow: 0 0 20px #ef4444; }
+        }
+        .countdown-digit {
+            animation: pulseGlow 1s ease-in-out infinite alternate;
+        }
+        #vega-timeline {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
     </style>
-    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/timeline.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
     <div class="max-w-7xl mx-auto">
+        <!-- Header -->
         <div class="text-center mb-8 fade-in-up">
             <h1 class="text-5xl font-bold mb-3 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-transparent">THE 2034 COUNTDOWN</h1>
             <p class="text-xl text-slate-300 mb-2">When Rare Earths Force America to Choose Which Hemisphere to Abandon</p>
             <p class="text-sm text-slate-400 italic">A resource war the West is still treating as a trade issue</p>
         </div>
 
+        <!-- Countdown Clock -->
         <div id="countdown" class="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-2 border-red-500/50 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
             <div class="flex items-center justify-center gap-4 mb-4">
                 <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -65,6 +75,7 @@
             </div>
         </div>
 
+        <!-- Key Stats Dashboard -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 fade-in-up">
             <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 backdrop-blur">
                 <div class="text-3xl font-bold text-red-400 mb-1">90%</div>
@@ -88,6 +99,7 @@
             </div>
         </div>
 
+        <!-- Strategic Context -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8 backdrop-blur fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-orange-400">The Strategic Trilemma</h2>
             <p class="text-slate-300 mb-4 leading-relaxed">China didn't just mine rare earths—it <strong class="text-red-400">engineered a full-stack supply chain monopoly</strong> while the West was distracted. From ore to magnet, China controls 90% of refining and 92% of the highest-value production stage. With 26,000 rare earth patents filed (1950-2019) versus only 9,810 in the U.S., China has established technological supremacy.</p>
@@ -97,11 +109,13 @@
             </div>
         </div>
 
+        <!-- Vega Serpentine Timeline -->
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
-            <div id="chartdiv"></div>
+            <div id="vega-timeline"></div>
         </div>
 
+        <!-- Three Theater Columns -->
         <div class="mb-8 fade-in-up">
             <h2 class="text-3xl font-bold mb-2 text-center">The Impossible Choice</h2>
             <p class="text-center text-slate-400 mb-6 text-lg">Which hemisphere gets abandoned when SSBN coverage gaps emerge?</p>
@@ -148,6 +162,7 @@
             </div>
         </div>
 
+        <!-- Critical Dependencies -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8 backdrop-blur fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-red-400">China's Weaponization Moment</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -174,6 +189,7 @@
             </div>
         </div>
 
+        <!-- Final Warning -->
         <div class="bg-gradient-to-br from-red-900/40 to-slate-800/40 border-2 border-red-500/50 rounded-xl p-8 text-center fade-in-up">
             <h2 class="text-2xl font-bold mb-4 text-red-400">2034 Is Not Just a Retirement Date</h2>
             <p class="text-lg text-slate-300 italic leading-relaxed max-w-4xl mx-auto">"It is the first hard deadline in a resource war the West is still treating as a trade issue. Once Ohio boats start decommissioning faster than Columbia boats enter service, the U.S. faces a hard grand-strategy choice: Keep full SSBN patrol tempo and strip other programs, accept gaps in Europe or Middle East to prioritize Indo-Pacific deterrence, or extend Ohio service life by cannibalizing scarce REE-qualified components. All paths lead to the definitive end of American global primacy—not with a bang, but with a forced retirement."</p>
@@ -181,6 +197,7 @@
     </div>
 
     <script>
+        // Countdown Clock
         function updateCountdown() {
             const target = new Date('2034-01-01');
             const now = new Date();
@@ -197,8 +214,9 @@
             }
         }
         updateCountdown();
-        setInterval(updateCountdown, 3600000);
+        setInterval(updateCountdown, 3600000); // Update every hour for efficiency
 
+        // Timeline Data
         const chinaTimeline = [
             { year: 2004, event: 'Strategic consolidation begins', detail: 'China starts systematic acquisition of rare earth mining operations globally', color: 'red', type: 'china' },
             { year: 2010, event: '97% market control achieved', detail: 'Dominates extraction; begins refining infrastructure buildout', color: 'red', type: 'china' },
@@ -229,149 +247,124 @@
             { year: 2030, event: 'Schedule slips to late 2030s', detail: 'Each boat needs >5 tons NdFeB magnets - supply uncertain', color: 'blue', type: 'columbia' }
         ];
 
-        am5.ready(function() {
-            var root = am5.Root.new("chartdiv");
-            root.setThemes([am5themes_Animated.new(root)]);
+        let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline].sort((a, b) => a.year - b.year);
 
-            var chart = root.container.children.push(am5timeline.SerpentineChart.new(root, {
-                levelCount: 5,
-                startLocation: 0.2,
-                endLocation: 1,
-                wheelX: "zoomX"
-            }));
+        // Vega Serpentine Timeline
+        function renderVegaTimeline() {
+            const spec = {
+                "$schema": "https://vega.github.io/schema/vega/v5.json",
+                "width": 800,
+                "height": 600,
+                "padding": 20,
+                "data": [
+                    {
+                        "name": "timeline",
+                        "values": allEvents,
+                        "transform": [
+                            {
+                                "type": "formula",
+                                "as": "color",
+                                "expr": "datum.type === 'china' ? '#ef4444' : datum.type === 'ohio' ? '#f59e0b' : '#3b82f6'"
+                            },
+                            {
+                                "type": "formula",
+                                "as": "y",
+                                "expr": "(datum.year - 1980) * 15"
+                            }
+                        ]
+                    }
+                ],
+                "scales": [
+                    {
+                        "name": "y",
+                        "type": "linear",
+                        "range": "height",
+                        "domain": {"data": "timeline", "field": "y"}
+                    },
+                    {
+                        "name": "color",
+                        "type": "ordinal",
+                        "range": ["#ef4444", "#f59e0b", "#3b82f6"],
+                        "domain": ["china", "ohio", "columbia"]
+                    }
+                ],
+                "axes": [
+                    {
+                        "orient": "left",
+                        "scale": "y",
+                        "tickCount": 10,
+                        "format": "d",
+                        "title": "Year",
+                        "titleColor": "#cbd5e1",
+                        "tickColor": "#64748b",
+                        "labelColor": "#cbd5e1"
+                    }
+                ],
+                "marks": [
+                    {
+                        "type": "line",
+                        "from": {"data": "timeline"},
+                        "encode": {
+                            "update": {
+                                "x": {"value": 400},
+                                "y": {"scale": "y", "field": "y"},
+                                "stroke": {"value": "#64748b"},
+                                "strokeWidth": {"value": 2}
+                            }
+                        }
+                    },
+                    {
+                        "type": "symbol",
+                        "from": {"data": "timeline"},
+                        "encode": {
+                            "enter": {
+                                "x": {"value": 400},
+                                "y": {"scale": "y", "field": "y"},
+                                "fill": {"scale": "color", "field": "type"},
+                                "size": {"value": 100},
+                                "shape": {"value": "circle"}
+                            },
+                            "update": {
+                                "tooltip": {
+                                    "signal": "{'Year': datum.year, 'Event': datum.event, 'Detail': datum.detail}"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "from": {"data": "timeline"},
+                        "encode": {
+                            "enter": {
+                                "x": {"value": 420},
+                                "y": {"scale": "y", "field": "y", "offset": 4},
+                                "fill": {"value": "#e2e8f0"},
+                                "text": {"field": "event"},
+                                "fontSize": {"value": 12},
+                                "fontWeight": {"value": "bold"}
+                            }
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "from": {"data": "timeline"},
+                        "encode": {
+                            "enter": {
+                                "x": {"value": 420},
+                                "y": {"scale": "y", "field": "y", "offset": 18},
+                                "fill": {"value": "#94a3b8"},
+                                "text": {"field": "detail"},
+                                "fontSize": {"value": 10}
+                            }
+                        }
+                    }
+                ]
+            };
 
-            chart.set("scrollbarX", am5.Scrollbar.new(root, {
-                orientation: "horizontal"
-            }));
+            vegaEmbed('#vega-timeline', spec, {renderer: 'svg', actions: false});
+        }
 
-            var yRenderer = am5timeline.AxisRendererCurveY.new(root, {});
-
-            yRenderer.labels.template.setAll({
-                centerY: am5.p50,
-                centerX: am5.p100,
-                fontSize: 11,
-                fill: am5.color(0xffffff)
-            });
-
-            yRenderer.grid.template.set("forceHidden", true);
-
-            var xRenderer = am5timeline.AxisRendererCurveX.new(root, {
-                yRenderer: yRenderer,
-                strokeDasharray: [2, 3],
-                strokeOpacity: 0.5,
-                stroke: am5.color(0x000000)
-            });
-
-            xRenderer.labels.template.setAll({
-                centerY: am5.p50,
-                fontSize: 11,
-                minPosition: 0.01,
-                fill: am5.color(0xffffff)
-            });
-
-            xRenderer.labels.template.setup = function(target) {
-                target.set("layer", 30);
-                target.set("background", am5.Rectangle.new(root, {
-                    fill: am5.color(0x1e293b),
-                    fillOpacity: 1,
-                    stroke: am5.color(0xffffff),
-                    strokeWidth: 1
-                }));
-            }
-
-            var yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(root, {
-                maxDeviation: 0,
-                categoryField: "category",
-                renderer: yRenderer
-            }));
-
-            var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
-                baseInterval: { timeUnit: "year", count: 1 },
-                renderer: xRenderer,
-                tooltip: am5.Tooltip.new(root, {})
-            }));
-
-            yAxis.data.setAll([
-                { category: "Ohio" },
-                { category: "" },
-                { category: "China" },
-                { category: "" },
-                { category: "Columbia" }
-            ]);
-
-            function createSeries(category, colorHex) {
-                var series = chart.series.push(am5timeline.CurveLineSeries.new(root, {
-                    xAxis: xAxis,
-                    yAxis: yAxis,
-                    categoryYField: "category",
-                    valueXField: "date",
-                    tooltip: am5.Tooltip.new(root, {
-                        labelText: "{valueX.formatDate('yyyy')}\n{task}\n{description}",
-                        autoTextColor: false,
-                        getFillFromSprite: false,
-                        getStrokeFromSprite: false,
-                        fill: am5.color(0x1e293b),
-                        stroke: am5.color(0xffffff),
-                        labelFill: am5.color(0xffffff)
-                    })
-                }));
-
-                series.strokes.template.set("forceHidden", true);
-
-                series.bullets.push(function() {
-                    var circle = am5.Circle.new(root, {
-                        radius: 6,
-                        strokeWidth: 2,
-                        stroke: am5.color(colorHex),
-                        fill: am5.color(colorHex)
-                    });
-
-                    return am5.Bullet.new(root, {
-                        sprite: circle,
-                        locationX: 1,
-                        locationY: 0.5
-                    });
-                });
-
-                return series;
-            }
-
-            var ohioSeries = createSeries("Ohio", "#f59e0b");
-            ohioSeries.data.setAll(ohioTimeline.map(e => ({
-                category: "Ohio",
-                date: new Date(e.year, 0, 1).getTime(),
-                task: e.event,
-                description: e.detail
-            })));
-
-            var chinaSeries = createSeries("China", "#ef4444");
-            chinaSeries.data.setAll(chinaTimeline.map(e => ({
-                category: "China",
-                date: new Date(e.year, 0, 1).getTime(),
-                task: e.event,
-                description: e.detail
-            })));
-
-            var columbiaSeries = createSeries("Columbia", "#3b82f6");
-            columbiaSeries.data.setAll(columbiaTimeline.map(e => ({
-                category: "Columbia",
-                date: new Date(e.year, 0, 1).getTime(),
-                task: e.event,
-                description: e.detail
-            })));
-
-            var cursor = chart.set("cursor", am5timeline.CurveCursor.new(root, {
-                behavior: "zoomX",
-                xAxis: xAxis,
-                yAxis: yAxis
-            }));
-
-            ohioSeries.appear(1000, 100);
-            chinaSeries.appear(1000, 100);
-            columbiaSeries.appear(1000, 100);
-            chart.appear(1000, 100);
-        });
-
+        // Intersection Observer for Animations
         function initAnimations() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -387,6 +380,8 @@
             });
         }
 
+        // Initialize
+        renderVegaTimeline();
         initAnimations();
     </script>
 </body>
