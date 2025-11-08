@@ -18,8 +18,6 @@
 
     const MaterialWavesDashboard = () => {
       const timelineRef = useRef(null);
-      const productionRef = useRef(null);
-      const geoRef = useRef(null);
       const countryFlags = {
         'China': '🇨🇳',
         'Brazil': '🇧🇷',
@@ -95,22 +93,6 @@
         }
       ];
 
-      const rareEarthData = [
-        { year: 1995, china: 48, us: 0, australia: 0.1, brazil: 0.1, rest: 27.5, total: 75.7 },
-        { year: 2000, china: 73, us: 0, australia: 0, brazil: 0, rest: 4.2, total: 77.2 },
-        { year: 2005, china: 119, us: 0, australia: 0.5, brazil: 0, rest: 2.4, total: 121.9 },
-        { year: 2010, china: 89.2, us: 0, australia: 0.1, brazil: 0, rest: 7.7, total: 97 },
-        { year: 2013, china: 93.8, us: 5.5, australia: 1.3, brazil: 0.3, rest: 2.1, total: 103 },
-        { year: 2015, china: 105, us: 5.9, australia: 11.9, brazil: 0.9, rest: 5.0, total: 128.6 },
-        { year: 2017, china: 105, us: 15.4, australia: 17.3, brazil: 1.7, rest: 5.2, total: 144.6 },
-        { year: 2018, china: 120, us: 25.5, australia: 18.6, brazil: 1.2, rest: 25.7, total: 191 },
-        { year: 2019, china: 132, us: 26.6, australia: 17.6, brazil: 0.7, rest: 39.0, total: 215.9 },
-        { year: 2020, china: 140, us: 39, australia: 21.1, brazil: 0.6, rest: 43.6, total: 244.3 },
-        { year: 2021, china: 168, us: 42, australia: 22.5, brazil: 0.5, rest: 53.0, total: 286 },
-        { year: 2022, china: 210, us: 42, australia: 16, brazil: 0.1, rest: 28.4, total: 296.5 },
-        { year: 2023, china: 240, us: 43, australia: 16.8, brazil: 0.1, rest: 50.1, total: 350 }
-      ];
-
       const [hoveredElement, setHoveredElement] = useState(null);
       const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -158,7 +140,7 @@
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           circle.setAttribute('cx', x);
           circle.setAttribute('cy', y);
-          circle.setAttribute('r', '18');
+          circle.setAttribute('r', '25');
           circle.setAttribute('fill', el.color);
           circle.setAttribute('stroke', 'white');
           circle.setAttribute('stroke-width', '3');
@@ -166,54 +148,54 @@
 
           const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           text.setAttribute('x', x);
-          text.setAttribute('y', y + 5);
+          text.setAttribute('y', y + 6);
           text.setAttribute('text-anchor', 'middle');
           text.setAttribute('fill', 'white');
           text.setAttribute('font-weight', 'bold');
-          text.setAttribute('font-size', '14');
+          text.setAttribute('font-size', '18');
           text.textContent = el.symbol;
 
           const yearText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           yearText.setAttribute('x', x);
-          yearText.setAttribute('y', y - 30);
+          yearText.setAttribute('y', y - 35);
           yearText.setAttribute('text-anchor', 'middle');
           yearText.setAttribute('fill', '#64748b');
-          yearText.setAttribute('font-size', '11');
+          yearText.setAttribute('font-size', '12');
           yearText.setAttribute('font-weight', 'bold');
           yearText.textContent = el.year;
 
           const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           nameText.setAttribute('x', x);
-          nameText.setAttribute('y', y + 35);
+          nameText.setAttribute('y', y + 45);
           nameText.setAttribute('text-anchor', 'middle');
           nameText.setAttribute('fill', '#475569');
-          nameText.setAttribute('font-size', '10');
+          nameText.setAttribute('font-size', '11');
           nameText.textContent = el.name;
 
           if (el.country) {
             const flagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            flagText.setAttribute('x', x + 25);
-            flagText.setAttribute('y', y - 20);
+            flagText.setAttribute('x', x + 30);
+            flagText.setAttribute('y', y - 25);
             flagText.setAttribute('text-anchor', 'middle');
-            flagText.setAttribute('font-size', '20');
+            flagText.setAttribute('font-size', '24');
             flagText.textContent = countryFlags[el.country] || '🌍';
             group.appendChild(flagText);
           }
 
           if (el.isNuclear) {
             const nuclearIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nuclearIcon.setAttribute('x', x - 25);
-            nuclearIcon.setAttribute('y', y - 20);
+            nuclearIcon.setAttribute('x', x - 30);
+            nuclearIcon.setAttribute('y', y - 25);
             nuclearIcon.setAttribute('text-anchor', 'middle');
-            nuclearIcon.setAttribute('font-size', '20');
+            nuclearIcon.setAttribute('font-size', '24');
             nuclearIcon.setAttribute('fill', '#ef4444');
             nuclearIcon.textContent = '☢️';
             group.appendChild(nuclearIcon);
           }
 
           group.addEventListener('mouseenter', (e) => {
-            circle.setAttribute('r', '24');
-            text.setAttribute('font-size', '16');
+            circle.setAttribute('r', '32');
+            text.setAttribute('font-size', '20');
             setHoveredElement(el);
           });
 
@@ -226,8 +208,8 @@
           });
 
           group.addEventListener('mouseleave', () => {
-            circle.setAttribute('r', '18');
-            text.setAttribute('font-size', '14');
+            circle.setAttribute('r', '25');
+            text.setAttribute('font-size', '18');
             setHoveredElement(null);
           });
 
@@ -281,131 +263,6 @@
 
         timelineRef.current.innerHTML = '';
         timelineRef.current.appendChild(svg);
-
-        const productionData = [
-          {
-            x: rareEarthData.map(d => d.year),
-            y: rareEarthData.map(d => d.china),
-            name: 'China',
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tonexty',
-            fillcolor: 'rgba(239, 68, 68, 0.3)',
-            line: { color: '#ef4444', width: 2 }
-          },
-          {
-            x: rareEarthData.map(d => d.year),
-            y: rareEarthData.map(d => d.us),
-            name: 'United States',
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tonexty',
-            fillcolor: 'rgba(59, 130, 246, 0.3)',
-            line: { color: '#3b82f6', width: 2 }
-          },
-          {
-            x: rareEarthData.map(d => d.year),
-            y: rareEarthData.map(d => d.australia),
-            name: 'Australia',
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tonexty',
-            fillcolor: 'rgba(234, 179, 8, 0.3)',
-            line: { color: '#eab308', width: 2 }
-          },
-          {
-            x: rareEarthData.map(d => d.year),
-            y: rareEarthData.map(d => d.rest),
-            name: 'Rest of World',
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tonexty',
-            fillcolor: 'rgba(107, 114, 128, 0.3)',
-            line: { color: '#6b7280', width: 2 }
-          }
-        ];
-
-        const productionLayout = {
-          title: {
-            text: 'Rare Earth Production by Country (1995-2023)',
-            font: { size: 18, color: '#1f2937' }
-          },
-          xaxis: {
-            title: 'Year',
-            gridcolor: '#e5e7eb'
-          },
-          yaxis: {
-            title: 'Production (kilotonnes)',
-            gridcolor: '#e5e7eb'
-          },
-          plot_bgcolor: '#f9fafb',
-          paper_bgcolor: '#ffffff',
-          showlegend: true,
-          legend: {
-            x: 0.02,
-            y: 0.98,
-            bgcolor: 'rgba(255,255,255,0.9)',
-            font: { size: 10 }
-          },
-          hovermode: 'x unified',
-          height: 400,
-          margin: { l: 60, r: 20, t: 60, b: 60 }
-        };
-
-        Plotly.newPlot(productionRef.current, productionData, productionLayout, {
-          responsive: true,
-          displayModeBar: false
-        });
-
-        const totalData = [{
-          x: rareEarthData.map(d => d.year),
-          y: rareEarthData.map(d => d.total),
-          type: 'scatter',
-          mode: 'lines+markers',
-          name: 'Total Production',
-          line: { color: '#ec4899', width: 3 },
-          marker: { size: 6, color: '#ec4899' }
-        }];
-
-        const totalLayout = {
-          title: {
-            text: 'Global Rare Earth Production Growth',
-            font: { size: 18, color: '#1f2937' }
-          },
-          xaxis: {
-            title: 'Year',
-            gridcolor: '#e5e7eb'
-          },
-          yaxis: {
-            title: 'Total Production (kilotonnes)',
-            gridcolor: '#e5e7eb'
-          },
-          plot_bgcolor: '#f9fafb',
-          paper_bgcolor: '#ffffff',
-          showlegend: false,
-          height: 400,
-          margin: { l: 60, r: 20, t: 60, b: 60 },
-          annotations: [
-            {
-              x: 2023,
-              y: 350,
-              text: '350kt in 2023<br>4.6× growth since 1995',
-              showarrow: true,
-              arrowhead: 2,
-              ax: -60,
-              ay: -60,
-              font: { size: 12, color: '#ec4899' },
-              bgcolor: 'rgba(255,255,255,0.9)',
-              bordercolor: '#ec4899',
-              borderwidth: 2
-            }
-          ]
-        };
-
-        Plotly.newPlot(geoRef.current, totalData, totalLayout, {
-          responsive: true,
-          displayModeBar: false
-        });
       }, []);
 
       const solidWasteIcon = hoveredElement && hoveredElement.solidWaste ?
@@ -550,19 +407,6 @@
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
-              <h2 className="text-3xl font-bold text-slate-800 mb-6">📊 The Rare-Earth Wave: Production Data</h2>
-             
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div ref={productionRef}></div>
-                <div ref={geoRef}></div>
-              </div>
-            </div>
-            <div className="bg-slate-900 text-slate-100 rounded-xl p-8 shadow-xl border-l-4 border-pink-500">
-              <p className="text-2xl italic leading-relaxed">
-                "Wave 3 is the endgame of mass-market physics — the moment humanity harvested every stable quantum lever before entering the nuclear age. What follows is not another wave, but a <span className="text-pink-400 font-bold">bleed-stream of brilliance measured in grams, not megatons.</span>"
-              </p>
             </div>
           </div>
           <div className="bg-slate-800 text-slate-400 py-6 px-6 text-center text-sm">
