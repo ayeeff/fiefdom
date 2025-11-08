@@ -39,10 +39,25 @@
         .timeline-end { order: 3; flex: 1; padding-left: 1rem; }
         .timeline-horizontal .timeline-end { padding-left: 0; padding-top: 1rem; text-align: center; }
         .timeline-box { background-color: rgba(51, 65, 85, 0.5); border: 1px solid #475569; border-radius: 0.5rem; padding: 1rem; }
-        hr { border: none; border-left: 1px solid #475569; height: 100%; position: absolute; left: 50%; top: 0; bottom: 0; margin: 0; transform: translateX(-50%); }
+        .timeline-vertical hr {
+            border-top: 0;
+            border-left: 1px solid #64748b;
+            height: 100%;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
         .timeline-horizontal hr { border-left: none; border-top: 1px solid #475569; width: 100%; position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); }
         .timeline li:first-child hr { display: none; }
         .timeline li:last-child hr { display: none; }
+        
+        /* New styles for horizontal timeline layout */
+        .timeline-container { display: flex; flex-direction: column; height: 100%; }
+        .timeline-header { text-align: center; margin-bottom: 1rem; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen py-6 px-4">
@@ -211,7 +226,6 @@
         setInterval(updateCountdown, 3600000);
 
         const chinaTimeline = [
-            { year: 2004, event: 'Strategic consolidation begins', detail: 'China starts systematic acquisition of rare earth mining operations globally', color: 'red', type: 'china' },
             { year: 2010, event: '97% market control achieved', detail: 'Dominates extraction; begins refining infrastructure buildout', color: 'red', type: 'china' },
             { year: 2012, event: 'Export restrictions imposed', detail: 'WTO challenge filed but ineffective; control remains', color: 'red', type: 'china' },
             { year: 2015, event: 'Magnet production dominance', detail: '92% of global sintered NdFeB magnet manufacturing', color: 'red', type: 'china' },
@@ -240,39 +254,41 @@
             { year: 2030, event: 'Schedule slips to late 2030s', detail: 'Each boat needs >5 tons NdFeB magnets - supply uncertain', color: 'blue', type: 'columbia' }
         ];
 
-        function generateTimeline() {
-            let allEvents = [...chinaTimeline, ...ohioTimeline, ...columbiaTimeline];
-            allEvents.sort((a, b) => a.year - b.year);
-
-            let html = '<ul class="timeline timeline-vertical lg:timeline-horizontal">';
-            allEvents.forEach((event, index) => {
-                const colorClass = event.type === 'china' ? 'red' : event.type === 'ohio' ? 'orange' : 'blue';
-                let li = '<li>';
-                if (index > 0) {
-                    li += '<hr class="border-slate-600" />';
+        function generateSingleTimeline(events, title, color) {
+            let html = `<div class="timeline-container">`;
+            html += `<div class="timeline-header"><h3 class="text-xl font-bold text-${color}-400">${title}</h3></div>`;
+            html += '<ul class="timeline timeline-vertical">';
+            events.forEach((event, index) => {
+                html += '<li>';
+                html += `<div class="timeline-start text-slate-300 font-medium">${event.year}</div>`;
+                html += '<div class="timeline-middle">';
+                html += `<span class="bg-${event.color}-500/20 flex h-4 w-4 items-center justify-center rounded-full">`;
+                html += `<div class="h-2 w-2 rounded-full bg-${event.color}-400"></div>`;
+                html += '</span>';
+                html += '</div>';
+                html += '<div class="timeline-end">';
+                html += '<div class="timeline-box">';
+                html += `<div class="font-bold text-${event.color}-400 mb-1">${event.event}</div>`;
+                html += `<p class="text-sm text-slate-300">${event.detail}</p>`;
+                html += '</div>';
+                html += '</div>';
+                if (index < events.length - 1) {
+                    html += '<hr />';
                 }
-                li += `
-                    <div class="timeline-start text-slate-300 font-medium">${event.year}</div>
-                    <div class="timeline-middle">
-                        <span class="bg-${colorClass}-500/20 flex h-4 w-4 items-center justify-center rounded-full">
-                            <div class="h-2 w-2 rounded-full bg-${colorClass}-500"></div>
-                        </span>
-                    </div>
-                    <div class="timeline-end">
-                        <div class="timeline-box">
-                            <div class="font-bold text-${colorClass}-400 mb-1">${event.event}</div>
-                            <p class="text-sm text-slate-300">${event.detail}</p>
-                        </div>
-                    </div>
-                `;
-                if (index < allEvents.length - 1) {
-                    li += '<hr class="border-slate-600" />';
-                }
-                li += '</li>';
-                html += li;
+                html += '</li>';
             });
             html += '</ul>';
-            document.getElementById('timelinediv').innerHTML = html;
+            html += '</div>';
+            return html;
+        }
+
+        function generateTimeline() {
+            let grid = '<div class="grid grid-cols-1 md:grid-cols-3 gap-6">';
+            grid += generateSingleTimeline(ohioTimeline, 'Ohio-class Timeline', 'orange');
+            grid += generateSingleTimeline(columbiaTimeline, 'Columbia-class Timeline', 'blue');
+            grid += generateSingleTimeline(chinaTimeline, 'China Timeline', 'red');
+            grid += '</div>';
+            document.getElementById('timelinediv').innerHTML = grid;
         }
 
         generateTimeline();
