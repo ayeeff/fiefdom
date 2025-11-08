@@ -55,63 +55,57 @@
         .snake-timeline::before {
             content: '';
             position: absolute;
+            left: 50%;
             top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #e5e7eb;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #ef4444 0%, #f59e0b 50%, #3b82f6 100%);
             z-index: 1;
-        }
-        .snake-timeline-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: linear-gradient(to right, #ef4444, #f59e0b, #3b82f6);
-            z-index: 2;
-            transition: width 1s ease;
+            transform: translateX(-50%);
         }
         .snake-timeline-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: stretch;
             position: relative;
-            padding-top: 40px;
+            padding-top: 0;
         }
         .snake-timeline-event {
-            width: 30%;
-            margin-bottom: 40px;
             position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 80px;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.6s ease;
+            min-height: 120px;
         }
         .snake-timeline-event.visible {
             opacity: 1;
             transform: translateY(0);
         }
         .snake-timeline-event:nth-child(odd) {
-            align-self: flex-start;
+            justify-content: flex-end;
         }
         .snake-timeline-event:nth-child(even) {
-            align-self: flex-end;
-            margin-top: 80px;
+            justify-content: flex-start;
         }
         .snake-timeline-event::before {
             content: '';
             position: absolute;
+            left: 50%;
+            top: 50%;
             width: 16px;
             height: 16px;
             border-radius: 50%;
             background: #e5e7eb;
-            top: -42px;
-            left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             z-index: 3;
             transition: all 0.3s ease;
         }
         .snake-timeline-event:hover::before {
-            transform: translateX(-50%) scale(1.2);
+            transform: translate(-50%, -50%) scale(1.2);
         }
         .snake-timeline-event.china::before {
             background: #ef4444;
@@ -125,13 +119,20 @@
         .snake-timeline-event::after {
             content: '';
             position: absolute;
-            width: 2px;
-            height: 40px;
+            top: 50%;
+            height: 2px;
             background: #e5e7eb;
-            top: -40px;
+            z-index: 2;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
+        .snake-timeline-event:nth-child(odd)::after {
+            right: 50%;
+            width: 50%;
+        }
+        .snake-timeline-event:nth-child(even)::after {
             left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
+            width: 50%;
         }
         .snake-timeline-content {
             background: rgba(30, 41, 59, 0.7);
@@ -140,6 +141,9 @@
             padding: 16px;
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
+            max-width: 40%;
+            width: 40%;
+            flex-shrink: 0;
         }
         .snake-timeline-content:hover {
             transform: translateY(-5px);
@@ -183,16 +187,30 @@
         
         /* Responsive adjustments */
         @media (max-width: 1024px) {
-            .snake-timeline-event {
+            .snake-timeline-content {
+                max-width: 45%;
                 width: 45%;
             }
         }
         @media (max-width: 768px) {
             .snake-timeline-event {
-                width: 100%;
+                justify-content: center !important;
+                margin-bottom: 60px;
             }
-            .snake-timeline-event:nth-child(even) {
-                margin-top: 40px;
+            .snake-timeline-event::after {
+                display: none;
+            }
+            .snake-timeline-content {
+                max-width: 90%;
+                width: 90%;
+            }
+            .snake-timeline::before {
+                left: 20px;
+                transform: none;
+            }
+            .snake-timeline-event::before {
+                left: 20px;
+                transform: translateX(0);
             }
         }
     </style>
@@ -269,7 +287,6 @@
             <h2 class="text-3xl font-bold mb-6 text-center">Three Converging Crises</h2>
             
             <div class="snake-timeline">
-                <div class="snake-timeline-line" id="snake-timeline-line"></div>
                 <div class="snake-timeline-container" id="snake-timeline-container">
                     <!-- Events will be inserted here by JavaScript -->
                 </div>
@@ -442,16 +459,6 @@
             });
         }
 
-        // Animate timeline line
-        function animateTimelineLine() {
-            const line = document.getElementById('snake-timeline-line');
-            line.style.width = '0%';
-            
-            setTimeout(() => {
-                line.style.width = '100%';
-            }, 500);
-        }
-
         // Intersection Observer for Animations
         function initAnimations() {
             const observer = new IntersectionObserver((entries) => {
@@ -470,13 +477,11 @@
 
         // Initialize
         renderSnakeTimeline();
-        animateTimelineLine();
         initAnimations();
 
         // Re-render on resize for responsive adjustments
         window.addEventListener('resize', () => {
             renderSnakeTimeline();
-            animateTimelineLine();
         });
     </script>
 </body>
