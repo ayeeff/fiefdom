@@ -117,13 +117,13 @@
 
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('width', '100%');
-        svg.setAttribute('height', '1200');
-        svg.setAttribute('viewBox', '0 0 1200 1100');
+        svg.setAttribute('height', '1300');
+        svg.setAttribute('viewBox', '0 0 1400 1300');
         svg.style.backgroundColor = '#ffffff';
 
-        const rowHeight = 100;
-        const yearWidth = 100;
-        const startX = 120;
+        const rowHeight = 120;
+        const yearWidth = 120;
+        const startX = 140;
         const baseYear = 1945;
 
         allElements.forEach((el, idx) => {
@@ -140,62 +140,62 @@
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           circle.setAttribute('cx', x);
           circle.setAttribute('cy', y);
-          circle.setAttribute('r', '25');
+          circle.setAttribute('r', '35');
           circle.setAttribute('fill', el.color);
           circle.setAttribute('stroke', 'white');
-          circle.setAttribute('stroke-width', '3');
+          circle.setAttribute('stroke-width', '4');
           circle.style.transition = 'all 0.3s';
 
           const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           text.setAttribute('x', x);
-          text.setAttribute('y', y + 6);
+          text.setAttribute('y', y + 8);
           text.setAttribute('text-anchor', 'middle');
           text.setAttribute('fill', 'white');
           text.setAttribute('font-weight', 'bold');
-          text.setAttribute('font-size', '18');
+          text.setAttribute('font-size', '24');
           text.textContent = el.symbol;
 
           const yearText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           yearText.setAttribute('x', x);
-          yearText.setAttribute('y', y - 35);
+          yearText.setAttribute('y', y - 45);
           yearText.setAttribute('text-anchor', 'middle');
           yearText.setAttribute('fill', '#64748b');
-          yearText.setAttribute('font-size', '12');
+          yearText.setAttribute('font-size', '14');
           yearText.setAttribute('font-weight', 'bold');
           yearText.textContent = el.year;
 
           const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           nameText.setAttribute('x', x);
-          nameText.setAttribute('y', y + 45);
+          nameText.setAttribute('y', y + 55);
           nameText.setAttribute('text-anchor', 'middle');
           nameText.setAttribute('fill', '#475569');
-          nameText.setAttribute('font-size', '11');
+          nameText.setAttribute('font-size', '13');
           nameText.textContent = el.name;
 
           if (el.country) {
             const flagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            flagText.setAttribute('x', x + 30);
-            flagText.setAttribute('y', y - 25);
+            flagText.setAttribute('x', x + 40);
+            flagText.setAttribute('y', y - 30);
             flagText.setAttribute('text-anchor', 'middle');
-            flagText.setAttribute('font-size', '24');
+            flagText.setAttribute('font-size', '32');
             flagText.textContent = countryFlags[el.country] || '🌍';
             group.appendChild(flagText);
           }
 
           if (el.isNuclear) {
             const nuclearIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nuclearIcon.setAttribute('x', x - 30);
-            nuclearIcon.setAttribute('y', y - 25);
+            nuclearIcon.setAttribute('x', x - 40);
+            nuclearIcon.setAttribute('y', y - 30);
             nuclearIcon.setAttribute('text-anchor', 'middle');
-            nuclearIcon.setAttribute('font-size', '24');
+            nuclearIcon.setAttribute('font-size', '32');
             nuclearIcon.setAttribute('fill', '#ef4444');
             nuclearIcon.textContent = '☢️';
             group.appendChild(nuclearIcon);
           }
 
           group.addEventListener('mouseenter', (e) => {
-            circle.setAttribute('r', '32');
-            text.setAttribute('font-size', '20');
+            circle.setAttribute('r', '42');
+            text.setAttribute('font-size', '26');
             setHoveredElement(el);
           });
 
@@ -208,8 +208,8 @@
           });
 
           group.addEventListener('mouseleave', () => {
-            circle.setAttribute('r', '25');
-            text.setAttribute('font-size', '18');
+            circle.setAttribute('r', '35');
+            text.setAttribute('font-size', '24');
             setHoveredElement(null);
           });
 
@@ -226,7 +226,7 @@
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           line.setAttribute('x1', startX);
           line.setAttribute('y1', y);
-          line.setAttribute('x2', startX + 1000);
+          line.setAttribute('x2', startX + 1200);
           line.setAttribute('y2', y);
           line.setAttribute('stroke', '#cbd5e1');
           line.setAttribute('stroke-width', '2');
@@ -242,16 +242,16 @@
 
           if (wave) {
             const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            iconText.setAttribute('x', '40');
-            iconText.setAttribute('y', y + 8);
+            iconText.setAttribute('x', '50');
+            iconText.setAttribute('y', y + 10);
             iconText.setAttribute('text-anchor', 'middle');
-            iconText.setAttribute('font-size', '28');
+            iconText.setAttribute('font-size', '36');
             iconText.textContent = wave.icon;
             svg.appendChild(iconText);
           }
 
           const decadeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          decadeText.setAttribute('x', row % 2 === 0 ? startX - 20 : startX + 1020);
+          decadeText.setAttribute('x', row % 2 === 0 ? startX - 20 : startX + 1220);
           decadeText.setAttribute('y', y + 5);
           decadeText.setAttribute('text-anchor', row % 2 === 0 ? 'end' : 'start');
           decadeText.setAttribute('fill', '#94a3b8');
@@ -291,7 +291,7 @@
               <p className="text-sm text-slate-600 mb-6">
                 Hover over elements to see details • Each element colored by its wave • Country flags show refining dominance • Pollution levels indicated • Scroll down for Wave 4 (nuclear era)
               </p>
-              <div ref={timelineRef} className="overflow-x-auto relative h-[1100px]"></div>
+              <div ref={timelineRef} className="overflow-x-auto relative h-[1300px]"></div>
              
               {hoveredElement && (
                 <div
@@ -386,7 +386,6 @@
                 </div>
               )}
             </div>
-            {/* Fixed Banner Section - Enhanced Responsiveness */}
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl p-4 sm:p-8 pb-12 mb-12 shadow-xl overflow-hidden">
               <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left">🔮 Why Wave 3 Is the Endgame</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-base sm:text-lg">
