@@ -1,0 +1,231 @@
+Airport,IATA Code,Unique Airlines
+Stockholm Arlanda Airport,ARN,54
+Kabul Hamid Karzai International Airport,KBL,2
+Tirana International Airport,TIA,38
+Houari Boumediene Airport,ALG,11
+Andorra–La Seu d'Urgell Airport,LEU,1
+Quatro de Fevereiro Airport,LAD,9
+Clayton J. Lloyd International Airport,AXA,3
+V. C. Bird International Airport,ANU,13
+Ministro Pistarini International Airport,EZE,11
+Zvartnots International Airport,EVN,27
+Queen Beatrix International Airport,AUA,16
+Sydney Kingsford Smith Airport,SYD,29
+Vienna International Airport,VIE,40
+Heydar Aliyev International Airport,GYD,16
+Lynden Pindling International Airport,NAS,8
+Bahrain International Airport,BAH,24
+Shahjalal International Airport,DAC,13
+Grantley Adams International Airport,BGI,13
+Minsk National Airport,MSQ,7
+Brussels Airport,BRU,29
+Philip S. W. Goldson International Airport,BZE,6
+Cadjehoun Airport,COO,8
+L.F. Wade International Airport,BDA,7
+El Alto International Airport,LPB,11
+Flamingo International Airport,BON,6
+Sarajevo International Airport,SJJ,26
+Sir Seretse Khama International Airport,GBE,1
+São Paulo/Guarulhos International Airport,GRU,26
+Terrance B. Lettsome International Airport,EIS,6
+Brunei International Airport,BWN,3
+Sofia Airport,SOF,35
+Thomas Sankara International Airport Ouagadougou,OUA,8
+Bujumbura International Airport,BJM,4
+Phnom Penh International Airport,PNH,8
+Douala International Airport,DLA,5
+Toronto Pearson International Airport,YYZ,52
+Nelson Mandela International Airport,RAI,9
+Owen Roberts International Airport,GCM,8
+Bangui M'Poko International Airport,BGF,2
+N'Djamena International Airport,NDJ,4
+Arturo Merino Benítez International Airport,SCL,11
+Beijing Capital International Airport,PEK,40
+El Dorado International Airport,BOG,15
+Prince Said Ibrahim International Airport,HAH,6
+N'djili Airport,FIH,7
+Maya-Maya Airport,BZV,4
+Juan Santamaría International Airport,SJO,13
+Zagreb Airport,ZAG,35
+José Martí International Airport,HAV,10
+Curaçao International Airport,CUR,14
+Larnaca International Airport,LCA,35
+Václav Havel Airport Prague,PRG,41
+Félix-Houphouët-Boigny International Airport,ABJ,7
+Copenhagen Airport,CPH,40
+Djibouti–Ambouli International Airport,JIB,8
+Douglas–Charles Airport,DOM,3
+Las Américas International Airport,SDQ,13
+Mariscal Sucre International Airport,UIO,14
+Cairo International Airport,CAI,34
+El Salvador International Airport,SAL,13
+Malabo International Airport,SSG,8
+Asmara International Airport,ASM,4
+Tallinn Airport,TLL,24
+King Mswati III International Airport,SHO,3
+Addis Ababa Bole International Airport,ADD,9
+Mount Pleasant Airport,MPN,1
+Vágar Airport,FAE,3
+Nadi International Airport,NAN,2
+Helsinki-Vantaa Airport,HEL,40
+Paris Charles de Gaulle Airport,CDG,58
+Cayenne-Félix Eboué Airport,CAY,8
+Faa'a International Airport,PPT,7
+Léon-Mba International Airport,LBV,7
+Banjul International Airport,BJL,9
+Tbilisi International Airport,TBS,15
+Frankfurt Airport,FRA,56
+Kotoka International Airport,ACC,13
+Gibraltar International Airport,GIB,1
+Athens International Airport,ATH,51
+Kangerlussuaq Airport,SFJ,1
+Maurice Bishop International Airport,GND,7
+Pointe-à-Pitre International Airport,PTP,2
+Antonio B. Won Pat International Airport,GUM,2
+La Aurora International Airport,GUA,14
+Conakry International Airport,CKY,8
+Osvaldo Vieira International Airport,OXB,4
+Cheddi Jagan International Airport,GEO,10
+Toussaint Louverture International Airport,PAP,11
+Toncontín International Airport,TGU,9
+Hong Kong International Airport,HKG,34
+Budapest Ferenc Liszt International Airport,BUD,40
+Keflavík International Airport,KEF,25
+Indira Gandhi International Airport,DEL,37
+Soekarno–Hatta International Airport,CGK,25
+Imam Khomeini International Airport,IKA,11
+Baghdad International Airport,BGW,14
+Dublin Airport,DUB,43
+Ben Gurion Airport,TLV,39
+Leonardo da Vinci–Fiumicino Airport,FCO,55
+Félix-Houphouët-Boigny International Airport,ABJ,8
+Norman Manley International Airport,KIN,14
+Tokyo Haneda Airport,HND,34
+Queen Alia International Airport,AMM,33
+Almaty International Airport,ALA,17
+Jomo Kenyatta International Airport,NBO,24
+Cassidy International Airport,CXI,1
+Pristina International Airport,PRN,7
+Kuwait International Airport,KWI,31
+Manas International Airport,FRU,7
+Wattay International Airport,VTE,5
+Riga International Airport,RIX,27
+Beirut–Rafic Hariri International Airport,BEY,23
+Moshoeshoe I International Airport,MSU,2
+Roberts International Airport,ROB,8
+Tripoli International Airport,TIP,6
+St. Gallen–Altenrhein Airport,ACH,1
+Vilnius International Airport,VNO,26
+Luxembourg Airport,LUX,25
+Macau International Airport,MFM,9
+Ivato International Airport,TNR,10
+Lilongwe International Airport,LLW,7
+Kuala Lumpur International Airport,KUL,26
+Velana International Airport,MLE,26
+Modibo Keita International Airport,BKO,7
+Malta International Airport,MLA,34
+Marshall Islands International Airport,MAJ,2
+Martinique Aimé Césaire International Airport,FDF,7
+Nouakchott–Oumtounsy International Airport,NKC,6
+Sir Seewoosagur Ramgoolam International Airport,MRU,24
+Dzaoudzi–Pamandzi International Airport,DZA,5
+Mexico City International Airport,MEX,24
+Pohnpei International Airport,PNI,3
+Chișinău International Airport,KIV,16
+Chișinău International Airport,RMO,1
+Nice Côte d'Azur Airport,NCE,3
+Chinggis Khaan International Airport,UBN,9
+Podgorica Airport,TGD,19
+John A. Osborne Airport,MNI,3
+Mohammed V International Airport,CMN,41
+Maputo International Airport,MPM,11
+Yangon International Airport,RGN,9
+Hosea Kutako International Airport,WDH,11
+Nauru International Airport,INU,1
+Tribhuvan International Airport,KTM,11
+Amsterdam Airport Schiphol,AMS,54
+La Tontouta International Airport,NOU,8
+Auckland Airport,AKL,20
+Augusto C. Sandino International Airport,MGA,11
+Diori Hamani International Airport,NIM,6
+Murtala Muhammed International Airport,LOS,15
+Hanan International Airport,HNR,1
+Pyongyang Sunan International Airport,FNJ,1
+Skopje International Airport,SKP,34
+Belfast International Airport,BFS,1
+Oslo Airport,,30
+Muscat International Airport,MCT,30
+Jinnah International Airport,KHI,20
+Palau International Airport,ROR,3
+Queen Alia International Airport,AMM,1
+Tocumen International Airport,PTY,13
+Jacksons International Airport,POM,2
+Silvio Pettirossi International Airport,ASU,7
+Jorge Chávez International Airport,LIM,12
+Ninoy Aquino International Airport,MNL,28
+Warsaw Chopin Airport,WAW,38
+Lisbon Portela Airport,LIS,38
+Luis Muñoz Marín International Airport,SJU,5
+Punta Cana International Airport,PUJ,1
+Hamad International Airport,DOH,38
+Henri Coandă International Airport,OTP,37
+Sheremetyevo International Airport,SVO,29
+Kigali International Airport,KGL,10
+Roland Garros Airport,RUN,2
+Gustaf III Airport,SBH,1
+Robert L. Bradshaw International Airport,SKB,9
+Hewanorra International Airport,UVF,12
+Princess Juliana International Airport,SXM,4
+Saint-Pierre Airport,FSP,1
+Cyril E. King Airport,STT,1
+Argyle International Airport,SVD,10
+Faleolo International Airport,APW,4
+Federico Fellini International Airport,RMI,2
+King Abdulaziz International Airport,JED,36
+Blaise Diagne International Airport,DSS,14
+Belgrade Nikola Tesla Airport,BEG,35
+Seychelles International Airport,SEZ,19
+Lungi International Airport,FNA,5
+Singapore Changi Airport,SIN,31
+Bratislava Airport,BTS,15
+Ljubljana Jože Pučnik Airport,LJU,17
+Honiara International Airport,HIR,2
+Aden Adde International Airport,MGQ,3
+O. R. Tambo International Airport,JNB,27
+Incheon International Airport,ICN,30
+Juba International Airport,JUB,5
+Adolfo Suárez Madrid–Barajas Airport,MAD,57
+Bandaranaike International Airport,CMB,30
+Khartoum International Airport,KRT,10
+Johan Pengel International Airport,PBM,9
+Damascus International Airport,DAM,7
+São Tomé International Airport,TMS,4
+Taiwan Taoyuan International Airport,TPE,30
+Dushanbe International Airport,DYU,5
+Julius Nyerere International Airport,DAR,15
+Suvarnabhumi Airport,BKK,38
+Presidente Nicolau Lobato International Airport,DILI,1
+Crown Point International Airport,TAB,1
+Lomé–Tokoin International Airport,LFW,6
+Fua'amotu International Airport,TBU,1
+Piarco International Airport,POS,13
+Tunis–Carthage International Airport,TUN,26
+Istanbul Airport,IST,58
+Ashgabat International Airport,ASB,2
+Providenciales Airport,PLS,6
+Funafuti International Airport,FUN,1
+Entebbe International Airport,EBB,14
+Boryspil International Airport,KBP,26
+Dubai International Airport,DXB,59
+London Heathrow Airport,LHR,58
+Hartsfield–Jackson Atlanta International Airport,ATL,54
+Carrasco International Airport,MVD,10
+Tashkent International Airport,TAS,14
+Bauerfield International Airport,VLI,5
+Leonardo da Vinci–Fiumicino Airport,FCO,2
+Simón Bolívar International Airport,CCS,14
+Noi Bai International Airport,HAN,13
+Wallis Island Airport,WLS,2
+Aden International Airport,ADE,3
+Kenneth Kaunda International Airport,LUN,10
+Robert Gabriel Mugabe International Airport,HRE,7
