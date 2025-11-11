@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Airlines Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        .orbitron { font-family: 'Orbitron', monospace; }
+        .speed-card { 
+            background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(148, 163, 184, 0.2); 
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-text {
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        .country-btn {
+            transition: all 0.2s;
+        }
+        .country-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen text-white">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <div class="mb-6 speed-card p-6 rounded-xl">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent shimmer-text">
+                Global Airlines Network
+            </h1>
+            <p class="text-center text-gray-300 text-sm">
+                Explore <span id="totalAirlines" class="font-bold text-blue-400">0</span> major airlines serving 
+                <span id="totalCountries" class="font-bold text-purple-400">0</span> countries worldwide
+            </p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <p class="mt-4 text-gray-400">Loading airline data...</p>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="hidden">
+            <!-- Map -->
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-blue-400">Countries Served by Airlines</h2>
+                <div id="worldMap" class="w-full" style="height: 500px;"></div>
+            </div>
+
+            <!-- Countries Grid -->
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-purple-400">Browse by Country</h2>
+                <div class="mb-4">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search countries..."
+                        class="w-full px-4 py-2 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    >
+                </div>
+                <div id="countriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="countryModal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-600/50" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 id="modalCountry" class="text-3xl font-black orbitron text-white mb-2"></h3>
+                        <p id="modalSubtitle" class="text-sm text-gray-400"></p>
+                    </div>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                </div>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let airlineData = [];
+        let countryAirlines = {};
+
+        // Load and parse CSV
+        async function loadData() {
+            try {
+                const response = await fetch('https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/data/airline.csv');
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        airlineData = results.data;
+                        processData();
+                        renderDashboard();
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').innerHTML = '<p class="text-red-400">Error loading data. Please try again.</p>';
+            }
+        }
+
+        function processData() {
+            countryAirlines = {};
+            
+            airlineData.forEach(airline => {
+                const countries = airline['Countries Served'].split(',').map(c => c.trim());
+                
+                countries.forEach(country => {
+                    if (!countryAirlines[country]) {
+                        countryAirlines[country] = [];
+                    }
+                    countryAirlines[country].push({
+                        airline: airline.Airline,
+                        origin: airline['Country of Origin'],
+                        totalCountries: parseInt(airline['Number of Countries'])
+                    });
+                });
+            });
+        }
+
+        function renderDashboard() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            
+            // Update stats
+            document.getElementById('totalAirlines').textContent = airlineData.length;
+            document.getElementById('totalCountries').textContent = Object.keys(countryAirlines).length;
+            
+            renderMap();
+            renderCountriesGrid();
+            setupSearch();
+        }
+
+        function renderMap() {
+            const countries = Object.keys(countryAirlines);
+            const airlineCounts = countries.map(c => countryAirlines[c].length);
+            
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'country names',
+                locations: countries,
+                z: airlineCounts,
+                text: countries.map(c => `${c}: ${countryAirlines[c].length} airlines`),
+                colorscale: [
+                    [0, '#1e293b'],
+                    [0.2, '#334155'],
+                    [0.4, '#3b82f6'],
+                    [0.6, '#8b5cf6'],
+                    [0.8, '#d946ef'],
+                    [1, '#ec4899']
+                ],
+                colorbar: {
+                    title: 'Airlines<br>Serving',
+                    thickness: 15,
+                    len: 0.7,
+                    bgcolor: 'rgba(15, 23, 42, 0.8)',
+                    tickfont: { color: '#e2e8f0' },
+                    titlefont: { color: '#e2e8f0' }
+                },
+                hovertemplate: '<b>%{text}</b><extra></extra>'
+            }];
+
+            const layout = {
+                geo: {
+                    projection: { type: 'natural earth' },
+                    bgcolor: 'rgba(15, 23, 42, 0.5)',
+                    showland: true,
+                    landcolor: '#1e293b',
+                    showocean: true,
+                    oceancolor: '#0f172a',
+                    showcountries: true,
+                    countrycolor: '#334155',
+                    coastlinecolor: '#475569'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#e2e8f0' },
+                margin: { t: 0, b: 0, l: 0, r: 0 }
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot('worldMap', data, layout, config);
+            
+            document.getElementById('worldMap').on('plotly_click', function(data) {
+                const country = data.points[0].location;
+                showCountryModal(country);
+            });
+        }
+
+        function renderCountriesGrid(filter = '') {
+            const grid = document.getElementById('countriesGrid');
+            const countries = Object.keys(countryAirlines).sort();
+            
+            const filtered = filter 
+                ? countries.filter(c => c.toLowerCase().includes(filter.toLowerCase()))
+                : countries;
+            
+            grid.innerHTML = filtered.map(country => {
+                const count = countryAirlines[country].length;
+                return `
+                    <button 
+                        onclick="showCountryModal('${country.replace(/'/g, "\\'")}')"
+                        class="country-btn px-3 py-2 bg-gradient-to-br from-blue-600/20 to-purple-600/20 hover:from-blue-600/40 hover:to-purple-600/40 border border-blue-500/30 rounded-lg text-left"
+                    >
+                        <div class="font-semibold text-white text-sm">${country}</div>
+                        <div class="text-xs text-gray-400">${count} airline${count !== 1 ? 's' : ''}</div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                renderCountriesGrid(e.target.value);
+            });
+        }
+
+        function showCountryModal(country) {
+            const airlines = countryAirlines[country];
+            
+            document.getElementById('modalCountry').textContent = country;
+            document.getElementById('modalSubtitle').textContent = `${airlines.length} airline${airlines.length !== 1 ? 's' : ''} serving this country`;
+            
+            // Sort by number of countries served
+            airlines.sort((a, b) => b.totalCountries - a.totalCountries);
+            
+            const content = `
+                <div class="grid gap-3">
+                    ${airlines.map(a => `
+                        <div class="p-4 bg-gradient-to-br from-slate-700/40 to-slate-800/40 border border-slate-600/30 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-lg text-white">${a.airline}</h4>
+                                    <p class="text-sm text-gray-400 mt-1">Based in ${a.origin}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-black orbitron text-blue-400">${a.totalCountries}</div>
+                                    <div class="text-xs text-gray-400">countries</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('countryModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('countryModal').classList.add('hidden');
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
