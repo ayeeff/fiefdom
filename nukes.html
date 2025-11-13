@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Nuclear Warhead Dashboard</title>
+    <title>Global Nuclear Umbrella Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -22,23 +22,18 @@
             background-size: 200% 100%;
             animation: shimmer 2s linear infinite;
         }
-        .region-btn, .country-btn {
+        .umbrella-card {
+            transition: all 0.3s;
+        }
+        .umbrella-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+        }
+        .protection-badge {
             transition: all 0.2s;
         }
-        .region-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-        .country-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4);
-        }
-        .modal-item {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .modal-item:hover {
-            background: rgba(239, 68, 68, 0.1);
+        .protection-badge:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -47,75 +42,58 @@
         <!-- Header -->
         <div class="mb-6 speed-card p-6 rounded-xl">
             <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">
-                Global Nuclear Arsenal
+                Global Nuclear Umbrella
             </h1>
             <p class="text-center text-gray-300 text-sm">
-                Tracking <span id="totalWarheads" class="font-bold text-red-400">0</span> warheads across
-                <span id="totalCountries" class="font-bold text-orange-400">0</span> nuclear powers in
-                <span id="totalRegions" class="font-bold text-yellow-400">0</span> regions
+                Regional defense architecture with <span id="totalWarheads" class="font-bold text-red-400">0</span> warheads protecting
+                <span id="totalRegions" class="font-bold text-orange-400">0</span> strategic regions
             </p>
         </div>
 
         <!-- Loading State -->
         <div id="loading" class="text-center py-12">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-            <p class="mt-4 text-gray-400">Loading nuclear arsenal data...</p>
+            <p class="mt-4 text-gray-400">Loading nuclear umbrella data...</p>
         </div>
 
         <!-- Main Content -->
         <div id="mainContent" class="hidden">
-            <!-- Global Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="speed-card p-6 rounded-xl">
-                    <div class="text-gray-400 text-sm mb-2">Total Stockpile</div>
-                    <div class="text-4xl font-black orbitron text-red-400" id="statTotal">0</div>
-                </div>
-                <div class="speed-card p-6 rounded-xl">
-                    <div class="text-gray-400 text-sm mb-2">Deployed Warheads</div>
-                    <div class="text-4xl font-black orbitron text-orange-400" id="statDeployed">0</div>
-                </div>
-                <div class="speed-card p-6 rounded-xl">
-                    <div class="text-gray-400 text-sm mb-2">Strategic Nukes</div>
-                    <div class="text-4xl font-black orbitron text-yellow-400" id="statStrategic">0</div>
-                </div>
+            <!-- Regional Umbrellas -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-red-400">🛡️ Regional Defense Umbrellas</h2>
+                <div id="regionsGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- Map -->
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-red-400">Global Nuclear Distribution</h2>
-                <div id="worldMap" class="w-full" style="height: 500px;"></div>
-            </div>
-
-            <!-- Regional Breakdown -->
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-orange-400">Browse by Region</h2>
-                <div id="regionsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            </div>
-
-            <!-- Countries Grid -->
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-yellow-400">Browse by Country</h2>
-                <div class="mb-4">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Search countries..."
-                        class="w-full px-4 py-2 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500"
-                    >
-                </div>
-                <div id="countriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-h-96 overflow-y-auto"></div>
-            </div>
-
-            <!-- Charts -->
+            <!-- Map Views -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="speed-card p-6 rounded-xl">
-                    <h2 class="text-xl font-bold orbitron mb-4 text-red-400">Warheads by Type</h2>
-                    <div id="typeChart" style="height: 400px;"></div>
+                    <h2 class="text-xl font-bold orbitron mb-4 text-blue-400">Asia-Pacific Theater</h2>
+                    <div class="text-xs text-gray-400 mb-3">First Island Chain Defense</div>
+                    <div id="asiaMap" class="w-full" style="height: 400px;"></div>
                 </div>
                 <div class="speed-card p-6 rounded-xl">
-                    <h2 class="text-xl font-bold orbitron mb-4 text-orange-400">Regional Distribution</h2>
-                    <div id="regionChart" style="height: 400px;"></div>
+                    <h2 class="text-xl font-bold orbitron mb-4 text-purple-400">European Theater</h2>
+                    <div class="text-xs text-gray-400 mb-3">GIUK Gap & NATO Deterrence</div>
+                    <div id="europeMap" class="w-full" style="height: 400px;"></div>
                 </div>
+            </div>
+
+            <!-- Middle East Theater -->
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-xl font-bold orbitron mb-4 text-amber-400">Middle East Theater</h2>
+                <div id="middleEastMap" class="w-full" style="height: 400px;"></div>
+            </div>
+
+            <!-- Protection Network -->
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-green-400">Protection Network Analysis</h2>
+                <div id="protectionNetwork" class="w-full" style="height: 500px;"></div>
+            </div>
+
+            <!-- Deployment Details -->
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-orange-400">Deployment Details by Theater</h2>
+                <div id="deploymentsGrid" class="space-y-4"></div>
             </div>
         </div>
 
@@ -136,8 +114,34 @@
 
     <script>
         let nuclearData = [];
-        let regionData = {};
-        let countryData = {};
+        let umbrellaData = {};
+
+        const protectedRegions = {
+            'Asia': {
+                name: 'Asia-Pacific',
+                icon: '🌏',
+                color: '#3b82f6',
+                countries: ['Japan', 'South Korea', 'Taiwan', 'Philippines', 'Australia', 'Thailand', 'Singapore'],
+                threats: ['China', 'North Korea'],
+                description: 'First Island Chain Defense'
+            },
+            'Europe': {
+                name: 'European Theater',
+                icon: '🇪🇺',
+                color: '#8b5cf6',
+                countries: ['Germany', 'France', 'UK', 'Italy', 'Poland', 'Baltic States', 'Turkey', 'Belgium', 'Netherlands', 'Norway'],
+                threats: ['Russia'],
+                description: 'GIUK Gap & NATO Deterrence'
+            },
+            'Middle East': {
+                name: 'Middle East',
+                icon: '🕌',
+                color: '#f59e0b',
+                countries: ['Saudi Arabia', 'UAE', 'Jordan', 'Egypt', 'Iraq'],
+                threats: ['Iran', 'Regional actors'],
+                description: 'Regional Stability'
+            }
+        };
 
         async function loadData() {
             try {
@@ -169,27 +173,21 @@
         }
 
         function processData() {
-            regionData = {};
-            countryData = {};
+            umbrellaData = {
+                'Asia': { defenders: [], totalWarheads: 0 },
+                'Europe': { defenders: [], totalWarheads: 0 },
+                'Middle East': { defenders: [], totalWarheads: 0 }
+            };
            
             nuclearData.forEach(row => {
                 const region = row.Region || 'Unknown';
                 const countryLeg = row['Country / leg'] || 'Unknown';
                 const country = countryLeg.split('–')[0].trim();
                
-                if (!regionData[region]) {
-                    regionData[region] = {
-                        entries: [],
-                        totalStockpile: 0,
-                        totalDeployed: 0,
-                        totalStrategic: 0,
-                        totalTactical: 0
-                    };
-                }
-               
                 const entry = {
                     countryLeg: countryLeg,
                     country: country,
+                    leg: countryLeg.includes('–') ? countryLeg.split('–')[1].trim() : 'Unknown',
                     totalStockpile: parseNumber(row['Total Stockpile']),
                     deployed: parseNumber(row['Deployed Warheads']),
                     strategic: parseNumber(row['Strategic Nukes']),
@@ -199,22 +197,10 @@
                     notes: row['Notes'] || ''
                 };
                
-                regionData[region].entries.push(entry);
-                regionData[region].totalStockpile += entry.totalStockpile;
-                regionData[region].totalDeployed += entry.deployed;
-                regionData[region].totalStrategic += entry.strategic;
-                regionData[region].totalTactical += entry.tactical;
-               
-                if (!countryData[country]) {
-                    countryData[country] = {
-                        entries: [],
-                        totalStockpile: 0,
-                        regions: new Set()
-                    };
+                if (umbrellaData[region]) {
+                    umbrellaData[region].defenders.push(entry);
+                    umbrellaData[region].totalWarheads += entry.totalStockpile;
                 }
-                countryData[country].entries.push({...entry, region: region});
-                countryData[country].totalStockpile += entry.totalStockpile;
-                countryData[country].regions.add(region);
             });
         }
 
@@ -222,40 +208,116 @@
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
            
-            const totalStockpile = Object.values(regionData).reduce((sum, r) => sum + r.totalStockpile, 0);
-            const totalDeployed = Object.values(regionData).reduce((sum, r) => sum + r.totalDeployed, 0);
-            const totalStrategic = Object.values(regionData).reduce((sum, r) => sum + r.totalStrategic, 0);
+            const totalWarheads = Object.values(umbrellaData).reduce((sum, r) => sum + r.totalWarheads, 0);
+            document.getElementById('totalWarheads').textContent = totalWarheads.toLocaleString();
+            document.getElementById('totalRegions').textContent = Object.keys(umbrellaData).length;
            
-            document.getElementById('totalWarheads').textContent = totalStockpile.toLocaleString();
-            document.getElementById('totalCountries').textContent = Object.keys(countryData).length;
-            document.getElementById('totalRegions').textContent = Object.keys(regionData).length;
-           
-            document.getElementById('statTotal').textContent = totalStockpile.toLocaleString();
-            document.getElementById('statDeployed').textContent = totalDeployed.toLocaleString();
-            document.getElementById('statStrategic').textContent = totalStrategic.toLocaleString();
-           
-            renderMap();
             renderRegionsGrid();
-            renderCountriesGrid();
-            renderCharts();
-            setupSearch();
+            renderTheaterMaps();
+            renderProtectionNetwork();
+            renderDeploymentsGrid();
         }
 
-        function renderMap() {
-            const countryTotals = {};
-            Object.entries(countryData).forEach(([country, data]) => {
-                countryTotals[country] = data.totalStockpile;
+        function renderRegionsGrid() {
+            const grid = document.getElementById('regionsGrid');
+           
+            grid.innerHTML = Object.keys(umbrellaData).map(region => {
+                const data = umbrellaData[region];
+                const info = protectedRegions[region];
+                if (!info) return '';
+               
+                const usDefense = data.defenders.filter(d => d.country === 'USA');
+                const localDefense = data.defenders.filter(d => d.country !== 'USA');
+               
+                return `
+                    <div class="umbrella-card speed-card p-6 rounded-xl cursor-pointer" onclick="showRegionModal('${region}')">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <div class="text-4xl mb-2">${info.icon}</div>
+                                <h3 class="text-2xl font-bold text-white">${info.name}</h3>
+                                <p class="text-sm text-gray-400">${info.description}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-3xl font-black orbitron text-red-400">${data.totalWarheads.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400">total warheads</div>
+                            </div>
+                        </div>
+                       
+                        <div class="space-y-3 mb-4">
+                            ${usDefense.length > 0 ? `
+                                <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3">
+                                    <div class="text-xs text-blue-300 font-bold mb-2">🇺🇸 U.S. EXTENDED DETERRENCE</div>
+                                    ${usDefense.map(d => `
+                                        <div class="text-sm text-white">${d.leg}: <span class="text-blue-400 font-bold">${d.totalStockpile.toLocaleString()}</span></div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                           
+                            ${localDefense.length > 0 ? `
+                                <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-3">
+                                    <div class="text-xs text-purple-300 font-bold mb-2">⚛️ LOCAL DETERRENCE</div>
+                                    ${localDefense.map(d => `
+                                        <div class="text-sm text-white">${d.country}: <span class="text-purple-400 font-bold">${d.totalStockpile.toLocaleString()}</span></div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                       
+                        <div class="border-t border-slate-600 pt-3">
+                            <div class="text-xs text-gray-400 mb-2">Protected Countries:</div>
+                            <div class="flex flex-wrap gap-1">
+                                ${info.countries.slice(0, 6).map(c => `
+                                    <span class="px-2 py-1 bg-slate-700/50 rounded text-xs">${c}</span>
+                                `).join('')}
+                                ${info.countries.length > 6 ? `<span class="px-2 py-1 bg-slate-700/50 rounded text-xs">+${info.countries.length - 6}</span>` : ''}
+                            </div>
+                        </div>
+                       
+                        <div class="border-t border-slate-600 pt-3 mt-3">
+                            <div class="text-xs text-red-400 mb-1">Primary Threats:</div>
+                            <div class="text-sm text-gray-300">${info.threats.join(', ')}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTheaterMaps() {
+            // Asia-Pacific Map
+            const asiaCountries = ['China', 'North Korea', 'Japan', 'South Korea', 'Taiwan', 'Philippines', 'Thailand', 'Singapore', 'Australia', 'India', 'Pakistan'];
+            const asiaValues = asiaCountries.map(c => {
+                const defenders = umbrellaData['Asia'].defenders.filter(d => d.country === c);
+                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
             });
            
-            const countries = Object.keys(countryTotals);
-            const values = Object.values(countryTotals);
+            renderRegionalMap('asiaMap', asiaCountries, asiaValues, 'Asia-Pacific Theater');
            
+            // Europe Map
+            const europeCountries = ['Russia', 'United States', 'United Kingdom', 'France', 'Germany', 'Italy', 'Turkey', 'Belgium', 'Netherlands', 'Poland', 'Ukraine'];
+            const europeValues = europeCountries.map(c => {
+                const defenders = umbrellaData['Europe'].defenders.filter(d => d.country === c);
+                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
+            });
+           
+            renderRegionalMap('europeMap', europeCountries, europeValues, 'European Theater');
+           
+            // Middle East Map
+            const meCountries = ['Israel', 'Iran', 'Saudi Arabia', 'Turkey', 'Egypt', 'Iraq', 'Syria', 'Jordan', 'UAE'];
+            const meValues = meCountries.map(c => {
+                const defenders = umbrellaData['Middle East'].defenders.filter(d => d.country === c);
+                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
+            });
+           
+            renderRegionalMap('middleEastMap', meCountries, meValues, 'Middle East Theater');
+        }
+
+        function renderRegionalMap(elementId, countries, values, title) {
             const data = [{
                 type: 'choropleth',
                 locationmode: 'country names',
                 locations: countries,
                 z: values,
-                text: countries.map(c => `${c}: ${countryTotals[c].toLocaleString()} warheads`),
+                text: countries.map((c, i) => values[i] > 0 ? `${c}: ${values[i].toLocaleString()} warheads` : `${c}: Protected`),
                 colorscale: [
                     [0, '#1e293b'],
                     [0.2, '#7f1d1d'],
@@ -265,18 +327,19 @@
                     [1, '#facc15']
                 ],
                 colorbar: {
-                    title: 'Total<br>Warheads',
-                    thickness: 15,
-                    len: 0.7,
+                    title: 'Warheads',
+                    thickness: 10,
+                    len: 0.5,
                     bgcolor: 'rgba(15, 23, 42, 0.8)',
-                    tickfont: { color: '#e2e8f0' },
-                    titlefont: { color: '#e2e8f0' }
+                    tickfont: { color: '#e2e8f0', size: 10 },
+                    titlefont: { color: '#e2e8f0', size: 10 }
                 },
                 hovertemplate: '<b>%{text}</b><extra></extra>'
             }];
 
             const layout = {
                 geo: {
+                    scope: elementId === 'asiaMap' ? 'asia' : elementId === 'europeMap' ? 'europe' : 'world',
                     projection: { type: 'natural earth' },
                     bgcolor: 'rgba(15, 23, 42, 0.5)',
                     showland: true,
@@ -293,234 +356,162 @@
                 margin: { t: 0, b: 0, l: 0, r: 0 }
             };
 
-            const config = {
-                responsive: true,
-                displayModeBar: false
-            };
-
-            Plotly.newPlot('worldMap', data, layout, config);
-           
-            document.getElementById('worldMap').on('plotly_click', function(data) {
-                const country = data.points[0].location;
-                showCountryModal(country);
-            });
+            Plotly.newPlot(elementId, data, layout, { responsive: true, displayModeBar: false });
         }
 
-        function renderRegionsGrid() {
-            const grid = document.getElementById('regionsGrid');
-            const regions = Object.keys(regionData).sort();
+        function renderProtectionNetwork() {
+            const nodes = [];
+            const edges = [];
+            let nodeIndex = 0;
+            const nodeMap = {};
+
+            // Create nodes for each region
+            Object.keys(umbrellaData).forEach(region => {
+                const info = protectedRegions[region];
+                nodeMap[region] = nodeIndex++;
+                nodes.push({
+                    x: region === 'Asia' ? 0 : region === 'Europe' ? 1 : 0.5,
+                    y: region === 'Asia' ? 1 : region === 'Europe' ? 1 : 0,
+                    text: `${info.icon} ${info.name}<br>${umbrellaData[region].totalWarheads.toLocaleString()} warheads`,
+                    mode: 'markers+text',
+                    marker: { size: 30, color: info.color },
+                    textposition: 'top center',
+                    name: region
+                });
+
+                // Add defender nodes
+                umbrellaData[region].defenders.forEach(defender => {
+                    const defenderKey = `${region}-${defender.country}-${defender.leg}`;
+                    nodeMap[defenderKey] = nodeIndex++;
+                    nodes.push({
+                        x: Math.random() * 0.3 + (region === 'Asia' ? -0.2 : region === 'Europe' ? 0.9 : 0.3),
+                        y: Math.random() * 0.3 + (region === 'Asia' ? 0.7 : region === 'Europe' ? 0.7 : -0.2),
+                        text: `${defender.country}<br>${defender.leg}<br>${defender.totalStockpile.toLocaleString()}`,
+                        mode: 'markers+text',
+                        marker: { size: 15, color: defender.country === 'USA' ? '#3b82f6' : '#8b5cf6' },
+                        textposition: 'bottom center',
+                        textfont: { size: 9 },
+                        name: defenderKey
+                    });
+
+                    edges.push({
+                        x: [nodeMap[defenderKey], nodeMap[region]],
+                        y: [nodes[nodeMap[defenderKey]].y, nodes[nodeMap[region]].y],
+                        mode: 'lines',
+                        line: { width: 2, color: 'rgba(148, 163, 184, 0.3)' },
+                        hoverinfo: 'skip'
+                    });
+                });
+            });
+
+            const data = [...edges, ...nodes];
+
+            const layout = {
+                showlegend: false,
+                xaxis: { visible: false, range: [-0.5, 1.5] },
+                yaxis: { visible: false, range: [-0.5, 1.5] },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                margin: { t: 20, b: 20, l: 20, r: 20 }
+            };
+
+            Plotly.newPlot('protectionNetwork', data, layout, { responsive: true, displayModeBar: false });
+        }
+
+        function renderDeploymentsGrid() {
+            const grid = document.getElementById('deploymentsGrid');
            
-            grid.innerHTML = regions.map(region => {
-                const data = regionData[region];
+            grid.innerHTML = Object.keys(umbrellaData).map(region => {
+                const data = umbrellaData[region];
+                const info = protectedRegions[region];
+               
                 return `
-                    <button
-                        onclick="showRegionModal('${region.replace(/'/g, "\\'")}')"
-                        class="region-btn p-4 bg-gradient-to-br from-red-600/20 to-orange-600/20 hover:from-red-600/40 hover:to-orange-600/40 border border-red-500/30 rounded-lg text-left"
-                    >
-                        <div class="font-bold text-xl text-white mb-2">${region}</div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                                <div class="text-gray-400">Total Stockpile</div>
-                                <div class="text-red-400 font-bold">${data.totalStockpile.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-400">Deployed</div>
-                                <div class="text-orange-400 font-bold">${data.totalDeployed.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-400">Strategic</div>
-                                <div class="text-yellow-400 font-bold">${data.totalStrategic.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-400">Tactical</div>
-                                <div class="text-amber-400 font-bold">${data.totalTactical.toLocaleString()}</div>
-                            </div>
+                    <div class="bg-slate-800/50 border border-slate-600/30 rounded-xl p-4">
+                        <h3 class="text-xl font-bold text-white mb-3">${info.icon} ${info.name}</h3>
+                        <div class="space-y-2">
+                            ${data.defenders.map(d => `
+                                <div class="bg-slate-700/40 rounded-lg p-3">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <div class="font-bold text-white">${d.countryLeg}</div>
+                                            <div class="text-xs text-gray-400">📍 ${d.homeBase}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-xl font-black text-red-400">${d.totalStockpile.toLocaleString()}</div>
+                                            <div class="text-xs text-gray-400">total</div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-2 text-xs">
+                                        <div class="bg-slate-800/50 p-1 rounded text-center">
+                                            <div class="text-gray-400">Deployed</div>
+                                            <div class="text-orange-400 font-bold">${d.deployed.toLocaleString()}</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 p-1 rounded text-center">
+                                            <div class="text-gray-400">Strategic</div>
+                                            <div class="text-yellow-400 font-bold">${d.strategic.toLocaleString()}</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 p-1 rounded text-center">
+                                            <div class="text-gray-400">Tactical</div>
+                                            <div class="text-amber-400 font-bold">${d.tactical.toLocaleString()}</div>
+                                        </div>
+                                        <div class="bg-slate-800/50 p-1 rounded text-center">
+                                            <div class="text-gray-400">SLBM</div>
+                                            <div class="text-blue-400 font-bold">${d.slbm.toLocaleString()}</div>
+                                        </div>
+                                    </div>
+                                    ${d.notes ? `<div class="text-xs text-gray-400 italic mt-2 border-l-2 border-slate-600 pl-2">${d.notes}</div>` : ''}
+                                </div>
+                            `).join('')}
                         </div>
-                    </button>
+                    </div>
                 `;
             }).join('');
-        }
-
-        function renderCountriesGrid(filter = '') {
-            const grid = document.getElementById('countriesGrid');
-            const countries = Object.keys(countryData).sort();
-           
-            const filtered = filter
-                ? countries.filter(c => c.toLowerCase().includes(filter.toLowerCase()))
-                : countries;
-           
-            grid.innerHTML = filtered.map(country => {
-                const data = countryData[country];
-                return `
-                    <button
-                        onclick="showCountryModal('${country.replace(/'/g, "\\'")}')"
-                        class="country-btn px-3 py-2 bg-gradient-to-br from-yellow-600/20 to-red-600/20 hover:from-yellow-600/40 hover:to-red-600/40 border border-yellow-500/30 rounded-lg text-left"
-                    >
-                        <div class="font-semibold text-white text-sm">${country}</div>
-                        <div class="text-xs text-gray-400">${data.totalStockpile.toLocaleString()} warheads</div>
-                        <div class="text-xs text-yellow-400">${data.regions.size} region${data.regions.size !== 1 ? 's' : ''}</div>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function renderCharts() {
-            // Type breakdown
-            const totalStrategic = Object.values(regionData).reduce((sum, r) => sum + r.totalStrategic, 0);
-            const totalTactical = Object.values(regionData).reduce((sum, r) => sum + r.totalTactical, 0);
-           
-            const typeData = [{
-                values: [totalStrategic, totalTactical],
-                labels: ['Strategic', 'Tactical'],
-                type: 'pie',
-                marker: {
-                    colors: ['#facc15', '#f97316']
-                },
-                textfont: { color: '#ffffff', size: 14 },
-                hovertemplate: '<b>%{label}</b><br>%{value:,} warheads<br>%{percent}<extra></extra>'
-            }];
-
-            const typeLayout = {
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { color: '#e2e8f0' },
-                showlegend: true,
-                legend: {
-                    orientation: 'h',
-                    y: -0.1
-                },
-                margin: { t: 20, b: 40, l: 20, r: 20 }
-            };
-
-            Plotly.newPlot('typeChart', typeData, typeLayout, {responsive: true, displayModeBar: false});
-
-            // Regional distribution
-            const regions = Object.keys(regionData).sort();
-            const regionalData = [{
-                x: regions,
-                y: regions.map(r => regionData[r].totalStockpile),
-                type: 'bar',
-                marker: {
-                    color: regions.map((r, i) => ['#dc2626', '#f97316', '#facc15'][i % 3])
-                },
-                hovertemplate: '<b>%{x}</b><br>%{y:,} warheads<extra></extra>'
-            }];
-
-            const regionalLayout = {
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { color: '#e2e8f0' },
-                xaxis: {
-                    gridcolor: 'rgba(148, 163, 184, 0.1)',
-                    tickfont: { size: 11 }
-                },
-                yaxis: {
-                    gridcolor: 'rgba(148, 163, 184, 0.1)',
-                    title: 'Total Warheads'
-                },
-                margin: { t: 20, b: 60, l: 60, r: 20 }
-            };
-
-            Plotly.newPlot('regionChart', regionalData, regionalLayout, {responsive: true, displayModeBar: false});
-        }
-
-        function setupSearch() {
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                renderCountriesGrid(e.target.value);
-            });
         }
 
         function showRegionModal(region) {
-            const data = regionData[region];
+            const data = umbrellaData[region];
+            const info = protectedRegions[region];
            
-            document.getElementById('modalTitle').textContent = region;
-            document.getElementById('modalSubtitle').textContent = `${data.totalStockpile.toLocaleString()} total warheads across ${data.entries.length} deployment${data.entries.length !== 1 ? 's' : ''}`;
-           
-            const content = `
-                <div class="grid gap-3">
-                    ${data.entries.map(entry => `
-                        <div class="p-4 bg-gradient-to-br from-slate-700/40 to-slate-800/40 border border-slate-600/30 rounded-xl">
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-lg text-white">${entry.countryLeg}</h4>
-                                    <p class="text-sm text-gray-400 mt-1">📍 ${entry.homeBase}</p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-black orbitron text-red-400">${entry.totalStockpile.toLocaleString()}</div>
-                                    <div class="text-xs text-gray-400">total</div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Deployed</div>
-                                    <div class="text-orange-400 font-bold">${entry.deployed.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Strategic</div>
-                                    <div class="text-yellow-400 font-bold">${entry.strategic.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Tactical</div>
-                                    <div class="text-amber-400 font-bold">${entry.tactical.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">SLBM</div>
-                                    <div class="text-blue-400 font-bold">${entry.slbm.toLocaleString()}</div>
-                                </div>
-                            </div>
-                            ${entry.notes ? `<div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${entry.notes}</div>` : ''}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-           
-            document.getElementById('modalContent').innerHTML = content;
-            document.getElementById('infoModal').classList.remove('hidden');
-        }
-
-        function showCountryModal(country) {
-            const data = countryData[country];
-            if (!data) return;
-           
-            document.getElementById('modalTitle').textContent = country;
-            document.getElementById('modalSubtitle').textContent = `${data.totalStockpile.toLocaleString()} total warheads across ${data.entries.length} deployment${data.entries.length !== 1 ? 's' : ''}`;
+            document.getElementById('modalTitle').textContent = `${info.icon} ${info.name} Nuclear Umbrella`;
+            document.getElementById('modalSubtitle').textContent = `${data.totalWarheads.toLocaleString()} total warheads providing extended deterrence`;
            
             const content = `
-                <div class="grid gap-3">
-                    ${data.entries.map(entry => `
-                        <div class="p-4 bg-gradient-to-br from-slate-700/40 to-slate-800/40 border border-slate-600/30 rounded-xl">
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-lg text-white">${entry.countryLeg}</h4>
-                                    <p class="text-sm text-purple-400 mt-1">Region: ${entry.region}</p>
-                                    <p class="text-sm text-gray-400">📍 ${entry.homeBase}</p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-black orbitron text-red-400">${entry.totalStockpile.toLocaleString()}</div>
-                                    <div class="text-xs text-gray-400">total</div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Deployed</div>
-                                    <div class="text-orange-400 font-bold">${entry.deployed.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Strategic</div>
-                                    <div class="text-yellow-400 font-bold">${entry.strategic.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">Tactical</div>
-                                    <div class="text-amber-400 font-bold">${entry.tactical.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-800/50 p-2 rounded">
-                                    <div class="text-xs text-gray-400">SLBM</div>
-                                    <div class="text-blue-400 font-bold">${entry.slbm.toLocaleString()}</div>
-                                </div>
-                            </div>
-                            ${entry.notes ? `<div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${entry.notes}</div>` : ''}
+                <div class="space-y-4">
+                    <div class="bg-slate-700/40 rounded-xl p-4">
+                        <h4 class="font-bold text-lg text-white mb-3">Protected Countries & Territories</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            ${info.countries.map(c => `
+                                <div class="bg-green-900/30 border border-green-500/30 rounded px-3 py-2 text-sm text-center">${c}</div>
+                            `).join('')}
                         </div>
-                    `).join('')}
+                    </div>
+                   
+                    <div class="bg-slate-700/40 rounded-xl p-4">
+                        <h4 class="font-bold text-lg text-white mb-3">Primary Threats</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${info.threats.map(t => `
+                                <div class="bg-red-900/30 border border-red-500/30 rounded px-3 py-2 text-sm">${t}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                   
+                    <div class="bg-slate-700/40 rounded-xl p-4">
+                        <h4 class="font-bold text-lg text-white mb-3">Defense Architecture</h4>
+                        <div class="space-y-3">
+                            ${data.defenders.map(d => `
+                                <div class="bg-slate-800/50 rounded-lg p-3">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <div class="font-bold text-white">${d.countryLeg}</div>
+                                            <div class="text-xs text-gray-400">Base: ${d.homeBase}</div>
+                                        </div>
+                                        <div class="text-2xl font-black text-red-400">${d.totalStockpile.toLocaleString()}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${d.notes}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
                 </div>
             `;
            
