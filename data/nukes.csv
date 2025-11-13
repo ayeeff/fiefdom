@@ -1,22 +1,22 @@
 Region,Country / leg,Total Stockpile,Deployed Warheads,Strategic Nukes,Tactical Nukes,SLBM Warheads,Home Base,Notes
-Asia,USA – Sea (SSBN) (Pacific portion),~960 (est. half of total),~475,~475,0,~960,"Bangor, Washington","Designed for deterrence against regional threats (e.g., China, North Korea)"
-Asia,China – Land & Air,~580,~290,~290,~0?,—,"Hami, Xinjiang; Yumen, Gansu","Designed for homeland defense and regional strikes (e.g., Taiwan, South China Sea); no confirmed overseas tactical deployments"
-Asia,China – Sea (SSBN),~20,~20,~20,0,~20–60,"Yalong Bay, Hainan",Designed for second-strike against U.S./allied bases in Pacific
-Asia,North Korea – Land & Air,50,<30,~20–30,~20,—,"Yongbyon, North Pyongan; Pyongyang, Pyongyang",Designed for tactical strikes on South Korea/Japan and strategic on U.S. Guam/Hawaii; none confirmed overseas
-Asia,India – Land & Air,180,~30–40,~30–40,0?,—,"Mumbai, Maharashtra; Visakhapatnam, Andhra Pradesh",Designed for deterrence against Pakistan/China; no overseas deployment
-Asia,Pakistan – Land & Air,170,~100–120,~0,~100–120,—,"Khushab, Punjab; Masroor, Sindh",Designed for tactical battlefield use against India; no overseas
-Asia,Russia – Sea (SSBN) (Pacific portion),~496 (est. half of total),~320,~320,0,~496,"Kamchatka, Kamchatka Krai",Designed for deterrence in Sea of Okhotsk against U.S./Japan; patrols emphasize survivability in contested waters
-Middle East,Israel – Land & Air,~90,~30–40,~30–40,~50,—,"Dimona, Southern District; Tel-Nof, Central District","Designed for preemptive strikes/deterrence against Iran/region (e.g., Hezbollah, Syria); no confirmed forward basing abroad"
-Europe,USA – Land & Air,"~1,780",~800,~700,~100,—,"Kirtland, New Mexico","Designed for tactical support in NATO contingencies (e.g., vs. Russia)"
-Europe,USA – Sea (SSBN) (Atlantic portion),~960 (est. half of total),~475,~475,0,~960,"Kings Bay, Georgia",Designed for transatlantic deterrence against Russia
-Europe,Russia – Land & Air,"~3,311","~1,070","~1,070","~1,477",—,"Kozelsk, Kaluga Oblast; Kaliningrad, Kaliningrad Oblast","Designed for tactical escalation in Europe (e.g., Baltics, Ukraine) and strategic on NATO"
-Europe,Russia – Sea (SSBN) (Northern portion),~496 (est. half of total),~320,~320,0,~496,"Gadzhiyevo, Murmansk Oblast",Designed for Barents Sea patrols deterring NATO in Arctic/North Atlantic
+Asia,USA – Sea (SSBN) (Pacific portion),960,485,485,0,960,"Bangor, Washington","Designed for deterrence against regional threats (e.g., China, North Korea)"
+Asia,China – Land & Air,580,290,290,0,—,"Hami, Xinjiang; Yumen, Gansu","Designed for homeland defense and regional strikes (e.g., Taiwan, South China Sea); no confirmed overseas tactical deployments"
+Asia,China – Sea (SSBN),20,20,20,0,40,"Yalong Bay, Hainan",Designed for second-strike against U.S./allied bases in Pacific
+Asia,North Korea – Land & Air,50,25,25,25,—,"Yongbyon, North Pyongan; Pyongyang, Pyongyang",Designed for tactical strikes on South Korea/Japan and strategic on U.S. Guam/Hawaii; none confirmed overseas
+Asia,India – Land & Air,180,35,35,0,—,"Mumbai, Maharashtra; Visakhapatnam, Andhra Pradesh",Designed for deterrence against Pakistan/China; no overseas deployment
+Asia,Pakistan – Land & Air,170,110,0,110,—,"Khushab, Punjab; Masroor, Sindh",Designed for tactical battlefield use against India; no overseas
+Asia,Russia – Sea (SSBN) (Pacific portion),496,320,320,0,496,"Kamchatka, Kamchatka Krai",Designed for deterrence in Sea of Okhotsk against U.S./Japan; patrols emphasize survivability in contested waters
+Middle East,Israel – Land & Air,90,35,35,50,—,"Dimona, Southern District; Tel-Nof, Central District","Designed for preemptive strikes/deterrence against Iran/region (e.g., Hezbollah, Syria); no confirmed forward basing abroad"
+Europe,USA – Land & Air,1780,800,700,100,—,"Kirtland, New Mexico","Designed for tactical support in NATO contingencies (e.g., vs. Russia)"
+Europe,USA – Sea (SSBN) (Atlantic portion),960,485,485,0,960,"Kings Bay, Georgia",Designed for transatlantic deterrence against Russia
+Europe,Russia – Land & Air,3311,1070,1070,1477,—,"Kozelsk, Kaluga Oblast; Kaliningrad, Kaliningrad Oblast","Designed for tactical escalation in Europe (e.g., Baltics, Ukraine) and strategic on NATO"
+Europe,Russia – Sea (SSBN) (Northern portion),496,320,320,0,496,"Gadzhiyevo, Murmansk Oblast",Designed for Barents Sea patrols deterring NATO in Arctic/North Atlantic
 Europe,United Kingdom – Land & Air,0,0,0,0,—,"Coulport, Argyll and Bute","Designed for NATO integration, no tactical forward"
-Europe,United Kingdom – Sea (SSBN),225,120,120,0,~225,"Faslane, Argyll and Bute",Designed for global/NATO strategic response
-Europe,France – Land & Air,~50,~40,~40,0,—,"Saint-Dizier, Haute-Marne; Istres, Bouches-du-Rhône","Designed for European theater strikes (e.g., vs. Russia)"
-Europe,France – Sea (SSBN),~240,~240,~240,0,~240,"Île Longue, Finistère",Designed for independent/NATO Atlantic/Mediterranean deterrence
-Europe,Italy,0,0,0,~20 B61,—,"Aviano, Friuli-Venezia Giulia",Designed for tactical air delivery in European/Mediterranean conflicts
-Europe,Germany,0,0,0,~20 B61,—,"Büchel, Rhineland-Palatinate","Designed for central European defense (e.g., vs. Russian incursion)"
-Europe,Turkey,0,0,0,~20 B61,—,"Incirlik, Adana","Designed for southeastern flank (e.g., Black Sea, Middle East threats)"
-Europe,Belgium,0,0,0,~10 B61,—,"Kleine Brogel, Limburg",Designed for Benelux/Western European tactical support
-Europe,Netherlands,0,0,0,~10 B61,—,"Volkel, North Brabant",Designed for northern European air operations
+Europe,United Kingdom – Sea (SSBN),225,120,120,0,225,"Faslane, Argyll and Bute",Designed for global/NATO strategic response
+Europe,France – Land & Air,50,40,40,0,—,"Saint-Dizier, Haute-Marne; Istres, Bouches-du-Rhône","Designed for European theater strikes (e.g., vs. Russia)"
+Europe,France – Sea (SSBN),240,240,240,0,240,"Île Longue, Finistère",Designed for independent/NATO Atlantic/Mediterranean deterrence
+Europe,Italy,0,0,0,20,—,"Aviano, Friuli-Venezia Giulia",Designed for tactical air delivery in European/Mediterranean conflicts
+Europe,Germany,0,0,0,20,—,"Büchel, Rhineland-Palatinate","Designed for central European defense (e.g., vs. Russian incursion)"
+Europe,Turkey,0,0,0,20,—,"Incirlik, Adana","Designed for southeastern flank (e.g., Black Sea, Middle East threats)"
+Europe,Belgium,0,0,0,10,—,"Kleine Brogel, Limburg",Designed for Benelux/Western European tactical support
+Europe,Netherlands,0,0,0,10,—,"Volkel, North Brabant",Designed for northern European air operations
