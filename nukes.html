@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Nuclear Umbrella Dashboard</title>
+    <title>Global Nuclear Umbrella - 3D Visualization</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         .orbitron { font-family: 'Orbitron', monospace; }
@@ -22,18 +22,16 @@
             background-size: 200% 100%;
             animation: shimmer 2s linear infinite;
         }
-        .umbrella-card {
-            transition: all 0.3s;
+        #globeViz {
+            width: 100%;
+            height: 700px;
         }
-        .umbrella-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
-        }
-        .protection-badge {
+        .filter-btn {
             transition: all 0.2s;
         }
-        .protection-badge:hover {
-            transform: scale(1.05);
+        .filter-btn.active {
+            background: linear-gradient(to right, #dc2626, #f97316);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
     </style>
 </head>
@@ -44,10 +42,25 @@
             <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">
                 Global Nuclear Umbrella
             </h1>
-            <p class="text-center text-gray-300 text-sm">
-                Regional defense architecture with <span id="totalWarheads" class="font-bold text-red-400">0</span> warheads protecting
-                <span id="totalRegions" class="font-bold text-orange-400">0</span> strategic regions
+            <p class="text-center text-gray-300 text-sm mb-4">
+                3D visualization of nuclear deterrence networks protecting allied nations
             </p>
+            
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="filterRegion('all')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-all">
+                    🌍 All Umbrellas
+                </button>
+                <button onclick="filterRegion('Asia')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-Asia">
+                    🌏 Asia-Pacific
+                </button>
+                <button onclick="filterRegion('Europe')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-Europe">
+                    🇪🇺 European Theater
+                </button>
+                <button onclick="filterRegion('Middle East')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-Middle East">
+                    🕌 Middle East
+                </button>
+            </div>
         </div>
 
         <!-- Loading State -->
@@ -58,89 +71,169 @@
 
         <!-- Main Content -->
         <div id="mainContent" class="hidden">
-            <!-- Regional Umbrellas -->
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-red-400">🛡️ Regional Defense Umbrellas</h2>
-                <div id="regionsGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
-            </div>
-
-            <!-- Map Views -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="speed-card p-6 rounded-xl">
-                    <h2 class="text-xl font-bold orbitron mb-4 text-blue-400">Asia-Pacific Theater</h2>
-                    <div class="text-xs text-gray-400 mb-3">First Island Chain Defense</div>
-                    <div id="asiaMap" class="w-full" style="height: 400px;"></div>
-                </div>
-                <div class="speed-card p-6 rounded-xl">
-                    <h2 class="text-xl font-bold orbitron mb-4 text-purple-400">European Theater</h2>
-                    <div class="text-xs text-gray-400 mb-3">GIUK Gap & NATO Deterrence</div>
-                    <div id="europeMap" class="w-full" style="height: 400px;"></div>
-                </div>
-            </div>
-
-            <!-- Middle East Theater -->
+            <!-- 3D Globe -->
             <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-xl font-bold orbitron mb-4 text-amber-400">Middle East Theater</h2>
-                <div id="middleEastMap" class="w-full" style="height: 400px;"></div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold orbitron text-red-400">🛡️ Nuclear Deterrence Network</h2>
+                    <div class="text-sm text-gray-400">
+                        <span id="activeArcs">0</span> active deterrence arcs
+                    </div>
+                </div>
+                <div id="globeViz"></div>
             </div>
 
-            <!-- Protection Network -->
+            <!-- Legend -->
             <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-green-400">Protection Network Analysis</h2>
-                <div id="protectionNetwork" class="w-full" style="height: 500px;"></div>
+                <h2 class="text-xl font-bold orbitron mb-4 text-orange-400">Legend</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-red-500"></div>
+                        <span class="text-sm">Nuclear Base</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+                        <span class="text-sm">U.S. Extended Deterrence</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-purple-500"></div>
+                        <span class="text-sm">Local Deterrence</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                        <span class="text-sm">Protected Region</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="speed-card p-6 rounded-xl">
+                    <div class="text-4xl mb-2">🌏</div>
+                    <h3 class="text-xl font-bold text-blue-400 mb-2">Asia-Pacific</h3>
+                    <div class="text-sm text-gray-400 mb-3">First Island Chain Defense</div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">U.S. Warheads:</span>
+                            <span class="text-blue-400 font-bold" id="asia-us">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Regional Powers:</span>
+                            <span class="text-purple-400 font-bold" id="asia-local">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Protected Nations:</span>
+                            <span class="text-green-400 font-bold">7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="speed-card p-6 rounded-xl">
+                    <div class="text-4xl mb-2">🇪🇺</div>
+                    <h3 class="text-xl font-bold text-purple-400 mb-2">European Theater</h3>
+                    <div class="text-sm text-gray-400 mb-3">GIUK Gap & NATO Deterrence</div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">U.S. Warheads:</span>
+                            <span class="text-blue-400 font-bold" id="europe-us">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">NATO Allies:</span>
+                            <span class="text-purple-400 font-bold" id="europe-local">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Protected Nations:</span>
+                            <span class="text-green-400 font-bold">10+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="speed-card p-6 rounded-xl">
+                    <div class="text-4xl mb-2">🕌</div>
+                    <h3 class="text-xl font-bold text-amber-400 mb-2">Middle East</h3>
+                    <div class="text-sm text-gray-400 mb-3">Regional Stability</div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Israeli Arsenal:</span>
+                            <span class="text-purple-400 font-bold" id="me-local">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Protected Nations:</span>
+                            <span class="text-green-400 font-bold">5</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Deployment Details -->
             <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-orange-400">Deployment Details by Theater</h2>
+                <h2 class="text-2xl font-bold orbitron mb-4 text-yellow-400">Deployment Details</h2>
                 <div id="deploymentsGrid" class="space-y-4"></div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="infoModal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-slate-600/50" onclick="event.stopPropagation()">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 id="modalTitle" class="text-3xl font-black orbitron text-white mb-2"></h3>
-                        <p id="modalSubtitle" class="text-sm text-gray-400"></p>
-                    </div>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-                </div>
-                <div id="modalContent"></div>
             </div>
         </div>
     </div>
 
     <script>
         let nuclearData = [];
-        let umbrellaData = {};
+        let globe;
+        let currentFilter = 'all';
 
+        // Base locations (approximate coordinates)
+        const baseLocations = {
+            'Bangor, Washington': { lat: 47.7267, lng: -122.7113, country: 'USA' },
+            'Kings Bay, Georgia': { lat: 30.7969, lng: -81.5526, country: 'USA' },
+            'Kirtland, New Mexico': { lat: 35.0402, lng: -106.6088, country: 'USA' },
+            'Kamchatka, Kamchatka Krai': { lat: 53.0123, lng: 158.6486, country: 'Russia' },
+            'Gadzhiyevo, Murmansk Oblast': { lat: 69.2553, lng: 33.3250, country: 'Russia' },
+            'Kozelsk, Kaluga Oblast': { lat: 54.0429, lng: 35.7844, country: 'Russia' },
+            'Kaliningrad, Kaliningrad Oblast': { lat: 54.7104, lng: 20.4522, country: 'Russia' },
+            'Faslane, Argyll and Bute': { lat: 56.0719, lng: -4.8155, country: 'UK' },
+            'Coulport, Argyll and Bute': { lat: 56.0719, lng: -4.8155, country: 'UK' },
+            'Île Longue, Finistère': { lat: 48.3397, lng: -4.5500, country: 'France' },
+            'Saint-Dizier, Haute-Marne': { lat: 48.6364, lng: 4.9497, country: 'France' },
+            'Istres, Bouches-du-Rhône': { lat: 43.5127, lng: 4.9875, country: 'France' },
+            'Yalong Bay, Hainan': { lat: 18.2383, lng: 109.5144, country: 'China' },
+            'Hami, Xinjiang; Yumen, Gansu': { lat: 42.8453, lng: 93.5151, country: 'China' },
+            'Yongbyon, North Pyongan; Pyongyang, Pyongyang': { lat: 39.7964, lng: 125.7539, country: 'North Korea' },
+            'Mumbai, Maharashtra; Visakhapatnam, Andhra Pradesh': { lat: 19.0760, lng: 72.8777, country: 'India' },
+            'Khushab, Punjab; Masroor, Sindh': { lat: 32.3000, lng: 72.3500, country: 'Pakistan' },
+            'Dimona, Southern District; Tel-Nof, Central District': { lat: 31.0000, lng: 35.0333, country: 'Israel' },
+            'Aviano, Friuli-Venezia Giulia': { lat: 46.0319, lng: 12.5965, country: 'Italy' },
+            'Büchel, Rhineland-Palatinate': { lat: 50.1736, lng: 7.0633, country: 'Germany' },
+            'Incirlik, Adana': { lat: 37.0000, lng: 35.4250, country: 'Turkey' },
+            'Kleine Brogel, Limburg': { lat: 51.1667, lng: 5.4667, country: 'Belgium' },
+            'Volkel, North Brabant': { lat: 51.6583, lng: 5.7083, country: 'Netherlands' }
+        };
+
+        // Protected regions (targets of deterrence)
         const protectedRegions = {
-            'Asia': {
-                name: 'Asia-Pacific',
-                icon: '🌏',
-                color: '#3b82f6',
-                countries: ['Japan', 'South Korea', 'Taiwan', 'Philippines', 'Australia', 'Thailand', 'Singapore'],
-                threats: ['China', 'North Korea'],
-                description: 'First Island Chain Defense'
-            },
-            'Europe': {
-                name: 'European Theater',
-                icon: '🇪🇺',
-                color: '#8b5cf6',
-                countries: ['Germany', 'France', 'UK', 'Italy', 'Poland', 'Baltic States', 'Turkey', 'Belgium', 'Netherlands', 'Norway'],
-                threats: ['Russia'],
-                description: 'GIUK Gap & NATO Deterrence'
-            },
-            'Middle East': {
-                name: 'Middle East',
-                icon: '🕌',
-                color: '#f59e0b',
-                countries: ['Saudi Arabia', 'UAE', 'Jordan', 'Egypt', 'Iraq'],
-                threats: ['Iran', 'Regional actors'],
-                description: 'Regional Stability'
-            }
+            'Asia': [
+                { name: 'Japan', lat: 36.2048, lng: 138.2529 },
+                { name: 'South Korea', lat: 35.9078, lng: 127.7669 },
+                { name: 'Taiwan', lat: 23.6978, lng: 120.9605 },
+                { name: 'Philippines', lat: 12.8797, lng: 121.7740 },
+                { name: 'Australia', lat: -25.2744, lng: 133.7751 },
+                { name: 'Thailand', lat: 15.8700, lng: 100.9925 },
+                { name: 'Singapore', lat: 1.3521, lng: 103.8198 }
+            ],
+            'Europe': [
+                { name: 'Poland', lat: 51.9194, lng: 19.1451 },
+                { name: 'Germany', lat: 51.1657, lng: 10.4515 },
+                { name: 'Baltic States', lat: 56.8796, lng: 24.6032 },
+                { name: 'Norway', lat: 60.4720, lng: 8.4689 },
+                { name: 'Romania', lat: 45.9432, lng: 24.9668 },
+                { name: 'Italy', lat: 41.8719, lng: 12.5674 },
+                { name: 'Spain', lat: 40.4637, lng: -3.7492 },
+                { name: 'UK', lat: 55.3781, lng: -3.4360 },
+                { name: 'France', lat: 46.2276, lng: 2.2137 },
+                { name: 'Belgium', lat: 50.5039, lng: 4.4699 }
+            ],
+            'Middle East': [
+                { name: 'Saudi Arabia', lat: 23.8859, lng: 45.0792 },
+                { name: 'UAE', lat: 23.4241, lng: 53.8478 },
+                { name: 'Jordan', lat: 30.5852, lng: 36.2384 },
+                { name: 'Egypt', lat: 26.8206, lng: 30.8025 },
+                { name: 'Iraq', lat: 33.2232, lng: 43.6793 }
+            ]
         };
 
         async function loadData() {
@@ -155,6 +248,7 @@
                     complete: function(results) {
                         nuclearData = results.data;
                         processData();
+                        initGlobe();
                         renderDashboard();
                     }
                 });
@@ -173,354 +267,167 @@
         }
 
         function processData() {
-            umbrellaData = {
-                'Asia': { defenders: [], totalWarheads: 0 },
-                'Europe': { defenders: [], totalWarheads: 0 },
-                'Middle East': { defenders: [], totalWarheads: 0 }
-            };
-           
+            // Process nuclear data
             nuclearData.forEach(row => {
-                const region = row.Region || 'Unknown';
-                const countryLeg = row['Country / leg'] || 'Unknown';
-                const country = countryLeg.split('–')[0].trim();
-               
-                const entry = {
-                    countryLeg: countryLeg,
-                    country: country,
-                    leg: countryLeg.includes('–') ? countryLeg.split('–')[1].trim() : 'Unknown',
-                    totalStockpile: parseNumber(row['Total Stockpile']),
-                    deployed: parseNumber(row['Deployed Warheads']),
-                    strategic: parseNumber(row['Strategic Nukes']),
-                    tactical: parseNumber(row['Tactical Nukes']),
-                    slbm: parseNumber(row['SLBM Warheads']),
-                    homeBase: row['Home Base'] || 'Unknown',
-                    notes: row['Notes'] || ''
-                };
-               
-                if (umbrellaData[region]) {
-                    umbrellaData[region].defenders.push(entry);
-                    umbrellaData[region].totalWarheads += entry.totalStockpile;
-                }
+                row.parsedStockpile = parseNumber(row['Total Stockpile']);
+                row.parsedDeployed = parseNumber(row['Deployed Warheads']);
+                row.parsedStrategic = parseNumber(row['Strategic Nukes']);
+                row.parsedTactical = parseNumber(row['Tactical Nukes']);
             });
+        }
+
+        function initGlobe() {
+            const world = Globe()
+                (document.getElementById('globeViz'))
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+                .pointOfView({ lat: 30, lng: 0, altitude: 2.5 })
+                .atmosphereColor('#ff6b6b')
+                .atmosphereAltitude(0.15);
+
+            globe = world;
+            updateGlobe();
+        }
+
+        function updateGlobe() {
+            const points = [];
+            const arcs = [];
+
+            nuclearData.forEach(row => {
+                const region = row.Region;
+                const base = row['Home Base'];
+                const country = (row['Country / leg'] || '').split('–')[0].trim();
+                
+                if (currentFilter !== 'all' && region !== currentFilter) return;
+                
+                const baseCoords = baseLocations[base];
+                if (!baseCoords) return;
+
+                // Add base point
+                points.push({
+                    lat: baseCoords.lat,
+                    lng: baseCoords.lng,
+                    size: Math.sqrt(row.parsedStockpile) / 20,
+                    color: country === 'USA' ? '#3b82f6' : 
+                           ['Russia', 'China', 'North Korea'].includes(country) ? '#ef4444' :
+                           '#a855f7',
+                    label: `${row['Country / leg']}\n${row.parsedStockpile} warheads\n${base}`
+                });
+
+                // Add protection arcs
+                const protected = protectedRegions[region] || [];
+                protected.forEach(target => {
+                    arcs.push({
+                        startLat: baseCoords.lat,
+                        startLng: baseCoords.lng,
+                        endLat: target.lat,
+                        endLng: target.lng,
+                        color: country === 'USA' ? ['rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 0.8)'] :
+                               ['rgba(168, 85, 247, 0.4)', 'rgba(168, 85, 247, 0.8)'],
+                        label: `${row['Country / leg']} → ${target.name}`
+                    });
+
+                    // Add protected region point
+                    if (!points.find(p => p.lat === target.lat && p.lng === target.lng)) {
+                        points.push({
+                            lat: target.lat,
+                            lng: target.lng,
+                            size: 0.3,
+                            color: '#22c55e',
+                            label: `${target.name}\nProtected by nuclear umbrella`
+                        });
+                    }
+                });
+            });
+
+            globe
+                .pointsData(points)
+                .pointAltitude('size')
+                .pointColor('color')
+                .pointLabel('label')
+                .pointRadius(0.5)
+                .arcsData(arcs)
+                .arcColor('color')
+                .arcDashLength(0.4)
+                .arcDashGap(0.2)
+                .arcDashAnimateTime(3000)
+                .arcStroke(0.5)
+                .arcLabel('label');
+
+            document.getElementById('activeArcs').textContent = arcs.length;
+        }
+
+        function filterRegion(region) {
+            currentFilter = region;
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${region}`).classList.add('active');
+            
+            updateGlobe();
         }
 
         function renderDashboard() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
-           
-            const totalWarheads = Object.values(umbrellaData).reduce((sum, r) => sum + r.totalWarheads, 0);
-            document.getElementById('totalWarheads').textContent = totalWarheads.toLocaleString();
-            document.getElementById('totalRegions').textContent = Object.keys(umbrellaData).length;
-           
-            renderRegionsGrid();
-            renderTheaterMaps();
-            renderProtectionNetwork();
+
+            // Calculate regional stats
+            const asiaUS = nuclearData.filter(r => r.Region === 'Asia' && r['Country / leg'].includes('USA'))
+                .reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const asiaLocal = nuclearData.filter(r => r.Region === 'Asia' && !r['Country / leg'].includes('USA'))
+                .reduce((sum, r) => sum + r.parsedStockpile, 0);
+            
+            const europeUS = nuclearData.filter(r => r.Region === 'Europe' && r['Country / leg'].includes('USA'))
+                .reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const europeLocal = nuclearData.filter(r => r.Region === 'Europe' && !r['Country / leg'].includes('USA'))
+                .reduce((sum, r) => sum + r.parsedStockpile, 0);
+            
+            const meLocal = nuclearData.filter(r => r.Region === 'Middle East')
+                .reduce((sum, r) => sum + r.parsedStockpile, 0);
+
+            document.getElementById('asia-us').textContent = asiaUS.toLocaleString();
+            document.getElementById('asia-local').textContent = asiaLocal.toLocaleString();
+            document.getElementById('europe-us').textContent = europeUS.toLocaleString();
+            document.getElementById('europe-local').textContent = europeLocal.toLocaleString();
+            document.getElementById('me-local').textContent = meLocal.toLocaleString();
+
             renderDeploymentsGrid();
         }
 
-        function renderRegionsGrid() {
-            const grid = document.getElementById('regionsGrid');
-           
-            grid.innerHTML = Object.keys(umbrellaData).map(region => {
-                const data = umbrellaData[region];
-                const info = protectedRegions[region];
-                if (!info) return '';
-               
-                const usDefense = data.defenders.filter(d => d.country === 'USA');
-                const localDefense = data.defenders.filter(d => d.country !== 'USA');
-               
-                return `
-                    <div class="umbrella-card speed-card p-6 rounded-xl cursor-pointer" onclick="showRegionModal('${region}')">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <div class="text-4xl mb-2">${info.icon}</div>
-                                <h3 class="text-2xl font-bold text-white">${info.name}</h3>
-                                <p class="text-sm text-gray-400">${info.description}</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-3xl font-black orbitron text-red-400">${data.totalWarheads.toLocaleString()}</div>
-                                <div class="text-xs text-gray-400">total warheads</div>
-                            </div>
-                        </div>
-                       
-                        <div class="space-y-3 mb-4">
-                            ${usDefense.length > 0 ? `
-                                <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3">
-                                    <div class="text-xs text-blue-300 font-bold mb-2">🇺🇸 U.S. EXTENDED DETERRENCE</div>
-                                    ${usDefense.map(d => `
-                                        <div class="text-sm text-white">${d.leg}: <span class="text-blue-400 font-bold">${d.totalStockpile.toLocaleString()}</span></div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                           
-                            ${localDefense.length > 0 ? `
-                                <div class="bg-purple-900/30 border border-purple-500/30 rounded-lg p-3">
-                                    <div class="text-xs text-purple-300 font-bold mb-2">⚛️ LOCAL DETERRENCE</div>
-                                    ${localDefense.map(d => `
-                                        <div class="text-sm text-white">${d.country}: <span class="text-purple-400 font-bold">${d.totalStockpile.toLocaleString()}</span></div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                       
-                        <div class="border-t border-slate-600 pt-3">
-                            <div class="text-xs text-gray-400 mb-2">Protected Countries:</div>
-                            <div class="flex flex-wrap gap-1">
-                                ${info.countries.slice(0, 6).map(c => `
-                                    <span class="px-2 py-1 bg-slate-700/50 rounded text-xs">${c}</span>
-                                `).join('')}
-                                ${info.countries.length > 6 ? `<span class="px-2 py-1 bg-slate-700/50 rounded text-xs">+${info.countries.length - 6}</span>` : ''}
-                            </div>
-                        </div>
-                       
-                        <div class="border-t border-slate-600 pt-3 mt-3">
-                            <div class="text-xs text-red-400 mb-1">Primary Threats:</div>
-                            <div class="text-sm text-gray-300">${info.threats.join(', ')}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderTheaterMaps() {
-            // Asia-Pacific Map
-            const asiaCountries = ['China', 'North Korea', 'Japan', 'South Korea', 'Taiwan', 'Philippines', 'Thailand', 'Singapore', 'Australia', 'India', 'Pakistan'];
-            const asiaValues = asiaCountries.map(c => {
-                const defenders = umbrellaData['Asia'].defenders.filter(d => d.country === c);
-                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
-            });
-           
-            renderRegionalMap('asiaMap', asiaCountries, asiaValues, 'Asia-Pacific Theater');
-           
-            // Europe Map
-            const europeCountries = ['Russia', 'United States', 'United Kingdom', 'France', 'Germany', 'Italy', 'Turkey', 'Belgium', 'Netherlands', 'Poland', 'Ukraine'];
-            const europeValues = europeCountries.map(c => {
-                const defenders = umbrellaData['Europe'].defenders.filter(d => d.country === c);
-                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
-            });
-           
-            renderRegionalMap('europeMap', europeCountries, europeValues, 'European Theater');
-           
-            // Middle East Map
-            const meCountries = ['Israel', 'Iran', 'Saudi Arabia', 'Turkey', 'Egypt', 'Iraq', 'Syria', 'Jordan', 'UAE'];
-            const meValues = meCountries.map(c => {
-                const defenders = umbrellaData['Middle East'].defenders.filter(d => d.country === c);
-                return defenders.reduce((sum, d) => sum + d.totalStockpile, 0);
-            });
-           
-            renderRegionalMap('middleEastMap', meCountries, meValues, 'Middle East Theater');
-        }
-
-        function renderRegionalMap(elementId, countries, values, title) {
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'country names',
-                locations: countries,
-                z: values,
-                text: countries.map((c, i) => values[i] > 0 ? `${c}: ${values[i].toLocaleString()} warheads` : `${c}: Protected`),
-                colorscale: [
-                    [0, '#1e293b'],
-                    [0.2, '#7f1d1d'],
-                    [0.4, '#991b1b'],
-                    [0.6, '#dc2626'],
-                    [0.8, '#f97316'],
-                    [1, '#facc15']
-                ],
-                colorbar: {
-                    title: 'Warheads',
-                    thickness: 10,
-                    len: 0.5,
-                    bgcolor: 'rgba(15, 23, 42, 0.8)',
-                    tickfont: { color: '#e2e8f0', size: 10 },
-                    titlefont: { color: '#e2e8f0', size: 10 }
-                },
-                hovertemplate: '<b>%{text}</b><extra></extra>'
-            }];
-
-            const layout = {
-                geo: {
-                    scope: elementId === 'asiaMap' ? 'asia' : elementId === 'europeMap' ? 'europe' : 'world',
-                    projection: { type: 'natural earth' },
-                    bgcolor: 'rgba(15, 23, 42, 0.5)',
-                    showland: true,
-                    landcolor: '#1e293b',
-                    showocean: true,
-                    oceancolor: '#0f172a',
-                    showcountries: true,
-                    countrycolor: '#334155',
-                    coastlinecolor: '#475569'
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { color: '#e2e8f0' },
-                margin: { t: 0, b: 0, l: 0, r: 0 }
-            };
-
-            Plotly.newPlot(elementId, data, layout, { responsive: true, displayModeBar: false });
-        }
-
-        function renderProtectionNetwork() {
-            const nodes = [];
-            const edges = [];
-            let nodeIndex = 0;
-            const nodeMap = {};
-
-            // Create nodes for each region
-            Object.keys(umbrellaData).forEach(region => {
-                const info = protectedRegions[region];
-                nodeMap[region] = nodeIndex++;
-                nodes.push({
-                    x: region === 'Asia' ? 0 : region === 'Europe' ? 1 : 0.5,
-                    y: region === 'Asia' ? 1 : region === 'Europe' ? 1 : 0,
-                    text: `${info.icon} ${info.name}<br>${umbrellaData[region].totalWarheads.toLocaleString()} warheads`,
-                    mode: 'markers+text',
-                    marker: { size: 30, color: info.color },
-                    textposition: 'top center',
-                    name: region
-                });
-
-                // Add defender nodes
-                umbrellaData[region].defenders.forEach(defender => {
-                    const defenderKey = `${region}-${defender.country}-${defender.leg}`;
-                    nodeMap[defenderKey] = nodeIndex++;
-                    nodes.push({
-                        x: Math.random() * 0.3 + (region === 'Asia' ? -0.2 : region === 'Europe' ? 0.9 : 0.3),
-                        y: Math.random() * 0.3 + (region === 'Asia' ? 0.7 : region === 'Europe' ? 0.7 : -0.2),
-                        text: `${defender.country}<br>${defender.leg}<br>${defender.totalStockpile.toLocaleString()}`,
-                        mode: 'markers+text',
-                        marker: { size: 15, color: defender.country === 'USA' ? '#3b82f6' : '#8b5cf6' },
-                        textposition: 'bottom center',
-                        textfont: { size: 9 },
-                        name: defenderKey
-                    });
-
-                    edges.push({
-                        x: [nodeMap[defenderKey], nodeMap[region]],
-                        y: [nodes[nodeMap[defenderKey]].y, nodes[nodeMap[region]].y],
-                        mode: 'lines',
-                        line: { width: 2, color: 'rgba(148, 163, 184, 0.3)' },
-                        hoverinfo: 'skip'
-                    });
-                });
-            });
-
-            const data = [...edges, ...nodes];
-
-            const layout = {
-                showlegend: false,
-                xaxis: { visible: false, range: [-0.5, 1.5] },
-                yaxis: { visible: false, range: [-0.5, 1.5] },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                margin: { t: 20, b: 20, l: 20, r: 20 }
-            };
-
-            Plotly.newPlot('protectionNetwork', data, layout, { responsive: true, displayModeBar: false });
-        }
-
         function renderDeploymentsGrid() {
+            const regions = ['Asia', 'Europe', 'Middle East'];
             const grid = document.getElementById('deploymentsGrid');
-           
-            grid.innerHTML = Object.keys(umbrellaData).map(region => {
-                const data = umbrellaData[region];
-                const info = protectedRegions[region];
-               
+            
+            grid.innerHTML = regions.map(region => {
+                const entries = nuclearData.filter(r => r.Region === region);
+                
                 return `
                     <div class="bg-slate-800/50 border border-slate-600/30 rounded-xl p-4">
-                        <h3 class="text-xl font-bold text-white mb-3">${info.icon} ${info.name}</h3>
+                        <h3 class="text-xl font-bold text-white mb-3">
+                            ${region === 'Asia' ? '🌏' : region === 'Europe' ? '🇪🇺' : '🕌'} ${region}
+                        </h3>
                         <div class="space-y-2">
-                            ${data.defenders.map(d => `
+                            ${entries.map(d => `
                                 <div class="bg-slate-700/40 rounded-lg p-3">
                                     <div class="flex justify-between items-start mb-2">
                                         <div>
-                                            <div class="font-bold text-white">${d.countryLeg}</div>
-                                            <div class="text-xs text-gray-400">📍 ${d.homeBase}</div>
+                                            <div class="font-bold text-white">${d['Country / leg']}</div>
+                                            <div class="text-xs text-gray-400">📍 ${d['Home Base']}</div>
                                         </div>
                                         <div class="text-right">
-                                            <div class="text-xl font-black text-red-400">${d.totalStockpile.toLocaleString()}</div>
-                                            <div class="text-xs text-gray-400">total</div>
+                                            <div class="text-xl font-black text-red-400">${d.parsedStockpile.toLocaleString()}</div>
+                                            <div class="text-xs text-gray-400">warheads</div>
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-4 gap-2 text-xs">
-                                        <div class="bg-slate-800/50 p-1 rounded text-center">
-                                            <div class="text-gray-400">Deployed</div>
-                                            <div class="text-orange-400 font-bold">${d.deployed.toLocaleString()}</div>
-                                        </div>
-                                        <div class="bg-slate-800/50 p-1 rounded text-center">
-                                            <div class="text-gray-400">Strategic</div>
-                                            <div class="text-yellow-400 font-bold">${d.strategic.toLocaleString()}</div>
-                                        </div>
-                                        <div class="bg-slate-800/50 p-1 rounded text-center">
-                                            <div class="text-gray-400">Tactical</div>
-                                            <div class="text-amber-400 font-bold">${d.tactical.toLocaleString()}</div>
-                                        </div>
-                                        <div class="bg-slate-800/50 p-1 rounded text-center">
-                                            <div class="text-gray-400">SLBM</div>
-                                            <div class="text-blue-400 font-bold">${d.slbm.toLocaleString()}</div>
-                                        </div>
-                                    </div>
-                                    ${d.notes ? `<div class="text-xs text-gray-400 italic mt-2 border-l-2 border-slate-600 pl-2">${d.notes}</div>` : ''}
+                                    <div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-2">${d['Notes']}</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
-        }
-
-        function showRegionModal(region) {
-            const data = umbrellaData[region];
-            const info = protectedRegions[region];
-           
-            document.getElementById('modalTitle').textContent = `${info.icon} ${info.name} Nuclear Umbrella`;
-            document.getElementById('modalSubtitle').textContent = `${data.totalWarheads.toLocaleString()} total warheads providing extended deterrence`;
-           
-            const content = `
-                <div class="space-y-4">
-                    <div class="bg-slate-700/40 rounded-xl p-4">
-                        <h4 class="font-bold text-lg text-white mb-3">Protected Countries & Territories</h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            ${info.countries.map(c => `
-                                <div class="bg-green-900/30 border border-green-500/30 rounded px-3 py-2 text-sm text-center">${c}</div>
-                            `).join('')}
-                        </div>
-                    </div>
-                   
-                    <div class="bg-slate-700/40 rounded-xl p-4">
-                        <h4 class="font-bold text-lg text-white mb-3">Primary Threats</h4>
-                        <div class="flex flex-wrap gap-2">
-                            ${info.threats.map(t => `
-                                <div class="bg-red-900/30 border border-red-500/30 rounded px-3 py-2 text-sm">${t}</div>
-                            `).join('')}
-                        </div>
-                    </div>
-                   
-                    <div class="bg-slate-700/40 rounded-xl p-4">
-                        <h4 class="font-bold text-lg text-white mb-3">Defense Architecture</h4>
-                        <div class="space-y-3">
-                            ${data.defenders.map(d => `
-                                <div class="bg-slate-800/50 rounded-lg p-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <div class="font-bold text-white">${d.countryLeg}</div>
-                                            <div class="text-xs text-gray-400">Base: ${d.homeBase}</div>
-                                        </div>
-                                        <div class="text-2xl font-black text-red-400">${d.totalStockpile.toLocaleString()}</div>
-                                    </div>
-                                    <div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${d.notes}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-           
-            document.getElementById('modalContent').innerHTML = content;
-            document.getElementById('infoModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('infoModal').classList.add('hidden');
         }
 
         loadData();
