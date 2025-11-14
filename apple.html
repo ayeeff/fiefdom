@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Hardware Supply Chain in China</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .custom-marker { background: none; border: none; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-2xl shadow-2xl p-6 md:p-8 mb-6 border border-gray-600">
+            <h1 class="text-3xl md:text-5xl font-bold text-white mb-3 flex items-center gap-3">
+                <span class="text-4xl">🍎</span> Apple Supply Chain in China
+            </h1>
+            <p class="text-gray-300 text-lg">Manufacturing & Assembly Network Analysis</p>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5 shadow-lg">
+                <div class="text-blue-200 text-sm font-semibold mb-1">Total Sites</div>
+                <div class="text-white text-3xl font-bold">8</div>
+                <div class="text-blue-200 text-xs mt-1">Provinces</div>
+            </div>
+            <div class="stat-card bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-5 shadow-lg">
+                <div class="text-purple-200 text-sm font-semibold mb-1">iPhone Production</div>
+                <div class="text-white text-3xl font-bold">100M+</div>
+                <div class="text-purple-200 text-xs mt-1">Units/Year</div>
+            </div>
+            <div class="stat-card bg-gradient-to-br from-green-600 to-green-700 rounded-xl p-5 shadow-lg">
+                <div class="text-green-200 text-sm font-semibold mb-1">Zhengzhou Workers</div>
+                <div class="text-white text-3xl font-bold">300K+</div>
+                <div class="text-green-200 text-xs mt-1">iPhone City</div>
+            </div>
+            <div class="stat-card bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl p-5 shadow-lg">
+                <div class="text-orange-200 text-sm font-semibold mb-1">Daily Capacity</div>
+                <div class="text-white text-3xl font-bold">500K</div>
+                <div class="text-orange-200 text-xs mt-1">iPhones/Day</div>
+            </div>
+        </div>
+
+        <!-- Map and Product Distribution -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2 bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span>🗺️</span> Geographic Distribution
+                </h2>
+                <div id="mapContainer" class="h-96 rounded-lg overflow-hidden border-2 border-gray-600"></div>
+            </div>
+            <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span>📊</span> Product Distribution
+                </h2>
+                <div id="productPieChart" class="h-96"></div>
+            </div>
+        </div>
+
+        <!-- Manufacturing Sites Table -->
+        <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl mb-6">
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <span>🏭</span> Manufacturing Sites Details
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs uppercase bg-gray-900/50">
+                        <tr>
+                            <th class="px-4 py-3 text-blue-400">Site</th>
+                            <th class="px-4 py-3 text-blue-400">Province</th>
+                            <th class="px-4 py-3 text-blue-400">City</th>
+                            <th class="px-4 py-3 text-blue-400">Product Focus</th>
+                            <th class="px-4 py-3 text-blue-400">Key Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="siteTable" class="text-gray-300"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Product Categories -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span>📱</span> Products by Province
+                </h2>
+                <div id="provinceBarChart" class="h-80"></div>
+            </div>
+            <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span>🔧</span> Component Types
+                </h2>
+                <div id="componentChart" class="h-80"></div>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <span>💡</span> Key Supply Chain Insights
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-blue-400 font-bold mb-2">🏢 iPhone Assembly</div>
+                    <div class="text-gray-300 text-sm">Zhengzhou (Foxconn) is the primary iPhone assembly hub with 300K+ workers producing over 100M units annually. Shanghai Lingang (Pegatron) serves as secondary assembler.</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-purple-400 font-bold mb-2">⌚ Wearables Hub</div>
+                    <div class="text-gray-300 text-sm">Shenzhen Bao'an (Luxshare Precision) is the epicenter for AirPods, Apple Watch components, and Vision Pro assembly with 30K+ suppliers nearby.</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-green-400 font-bold mb-2">💻 MacBook Production</div>
+                    <div class="text-gray-300 text-sm">Chongqing houses Quanta, the sole supplier of high-end MacBook Pro (14"/16"). Production is gradually shifting to Thailand/Malaysia.</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-orange-400 font-bold mb-2">🧠 Memory Chips</div>
+                    <div class="text-gray-300 text-sm">Xi'an (Samsung NAND) and Wuxi (SK hynix DRAM) produce 40-50% of their respective companies' output, supplying iPhone/iPad memory.</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-red-400 font-bold mb-2">⚙️ Precision Parts</div>
+                    <div class="text-gray-300 text-sm">Dongguan Songshan Lake dominates precision components (frames, brackets, thermal shields) with 89% high-tech manufacturing concentration.</div>
+                </div>
+                <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <div class="text-indigo-400 font-bold mb-2">🔌 Connectors</div>
+                    <div class="text-gray-300 text-sm">Suzhou Industrial Park hosts US/Japanese firms (Amphenol, JAE) producing medical-grade connectors and cables with high reliability.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sites = [
+            {
+                name: "Zhengzhou Airport Economy Zone",
+                province: "Henan",
+                city: "Zhengzhou",
+                lat: 34.53,
+                lon: 113.83,
+                products: ["iPhone"],
+                category: "Assembly",
+                notes: "iPhone City - 300K+ workers, 100M+ iPhones/year, 500K units/day capacity",
+                color: "#3b82f6"
+            },
+            {
+                name: "Shanghai Lingang/Pudong",
+                province: "Shanghai",
+                city: "Shanghai",
+                lat: 30.89,
+                lon: 121.82,
+                products: ["iPhone", "MacBook", "iPad"],
+                category: "Assembly",
+                notes: "Pegatron facility - Second-largest iPhone assembler, MacBook/iPad sub-assemblies",
+                color: "#8b5cf6"
+            },
+            {
+                name: "Shenzhen Bao'an District",
+                province: "Guangdong",
+                city: "Shenzhen",
+                lat: 22.64,
+                lon: 113.81,
+                products: ["AirPods", "Vision Pro", "Apple Watch"],
+                category: "Wearables",
+                notes: "Luxshare Precision - Vision Pro & AirPods Pro assembly, 30K+ suppliers nearby",
+                color: "#10b981"
+            },
+            {
+                name: "Xi'an High-Tech Zone",
+                province: "Shaanxi",
+                city: "Xi'an",
+                lat: 34.27,
+                lon: 108.95,
+                products: ["iPhone", "iPad", "MacBook"],
+                category: "Memory",
+                notes: "Samsung NAND fab - 40% of Samsung's NAND output for iPhone/iPad/MacBook storage",
+                color: "#f59e0b"
+            },
+            {
+                name: "Wuxi High-Tech Zone",
+                province: "Jiangsu",
+                city: "Wuxi",
+                lat: 31.59,
+                lon: 120.30,
+                products: ["iPhone", "iPad"],
+                category: "Memory",
+                notes: "SK hynix DRAM fab - 40-50% of SK hynix DRAM for iPhone RAM",
+                color: "#ef4444"
+            },
+            {
+                name: "Dongguan Songshan Lake",
+                province: "Guangdong",
+                city: "Dongguan",
+                lat: 23.05,
+                lon: 113.74,
+                products: ["iPhone", "iPad", "MacBook"],
+                category: "Components",
+                notes: "89% high-tech manufacturing - iPhone frames, brackets, thermal shields, SIM trays",
+                color: "#ec4899"
+            },
+            {
+                name: "Suzhou Industrial Park",
+                province: "Jiangsu",
+                city: "Suzhou",
+                lat: 31.32,
+                lon: 120.72,
+                products: ["iPhone", "iPad", "MacBook"],
+                category: "Components",
+                notes: "Amphenol/JAE connectors, cables, sensors - Medical-grade facilities",
+                color: "#06b6d4"
+            },
+            {
+                name: "Chongqing Xiyong Park",
+                province: "Chongqing",
+                city: "Chongqing",
+                lat: 29.56,
+                lon: 106.46,
+                products: ["MacBook Pro", "iPad"],
+                category: "Assembly",
+                notes: "Quanta sole supplier of high-end MacBook Pro 14\"/16\", Compal iPad/Watch",
+                color: "#8b5cf6"
+            }
+        ];
+
+        // Initialize Map
+        const map = L.map('mapContainer').setView([32, 112], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add markers
+        sites.forEach(site => {
+            const markerHtml = `<div style="background-color: ${site.color}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4);"></div>`;
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-marker',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            
+            const popupContent = `
+                <div style="color: #1e293b; min-width: 220px;">
+                    <h3 style="font-weight: bold; margin-bottom: 8px; color: ${site.color}; font-size: 16px;">${site.name}</h3>
+                    <p style="margin: 4px 0;"><strong>Location:</strong> ${site.city}, ${site.province}</p>
+                    <p style="margin: 4px 0;"><strong>Products:</strong> ${site.products.join(', ')}</p>
+                    <p style="margin: 4px 0;"><strong>Category:</strong> ${site.category}</p>
+                    <p style="margin: 4px 0; font-size: 12px; color: #475569;">${site.notes}</p>
+                </div>
+            `;
+            
+            L.marker([site.lat, site.lon], { icon: customIcon })
+                .bindPopup(popupContent)
+                .addTo(map);
+        });
+
+        // Populate Table
+        const tableBody = document.getElementById('siteTable');
+        sites.forEach(site => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-700 hover:bg-gray-700/30';
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium">
+                    <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${site.color}"></span>
+                    ${site.name}
+                </td>
+                <td class="px-4 py-3">${site.province}</td>
+                <td class="px-4 py-3">${site.city}</td>
+                <td class="px-4 py-3">${site.products.join(', ')}</td>
+                <td class="px-4 py-3 text-xs">${site.notes}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Product Distribution Pie Chart
+        const productCounts = {};
+        sites.forEach(site => {
+            site.products.forEach(product => {
+                productCounts[product] = (productCounts[product] || 0) + 1;
+            });
+        });
+
+        const pieData = [{
+            values: Object.values(productCounts),
+            labels: Object.keys(productCounts),
+            type: 'pie',
+            marker: {
+                colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4']
+            },
+            textinfo: 'label+percent',
+            textfont: { color: '#fff', size: 12 },
+            hole: 0.4
+        }];
+
+        const pieLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#fff' },
+            showlegend: true,
+            legend: { x: 0, y: -0.2, orientation: 'h' },
+            margin: { t: 20, b: 40, l: 20, r: 20 }
+        };
+
+        Plotly.newPlot('productPieChart', pieData, pieLayout, {responsive: true});
+
+        // Province Bar Chart
+        const provinceCounts = {};
+        sites.forEach(site => {
+            provinceCounts[site.province] = (provinceCounts[site.province] || 0) + 1;
+        });
+
+        const barData = [{
+            x: Object.keys(provinceCounts),
+            y: Object.values(provinceCounts),
+            type: 'bar',
+            marker: {
+                color: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'],
+                line: { color: '#fff', width: 1.5 }
+            }
+        }];
+
+        const barLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(31,41,55,0.5)',
+            font: { color: '#fff' },
+            xaxis: { title: 'Province', gridcolor: '#374151' },
+            yaxis: { title: 'Number of Sites', gridcolor: '#374151' },
+            margin: { t: 20, b: 60, l: 50, r: 20 }
+        };
+
+        Plotly.newPlot('provinceBarChart', barData, barLayout, {responsive: true});
+
+        // Component Types Chart
+        const categoryCounts = {};
+        sites.forEach(site => {
+            categoryCounts[site.category] = (categoryCounts[site.category] || 0) + 1;
+        });
+
+        const categoryData = [{
+            x: Object.keys(categoryCounts),
+            y: Object.values(categoryCounts),
+            type: 'bar',
+            marker: {
+                color: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899'],
+                line: { color: '#fff', width: 1.5 }
+            }
+        }];
+
+        const categoryLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(31,41,55,0.5)',
+            font: { color: '#fff' },
+            xaxis: { title: 'Category', gridcolor: '#374151' },
+            yaxis: { title: 'Number of Sites', gridcolor: '#374151' },
+            margin: { t: 20, b: 60, l: 50, r: 20 }
+        };
+
+        Plotly.newPlot('componentChart', categoryData, categoryLayout, {responsive: true});
+    </script>
+</body>
+</html>
