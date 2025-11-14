@@ -6,7 +6,7 @@
                 city: "Dongguan",
                 lat: 23.05,
                 lon: 113.74,
-                products: ["Steam Deck", "Steam Frame", "Future Handhelds"],
+                products: ["Steam Deck", "Steam Frame", "Steam Machine"],
                 capacity: "100k-1M units",
                 notes: "Primary Deck production base, 4000+ tech firms"
             },
