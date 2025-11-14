@@ -6,6 +6,8 @@
     <title>Steam Hardware Supply Chain Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen p-6">
     <div class="max-w-7xl mx-auto">
@@ -35,19 +37,16 @@
             </div>
         </div>
 
-        <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Geographic Distribution Map -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
-                <div id="mapChart" class="h-96"></div>
-            </div>
+        <!-- Geographic Distribution Map -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution - China Manufacturing Sites</h2>
+            <div id="mapContainer" class="h-96 rounded-lg overflow-hidden"></div>
+        </div>
 
-            <!-- Production Focus by Site -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <h2 class="text-xl font-bold text-white mb-4">Production Focus by Site</h2>
-                <div id="productChart" class="h-96"></div>
-            </div>
+        <!-- Production Focus Chart -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">Production Focus by Site</h2>
+            <div id="productChart" class="h-96"></div>
         </div>
 
         <!-- Site Details Table -->
@@ -139,55 +138,52 @@
             }
         ];
 
-        // Create geographic distribution map
-        const mapData = [{
-            type: 'scattergeo',
-            lon: sites.map(s => s.lon),
-            lat: sites.map(s => s.lat),
-            text: sites.map(s => `<b>${s.name}</b><br>${s.city}, ${s.province}<br>${s.products.join(', ')}`),
-            mode: 'markers+text',
-            marker: {
-                size: [30, 25, 20, 25, 15],
-                color: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'],
-                line: {
-                    color: 'white',
-                    width: 2
-                }
-            },
-            textposition: 'top center',
-            textfont: {
-                size: 10,
-                color: 'white'
-            }
-        }];
+        // Create Leaflet map
+        const map = L.map('mapContainer').setView([28, 115], 5);
+        
+        // Add OpenStreetMap tiles with dark theme
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            maxZoom: 19
+        }).addTo(map);
 
-        const mapLayout = {
-            geo: {
-                scope: 'asia',
-                projection: {
-                    type: 'mercator'
-                },
-                center: {
-                    lon: 115,
-                    lat: 30
-                },
-                lonaxis: { range: [110, 122] },
-                lataxis: { range: [20, 42] },
-                showland: true,
-                landcolor: 'rgb(30, 41, 59)',
-                showlakes: true,
-                lakecolor: 'rgb(15, 23, 42)',
-                showcountries: true,
-                countrycolor: 'rgb(71, 85, 105)',
-                bgcolor: 'rgba(0,0,0,0)'
-            },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            margin: { t: 0, b: 0, l: 0, r: 0 },
-            font: { color: 'white' }
-        };
-
-        Plotly.newPlot('mapChart', mapData, mapLayout, {responsive: true});
+        // Custom marker colors
+        const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+        
+        // Add markers for each site
+        sites.forEach((site, index) => {
+            const markerHtml = `
+                <div style="
+                    background-color: ${colors[index]};
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                "></div>
+            `;
+            
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-marker',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            
+            const popupContent = `
+                <div style="color: #1e293b; min-width: 200px;">
+                    <h3 style="font-weight: bold; margin-bottom: 8px; color: ${colors[index]};">${site.name}</h3>
+                    <p style="margin: 4px 0;"><strong>Location:</strong> ${site.city}, ${site.province}</p>
+                    <p style="margin: 4px 0;"><strong>Products:</strong> ${site.products.join(', ')}</p>
+                    <p style="margin: 4px 0;"><strong>Capacity:</strong> ${site.capacity}</p>
+                    <p style="margin: 4px 0; font-size: 12px;">${site.notes}</p>
+                </div>
+            `;
+            
+            L.marker([site.lat, site.lon], { icon: customIcon })
+                .bindPopup(popupContent)
+                .addTo(map);
+        });
 
         // Product focus horizontal bar chart
         const productData = [{
