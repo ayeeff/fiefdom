@@ -129,11 +129,11 @@
         ];
 
         // Create Leaflet map
-        const map = L.map('mapContainer').setView([28, 115], 5);
+        const map = L.map('mapContainer').setView([30, 114], 4.5);
         
-        // Add OpenStreetMap tiles with dark theme
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        // Add OpenStreetMap tiles with light theme
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(map);
 
