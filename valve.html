@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valve Steam Production Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #0a0e27; color: #e0e7ff; }
@@ -307,12 +308,15 @@
             .attr('width', width)
             .attr('height', height);
 
-        // Load China map
-        d3.json('https://gist.githubusercontent.com/EasonWang01/56da61323d73ed9e51e48823b6cfa76b636d5c3f9fe8fb99/china-state.json')
-            .then(function(data) {
+        // Load China map - using alternative source
+        d3.json('https://raw.githubusercontent.com/deldersveld/topojson/master/countries/china/china-provinces.json')
+            .then(function(topology) {
+                // Convert TopoJSON to GeoJSON
+                const data = topojson.feature(topology, topology.objects.china);
+                const features = data.features;
                 // Draw provinces
                 svg.selectAll('path.province')
-                    .data(data.features)
+                    .data(features)
                     .enter()
                     .append('path')
                     .attr('class', 'province')
