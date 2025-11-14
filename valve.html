@@ -4,13 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valve Steam Production Map</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #0a0e27; color: #e0e7ff; }
         .gradient-bg { background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%); }
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3); }
+        
+        #mapContainer {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .map-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .map-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 100;
+        }
+        
+        .marker-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .marker-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+        }
+        
+        .marker-label {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            pointer-events: none;
+            border: 1px solid currentColor;
+        }
+        
+        .province-label {
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+        
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
+            transform-origin: left center;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="gradient-bg">
@@ -43,97 +110,114 @@
             </div>
         </div>
 
-        <!-- Map Container -->
+        <!-- Interactive Map -->
         <div class="bg-gray-900/50 rounded-lg p-4 mb-6 backdrop-blur border border-indigo-500/20">
-            <div id="chinaMap" style="width: 100%; height: 600px;"></div>
+            <div class="text-center mb-3">
+                <h3 class="text-lg font-semibold text-indigo-300">Geographic Distribution</h3>
+                <p class="text-xs text-gray-400">Click markers for details • Larger dots = Higher production relevance</p>
+            </div>
+            <div id="mapContainer">
+                <!-- Province labels -->
+                <div class="province-label" style="left: 55%; top: 35%;">Henan</div>
+                <div class="province-label" style="left: 78%; top: 72%;">Guangdong</div>
+                <div class="province-label" style="left: 72%; top: 50%;">Jiangsu</div>
+                <div class="province-label" style="left: 28%; top: 55%;">Chongqing</div>
+                
+                <!-- Connection lines from Dongguan to suppliers -->
+                <div class="connection-line" id="line1"></div>
+                <div class="connection-line" id="line2"></div>
+                <div class="connection-line" id="line3"></div>
+                
+                <!-- Map markers will be inserted here -->
+            </div>
         </div>
 
         <!-- Site Details Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <!-- Zhengzhou -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-red-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-red-500/30" id="card-zhengzhou">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-red-400">Zhengzhou Airport Zone</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Henan Province</p>
+                <p class="text-xs text-gray-400 mb-2">Henan Province • 34.53°N, 113.83°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">iPhone, Smartphones</span></p>
                 <p class="text-xs text-gray-300">"iPhone City" - Foxconn's 300k+ worker facility. 500k iPhones/day. Valve's 4M Deck sales = "sample run" territory. Not viable for mid-tier hardware.</p>
             </div>
 
             <!-- Shenzhen Bao'an -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-green-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-green-500/30" id="card-baoan">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-green-400">Shenzhen Bao'an</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province • 22.64°N, 113.81°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Handhelds, Controllers</span></p>
                 <p class="text-xs text-gray-300">Heart of "Silicon Valley of Hardware." 30k+ factories. Home to Ayaneo, GPD, OneXPlayer. Perfect for 50k-500k runs. 24-hour component turnaround.</p>
             </div>
 
             <!-- Shenzhen Nanshan -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-blue-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-blue-500/30" id="card-nanshan">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-blue-400">Shenzhen Nanshan Tech Park</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province • 22.56°N, 113.97°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">R&D, Prototypes</span></p>
                 <p class="text-xs text-gray-300">HQ of Tencent, DJI, Huawei. Premium development. Higher costs but unmatched R&D ecosystem. Steam Deck's initial development phase.</p>
             </div>
 
             <!-- Dongguan -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-purple-500/50">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border-2 border-purple-500/70" id="card-dongguan">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-purple-500 rounded-full mr-2 animate-pulse"></div>
                     <h3 class="text-lg font-bold text-purple-400">Dongguan Songshan Lake ⭐</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province • 23.05°N, 113.74°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Steam Deck Production</span></p>
                 <p class="text-xs text-gray-300"><strong>MOST PROBABLE SITE.</strong> Huawei's ¥100B+ cluster. 4,000+ tech enterprises. Cheaper than Shenzhen with same supply chain. 100k-1M unit sweet spot.</p>
             </div>
 
             <!-- Guangzhou -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-yellow-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-yellow-500/30" id="card-guangzhou">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-yellow-400">Guangzhou Science City</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province • 23.18°N, 113.47°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Automotive, Displays</span></p>
                 <p class="text-xs text-gray-300">Less relevant for handhelds. Focus on automotive infotainment. Higher MOQs. Better for Steam Machine-scale devices.</p>
             </div>
 
             <!-- Suzhou -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-cyan-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-cyan-500/30" id="card-suzhou">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-cyan-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-cyan-400">Suzhou Industrial Park</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Jiangsu Province</p>
+                <p class="text-xs text-gray-400 mb-2">Jiangsu Province • 31.32°N, 120.72°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">SSDs, Semiconductors</span></p>
                 <p class="text-xs text-gray-300">Yangtze River Delta hub. Premium EMS: Spellman, TE Connectivity. ISO 13485 medical-grade. 20-30% higher costs. Steam Deck SSD suppliers.</p>
             </div>
 
             <!-- Kunshan -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-teal-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-teal-500/30" id="card-kunshan">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-teal-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-teal-400">Kunshan</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Jiangsu Province</p>
+                <p class="text-xs text-gray-400 mb-2">Jiangsu Province • 31.39°N, 120.96°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">PCBA, Connectors</span></p>
                 <p class="text-xs text-gray-300">"Mini-SIP." 60% of world's laptop connectors. Supplies Bao'an assembly houses. Too component-focused for final assembly.</p>
             </div>
 
             <!-- Chongqing -->
-            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-orange-500/30">
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-orange-500/30" id="card-chongqing">
                 <div class="flex items-center mb-3">
                     <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
                     <h3 class="text-lg font-bold text-orange-400">Chongqing Xiyong</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2">Chongqing Municipality</p>
+                <p class="text-xs text-gray-400 mb-2">Chongqing Municipality • 29.56°N, 106.46°E</p>
                 <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Laptops, IT Hardware</span></p>
                 <p class="text-xs text-gray-300">"Laptop Capital" - 100M+ notebooks/year. Built for 5M+ unit contracts. Inland logistics add 3-5 days. Coastal Guangdong better for handhelds.</p>
             </div>
@@ -213,121 +297,109 @@
     </div>
 
     <script>
-        const chartDom = document.getElementById('chinaMap');
-        const myChart = echarts.init(chartDom);
-
-        // Manufacturing sites data
         const sites = [
-            {name: 'Zhengzhou', value: [113.8311, 34.5333, 100], itemStyle: {color: '#ef4444'}, label: {show: true, formatter: 'Zhengzhou\n(iPhone City)'}},
-            {name: 'Shenzhen Bao\'an', value: [113.8106, 22.6383, 70], itemStyle: {color: '#22c55e'}, label: {show: true, formatter: 'Shenzhen Bao\'an\n(Controllers)'}},
-            {name: 'Shenzhen Nanshan', value: [113.9718, 22.5583, 60], itemStyle: {color: '#3b82f6'}, label: {show: true, formatter: 'Nanshan\n(R&D)'}},
-            {name: 'Dongguan', value: [113.7447, 23.0489, 90], itemStyle: {color: '#a855f7'}, label: {show: true, formatter: 'Dongguan★\n(Steam Deck)', fontWeight: 'bold', color: '#fff'}},
-            {name: 'Guangzhou', value: [113.4667, 23.1833, 50], itemStyle: {color: '#eab308'}, label: {show: true, formatter: 'Guangzhou\n(Auto)'}},
-            {name: 'Suzhou', value: [120.7193, 31.3247, 65], itemStyle: {color: '#06b6d4'}, label: {show: true, formatter: 'Suzhou\n(SSDs)'}},
-            {name: 'Kunshan', value: [120.9626, 31.3890, 45], itemStyle: {color: '#14b8a6'}, label: {show: true, formatter: 'Kunshan\n(Components)'}},
-            {name: 'Chongqing', value: [106.4574, 29.5630, 80], itemStyle: {color: '#f97316'}, label: {show: true, formatter: 'Chongqing\n(Laptops)'}}
+            {id: 'zhengzhou', name: 'Zhengzhou', lat: 34.5333, lon: 113.8311, color: '#ef4444', size: 28, label: 'Zhengzhou\n(iPhone City)', card: 'card-zhengzhou'},
+            {id: 'baoan', name: 'Shenzhen Bao\'an', lat: 22.6383, lon: 113.8106, color: '#22c55e', size: 24, label: 'Bao\'an\n(Controllers)', card: 'card-baoan'},
+            {id: 'nanshan', name: 'Shenzhen Nanshan', lat: 22.5583, lon: 113.9718, color: '#3b82f6', size: 22, label: 'Nanshan\n(R&D)', card: 'card-nanshan'},
+            {id: 'dongguan', name: 'Dongguan ★', lat: 23.0489, lon: 113.7447, color: '#a855f7', size: 32, label: 'Dongguan ★\n(Steam Deck)', pulse: true, card: 'card-dongguan'},
+            {id: 'guangzhou', name: 'Guangzhou', lat: 23.1833, lon: 113.4667, color: '#eab308', size: 20, label: 'Guangzhou\n(Automotive)', card: 'card-guangzhou'},
+            {id: 'suzhou', name: 'Suzhou', lat: 31.3247, lon: 120.7193, color: '#06b6d4', size: 24, label: 'Suzhou\n(SSDs)', card: 'card-suzhou'},
+            {id: 'kunshan', name: 'Kunshan', lat: 31.3890, lon: 120.9626, color: '#14b8a6', size: 18, label: 'Kunshan\n(Components)', card: 'card-kunshan'},
+            {id: 'chongqing', name: 'Chongqing', lat: 29.5630, lon: 106.4574, color: '#f97316', size: 26, label: 'Chongqing\n(Laptops)', card: 'card-chongqing'}
         ];
 
-        const option = {
-            backgroundColor: 'transparent',
-            title: {
-                text: 'China Electronics Manufacturing Zones',
-                subtext: 'Point size = Production scale relevance',
-                left: 'center',
-                top: 20,
-                textStyle: {
-                    color: '#818cf8',
-                    fontSize: 20,
-                    fontWeight: 'bold'
-                },
-                subtextStyle: {
-                    color: '#a5b4fc',
-                    fontSize: 12
-                }
-            },
-            tooltip: {
-                trigger: 'item',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                borderColor: '#6366f1',
-                borderWidth: 1,
-                textStyle: {
-                    color: '#e0e7ff'
-                },
-                formatter: function(params) {
-                    if (params.seriesType === 'scatter') {
-                        return `<strong>${params.name}</strong><br/>Manufacturing Hub`;
-                    }
-                    return params.name;
-                }
-            },
-            geo: {
-                map: 'china',
-                roam: true,
-                scaleLimit: {
-                    min: 1,
-                    max: 3
-                },
-                zoom: 1.2,
-                itemStyle: {
-                    areaColor: '#1e293b',
-                    borderColor: '#475569',
-                    borderWidth: 1
-                },
-                emphasis: {
-                    itemStyle: {
-                        areaColor: '#334155'
-                    },
-                    label: {
-                        color: '#e0e7ff'
-                    }
-                },
-                label: {
-                    show: false,
-                    color: '#94a3b8'
-                }
-            },
-            series: [
-                {
-                    name: 'Manufacturing Sites',
-                    type: 'scatter',
-                    coordinateSystem: 'geo',
-                    data: sites,
-                    symbolSize: function(val) {
-                        return val[2] / 5;
-                    },
-                    label: {
-                        show: true,
-                        position: 'bottom',
-                        color: '#e0e7ff',
-                        fontSize: 10,
-                        distance: 5
-                    },
-                    emphasis: {
-                        scale: 1.5,
-                        label: {
-                            show: true,
-                            fontSize: 12
-                        }
-                    }
-                }
-            ]
+        const mapBounds = {
+            minLat: 18, maxLat: 42,
+            minLon: 100, maxLon: 125
         };
 
-        // Load China map
-        fetch('https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/map/js/china.js')
-            .then(response => response.text())
-            .then(chinaMapData => {
-                eval(chinaMapData);
-                myChart.setOption(option);
-            })
-            .catch(() => {
-                // Fallback if map fails to load
-                console.error('Failed to load China map');
-                document.getElementById('chinaMap').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Map loading failed. Geographic data displayed in cards below.</div>';
+        function latLonToXY(lat, lon) {
+            const container = document.getElementById('mapContainer');
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            
+            const x = ((lon - mapBounds.minLon) / (mapBounds.maxLon - mapBounds.minLon)) * width;
+            const y = ((mapBounds.maxLat - lat) / (mapBounds.maxLat - mapBounds.minLat)) * height;
+            
+            return {x, y};
+        }
+
+        function createMarker(site) {
+            const pos = latLonToXY(site.lat, site.lon);
+            const marker = document.createElement('div');
+            marker.className = 'map-marker';
+            marker.style.left = pos.x + 'px';
+            marker.style.top = pos.y + 'px';
+            marker.style.color = site.color;
+            
+            const dot = document.createElement('div');
+            dot.className = 'marker-dot' + (site.pulse ? ' marker-pulse' : '');
+            dot.style.backgroundColor = site.color;
+            dot.style.width = site.size + 'px';
+            dot.style.height = site.size + 'px';
+            
+            const label = document.createElement('div');
+            label.className = 'marker-label';
+            label.style.color = site.color;
+            label.style.borderColor = site.color;
+            label.textContent = site.label;
+            
+            marker.appendChild(dot);
+            marker.appendChild(label);
+            
+            marker.addEventListener('click', () => {
+                document.getElementById(site.card).scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                document.getElementById(site.card).style.boxShadow = '0 0 30px ' + site.color;
+                setTimeout(() => {
+                    document.getElementById(site.card).style.boxShadow = '';
+                }, 2000);
             });
+            
+            return marker;
+        }
+
+        function drawConnectionLine(from, to, lineId) {
+            const fromPos = latLonToXY(from.lat, from.lon);
+            const toPos = latLonToXY(to.lat, to.lon);
+            
+            const dx = toPos.x - fromPos.x;
+            const dy = toPos.y - fromPos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            
+            const line = document.getElementById(lineId);
+            line.style.left = fromPos.x + 'px';
+            line.style.top = fromPos.y + 'px';
+            line.style.width = distance + 'px';
+            line.style.transform = `rotate(${angle}deg)`;
+        }
+
+        const container = document.getElementById('mapContainer');
+        sites.forEach(site => {
+            container.appendChild(createMarker(site));
+        });
+
+        const dongguan = sites.find(s => s.id === 'dongguan');
+        const suzhou = sites.find(s => s.id === 'suzhou');
+        const baoan = sites.find(s => s.id === 'baoan');
+        const nanshan = sites.find(s => s.id === 'nanshan');
+        
+        drawConnectionLine(dongguan, suzhou, 'line1');
+        drawConnectionLine(dongguan, baoan, 'line2');
+        drawConnectionLine(dongguan, nanshan, 'line3');
 
         window.addEventListener('resize', () => {
-            myChart.resize();
+            const markers = document.querySelectorAll('.map-marker');
+            markers.forEach((marker, i) => {
+                const site = sites[i];
+                const pos = latLonToXY(site.lat, site.lon);
+                marker.style.left = pos.x + 'px';
+                marker.style.top = pos.y + 'px';
+            });
+            
+            drawConnectionLine(dongguan, suzhou, 'line1');
+            drawConnectionLine(dongguan, baoan, 'line2');
+            drawConnectionLine(dongguan, nanshan, 'line3');
         });
     </script>
 </body>
