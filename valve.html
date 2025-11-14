@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valve Steam Production Map</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #0a0e27; color: #e0e7ff; }
@@ -14,30 +15,34 @@
         #mapContainer {
             position: relative;
             width: 100%;
-            height: 600px;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            height: 700px;
+            background: #1e293b;
             border-radius: 8px;
             overflow: hidden;
         }
         
-        .map-marker {
-            position: absolute;
-            transform: translate(-50%, -50%);
+        path.province {
+            fill: #334155;
+            stroke: #475569;
+            stroke-width: 1;
+            transition: all 0.3s ease;
+        }
+        
+        path.province:hover {
+            fill: #475569;
+        }
+        
+        .manufacturing-marker {
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .map-marker:hover {
-            transform: translate(-50%, -50%) scale(1.2);
-            z-index: 100;
+        .manufacturing-marker:hover {
+            transform: scale(1.2);
         }
         
-        .marker-dot {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px currentColor;
+        .marker-glow {
+            filter: drop-shadow(0 0 8px currentColor);
         }
         
         .marker-pulse {
@@ -45,37 +50,29 @@
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.5; }
-        }
-        
-        .marker-label {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            pointer-events: none;
-            border: 1px solid currentColor;
-        }
-        
-        .province-label {
-            position: absolute;
-            font-size: 14px;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.2);
-            pointer-events: none;
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.15); }
         }
         
         .connection-line {
-            position: absolute;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
-            transform-origin: left center;
+            stroke: #a855f7;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            fill: none;
+            opacity: 0.4;
+        }
+        
+        .marker-label {
+            font-size: 11px;
+            font-weight: 600;
+            pointer-events: none;
+            text-shadow: 0 0 4px rgba(0,0,0,0.8);
+        }
+        
+        .province-label {
+            font-size: 16px;
+            font-weight: bold;
+            fill: rgba(255,255,255,0.15);
             pointer-events: none;
         }
     </style>
@@ -110,26 +107,13 @@
             </div>
         </div>
 
-        <!-- Interactive Map -->
+        <!-- Map Container -->
         <div class="bg-gray-900/50 rounded-lg p-4 mb-6 backdrop-blur border border-indigo-500/20">
             <div class="text-center mb-3">
-                <h3 class="text-lg font-semibold text-indigo-300">Geographic Distribution</h3>
-                <p class="text-xs text-gray-400">Click markers for details • Larger dots = Higher production relevance</p>
+                <h3 class="text-lg font-semibold text-indigo-300">Geographic Distribution Map</h3>
+                <p class="text-xs text-gray-400">Interactive China map showing manufacturing zones • Click markers for details</p>
             </div>
-            <div id="mapContainer">
-                <!-- Province labels -->
-                <div class="province-label" style="left: 55%; top: 35%;">Henan</div>
-                <div class="province-label" style="left: 78%; top: 72%;">Guangdong</div>
-                <div class="province-label" style="left: 72%; top: 50%;">Jiangsu</div>
-                <div class="province-label" style="left: 28%; top: 55%;">Chongqing</div>
-                
-                <!-- Connection lines from Dongguan to suppliers -->
-                <div class="connection-line" id="line1"></div>
-                <div class="connection-line" id="line2"></div>
-                <div class="connection-line" id="line3"></div>
-                
-                <!-- Map markers will be inserted here -->
-            </div>
+            <div id="mapContainer"></div>
         </div>
 
         <!-- Site Details Grid -->
@@ -292,115 +276,137 @@
 
         <!-- Footer -->
         <div class="text-center mt-8 text-sm text-gray-400">
-            <p>Data based on supply chain analysis and hardware teardowns. Geographic coordinates approximate.</p>
+            <p>Data based on supply chain analysis and hardware teardowns. Map: D3.js v5</p>
         </div>
     </div>
 
     <script>
         const sites = [
-            {id: 'zhengzhou', name: 'Zhengzhou', lat: 34.5333, lon: 113.8311, color: '#ef4444', size: 28, label: 'Zhengzhou\n(iPhone City)', card: 'card-zhengzhou'},
-            {id: 'baoan', name: 'Shenzhen Bao\'an', lat: 22.6383, lon: 113.8106, color: '#22c55e', size: 24, label: 'Bao\'an\n(Controllers)', card: 'card-baoan'},
-            {id: 'nanshan', name: 'Shenzhen Nanshan', lat: 22.5583, lon: 113.9718, color: '#3b82f6', size: 22, label: 'Nanshan\n(R&D)', card: 'card-nanshan'},
-            {id: 'dongguan', name: 'Dongguan ★', lat: 23.0489, lon: 113.7447, color: '#a855f7', size: 32, label: 'Dongguan ★\n(Steam Deck)', pulse: true, card: 'card-dongguan'},
-            {id: 'guangzhou', name: 'Guangzhou', lat: 23.1833, lon: 113.4667, color: '#eab308', size: 20, label: 'Guangzhou\n(Automotive)', card: 'card-guangzhou'},
-            {id: 'suzhou', name: 'Suzhou', lat: 31.3247, lon: 120.7193, color: '#06b6d4', size: 24, label: 'Suzhou\n(SSDs)', card: 'card-suzhou'},
-            {id: 'kunshan', name: 'Kunshan', lat: 31.3890, lon: 120.9626, color: '#14b8a6', size: 18, label: 'Kunshan\n(Components)', card: 'card-kunshan'},
-            {id: 'chongqing', name: 'Chongqing', lat: 29.5630, lon: 106.4574, color: '#f97316', size: 26, label: 'Chongqing\n(Laptops)', card: 'card-chongqing'}
+            {id: 'zhengzhou', name: 'Zhengzhou', lat: 34.5333, lon: 113.8311, color: '#ef4444', size: 14, label: 'Zhengzhou\n(iPhone)', card: 'card-zhengzhou'},
+            {id: 'baoan', name: 'Shenzhen Bao\'an', lat: 22.6383, lon: 113.8106, color: '#22c55e', size: 12, label: 'Bao\'an\n(Controllers)', card: 'card-baoan'},
+            {id: 'nanshan', name: 'Shenzhen Nanshan', lat: 22.5583, lon: 113.9718, color: '#3b82f6', size: 11, label: 'Nanshan\n(R&D)', card: 'card-nanshan'},
+            {id: 'dongguan', name: 'Dongguan ★', lat: 23.0489, lon: 113.7447, color: '#a855f7', size: 16, label: 'Dongguan ★\n(Steam Deck)', pulse: true, card: 'card-dongguan'},
+            {id: 'guangzhou', name: 'Guangzhou', lat: 23.1833, lon: 113.4667, color: '#eab308', size: 10, label: 'Guangzhou\n(Auto)', card: 'card-guangzhou'},
+            {id: 'suzhou', name: 'Suzhou', lat: 31.3247, lon: 120.7193, color: '#06b6d4', size: 12, label: 'Suzhou\n(SSDs)', card: 'card-suzhou'},
+            {id: 'kunshan', name: 'Kunshan', lat: 31.3890, lon: 120.9626, color: '#14b8a6', size: 9, label: 'Kunshan\n(Parts)', card: 'card-kunshan'},
+            {id: 'chongqing', name: 'Chongqing', lat: 29.5630, lon: 106.4574, color: '#f97316', size: 13, label: 'Chongqing\n(Laptops)', card: 'card-chongqing'}
         ];
 
-        const mapBounds = {
-            minLat: 18, maxLat: 42,
-            minLon: 100, maxLon: 125
-        };
+        const width = document.getElementById('mapContainer').offsetWidth;
+        const height = 700;
 
-        function latLonToXY(lat, lon) {
-            const container = document.getElementById('mapContainer');
-            const width = container.offsetWidth;
-            const height = container.offsetHeight;
-            
-            const x = ((lon - mapBounds.minLon) / (mapBounds.maxLon - mapBounds.minLon)) * width;
-            const y = ((mapBounds.maxLat - lat) / (mapBounds.maxLat - mapBounds.minLat)) * height;
-            
-            return {x, y};
-        }
+        const projection = d3.geoMercator()
+            .center([110, 35])
+            .scale(800)
+            .translate([width / 2, height / 2]);
 
-        function createMarker(site) {
-            const pos = latLonToXY(site.lat, site.lon);
-            const marker = document.createElement('div');
-            marker.className = 'map-marker';
-            marker.style.left = pos.x + 'px';
-            marker.style.top = pos.y + 'px';
-            marker.style.color = site.color;
-            
-            const dot = document.createElement('div');
-            dot.className = 'marker-dot' + (site.pulse ? ' marker-pulse' : '');
-            dot.style.backgroundColor = site.color;
-            dot.style.width = site.size + 'px';
-            dot.style.height = site.size + 'px';
-            
-            const label = document.createElement('div');
-            label.className = 'marker-label';
-            label.style.color = site.color;
-            label.style.borderColor = site.color;
-            label.textContent = site.label;
-            
-            marker.appendChild(dot);
-            marker.appendChild(label);
-            
-            marker.addEventListener('click', () => {
-                document.getElementById(site.card).scrollIntoView({behavior: 'smooth', block: 'nearest'});
-                document.getElementById(site.card).style.boxShadow = '0 0 30px ' + site.color;
-                setTimeout(() => {
-                    document.getElementById(site.card).style.boxShadow = '';
-                }, 2000);
+        const path = d3.geoPath().projection(projection);
+
+        const svg = d3.select('#mapContainer')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Load China map
+        d3.json('https://gist.githubusercontent.com/EasonWang01/56da61323d73ed9e51e48823b6cfa76b636d5c3f9fe8fb99/china-state.json')
+            .then(function(data) {
+                // Draw provinces
+                svg.selectAll('path.province')
+                    .data(data.features)
+                    .enter()
+                    .append('path')
+                    .attr('class', 'province')
+                    .attr('d', path);
+
+                // Add province labels for key regions
+                const provinceLabels = [
+                    {name: 'Henan', lat: 34.5, lon: 113.5},
+                    {name: 'Guangdong', lat: 23.5, lon: 113.5},
+                    {name: 'Jiangsu', lat: 32, lon: 120},
+                    {name: 'Chongqing', lat: 29.5, lon: 107}
+                ];
+
+                svg.selectAll('.province-label')
+                    .data(provinceLabels)
+                    .enter()
+                    .append('text')
+                    .attr('class', 'province-label')
+                    .attr('x', d => projection([d.lon, d.lat])[0])
+                    .attr('y', d => projection([d.lon, d.lat])[1])
+                    .attr('text-anchor', 'middle')
+                    .text(d => d.name);
+
+                // Draw connection lines from Dongguan
+                const dongguan = sites.find(s => s.id === 'dongguan');
+                const connections = ['suzhou', 'baoan', 'nanshan'];
+                
+                connections.forEach(targetId => {
+                    const target = sites.find(s => s.id === targetId);
+                    const dongguanPos = projection([dongguan.lon, dongguan.lat]);
+                    const targetPos = projection([target.lon, target.lat]);
+                    
+                    svg.append('line')
+                        .attr('class', 'connection-line')
+                        .attr('x1', dongguanPos[0])
+                        .attr('y1', dongguanPos[1])
+                        .attr('x2', targetPos[0])
+                        .attr('y2', targetPos[1]);
+                });
+
+                // Draw manufacturing markers
+                const markers = svg.selectAll('.manufacturing-marker')
+                    .data(sites)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'manufacturing-marker')
+                    .attr('transform', d => {
+                        const pos = projection([d.lon, d.lat]);
+                        return `translate(${pos[0]}, ${pos[1]})`;
+                    })
+                    .on('click', function(d) {
+                        document.getElementById(d.card).scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                        d3.select('#' + d.card)
+                            .style('box-shadow', `0 0 30px ${d.color}`)
+                            .transition()
+                            .duration(2000)
+                            .style('box-shadow', '');
+                    });
+
+                // Add glow circles
+                markers.append('circle')
+                    .attr('r', d => d.size * 1.5)
+                    .attr('fill', d => d.color)
+                    .attr('opacity', 0.2)
+                    .attr('class', d => d.pulse ? 'marker-pulse' : '');
+
+                // Add main circles
+                markers.append('circle')
+                    .attr('r', d => d.size)
+                    .attr('fill', d => d.color)
+                    .attr('class', 'marker-glow')
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2);
+
+                // Add labels
+                markers.each(function(d) {
+                    const lines = d.label.split('\n');
+                    const g = d3.select(this);
+                    
+                    lines.forEach((line, i) => {
+                        g.append('text')
+                            .attr('class', 'marker-label')
+                            .attr('y', d.size + 15 + (i * 12))
+                            .attr('text-anchor', 'middle')
+                            .attr('fill', d.color)
+                            .text(line);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error loading map:', error);
+                document.getElementById('mapContainer').innerHTML = 
+                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;">Map loading failed. Please refresh the page.</div>';
             });
-            
-            return marker;
-        }
-
-        function drawConnectionLine(from, to, lineId) {
-            const fromPos = latLonToXY(from.lat, from.lon);
-            const toPos = latLonToXY(to.lat, to.lon);
-            
-            const dx = toPos.x - fromPos.x;
-            const dy = toPos.y - fromPos.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            
-            const line = document.getElementById(lineId);
-            line.style.left = fromPos.x + 'px';
-            line.style.top = fromPos.y + 'px';
-            line.style.width = distance + 'px';
-            line.style.transform = `rotate(${angle}deg)`;
-        }
-
-        const container = document.getElementById('mapContainer');
-        sites.forEach(site => {
-            container.appendChild(createMarker(site));
-        });
-
-        const dongguan = sites.find(s => s.id === 'dongguan');
-        const suzhou = sites.find(s => s.id === 'suzhou');
-        const baoan = sites.find(s => s.id === 'baoan');
-        const nanshan = sites.find(s => s.id === 'nanshan');
-        
-        drawConnectionLine(dongguan, suzhou, 'line1');
-        drawConnectionLine(dongguan, baoan, 'line2');
-        drawConnectionLine(dongguan, nanshan, 'line3');
-
-        window.addEventListener('resize', () => {
-            const markers = document.querySelectorAll('.map-marker');
-            markers.forEach((marker, i) => {
-                const site = sites[i];
-                const pos = latLonToXY(site.lat, site.lon);
-                marker.style.left = pos.x + 'px';
-                marker.style.top = pos.y + 'px';
-            });
-            
-            drawConnectionLine(dongguan, suzhou, 'line1');
-            drawConnectionLine(dongguan, baoan, 'line2');
-            drawConnectionLine(dongguan, nanshan, 'line3');
-        });
     </script>
 </body>
 </html>
