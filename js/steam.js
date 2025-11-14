@@ -3,8 +3,8 @@
         {name: "Dongguan Songshan Lake", province: "Guangdong", city: "Dongguan", lat: 23.05, lon: 113.74, products: ["Steam Deck", "Steam Frame", "Steam Machine"], capacity: "100k-1M units", notes: "Primary Deck production base, 4000+ tech firms"},
         {name: "Shenzhen Bao'an", province: "Guangdong", city: "Shenzhen", lat: 22.64, lon: 113.81, products: ["Steam Controller", "Prototype PCBA"], capacity: "50k-500k units", notes: "30k+ factories, 24h component turnaround"},
         {name: "Suzhou Industrial Park", province: "Jiangsu", city: "Suzhou", lat: 31.32, lon: 120.72, products: ["SSD Modules", "Storage Components"], capacity: "High-reliability", notes: "ISO-13485 clean rooms, medical-grade quality"},
-        {name: "Shenzhen Nanshan", province: "Guangdong", city: "Shenzhen", lat: 22.56, lon: 113.97, products: ["R&D", "EVT/DVT Prototypes"], capacity: "Prototype", notes: "Co-located with Tencent/DJI/Huawei"},
-        {name: "Tianjin THATIC", province: "Tianjin", city: "Tianjin", lat: 39.09, lon: 117.70, products: ["SteamOS GPUs", "Embedded CPUs"], capacity: "Not Deck APU", notes: "AMD 51% JV, Entity List 2019"}
+        {name: "Shenzhen Nanshan", province: "Guangdong", city: "Shenzhen", lat: 22.56, lon: 113.97, products: ["R&D", "EVT/DVT Prototypes"], capacity: "High", notes: "Co-located with Tencent/DJI/Huawei"},
+        {name: "Tianjin THATIC", province: "Tianjin", city: "Tianjin", lat: 39.09, lon: 117.70, products: ["SteamOS GPUs", "Embedded CPUs"], capacity: "High", notes: "AMD 51% JV, Entity List 2019"}
     ];
     
     const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
