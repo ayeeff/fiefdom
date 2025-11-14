@@ -16,7 +16,6 @@
             <h1 class="text-4xl font-bold text-white mb-2">Steam Hardware Supply Chain</h1>
             <p class="text-blue-100">Manufacturing & R&D Network Across China</p>
         </div>
-
         <!-- Key Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6 border border-white/20">
@@ -36,7 +35,6 @@
                 <div class="text-sm text-gray-300">Unit Capacity</div>
             </div>
         </div>
-
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Geographic Distribution Map -->
@@ -44,14 +42,12 @@
                 <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
                 <div id="mapContainer" class="h-96 rounded-lg overflow-hidden"></div>
             </div>
-
             <!-- Production Focus by Site -->
             <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
                 <h2 class="text-xl font-bold text-white mb-4">Production Focus by Site</h2>
                 <div id="productChart" class="h-96"></div>
             </div>
         </div>
-
         <!-- Site Details Table -->
         <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
             <h2 class="text-xl font-bold text-white mb-4">Manufacturing Site Details</h2>
@@ -72,7 +68,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // Supply chain data
         const sites = [
@@ -127,19 +122,20 @@
                 notes: "AMD 51% JV, Entity List 2019"
             }
         ];
-
         // Create Leaflet map
         const map = L.map('mapContainer').setView([30, 114], 4.5);
-        
+       
         // Add OpenStreetMap tiles with light theme
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(map);
-
         // Custom marker colors
         const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
-        
+       
+        // Calculate bounds to fit all sites
+        const bounds = L.latLngBounds(sites.map(site => [site.lat, site.lon]));
+       
         // Add markers for each site
         sites.forEach((site, index) => {
             const markerHtml = `
@@ -152,14 +148,14 @@
                     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
                 "></div>
             `;
-            
+           
             const customIcon = L.divIcon({
                 html: markerHtml,
                 className: 'custom-marker',
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             });
-            
+           
             const popupContent = `
                 <div style="color: #1e293b; min-width: 200px;">
                     <h3 style="font-weight: bold; margin-bottom: 8px; color: ${colors[index]};">${site.name}</h3>
@@ -169,12 +165,15 @@
                     <p style="margin: 4px 0; font-size: 12px;">${site.notes}</p>
                 </div>
             `;
-            
+           
             L.marker([site.lat, site.lon], { icon: customIcon })
                 .bindPopup(popupContent)
                 .addTo(map);
         });
-
+       
+        // Fit map to show all sites
+        map.fitBounds(bounds, { padding: [20, 20] });
+       
         // Product focus horizontal bar chart
         const productData = [{
             type: 'bar',
@@ -191,7 +190,6 @@
                 }
             }
         }];
-
         const productLayout = {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
@@ -206,9 +204,7 @@
             },
             font: { color: 'white' }
         };
-
         Plotly.newPlot('productChart', productData, productLayout, {responsive: true});
-
         // Populate table
         const tableBody = document.getElementById('siteTable');
         sites.forEach(site => {
