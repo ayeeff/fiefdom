@@ -37,19 +37,10 @@
             </div>
         </div>
         
-        <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Geographic Distribution Map -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
-                <div id="mapContainer" class="h-96 rounded-lg overflow-hidden"></div>
-            </div>
-            
-            <!-- Production Focus by Site -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <h2 class="text-xl font-bold text-white mb-4">Supply Chain Categories</h2>
-                <div id="productChart" class="h-96"></div>
-            </div>
+        <!-- Geographic Distribution Map -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
+            <div id="mapContainer" class="h-96 rounded-lg overflow-hidden"></div>
         </div>
         
         <!-- Site Details Table -->
@@ -74,19 +65,8 @@
     </div>
     
     <script>
-        // Tesla supply chain data
+        // Tesla supply chain data (Gigafactory LAST for higher z-index)
         const sites = [
-            {
-                name: "Tesla Gigafactory Shanghai",
-                province: "Shanghai",
-                city: "Pudong, Lingang",
-                lat: 30.89,
-                lon: 121.82,
-                products: ["Model 3/Y Assembly", "Battery Packs", "Megapack"],
-                category: "Final Assembly",
-                capacity: "750k+ vehicles",
-                notes: "95% localization, 60+ Chinese tier-1 suppliers, exports to Europe/Asia-Pacific"
-            },
             {
                 name: "CATL Fuding Battery Base",
                 province: "Fujian",
@@ -113,8 +93,8 @@
                 name: "CATL Lingang Shanghai",
                 province: "Shanghai",
                 city: "Lingang FTZ",
-                lat: 30.87,
-                lon: 121.84,
+                lat: 30.88,
+                lon: 121.83,
                 products: ["Battery Cells"],
                 category: "Battery Production",
                 capacity: "Just-in-time",
@@ -152,6 +132,17 @@
                 category: "Components",
                 capacity: "High-reliability",
                 notes: "Medical-grade ISO facilities, premium EMS, provides supply redundancy"
+            },
+            {
+                name: "Tesla Gigafactory Shanghai",
+                province: "Shanghai",
+                city: "Pudong, Lingang",
+                lat: 30.89,
+                lon: 121.82,
+                products: ["Model 3/Y Assembly", "Battery Packs", "Megapack"],
+                category: "Final Assembly",
+                capacity: "750k+ vehicles",
+                notes: "95% localization, 60+ Chinese tier-1 suppliers, exports to Europe/Asia-Pacific"
             }
         ];
         
@@ -214,43 +205,6 @@
        
         // Fit map to show all sites
         map.fitBounds(bounds, { padding: [30, 30] });
-       
-        // Category distribution pie chart
-        const categories = {};
-        sites.forEach(site => {
-            categories[site.category] = (categories[site.category] || 0) + 1;
-        });
-        
-        const pieData = [{
-            type: 'pie',
-            labels: Object.keys(categories),
-            values: Object.values(categories),
-            marker: {
-                colors: ['#ef4444', '#eab308', '#3b82f6', '#10b981']
-            },
-            textinfo: 'label+percent',
-            textposition: 'inside',
-            hovertemplate: '<b>%{label}</b><br>Sites: %{value}<br>%{percent}<extra></extra>'
-        }];
-        
-        const pieLayout = {
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            margin: { t: 20, b: 20, l: 20, r: 20 },
-            font: { 
-                color: 'white',
-                size: 13
-            },
-            showlegend: true,
-            legend: {
-                orientation: 'v',
-                x: 1,
-                y: 0.5,
-                font: { color: 'white' }
-            }
-        };
-        
-        Plotly.newPlot('productChart', pieData, pieLayout, {responsive: true});
         
         // Populate table
         const tableBody = document.getElementById('siteTable');
