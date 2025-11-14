@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valve Steam Production Map</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: #0a0e27; color: #e0e7ff; }
+        .gradient-bg { background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3); }
+    </style>
+</head>
+<body class="gradient-bg">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                China Electronics Manufacturing Zones
+            </h1>
+            <p class="text-xl text-indigo-300">Valve Steam Product Production Analysis</p>
+        </div>
+
+        <!-- Key Insights Banner -->
+        <div class="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-lg p-6 mb-6 border border-indigo-500/30">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-300">🎯 Bottom Line: Where Steam Deck Actually Gets Made</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">Final Assembly:</span> Dongguan Songshan Lake</p>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">APU/SoC:</span> AMD Tianjin/China partner fab</p>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">Display:</span> Samsung/BOE → Dongguan</p>
+                </div>
+                <div>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">SSD:</span> Suzhou Industrial Park</p>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">Controllers:</span> Shenzhen Bao'an</p>
+                    <p class="mb-2"><span class="font-semibold text-blue-300">Prototyping:</span> Shenzhen Nanshan</p>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-black/30 rounded border-l-4 border-yellow-400">
+                <p class="text-yellow-200"><strong>Why not Foxconn?</strong> Valve's 4M lifetime Deck units = 8 days of iPhone output. Foxconn's 10M+ unit MOQ is incompatible with boutique ODMs specialized in 50k-500k runs with direct engineering support.</p>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="bg-gray-900/50 rounded-lg p-4 mb-6 backdrop-blur border border-indigo-500/20">
+            <div id="chinaMap" style="width: 100%; height: 600px;"></div>
+        </div>
+
+        <!-- Site Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <!-- Zhengzhou -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-red-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-red-400">Zhengzhou Airport Zone</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Henan Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">iPhone, Smartphones</span></p>
+                <p class="text-xs text-gray-300">"iPhone City" - Foxconn's 300k+ worker facility. 500k iPhones/day. Valve's 4M Deck sales = "sample run" territory. Not viable for mid-tier hardware.</p>
+            </div>
+
+            <!-- Shenzhen Bao'an -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-green-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-green-400">Shenzhen Bao'an</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Handhelds, Controllers</span></p>
+                <p class="text-xs text-gray-300">Heart of "Silicon Valley of Hardware." 30k+ factories. Home to Ayaneo, GPD, OneXPlayer. Perfect for 50k-500k runs. 24-hour component turnaround.</p>
+            </div>
+
+            <!-- Shenzhen Nanshan -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-blue-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-blue-400">Shenzhen Nanshan Tech Park</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">R&D, Prototypes</span></p>
+                <p class="text-xs text-gray-300">HQ of Tencent, DJI, Huawei. Premium development. Higher costs but unmatched R&D ecosystem. Steam Deck's initial development phase.</p>
+            </div>
+
+            <!-- Dongguan -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-purple-500/50">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-purple-500 rounded-full mr-2 animate-pulse"></div>
+                    <h3 class="text-lg font-bold text-purple-400">Dongguan Songshan Lake ⭐</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Steam Deck Production</span></p>
+                <p class="text-xs text-gray-300"><strong>MOST PROBABLE SITE.</strong> Huawei's ¥100B+ cluster. 4,000+ tech enterprises. Cheaper than Shenzhen with same supply chain. 100k-1M unit sweet spot.</p>
+            </div>
+
+            <!-- Guangzhou -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-yellow-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-yellow-400">Guangzhou Science City</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Guangdong Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Automotive, Displays</span></p>
+                <p class="text-xs text-gray-300">Less relevant for handhelds. Focus on automotive infotainment. Higher MOQs. Better for Steam Machine-scale devices.</p>
+            </div>
+
+            <!-- Suzhou -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-cyan-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-cyan-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-cyan-400">Suzhou Industrial Park</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Jiangsu Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">SSDs, Semiconductors</span></p>
+                <p class="text-xs text-gray-300">Yangtze River Delta hub. Premium EMS: Spellman, TE Connectivity. ISO 13485 medical-grade. 20-30% higher costs. Steam Deck SSD suppliers.</p>
+            </div>
+
+            <!-- Kunshan -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-teal-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-teal-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-teal-400">Kunshan</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Jiangsu Province</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">PCBA, Connectors</span></p>
+                <p class="text-xs text-gray-300">"Mini-SIP." 60% of world's laptop connectors. Supplies Bao'an assembly houses. Too component-focused for final assembly.</p>
+            </div>
+
+            <!-- Chongqing -->
+            <div class="bg-gray-800/60 rounded-lg p-5 card-hover border border-orange-500/30">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+                    <h3 class="text-lg font-bold text-orange-400">Chongqing Xiyong</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">Chongqing Municipality</p>
+                <p class="text-sm mb-3"><span class="font-semibold text-yellow-300">Laptops, IT Hardware</span></p>
+                <p class="text-xs text-gray-300">"Laptop Capital" - 100M+ notebooks/year. Built for 5M+ unit contracts. Inland logistics add 3-5 days. Coastal Guangdong better for handhelds.</p>
+            </div>
+        </div>
+
+        <!-- Product Distribution -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-800/60 rounded-lg p-6 border border-indigo-500/20">
+                <h3 class="text-xl font-bold mb-4 text-indigo-300">🎮 Steam Product Manufacturing</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center justify-between p-3 bg-purple-900/30 rounded">
+                        <span class="font-semibold">Steam Deck</span>
+                        <span class="text-purple-400">Dongguan (Final)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-900/30 rounded">
+                        <span class="font-semibold">Steam Controller</span>
+                        <span class="text-green-400">Shenzhen Bao'an</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-blue-900/30 rounded">
+                        <span class="font-semibold">Steam Frame (Prototype)</span>
+                        <span class="text-blue-400">Shenzhen Nanshan</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-yellow-900/30 rounded">
+                        <span class="font-semibold">Steam Machine</span>
+                        <span class="text-yellow-400">Guangzhou (Theoretical)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800/60 rounded-lg p-6 border border-indigo-500/20">
+                <h3 class="text-xl font-bold mb-4 text-indigo-300">📊 Production Scale Comparison</h3>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>Zhengzhou (iPhone)</span>
+                            <span class="text-red-400">100M+ units/year</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>Chongqing (Laptops)</span>
+                            <span class="text-orange-400">5M-100M units</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>Dongguan (Steam Deck)</span>
+                            <span class="text-purple-400">100k-1M units</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>Shenzhen Bao'an (Controllers)</span>
+                            <span class="text-green-400">50k-500k units</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-sm text-gray-400">
+            <p>Data based on supply chain analysis and hardware teardowns. Geographic coordinates approximate.</p>
+        </div>
+    </div>
+
+    <script>
+        const chartDom = document.getElementById('chinaMap');
+        const myChart = echarts.init(chartDom);
+
+        // Manufacturing sites data
+        const sites = [
+            {name: 'Zhengzhou', value: [113.8311, 34.5333, 100], itemStyle: {color: '#ef4444'}, label: {show: true, formatter: 'Zhengzhou\n(iPhone City)'}},
+            {name: 'Shenzhen Bao\'an', value: [113.8106, 22.6383, 70], itemStyle: {color: '#22c55e'}, label: {show: true, formatter: 'Shenzhen Bao\'an\n(Controllers)'}},
+            {name: 'Shenzhen Nanshan', value: [113.9718, 22.5583, 60], itemStyle: {color: '#3b82f6'}, label: {show: true, formatter: 'Nanshan\n(R&D)'}},
+            {name: 'Dongguan', value: [113.7447, 23.0489, 90], itemStyle: {color: '#a855f7'}, label: {show: true, formatter: 'Dongguan★\n(Steam Deck)', fontWeight: 'bold', color: '#fff'}},
+            {name: 'Guangzhou', value: [113.4667, 23.1833, 50], itemStyle: {color: '#eab308'}, label: {show: true, formatter: 'Guangzhou\n(Auto)'}},
+            {name: 'Suzhou', value: [120.7193, 31.3247, 65], itemStyle: {color: '#06b6d4'}, label: {show: true, formatter: 'Suzhou\n(SSDs)'}},
+            {name: 'Kunshan', value: [120.9626, 31.3890, 45], itemStyle: {color: '#14b8a6'}, label: {show: true, formatter: 'Kunshan\n(Components)'}},
+            {name: 'Chongqing', value: [106.4574, 29.5630, 80], itemStyle: {color: '#f97316'}, label: {show: true, formatter: 'Chongqing\n(Laptops)'}}
+        ];
+
+        const option = {
+            backgroundColor: 'transparent',
+            title: {
+                text: 'China Electronics Manufacturing Zones',
+                subtext: 'Point size = Production scale relevance',
+                left: 'center',
+                top: 20,
+                textStyle: {
+                    color: '#818cf8',
+                    fontSize: 20,
+                    fontWeight: 'bold'
+                },
+                subtextStyle: {
+                    color: '#a5b4fc',
+                    fontSize: 12
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: '#6366f1',
+                borderWidth: 1,
+                textStyle: {
+                    color: '#e0e7ff'
+                },
+                formatter: function(params) {
+                    if (params.seriesType === 'scatter') {
+                        return `<strong>${params.name}</strong><br/>Manufacturing Hub`;
+                    }
+                    return params.name;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                scaleLimit: {
+                    min: 1,
+                    max: 3
+                },
+                zoom: 1.2,
+                itemStyle: {
+                    areaColor: '#1e293b',
+                    borderColor: '#475569',
+                    borderWidth: 1
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: '#334155'
+                    },
+                    label: {
+                        color: '#e0e7ff'
+                    }
+                },
+                label: {
+                    show: false,
+                    color: '#94a3b8'
+                }
+            },
+            series: [
+                {
+                    name: 'Manufacturing Sites',
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: sites,
+                    symbolSize: function(val) {
+                        return val[2] / 5;
+                    },
+                    label: {
+                        show: true,
+                        position: 'bottom',
+                        color: '#e0e7ff',
+                        fontSize: 10,
+                        distance: 5
+                    },
+                    emphasis: {
+                        scale: 1.5,
+                        label: {
+                            show: true,
+                            fontSize: 12
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Load China map
+        fetch('https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/map/js/china.js')
+            .then(response => response.text())
+            .then(chinaMapData => {
+                eval(chinaMapData);
+                myChart.setOption(option);
+            })
+            .catch(() => {
+                // Fallback if map fails to load
+                console.error('Failed to load China map');
+                document.getElementById('chinaMap').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Map loading failed. Geographic data displayed in cards below.</div>';
+            });
+
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
