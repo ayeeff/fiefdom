@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJI Hardware Supply Chain Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .custom-marker { background: none; border: none; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-600 via-gray-800 to-black rounded-xl shadow-2xl p-8 mb-6 fade-in">
+            <h1 class="text-4xl font-bold text-white mb-2">DJI Hardware Supply Chain</h1>
+            <p class="text-gray-300">Manufacturing & R&D Network for Drones, Zenmuse, LiDAR & Gimbals</p>
+        </div>
+
+        <!-- Map and Table Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Interactive Map -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
+                <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
+                <div id="mapContainer" class="h-96 rounded-lg overflow-hidden shadow-lg"></div>
+            </div>
+
+            <!-- Site Details Table -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
+                <h2 class="text-xl font-bold text-white mb-4">Manufacturing Site Details</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs uppercase bg-white/5">
+                            <tr>
+                                <th class="px-4 py-3 text-red-300">Site</th>
+                                <th class="px-4 py-3 text-red-300">Color</th>
+                                <th class="px-4 py-3 text-red-300">Province</th>
+                                <th class="px-4 py-3 text-red-300">Product Focus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="siteTable" class="text-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Product Distribution Chart -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
+                <h2 class="text-xl font-bold text-white mb-4">Product Category Distribution</h2>
+                <div id="productChart" class="h-80"></div>
+            </div>
+
+            <!-- Province Concentration Chart -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
+                <h2 class="text-xl font-bold text-white mb-4">Manufacturing Sites by Province</h2>
+                <div id="provinceChart" class="h-80"></div>
+            </div>
+        </div>
+
+        <!-- Assembly Process -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
+            <h2 class="text-xl font-bold text-white mb-4">DJI Manufacturing Ecosystem</h2>
+            <div class="text-gray-200 space-y-4 text-sm leading-relaxed">
+                <p><strong class="text-red-400">Headquarters & R&D (Nanshan):</strong> DJI's global headquarters in Shenzhen's Nanshan Tech Park serves as the epicenter of innovation. The Industrial Design and R&D departments leverage direct access to 30,000+ component suppliers within 24-hour reach, enabling rapid prototyping and iteration. Advanced products like the Zenmuse L3 LiDAR and Ronin gimbals are developed and manufactured here, benefiting from China's Silicon Valley ecosystem.</p>
+                
+                <p><strong class="text-orange-400">Mass Production (Bao'an):</strong> DJI's owned-and-operated factory in Shenzhen's Bao'an District handles mass production of consumer drones (Mavic, Mini, Air series), Osmo Action cameras, and imaging devices. The vertical integration model gives DJI complete control from design to assembly, with capacity for 50,000-500,000 unit runs. The district's 30,000+ factories enable instant component swaps and unprecedented supply chain flexibility.</p>
+                
+                <p><strong class="text-yellow-400">Precision Components (Dongguan):</strong> Songshan Lake's precision manufacturers produce micron-accurate drone frames, brackets, and gimbal parts with aerospace-grade tolerances. The 89% high-tech manufacturing concentration in this zone supplies critical structural components to Bao'an's assembly lines. This cluster represents the cutting edge of CNC machining for lightweight, high-strength UAV structures.</p>
+                
+                <p><strong class="text-green-400">Emerging Hubs (Hubei):</strong> Wuhan's East Lake High-Tech Zone and Xianning represent DJI's strategic diversification beyond Guangdong. These secondary clusters provide motors, ESCs, flight controllers, and sub-assemblies at lower costs while maintaining quality standards. Hubei's emerging UAV expertise positions it as a critical backup to Shenzhen's concentrated supply chain.</p>
+                
+                <p><strong class="text-blue-400">Specialized Components:</strong> Co-located suppliers like Grepow Battery (Longhua) exemplify DJI's ecosystem advantages. With 23 years of experience and 500,000 units/day capacity across 4 factories, Grepow produces custom LiPo batteries specifically engineered for DJI's power requirements. This geographic proximity enables rapid custom development cycles impossible with distant suppliers.</p>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div class="bg-gradient-to-br from-red-600/20 to-red-900/20 backdrop-blur-lg rounded-xl p-6 border border-red-500/30 fade-in">
+                <div class="text-3xl font-bold text-red-400 mb-2">6</div>
+                <div class="text-gray-300 text-sm">Major Manufacturing Sites</div>
+            </div>
+            <div class="bg-gradient-to-br from-orange-600/20 to-orange-900/20 backdrop-blur-lg rounded-xl p-6 border border-orange-500/30 fade-in">
+                <div class="text-3xl font-bold text-orange-400 mb-2">3</div>
+                <div class="text-gray-300 text-sm">Provinces in Network</div>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30 fade-in">
+                <div class="text-3xl font-bold text-yellow-400 mb-2">30k+</div>
+                <div class="text-gray-300 text-sm">Component Suppliers (24hr reach)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Site data
+        const sites = [
+            {
+                name: "Shenzhen Nanshan Tech Park",
+                province: "Guangdong",
+                city: "Shenzhen, Nanshan",
+                lat: 22.56,
+                lon: 113.97,
+                products: ["HQ", "R&D", "Zenmuse LiDAR", "Ronin Gimbals", "Prototypes"],
+                capacity: "Headquarters",
+                notes: "DJI HQ. Industrial Design & R&D. 30k+ suppliers within 24hr. Zenmuse L3 production."
+            },
+            {
+                name: "Shenzhen Bao'an District",
+                province: "Guangdong",
+                city: "Shenzhen, Bao'an",
+                lat: 22.64,
+                lon: 113.81,
+                products: ["Mavic/Mini/Air Drones", "Osmo Action", "Gimbals"],
+                capacity: "50k-500k units",
+                notes: "DJI-owned factory. Mass production. Vertical integration. 30k+ factories nearby."
+            },
+            {
+                name: "Wuhan East Lake High-Tech Zone",
+                province: "Hubei",
+                city: "Wuhan",
+                lat: 30.48,
+                lon: 114.42,
+                products: ["UAV Components", "Motors", "ESCs", "Flight Controllers"],
+                capacity: "Supplier hub",
+                notes: "Emerging UAV hub. Critical secondary supplier cluster. Lower costs than Shenzhen."
+            },
+            {
+                name: "Xianning, Hubei",
+                province: "Hubei",
+                city: "Xianning",
+                lat: 29.85,
+                lon: 114.32,
+                products: ["Drone Sub-assemblies", "Specialist Parts"],
+                capacity: "Supplier network",
+                notes: "Secondary production cluster. Specialized UAV components. Cost advantages."
+            },
+            {
+                name: "Dongguan Songshan Lake",
+                province: "Guangdong",
+                city: "Dongguan",
+                lat: 23.05,
+                lon: 113.74,
+                products: ["Precision CNC Parts", "Drone Frames", "Gimbal Parts"],
+                capacity: "Precision manufacturing",
+                notes: "Micron-accurate frames. 89% high-tech concentration. Aerospace-grade tolerances."
+            },
+            {
+                name: "Shenzhen Grepow Battery",
+                province: "Guangdong",
+                city: "Shenzhen, Longhua",
+                lat: 22.65,
+                lon: 114.05,
+                products: ["LiPo Batteries", "UAV Power Systems"],
+                capacity: "500k units/day",
+                notes: "Founded 1998. 4 factories, 15.2 hectares. 23 years UAV battery experience."
+            }
+        ];
+
+        // Initialize map
+        const map = L.map('mapContainer').setView([28, 114], 5.5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Marker colors
+        const colors = ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#9333ea'];
+
+        // Add markers
+        const bounds = L.latLngBounds(sites.map(site => [site.lat, site.lon]));
+        sites.forEach((site, index) => {
+            const markerHtml = `<div style="background-color: ${colors[index]}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 12px rgba(0,0,0,0.4);"></div>`;
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-marker',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            
+            const popupContent = `
+                <div style="color: #1e293b; min-width: 220px;">
+                    <h3 style="font-weight: bold; margin-bottom: 8px; color: ${colors[index]};">${site.name}</h3>
+                    <p style="margin: 4px 0;"><strong>Location:</strong> ${site.city}, ${site.province}</p>
+                    <p style="margin: 4px 0;"><strong>Products:</strong> ${site.products.slice(0, 3).join(', ')}</p>
+                    <p style="margin: 4px 0;"><strong>Capacity:</strong> ${site.capacity}</p>
+                    <p style="margin: 4px 0; font-size: 11px;">${site.notes}</p>
+                </div>
+            `;
+            
+            L.marker([site.lat, site.lon], { icon: customIcon })
+                .bindPopup(popupContent)
+                .addTo(map);
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+
+        // Populate table
+        const tableBody = document.getElementById('siteTable');
+        sites.forEach((site, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium">${site.name}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-block w-4 h-4 rounded-full" style="background-color: ${colors[index]}"></span>
+                </td>
+                <td class="px-4 py-3">${site.province}</td>
+                <td class="px-4 py-3 text-xs">${site.products.slice(0, 2).join(', ')}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Product distribution chart
+        const productCategories = {
+            'Drones': 2,
+            'Gimbals & Cameras': 2,
+            'LiDAR & Sensors': 1,
+            'Components & Parts': 3,
+            'Batteries': 1,
+            'R&D & Prototyping': 1
+        };
+
+        const productData = [{
+            values: Object.values(productCategories),
+            labels: Object.keys(productCategories),
+            type: 'pie',
+            hole: 0.4,
+            marker: {
+                colors: ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#9333ea']
+            },
+            textinfo: 'label+percent',
+            textposition: 'outside',
+            automargin: true
+        }];
+
+        const productLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#e5e7eb', size: 12 },
+            showlegend: false,
+            margin: { t: 20, b: 20, l: 20, r: 20 }
+        };
+
+        Plotly.newPlot('productChart', productData, productLayout, {responsive: true, displayModeBar: false});
+
+        // Province concentration chart
+        const provinceCount = {};
+        sites.forEach(site => {
+            provinceCount[site.province] = (provinceCount[site.province] || 0) + 1;
+        });
+
+        const provinceData = [{
+            x: Object.keys(provinceCount),
+            y: Object.values(provinceCount),
+            type: 'bar',
+            marker: {
+                color: ['#dc2626', '#ea580c', '#ca8a04'],
+                line: { color: '#fff', width: 2 }
+            },
+            text: Object.values(provinceCount),
+            textposition: 'outside'
+        }];
+
+        const provinceLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#e5e7eb', size: 12 },
+            xaxis: { 
+                color: '#9ca3af',
+                gridcolor: 'rgba(255,255,255,0.1)'
+            },
+            yaxis: { 
+                color: '#9ca3af',
+                gridcolor: 'rgba(255,255,255,0.1)',
+                title: 'Number of Sites'
+            },
+            margin: { t: 20, b: 40, l: 50, r: 20 },
+            showlegend: false
+        };
+
+        Plotly.newPlot('provinceChart', provinceData, provinceLayout, {responsive: true, displayModeBar: false});
+    </script>
+</body>
+</html>
