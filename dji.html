@@ -171,8 +171,8 @@
             maxZoom: 19
         }).addTo(map);
 
-        // Marker colors - DJI blue tones
-        const colors = ['#0066CC', '#0080FF', '#3399FF', '#0052A3', '#66B3FF', '#004C99'];
+        // Marker colors - varied colors for visual distinction
+        const colors = ['#0066CC', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'];
 
         // Add markers
         const bounds = L.latLngBounds(sites.map(site => [site.lat, site.lon]));
@@ -234,7 +234,7 @@
             type: 'pie',
             hole: 0.4,
             marker: {
-                colors: ['#0066CC', '#0080FF', '#3399FF', '#0052A3', '#66B3FF', '#004C99']
+                colors: ['#0066CC', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
             },
             textinfo: 'label+percent',
             textposition: 'outside',
