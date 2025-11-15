@@ -46,7 +46,7 @@
                 Global Renewable Energy Potential
             </h1>
             <p class="text-center text-gray-300 text-sm">
-                Exploring renewable energy capacity across <span id="totalCountries" class="font-bold text-green-400">30</span> leading countries worldwide
+                Exploring renewable energy capacity across <span id="totalCountries" class="font-bold text-green-400">49</span> leading countries worldwide
             </p>
         </div>
 
@@ -54,7 +54,7 @@
         <div class="mb-6 speed-card p-6 rounded-xl">
             <h2 class="text-2xl font-bold orbitron mb-4 text-cyan-400">Top 20 Countries by Total Renewable Potential</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="energy-tab active bg-gradient-to-br from-purple-600/30 to-pink-600/30 p-4 rounded-xl border-purple-500" onclick="switchEnergyType('total')">
+                <div class="energy-tab active bg-gradient-to-br from-yellow-600/30 to-orange-600/30 p-4 rounded-xl border-yellow-500" onclick="switchEnergyType('total')">
                     <div class="text-center">
                         <div class="text-3xl mb-2">⚡</div>
                         <div class="font-bold text-lg">Total</div>
@@ -89,7 +89,7 @@
         <!-- Globe Visualization -->
         <div class="mb-6 speed-card p-6 rounded-xl">
             <h2 class="text-2xl font-bold orbitron mb-4">
-                <span id="mapTitle" class="text-purple-400">Total Renewable Energy Potential</span>
+                <span id="mapTitle" class="text-yellow-400">Total Renewable Energy Potential</span>
             </h2>
             <div class="flex flex-col lg:flex-row gap-4">
                 <div id="globeViz" class="flex-1" style="height: 600px;"></div>
@@ -121,7 +121,7 @@
                 <div id="hydroColumn" class="space-y-2 max-h-96 overflow-y-auto"></div>
             </div>
             <div class="speed-card p-6 rounded-xl">
-                <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                <h3 class="text-xl font-bold text-orange-400 mb-4 flex items-center gap-2">
                     <span class="text-2xl">⚡</span> Total Capacity
                 </h3>
                 <div id="totalColumn" class="space-y-2 max-h-96 overflow-y-auto"></div>
@@ -147,34 +147,53 @@
         const renewableData = [
             {rank: 1, country: "Russia", solar: 500, wind: 10800, hydro: 320, total: 11620},
             {rank: 2, country: "China", solar: 1600, wind: 2380, hydro: 660, total: 4640},
-            {rank: 3, country: "United States", solar: 720, wind: 2000, hydro: 150, total: 2870},
-            {rank: 4, country: "Canada", solar: 200, wind: 1500, hydro: 164, total: 1864},
-            {rank: 5, country: "Brazil", solar: 300, wind: 1000, hydro: 260, total: 1560},
-            {rank: 6, country: "Australia", solar: 2100, wind: 1200, hydro: 10, total: 3310},
-            {rank: 7, country: "India", solar: 1100, wind: 550, hydro: 148, total: 1798},
+            {rank: 3, country: "Australia", solar: 2100, wind: 1200, hydro: 10, total: 3310},
+            {rank: 4, country: "United States", solar: 720, wind: 2000, hydro: 150, total: 2870},
+            {rank: 5, country: "Algeria", solar: 2700, wind: 70, hydro: 3, total: 2773},
+            {rank: 6, country: "Kazakhstan", solar: 1250, wind: 920, hydro: 5, total: 2175},
+            {rank: 7, country: "Canada", solar: 400, wind: 1500, hydro: 164, total: 2064},
             {rank: 8, country: "Argentina", solar: 1200, wind: 800, hydro: 20, total: 2020},
-            {rank: 9, country: "Kazakhstan", solar: 1250, wind: 920, hydro: 5, total: 2175},
-            {rank: 10, country: "Democratic Republic of Congo", solar: 400, wind: 200, hydro: 100, total: 700},
-            {rank: 11, country: "Indonesia", solar: 600, wind: 300, hydro: 75, total: 975},
+            {rank: 9, country: "Saudi Arabia", solar: 1900, wind: 90, hydro: 2, total: 1992},
+            {rank: 10, country: "India", solar: 1100, wind: 550, hydro: 148, total: 1798},
+            {rank: 11, country: "Libya", solar: 1700, wind: 60, hydro: 1, total: 1761},
             {rank: 12, country: "South Africa", solar: 1000, wind: 600, hydro: 5, total: 1605},
-            {rank: 13, country: "Mexico", solar: 800, wind: 400, hydro: 10, total: 1210},
-            {rank: 14, country: "Turkey", solar: 200, wind: 450, hydro: 55, total: 705},
-            {rank: 15, country: "Iran", solar: 900, wind: 80, hydro: 22, total: 1002},
-            {rank: 16, country: "Saudi Arabia", solar: 1900, wind: 90, hydro: 2, total: 1992},
-            {rank: 17, country: "Peru", solar: 200, wind: 40, hydro: 70, total: 310},
-            {rank: 18, country: "Chile", solar: 300, wind: 500, hydro: 28, total: 828},
-            {rank: 19, country: "Mongolia", solar: 500, wind: 700, hydro: 1, total: 1201},
-            {rank: 20, country: "Algeria", solar: 2700, wind: 70, hydro: 3, total: 2773},
-            {rank: 21, country: "Ethiopia", solar: 800, wind: 100, hydro: 60, total: 960},
-            {rank: 22, country: "Pakistan", solar: 950, wind: 150, hydro: 40, total: 1140},
-            {rank: 23, country: "Egypt", solar: 1050, wind: 100, hydro: 5, total: 1155},
-            {rank: 24, country: "Vietnam", solar: 400, wind: 30, hydro: 45, total: 475},
-            {rank: 25, country: "Libya", solar: 1700, wind: 60, hydro: 1, total: 1761},
-            {rank: 26, country: "Bolivia", solar: 550, wind: 50, hydro: 30, total: 630},
-            {rank: 27, country: "Sudan", solar: 1400, wind: 50, hydro: 4, total: 1454},
-            {rank: 28, country: "Morocco", solar: 500, wind: 120, hydro: 2, total: 622},
-            {rank: 29, country: "Colombia", solar: 200, wind: 100, hydro: 50, total: 350},
-            {rank: 30, country: "Nepal", solar: 100, wind: 50, hydro: 42, total: 192}
+            {rank: 13, country: "Brazil", solar: 300, wind: 1000, hydro: 260, total: 1560},
+            {rank: 14, country: "Sudan", solar: 1400, wind: 50, hydro: 4, total: 1454},
+            {rank: 15, country: "Mexico", solar: 800, wind: 400, hydro: 10, total: 1210},
+            {rank: 16, country: "Mongolia", solar: 500, wind: 700, hydro: 1, total: 1201},
+            {rank: 17, country: "Egypt", solar: 1050, wind: 100, hydro: 5, total: 1155},
+            {rank: 18, country: "Pakistan", solar: 950, wind: 150, hydro: 40, total: 1140},
+            {rank: 19, country: "Chile", solar: 500, wind: 500, hydro: 28, total: 1028},
+            {rank: 20, country: "Iran", solar: 900, wind: 80, hydro: 22, total: 1002},
+            {rank: 21, country: "Indonesia", solar: 600, wind: 300, hydro: 75, total: 975},
+            {rank: 22, country: "Turkey", solar: 200, wind: 450, hydro: 55, total: 705},
+            {rank: 23, country: "Bolivia", solar: 550, wind: 50, hydro: 30, total: 630},
+            {rank: 24, country: "Morocco", solar: 500, wind: 120, hydro: 2, total: 622},
+            {rank: 25, country: "Spain", solar: 300, wind: 300, hydro: 17.4, total: 617.4},
+            {rank: 26, country: "Ethiopia", solar: 400, wind: 100, hydro: 60, total: 560},
+            {rank: 27, country: "Colombia", solar: 300, wind: 100, hydro: 50, total: 450},
+            {rank: 28, country: "France", solar: 150, wind: 200, hydro: 34.3, total: 384.3},
+            {rank: 29, country: "Germany", solar: 100, wind: 250, hydro: 7.1, total: 357.1},
+            {rank: 30, country: "Peru", solar: 200, wind: 40, hydro: 70, total: 310},
+            {rank: 31, country: "United Kingdom", solar: 100, wind: 180, hydro: 5, total: 285},
+            {rank: 32, country: "Japan", solar: 200, wind: 50, hydro: 23, total: 273},
+            {rank: 33, country: "Italy", solar: 200, wind: 44, hydro: 18.6, total: 262.6},
+            {rank: 34, country: "Poland", solar: 70, wind: 160, hydro: 3.4, total: 233.4},
+            {rank: 35, country: "Vietnam", solar: 150, wind: 30, hydro: 45, total: 225},
+            {rank: 36, country: "Bulgaria", solar: 60, wind: 159, hydro: 4.2, total: 223.2},
+            {rank: 37, country: "New Zealand", solar: 100, wind: 100, hydro: 10, total: 210},
+            {rank: 38, country: "Greece", solar: 150, wind: 32, hydro: 5.7, total: 187.7},
+            {rank: 39, country: "Sweden", solar: 50, wind: 100, hydro: 37.1, total: 187.1},
+            {rank: 40, country: "Norway", solar: 50, wind: 50, hydro: 85.6, total: 185.6},
+            {rank: 41, country: "Portugal", solar: 50, wind: 65, hydro: 7.0, total: 122},
+            {rank: 42, country: "Switzerland", solar: 50, wind: 10, hydro: 15, total: 75},
+            {rank: 43, country: "Netherlands", solar: 50, wind: 25, hydro: 0.1, total: 75.1},
+            {rank: 44, country: "Austria", solar: 40, wind: 12, hydro: 16, total: 68},
+            {rank: 45, country: "Finland", solar: 40, wind: 18, hydro: 4.8, total: 62.8},
+            {rank: 46, country: "Hungary", solar: 50, wind: 10, hydro: 1.3, total: 61.3},
+            {rank: 47, country: "Ireland", solar: 30, wind: 30, hydro: 0.3, total: 60.3},
+            {rank: 48, country: "Czech Republic", solar: 40, wind: 18, hydro: 2, total: 60},
+            {rank: 49, country: "Belgium", solar: 30, wind: 19, hydro: 0.1, total: 49.1}
         ];
 
         const countryToCode = {
@@ -184,7 +203,11 @@
             'Mexico': 'mx', 'Turkey': 'tr', 'Iran': 'ir', 'Saudi Arabia': 'sa', 'Peru': 'pe',
             'Chile': 'cl', 'Mongolia': 'mn', 'Algeria': 'dz', 'Ethiopia': 'et', 'Pakistan': 'pk',
             'Egypt': 'eg', 'Vietnam': 'vn', 'Libya': 'ly', 'Bolivia': 'bo', 'Sudan': 'sd',
-            'Morocco': 'ma', 'Colombia': 'co', 'Nepal': 'np'
+            'Morocco': 'ma', 'Colombia': 'co', 'Nepal': 'np', 'Spain': 'es', 'Germany': 'de',
+            'France': 'fr', 'United Kingdom': 'gb', 'Italy': 'it', 'Poland': 'pl', 'Japan': 'jp',
+            'Greece': 'gr', 'Netherlands': 'nl', 'Austria': 'at', 'Bulgaria': 'bg', 'Portugal': 'pt',
+            'Belgium': 'be', 'Finland': 'fi', 'Ireland': 'ie', 'Switzerland': 'ch', 'New Zealand': 'nz',
+            'Hungary': 'hu', 'Czech Republic': 'cz', 'Denmark': 'dk', 'Sweden': 'se', 'Norway': 'no'
         };
 
         let globe;
@@ -193,27 +216,27 @@
         const energyConfig = {
             total: {
                 title: 'Total Renewable Energy Potential',
-                color: 'purple',
+                color: 'yellow',
                 icon: '⚡',
-                colors: ['rgba(236, 72, 153, 0.9)', 'rgba(217, 70, 239, 0.9)', 'rgba(139, 92, 246, 0.9)', 'rgba(59, 130, 246, 0.9)', 'rgba(51, 65, 85, 0.9)']
+                colors: ['rgba(251, 191, 36, 1)', 'rgba(245, 158, 11, 0.85)', 'rgba(217, 119, 6, 0.75)', 'rgba(180, 83, 9, 0.65)']
             },
             wind: {
                 title: 'Wind Power Potential',
                 color: 'blue',
                 icon: '💨',
-                colors: ['rgba(6, 182, 212, 0.9)', 'rgba(14, 165, 233, 0.9)', 'rgba(59, 130, 246, 0.9)', 'rgba(99, 102, 241, 0.9)', 'rgba(51, 65, 85, 0.9)']
+                colors: ['rgba(6, 182, 212, 0.9)', 'rgba(14, 165, 233, 0.9)', 'rgba(59, 130, 246, 0.9)', 'rgba(99, 102, 241, 0.9)']
             },
             solar: {
                 title: 'Solar Power Potential',
                 color: 'yellow',
                 icon: '☀️',
-                colors: ['rgba(251, 191, 36, 0.9)', 'rgba(245, 158, 11, 0.9)', 'rgba(249, 115, 22, 0.9)', 'rgba(234, 88, 12, 0.9)', 'rgba(51, 65, 85, 0.9)']
+                colors: ['rgba(251, 191, 36, 1)', 'rgba(245, 158, 11, 0.85)', 'rgba(217, 119, 6, 0.75)', 'rgba(180, 83, 9, 0.65)']
             },
             hydro: {
                 title: 'Hydropower Potential',
                 color: 'teal',
                 icon: '💧',
-                colors: ['rgba(20, 184, 166, 0.9)', 'rgba(6, 182, 212, 0.9)', 'rgba(14, 165, 233, 0.9)', 'rgba(59, 130, 246, 0.9)', 'rgba(51, 65, 85, 0.9)']
+                colors: ['rgba(20, 184, 166, 0.9)', 'rgba(6, 182, 212, 0.9)', 'rgba(14, 165, 233, 0.9)', 'rgba(59, 130, 246, 0.9)']
             }
         };
 
@@ -286,14 +309,13 @@
             const maxValue = Math.max(...values);
             
             const getColor = (value) => {
-                if (!value) return 'rgba(30, 41, 55, 0.8)';
+                if (!value) return 'rgba(30, 41, 59, 0.7)';
                 const ratio = value / maxValue;
                 const colors = energyConfig[currentEnergyType].colors;
-                if (ratio > 0.8) return colors[0];
-                if (ratio > 0.6) return colors[1];
-                if (ratio > 0.4) return colors[2];
-                if (ratio > 0.2) return colors[3];
-                return colors[4];
+                if (ratio > 0.8) return colors[0]; // Very High
+                if (ratio > 0.4) return colors[1]; // Low
+                if (ratio > 0.2) return colors[2]; // Lower
+                return colors[3]; // Very Low
             };
             
             updateLegend(maxValue);
@@ -339,12 +361,18 @@
         function updateLegend(maxValue) {
             const legend = document.getElementById('legendContent');
             const config = energyConfig[currentEnergyType];
+            
+            // Calculate thresholds: 80% for Very High, 40% for Low, 20% for Lower
+            const veryHighThreshold = Math.round(maxValue * 0.8);
+            const lowThreshold = Math.round(maxValue * 0.4);
+            const lowerThreshold = Math.round(maxValue * 0.2);
+            
             const ranges = [
-                { label: `Very High (${Math.round(maxValue * 0.8)}+ GW)`, color: config.colors[0] },
-                { label: `High (${Math.round(maxValue * 0.6)}-${Math.round(maxValue * 0.8)} GW)`, color: config.colors[1] },
-                { label: `Medium (${Math.round(maxValue * 0.4)}-${Math.round(maxValue * 0.6)} GW)`, color: config.colors[2] },
-                { label: `Low (${Math.round(maxValue * 0.2)}-${Math.round(maxValue * 0.4)} GW)`, color: config.colors[3] },
-                { label: `Very Low (0-${Math.round(maxValue * 0.2)} GW)`, color: config.colors[4] }
+                { label: `Very High (${veryHighThreshold}+ GW)`, color: config.colors[0] },
+                { label: `Low (${lowThreshold}-${veryHighThreshold} GW)`, color: config.colors[1] },
+                { label: `Lower (${lowerThreshold}-${lowThreshold} GW)`, color: config.colors[2] },
+                { label: `Very Low (1-${lowerThreshold} GW)`, color: config.colors[3] },
+                { label: 'No Data', color: 'rgba(30, 41, 59, 0.7)' }
             ];
             
             legend.innerHTML = ranges.map(range => `
@@ -409,10 +437,10 @@
                         <div class="text-3xl font-black orbitron text-teal-400">${country.hydro.toLocaleString()}</div>
                         <div class="text-xs text-gray-400 mt-1">GW</div>
                     </div>
-                    <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-purple-500/30">
+                    <div class="bg-gradient-to-br from-orange-600/20 to-amber-600/20 p-6 rounded-xl border border-orange-500/30">
                         <div class="text-4xl mb-2">⚡</div>
                         <div class="text-sm text-gray-400 mb-1">Total Capacity</div>
-                        <div class="text-3xl font-black orbitron text-purple-400">${country.total.toLocaleString()}</div>
+                        <div class="text-3xl font-black orbitron text-orange-400">${country.total.toLocaleString()}</div>
                         <div class="text-xs text-gray-400 mt-1">GW</div>
                     </div>
                 </div>
