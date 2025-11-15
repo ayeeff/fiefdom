@@ -89,15 +89,12 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
                 <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span>📱</span> Products by Province
+                    <span>📱</span> Production Sites by Province
                 </h2>
                 <div id="provinceBarChart" class="h-80"></div>
             </div>
-            <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
-                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span>🔧</span> Component Types
-                </h2>
-                <div id="componentChart" class="h-80"></div>
+            <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=800" alt="Apple Products Assembly" class="w-full h-80 object-cover rounded-lg">
             </div>
         </div>
 
@@ -334,33 +331,6 @@
         };
 
         Plotly.newPlot('provinceBarChart', barData, barLayout, {responsive: true});
-
-        // Component Types Chart
-        const categoryCounts = {};
-        sites.forEach(site => {
-            categoryCounts[site.category] = (categoryCounts[site.category] || 0) + 1;
-        });
-
-        const categoryData = [{
-            x: Object.keys(categoryCounts),
-            y: Object.values(categoryCounts),
-            type: 'bar',
-            marker: {
-                color: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899'],
-                line: { color: '#fff', width: 1.5 }
-            }
-        }];
-
-        const categoryLayout = {
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(31,41,55,0.5)',
-            font: { color: '#fff' },
-            xaxis: { title: 'Category', gridcolor: '#374151' },
-            yaxis: { title: 'Number of Sites', gridcolor: '#374151' },
-            margin: { t: 20, b: 60, l: 50, r: 20 }
-        };
-
-        Plotly.newPlot('componentChart', categoryData, categoryLayout, {responsive: true});
     </script>
 </body>
 </html>
