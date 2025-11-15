@@ -17,36 +17,36 @@
         .fade-in { animation: fadeIn 0.6s ease-out; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 min-h-screen p-6">
+<body class="bg-black min-h-screen p-6 font-sans">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-red-600 via-gray-800 to-black rounded-xl shadow-2xl p-8 mb-6 fade-in">
-            <h1 class="text-4xl font-bold text-white mb-2">DJI Hardware Supply Chain</h1>
-            <p class="text-gray-300">Manufacturing & R&D Network for Drones, Zenmuse, LiDAR & Gimbals</p>
+        <div class="bg-gradient-to-r from-gray-900 to-black rounded-lg shadow-2xl p-8 mb-6 border-b-4 border-blue-500 fade-in">
+            <h1 class="text-5xl font-light text-white mb-2 tracking-wide">DJI Supply Chain</h1>
+            <p class="text-gray-400 text-sm tracking-wider uppercase">Manufacturing & R&D Network</p>
         </div>
 
         <!-- Map and Table Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Interactive Map -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
-                <h2 class="text-xl font-bold text-white mb-4">Geographic Distribution</h2>
+            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800 fade-in">
+                <h2 class="text-xl font-light text-white mb-4 tracking-wide">Geographic Distribution</h2>
                 <div id="mapContainer" class="h-96 rounded-lg overflow-hidden shadow-lg"></div>
             </div>
 
             <!-- Site Details Table -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
-                <h2 class="text-xl font-bold text-white mb-4">Manufacturing Site Details</h2>
+            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800 fade-in">
+                <h2 class="text-xl font-light text-white mb-4 tracking-wide">Manufacturing Sites</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="text-xs uppercase bg-white/5">
+                        <thead class="text-xs uppercase bg-black/50">
                             <tr>
-                                <th class="px-4 py-3 text-red-300">Site</th>
-                                <th class="px-4 py-3 text-red-300">Color</th>
-                                <th class="px-4 py-3 text-red-300">Province</th>
-                                <th class="px-4 py-3 text-red-300">Product Focus</th>
+                                <th class="px-4 py-3 text-blue-400 font-normal">Site</th>
+                                <th class="px-4 py-3 text-blue-400 font-normal">Color</th>
+                                <th class="px-4 py-3 text-blue-400 font-normal">Province</th>
+                                <th class="px-4 py-3 text-blue-400 font-normal">Product Focus</th>
                             </tr>
                         </thead>
-                        <tbody id="siteTable" class="text-gray-200"></tbody>
+                        <tbody id="siteTable" class="text-gray-300"></tbody>
                     </table>
                 </div>
             </div>
@@ -55,46 +55,46 @@
         <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Product Distribution Chart -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
-                <h2 class="text-xl font-bold text-white mb-4">Product Category Distribution</h2>
+            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800 fade-in">
+                <h2 class="text-xl font-light text-white mb-4 tracking-wide">Product Categories</h2>
                 <div id="productChart" class="h-80"></div>
             </div>
 
             <!-- Image Space -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in flex items-center justify-center">
-                <img alt="DJI Drone Components" class="w-full h-80 object-cover rounded-lg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='320'%3E%3Crect width='400' height='320' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='16' fill='%239ca3af'%3EDJI Hardware Image%3C/text%3E%3C/svg%3E">
+            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800 fade-in flex items-center justify-center overflow-hidden">
+                <img alt="DJI Drone Components" class="w-full h-80 object-cover rounded-lg shadow-xl" src="https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=2000&auto=format&fit=crop">
             </div>
         </div>
 
         <!-- Assembly Process -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
-            <h2 class="text-xl font-bold text-white mb-4">DJI Manufacturing Ecosystem</h2>
-            <div class="text-gray-200 space-y-4 text-sm leading-relaxed">
-                <p><strong class="text-red-400">Headquarters & R&D (Nanshan):</strong> DJI's global headquarters in Shenzhen's Nanshan Tech Park serves as the epicenter of innovation. The Industrial Design and R&D departments leverage direct access to 30,000+ component suppliers within 24-hour reach, enabling rapid prototyping and iteration. Advanced products like the Zenmuse L3 LiDAR and Ronin gimbals are developed and manufactured here, benefiting from China's Silicon Valley ecosystem.</p>
+        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800 fade-in">
+            <h2 class="text-xl font-light text-white mb-4 tracking-wide">Manufacturing Ecosystem</h2>
+            <div class="text-gray-400 space-y-4 text-sm leading-relaxed">
+                <p><strong class="text-blue-400 font-normal">Headquarters & R&D (Nanshan):</strong> DJI's global headquarters in Shenzhen's Nanshan Tech Park serves as the epicenter of innovation. The Industrial Design and R&D departments leverage direct access to 30,000+ component suppliers within 24-hour reach, enabling rapid prototyping and iteration. Advanced products like the Zenmuse L3 LiDAR and Ronin gimbals are developed and manufactured here, benefiting from China's Silicon Valley ecosystem.</p>
                 
-                <p><strong class="text-orange-400">Mass Production (Bao'an):</strong> DJI's owned-and-operated factory in Shenzhen's Bao'an District handles mass production of consumer drones (Mavic, Mini, Air series), Osmo Action cameras, and imaging devices. The vertical integration model gives DJI complete control from design to assembly, with capacity for 50,000-500,000 unit runs. The district's 30,000+ factories enable instant component swaps and unprecedented supply chain flexibility.</p>
+                <p><strong class="text-blue-400 font-normal">Mass Production (Bao'an):</strong> DJI's owned-and-operated factory in Shenzhen's Bao'an District handles mass production of consumer drones (Mavic, Mini, Air series), Osmo Action cameras, and imaging devices. The vertical integration model gives DJI complete control from design to assembly, with capacity for 50,000-500,000 unit runs. The district's 30,000+ factories enable instant component swaps and unprecedented supply chain flexibility.</p>
                 
-                <p><strong class="text-yellow-400">Precision Components (Dongguan):</strong> Songshan Lake's precision manufacturers produce micron-accurate drone frames, brackets, and gimbal parts with aerospace-grade tolerances. The 89% high-tech manufacturing concentration in this zone supplies critical structural components to Bao'an's assembly lines. This cluster represents the cutting edge of CNC machining for lightweight, high-strength UAV structures.</p>
+                <p><strong class="text-blue-400 font-normal">Precision Components (Dongguan):</strong> Songshan Lake's precision manufacturers produce micron-accurate drone frames, brackets, and gimbal parts with aerospace-grade tolerances. The 89% high-tech manufacturing concentration in this zone supplies critical structural components to Bao'an's assembly lines. This cluster represents the cutting edge of CNC machining for lightweight, high-strength UAV structures.</p>
                 
-                <p><strong class="text-green-400">Emerging Hubs (Hubei):</strong> Wuhan's East Lake High-Tech Zone and Xianning represent DJI's strategic diversification beyond Guangdong. These secondary clusters provide motors, ESCs, flight controllers, and sub-assemblies at lower costs while maintaining quality standards. Hubei's emerging UAV expertise positions it as a critical backup to Shenzhen's concentrated supply chain.</p>
+                <p><strong class="text-blue-400 font-normal">Emerging Hubs (Hubei):</strong> Wuhan's East Lake High-Tech Zone and Xianning represent DJI's strategic diversification beyond Guangdong. These secondary clusters provide motors, ESCs, flight controllers, and sub-assemblies at lower costs while maintaining quality standards. Hubei's emerging UAV expertise positions it as a critical backup to Shenzhen's concentrated supply chain.</p>
                 
-                <p><strong class="text-blue-400">Specialized Components:</strong> Co-located suppliers like Grepow Battery (Longhua) exemplify DJI's ecosystem advantages. With 23 years of experience and 500,000 units/day capacity across 4 factories, Grepow produces custom LiPo batteries specifically engineered for DJI's power requirements. This geographic proximity enables rapid custom development cycles impossible with distant suppliers.</p>
+                <p><strong class="text-blue-400 font-normal">Specialized Components:</strong> Co-located suppliers like Grepow Battery (Longhua) exemplify DJI's ecosystem advantages. With 23 years of experience and 500,000 units/day capacity across 4 factories, Grepow produces custom LiPo batteries specifically engineered for DJI's power requirements. This geographic proximity enables rapid custom development cycles impossible with distant suppliers.</p>
             </div>
         </div>
 
         <!-- Key Insights -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div class="bg-gradient-to-br from-red-600/20 to-red-900/20 backdrop-blur-lg rounded-xl p-6 border border-red-500/30 fade-in">
-                <div class="text-3xl font-bold text-red-400 mb-2">6</div>
-                <div class="text-gray-300 text-sm">Major Manufacturing Sites</div>
+            <div class="bg-gray-900 rounded-lg p-6 border border-blue-500/30 fade-in">
+                <div class="text-4xl font-light text-blue-400 mb-2">6</div>
+                <div class="text-gray-400 text-sm uppercase tracking-wider">Manufacturing Sites</div>
             </div>
-            <div class="bg-gradient-to-br from-orange-600/20 to-orange-900/20 backdrop-blur-lg rounded-xl p-6 border border-orange-500/30 fade-in">
-                <div class="text-3xl font-bold text-orange-400 mb-2">3</div>
-                <div class="text-gray-300 text-sm">Provinces in Network</div>
+            <div class="bg-gray-900 rounded-lg p-6 border border-blue-500/30 fade-in">
+                <div class="text-4xl font-light text-blue-400 mb-2">3</div>
+                <div class="text-gray-400 text-sm uppercase tracking-wider">Provinces</div>
             </div>
-            <div class="bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30 fade-in">
-                <div class="text-3xl font-bold text-yellow-400 mb-2">30k+</div>
-                <div class="text-gray-300 text-sm">Component Suppliers (24hr reach)</div>
+            <div class="bg-gray-900 rounded-lg p-6 border border-blue-500/30 fade-in">
+                <div class="text-4xl font-light text-blue-400 mb-2">30k+</div>
+                <div class="text-gray-400 text-sm uppercase tracking-wider">Component Suppliers</div>
             </div>
         </div>
     </div>
@@ -171,8 +171,8 @@
             maxZoom: 19
         }).addTo(map);
 
-        // Marker colors
-        const colors = ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#9333ea'];
+        // Marker colors - DJI blue tones
+        const colors = ['#0066CC', '#0080FF', '#3399FF', '#0052A3', '#66B3FF', '#004C99'];
 
         // Add markers
         const bounds = L.latLngBounds(sites.map(site => [site.lat, site.lon]));
@@ -206,7 +206,7 @@
         const tableBody = document.getElementById('siteTable');
         sites.forEach((site, index) => {
             const row = document.createElement('tr');
-            row.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
+            row.className = 'border-b border-gray-800 hover:bg-gray-800/50 transition-colors';
             row.innerHTML = `
                 <td class="px-4 py-3 font-medium">${site.name}</td>
                 <td class="px-4 py-3">
@@ -234,11 +234,12 @@
             type: 'pie',
             hole: 0.4,
             marker: {
-                colors: ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#9333ea']
+                colors: ['#0066CC', '#0080FF', '#3399FF', '#0052A3', '#66B3FF', '#004C99']
             },
             textinfo: 'label+percent',
             textposition: 'outside',
-            automargin: true
+            automargin: true,
+            textfont: { color: '#e5e7eb', size: 11 }
         }];
 
         const productLayout = {
