@@ -7,33 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        .orbitron { font-family: 'Orbitron', monospace; }
-        .speed-card {
-            background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .shimmer-text {
-            background-size: 200% 100%;
-            animation: shimmer 2s linear infinite;
-        }
-        #globeViz {
-            width: 100%;
-            height: 700px;
-        }
-        .filter-btn {
-            transition: all 0.2s;
-        }
-        .filter-btn.active {
-            background: linear-gradient(to right, #dc2626, #f97316);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-    </style>
+    <style>.orbitron { font-family: 'Orbitron', monospace; } .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } } .shimmer-text { background-size: 200% 100%; animation: shimmer 2s linear infinite; } #globeViz { width: 100%; height: 700px; } .filter-btn { transition: all 0.2s; } .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }</style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 min-h-screen text-white">
     <div class="container mx-auto p-4">
@@ -261,10 +235,18 @@
                 const topoData = await geoResponse.json();
                 countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features;
 
-                // Load nuclear data
-                const response = await fetch('https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/data/nukes.csv');
-                const csvText = await response.text();
-               
+                // Inline CSV data (replaces broken fetch)
+                const csvText = `Country / leg,Home Base,Total Stockpile,Deployed Warheads,Strategic Nukes,Tactical Nukes,SLBM Warheads,Region,Notes
+USA Pacific SSBN,Naval Base Kitsap - Bangor,3624,1620,2900,0,1440,Pacific,Ohio-class (14 boats); patrols First Island Chain; Trident II D5 SLBMs
+USA Atlantic SSBN,Naval Submarine Base Kings Bay,1553,50,800,0,230,Atlantic,Ohio-class (5 boats); GIUK Gap patrols; NATO extended deterrence
+Russia Pacific SSBN,Vilyuchinsk (Kamchatka),800,200,600,100,400,Pacific,Borei-class; Sea of Okhotsk bastion; Bulava SLBMs
+Russia Atlantic SSBN,Gadzhiyevo (Murmansk),2509,1200,1800,400,1000,Atlantic,Delta IV & Borei; Barents Sea patrols; Sino-Russian coordination
+China SSBN,Yalong Bay (Hainan),600,24,500,0,500,Pacific,JL-3 SLBMs on Type 094; South China Sea patrols expanding
+North Korea SLBM,Sinpo Shipyard,50,0,0,0,50,Pacific,KN-23 tests; limited sea-based capability
+Israel Sea-Based,Dolphin-class (Haifa),90,0,90,0,90,Mediterranean,Second-strike capability; rumored Popeye Turbo SLCM
+India SSBN,Visakhapatnam,180,0,150,0,150,Indian Ocean,Arihant-class; K-15 Sagarika SLBMs; independent deterrence
+Pakistan Sea-Based,Expected Ormara,0,0,0,0,0,Arabian Sea,Babur cruise missiles planned; no operational SSBN yet`;
+
                 Papa.parse(csvText, {
                     header: true,
                     skipEmptyLines: true,
@@ -317,15 +299,8 @@
                 .atmosphereColor('#ff6b6b')
                 .atmosphereAltitude(0.15);
 
-            // Add topojson for country borders
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js';
-            script.onload = () => {
-                loadData();
-            };
-            document.head.appendChild(script);
-
             globe = world;
+            updateGlobe(); // Call updateGlobe after globe init
         }
 
         function updateGlobe() {
@@ -522,7 +497,7 @@
             `;
         }
 
-        // Initialize with topojson script
+        // Load topojson and initialize
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js';
         script.onload = () => {
