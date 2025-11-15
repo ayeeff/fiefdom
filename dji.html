@@ -60,10 +60,9 @@
                 <div id="productChart" class="h-80"></div>
             </div>
 
-            <!-- Province Concentration Chart -->
-            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in">
-                <h2 class="text-xl font-bold text-white mb-4">Manufacturing Sites by Province</h2>
-                <div id="provinceChart" class="h-80"></div>
+            <!-- Image Space -->
+            <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 fade-in flex items-center justify-center">
+                <img alt="DJI Drone Components" class="w-full h-80 object-cover rounded-lg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='320'%3E%3Crect width='400' height='320' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='16' fill='%239ca3af'%3EDJI Hardware Image%3C/text%3E%3C/svg%3E">
             </div>
         </div>
 
@@ -287,7 +286,7 @@
             showlegend: false
         };
 
-        Plotly.newPlot('provinceChart', provinceData, provinceLayout, {responsive: true, displayModeBar: false});
+
     </script>
 </body>
 </html>
