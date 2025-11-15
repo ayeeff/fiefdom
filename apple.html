@@ -23,7 +23,6 @@
             </h1>
             <p class="text-gray-300 text-lg">Manufacturing & Assembly Network Analysis</p>
         </div>
-
         <!-- Key Statistics -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5 shadow-lg">
@@ -47,7 +46,6 @@
                 <div class="text-orange-200 text-xs mt-1">iPhones/Day</div>
             </div>
         </div>
-
         <!-- Map and Product Distribution -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div class="lg:col-span-2 bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
@@ -63,7 +61,6 @@
                 <div id="productPieChart" class="h-96"></div>
             </div>
         </div>
-
         <!-- Manufacturing Sites Table -->
         <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl mb-6">
             <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
@@ -84,7 +81,6 @@
                 </table>
             </div>
         </div>
-
         <!-- Product Categories -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 shadow-xl">
@@ -97,7 +93,6 @@
                 <img src="https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=800" alt="Apple Products Assembly" class="w-full h-80 object-cover rounded-lg">
             </div>
         </div>
-
         <!-- Key Insights -->
         <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 shadow-xl">
             <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
@@ -131,7 +126,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const sites = [
             {
@@ -223,15 +217,14 @@
                 color: "#8b5cf6"
             }
         ];
-
         // Initialize Map
         const map = L.map('mapContainer').setView([32, 112], 5);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(map);
-
-        // Add markers
+        // Add markers to a layer group to fit bounds
+        const markerGroup = L.layerGroup().addTo(map);
         sites.forEach(site => {
             const markerHtml = `<div style="background-color: ${site.color}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4);"></div>`;
             const customIcon = L.divIcon({
@@ -240,7 +233,7 @@
                 iconSize: [28, 28],
                 iconAnchor: [14, 14]
             });
-            
+           
             const popupContent = `
                 <div style="color: #1e293b; min-width: 220px;">
                     <h3 style="font-weight: bold; margin-bottom: 8px; color: ${site.color}; font-size: 16px;">${site.name}</h3>
@@ -250,12 +243,13 @@
                     <p style="margin: 4px 0; font-size: 12px; color: #475569;">${site.notes}</p>
                 </div>
             `;
-            
+           
             L.marker([site.lat, site.lon], { icon: customIcon })
                 .bindPopup(popupContent)
-                .addTo(map);
+                .addTo(markerGroup);
         });
-
+        // Fit map to show all markers with padding
+        map.fitBounds(markerGroup.getBounds().pad(0.1));
         // Populate Table
         const tableBody = document.getElementById('siteTable');
         sites.forEach(site => {
@@ -273,7 +267,6 @@
             `;
             tableBody.appendChild(row);
         });
-
         // Product Distribution Pie Chart
         const productCounts = {};
         sites.forEach(site => {
@@ -281,7 +274,6 @@
                 productCounts[product] = (productCounts[product] || 0) + 1;
             });
         });
-
         const pieData = [{
             values: Object.values(productCounts),
             labels: Object.keys(productCounts),
@@ -293,7 +285,6 @@
             textfont: { color: '#fff', size: 12 },
             hole: 0.4
         }];
-
         const pieLayout = {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
@@ -302,15 +293,12 @@
             legend: { x: 0, y: -0.2, orientation: 'h' },
             margin: { t: 20, b: 40, l: 20, r: 20 }
         };
-
         Plotly.newPlot('productPieChart', pieData, pieLayout, {responsive: true});
-
         // Province Bar Chart
         const provinceCounts = {};
         sites.forEach(site => {
             provinceCounts[site.province] = (provinceCounts[site.province] || 0) + 1;
         });
-
         const barData = [{
             x: Object.keys(provinceCounts),
             y: Object.values(provinceCounts),
@@ -320,7 +308,6 @@
                 line: { color: '#fff', width: 1.5 }
             }
         }];
-
         const barLayout = {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(31,41,55,0.5)',
@@ -329,7 +316,6 @@
             yaxis: { title: 'Number of Sites', gridcolor: '#374151' },
             margin: { t: 20, b: 60, l: 50, r: 20 }
         };
-
         Plotly.newPlot('provinceBarChart', barData, barLayout, {responsive: true});
     </script>
 </body>
