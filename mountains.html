@@ -674,8 +674,10 @@
                 if (interactiveSection) interactiveSection.classList.remove('selected');
                 if (container) container.style.display = 'none';
                 if (window.map) {
-                    window.map.setView([30, 83], 5);
-                    window.map.invalidateSize();
+                    setTimeout(() => {
+                        window.map.setView([30, 83], 5);
+                        window.map.invalidateSize();
+                    }, 150);
                 }
                 selectedMountain = null;
                 const card = document.querySelector(`[data-rank="${mountain.rank}"]`);
@@ -690,10 +692,6 @@
             const card = document.querySelector(`[data-rank="${mountain.rank}"]`);
             if (card) card.classList.add('selected');
             selectedMountain = mountain;
-            if (window.map) {
-                window.map.setView([mountain.lat, mountain.lon], 12);
-                window.map.invalidateSize();
-            }
             if (container) container.style.display = 'block';
             const titleEl = document.getElementById('selected-title');
             const imgEl = document.getElementById('selected-img');
@@ -703,6 +701,12 @@
                 imgEl.alt = `Photo of ${mountain.name}`;
             }
             if (interactiveSection) interactiveSection.classList.add('selected');
+            if (window.map) {
+                setTimeout(() => {
+                    window.map.invalidateSize();
+                    window.map.setView([mountain.lat, mountain.lon], 12);
+                }, 150);
+            }
         };
         const initMap = () => {
             if (!window.L || !document.getElementById('map')) return;
