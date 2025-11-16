@@ -144,6 +144,7 @@
             border-radius: 0.75rem;
             padding: 1rem;
             border: 1px solid #334155;
+            position: relative;
         }
         .selected-image-container h3 {
             font-size: 1.25rem;
@@ -155,6 +156,26 @@
             height: 24rem;
             object-fit: cover;
             border-radius: 0.5rem;
+        }
+        .close-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+        .close-button:hover {
+            background: rgba(0,0,0,0.7);
         }
         .mountains-grid {
             display: grid;
@@ -313,6 +334,7 @@
                 </div>
             </div>
             <div class="selected-image-container">
+                <button class="close-button" onclick="closePhoto()">×</button>
                 <h3 id="selected-title"></h3>
                 <img id="selected-img" src="" alt="" class="selected-img">
             </div>
@@ -708,6 +730,11 @@
                 }, 150);
             }
         };
+        function closePhoto() {
+            if (selectedMountain) {
+                setSelectedMountain(selectedMountain);
+            }
+        }
         const initMap = () => {
             if (!window.L || !document.getElementById('map')) return;
             const L = window.L;
