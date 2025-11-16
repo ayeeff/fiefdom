@@ -80,13 +80,21 @@
             font-size: 1.5rem;
             font-weight: bold;
         }
+        .interactive-section {
+            display: block;
+            margin-bottom: 1.5rem;
+        }
+        .interactive-section.selected {
+            display: flex;
+            gap: 1rem;
+        }
         .map-container {
             background: rgba(30, 41, 59, 0.5);
             backdrop-filter: blur(20px);
             border-radius: 0.75rem;
             padding: 1rem;
             border: 1px solid #334155;
-            margin-bottom: 1.5rem;
+            flex: 1;
         }
         .map-container h2 {
             font-size: 1.25rem;
@@ -97,6 +105,7 @@
             height: 24rem;
             border-radius: 0.5rem;
             overflow: hidden;
+            width: 100%;
         }
         .legend {
             margin-top: 1rem;
@@ -128,13 +137,13 @@
             background: #ef4444;
         }
         .selected-image-container {
+            flex: 1;
             display: none;
             background: rgba(30, 41, 59, 0.5);
             backdrop-filter: blur(20px);
             border-radius: 0.75rem;
             padding: 1rem;
             border: 1px solid #334155;
-            margin-bottom: 1.5rem;
         }
         .selected-image-container h3 {
             font-size: 1.25rem;
@@ -143,7 +152,7 @@
         }
         .selected-img {
             width: 100%;
-            height: 16rem;
+            height: 24rem;
             object-fit: cover;
             border-radius: 0.5rem;
         }
@@ -280,31 +289,33 @@
                 </div>
             </div>
         </div>
-        <div class="map-container">
-            <h2>Himalayan & Karakoram Range</h2>
-            <div id="map" class="map"></div>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="color low"></div>
-                    <span>Low Risk (&lt;5%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="color medium"></div>
-                    <span>Medium (5-10%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="color high"></div>
-                    <span>High (10-20%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="color extreme"></div>
-                    <span>Extreme (&gt;20%)</span>
+        <div class="interactive-section">
+            <div class="map-container">
+                <h2>Himalayan & Karakoram Range</h2>
+                <div id="map" class="map"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="color low"></div>
+                        <span>Low Risk (&lt;5%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color medium"></div>
+                        <span>Medium (5-10%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color high"></div>
+                        <span>High (10-20%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color extreme"></div>
+                        <span>Extreme (&gt;20%)</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="selected-image-container">
-            <h3 id="selected-title"></h3>
-            <img id="selected-img" src="" alt="" class="selected-img">
+            <div class="selected-image-container">
+                <h3 id="selected-title"></h3>
+                <img id="selected-img" src="" alt="" class="selected-img">
+            </div>
         </div>
         <div class="mountains-grid">
             <div class="mountain-card" data-rank="1">
@@ -322,7 +333,7 @@
                         <div class="value">8,188m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~1.2% (3,600 summits, 44 deaths)</div>
+                        <div class="value deaths">(3,600 summits, 44 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -345,7 +356,7 @@
                         <div class="value">8,516m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~2% (1,000 summits, 20 deaths)</div>
+                        <div class="value deaths">(1,000 summits, 20 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -368,7 +379,7 @@
                         <div class="value">8,848m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~3% (11,000+ summits, 335 deaths)</div>
+                        <div class="value deaths">(11,000+ summits, 335 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -391,7 +402,7 @@
                         <div class="value">8,035m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~3% (930 summits, 30 deaths)</div>
+                        <div class="value deaths">(930 summits, 30 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -414,7 +425,7 @@
                         <div class="value">8,051m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~9% (445 summits, 40 deaths)</div>
+                        <div class="value deaths">(445 summits, 40 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -437,7 +448,7 @@
                         <div class="value">8,163m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~5.7% (2,000+ summits, 100+ deaths)</div>
+                        <div class="value deaths">(2,000+ summits, 100+ deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -460,7 +471,7 @@
                         <div class="value">8,485m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~7% (525 summits, 35 deaths)</div>
+                        <div class="value deaths">(525 summits, 35 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -483,7 +494,7 @@
                         <div class="value">8,027m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~8% (350 summits, 30 deaths)</div>
+                        <div class="value deaths">(350 summits, 30 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -506,7 +517,7 @@
                         <div class="value">8,080m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~9% (350 summits, 30 deaths)</div>
+                        <div class="value deaths">(350 summits, 30 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -529,7 +540,7 @@
                         <div class="value">8,167m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~13% (500+ summits, 70 deaths)</div>
+                        <div class="value deaths">(500+ summits, 70 deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -552,7 +563,7 @@
                         <div class="value">8,586m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~18% (<500 summits, 85+ deaths)</div>
+                        <div class="value deaths">(<500 summits, 85+ deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -575,7 +586,7 @@
                         <div class="value">8,126m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~20% (450 summits, 85+ deaths)</div>
+                        <div class="value deaths">(450 summits, 85+ deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -598,7 +609,7 @@
                         <div class="value">8,611m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~26% (520 summits, 135+ deaths)</div>
+                        <div class="value deaths">(520 summits, 135+ deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -621,7 +632,7 @@
                         <div class="value">8,091m</div>
                     </div>
                     <div>
-                        <div class="value deaths">~30% (365 summits, 110+ deaths)</div>
+                        <div class="value deaths">(365 summits, 110+ deaths)</div>
                     </div>
                     <div>
                         <div class="label">Price to Summit Peak</div>
@@ -633,20 +644,20 @@
     </div>
     <script>
         const mountains = [
-            {rank:1,name:"Cho Oyu",country:"Nepal/Tibet",height:8188,fatality:1.2,cost:"$20,000–$30,000",lat:28.055833,lon:86.634167,summits:3600,deaths:44,image:"https://images.unsplash.com/photo-1745677617575-62b14956f2d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:2,name:"Lhotse",country:"Nepal",height:8516,fatality:2,cost:"$25,000–$35,000",lat:27.961111,lon:86.961111,summits:1000,deaths:20,image:"https://images.unsplash.com/photo-1682530633989-8ffe02334466?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:3,name:"Mount Everest",country:"Nepal/Tibet",height:8848,fatality:3,cost:"$40,000–$70,000",lat:27.988056,lon:86.925278,summits:11000,deaths:335,image:"https://images.unsplash.com/photo-1486911278844-a81c5267e227?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:4,name:"Gasherbrum II",country:"Pakistan",height:8035,fatality:3,cost:"$12,000–$18,000",lat:35.704722,lon:76.651944,summits:930,deaths:30,image:"https://images.unsplash.com/photo-1627896259735-c3b69d107727?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:5,name:"Broad Peak",country:"Pakistan",height:8051,fatality:9,cost:"$13,000–$20,000",lat:35.780556,lon:76.570556,summits:445,deaths:40,image:"https://images.unsplash.com/photo-1627896161046-efd564e91368?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:6,name:"Manaslu",country:"Nepal",height:8163,fatality:5.7,cost:"$24,000–$30,000",lat:28.555556,lon:84.556111,summits:2000,deaths:100,image:"https://images.unsplash.com/photo-1727081243076-de156d350781?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:7,name:"Makalu",country:"Nepal/Tibet",height:8485,fatality:7,cost:"$25,000–$35,000",lat:27.889167,lon:87.080833,summits:525,deaths:35,image:"https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
+            {rank:1,name:"Cho Oyu",country:"Nepal/Tibet",height:8188,fatality:1.2,cost:"$20,000–$30,000",lat:28.055833,lon:86.634167,summits:3600,deaths:44,image:"https://images.unsplash.com/photo-1745677617575-62b14956f2d1?auto=format&fit=crop&w=900&q=80"},
+            {rank:2,name:"Lhotse",country:"Nepal",height:8516,fatality:2,cost:"$25,000–$35,000",lat:27.961111,lon:86.961111,summits:1000,deaths:20,image:"https://images.unsplash.com/photo-1682530633989-8ffe02334466?auto=format&fit=crop&w=900&q=80"},
+            {rank:3,name:"Mount Everest",country:"Nepal/Tibet",height:8848,fatality:3,cost:"$40,000–$70,000",lat:27.988056,lon:86.925278,summits:11000,deaths:335,image:"https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=900&q=80"},
+            {rank:4,name:"Gasherbrum II",country:"Pakistan",height:8035,fatality:3,cost:"$12,000–$18,000",lat:35.704722,lon:76.651944,summits:930,deaths:30,image:"https://images.unsplash.com/photo-1627896259735-c3b69d107727?auto=format&fit=crop&w=900&q=80"},
+            {rank:5,name:"Broad Peak",country:"Pakistan",height:8051,fatality:9,cost:"$13,000–$20,000",lat:35.780556,lon:76.570556,summits:445,deaths:40,image:"https://images.unsplash.com/photo-1627896161046-efd564e91368?auto=format&fit=crop&w=900&q=80"},
+            {rank:6,name:"Manaslu",country:"Nepal",height:8163,fatality:5.7,cost:"$24,000–$30,000",lat:28.555556,lon:84.556111,summits:2000,deaths:100,image:"https://images.unsplash.com/photo-1727081243076-de156d350781?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8TWFuYXNsdXxlbnwwfHwwfHx8MA%3D%3D"},
+            {rank:7,name:"Makalu",country:"Nepal/Tibet",height:8485,fatality:7,cost:"$25,000–$35,000",lat:27.889167,lon:87.080833,summits:525,deaths:35,image:"https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?auto=format&fit=crop&w=900&q=80"},
             {rank:8,name:"Shishapangma",country:"Tibet",height:8027,fatality:8,cost:"$22,000–$28,000",lat:28.352222,lon:84.605556,summits:350,deaths:30,image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/8%2C013m_Shishapangma_Tibet_China_%E8%A5%BF%E8%97%8F_%E5%B8%8C%E5%A4%8F%E9%82%A6%E9%A9%AC%E5%B3%B0_-_panoramio.jpg/960px-8%2C013m_Shishapangma_Tibet_China_%E8%A5%BF%E8%97%8F_%E5%B8%8C%E5%A4%8F%E9%82%A6%E9%A9%AC%E5%B3%B0_-_panoramio.jpg"},
-            {rank:9,name:"Gasherbrum I",country:"Pakistan",height:8080,fatality:9,cost:"$14,000–$20,000",lat:35.720556,lon:76.699444,summits:350,deaths:30,image:"https://images.unsplash.com/photo-1627896259735-c3b69d107727?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:10,name:"Dhaulagiri",country:"Nepal",height:8167,fatality:13,cost:"$25,000–$35,000",lat:28.699167,lon:83.386667,summits:500,deaths:70,image:"https://images.unsplash.com/photo-1727212082051-e4daaf1bc571?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:11,name:"Kangchenjunga",country:"Nepal/India",height:8586,fatality:18,cost:"$25,000–$35,000",lat:27.702222,lon:88.148611,summits:500,deaths:85,image:"https://images.unsplash.com/photo-1718696070605-db38369c5629?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:12,name:"Nanga Parbat",country:"Pakistan",height:8126,fatality:20,cost:"$20,000–$30,000",lat:35.203889,lon:74.589167,summits:450,deaths:85,image:"https://images.unsplash.com/photo-1684925092698-9f69ba626b1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:13,name:"K2",country:"Pakistan/China",height:8611,fatality:26,cost:"$30,000–$45,000",lat:35.882222,lon:76.513333,summits:520,deaths:135,image:"https://images.unsplash.com/photo-1627896157734-4d7d4388f28b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"},
-            {rank:14,name:"Annapurna",country:"Nepal",height:8091,fatality:30,cost:"$28,000–$40,000",lat:28.566667,lon:83.883333,summits:365,deaths:110,image:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"}
+            {rank:9,name:"Gasherbrum I",country:"Pakistan",height:8080,fatality:9,cost:"$14,000–$20,000",lat:35.720556,lon:76.699444,summits:350,deaths:30,image:"https://images.unsplash.com/photo-1627896259735-c3b69d107727?auto=format&fit=crop&w=900&q=80"},
+            {rank:10,name:"Dhaulagiri",country:"Nepal",height:8167,fatality:13,cost:"$25,000–$35,000",lat:28.699167,lon:83.386667,summits:500,deaths:70,image:"https://images.unsplash.com/photo-1727212082051-e4daaf1bc571?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8RGhhdWxhZ2lyaXxlbnwwfHwwfHx8MA%3D%3D"},
+            {rank:11,name:"Kangchenjunga",country:"Nepal/India",height:8586,fatality:18,cost:"$25,000–$35,000",lat:27.702222,lon:88.148611,summits:500,deaths:85,image:"https://images.unsplash.com/photo-1718696070605-db38369c5629?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8S2FuZ2NoZW5qdW5nYXxlbnwwfHwwfHx8MA%3D%3D"},
+            {rank:12,name:"Nanga Parbat",country:"Pakistan",height:8126,fatality:20,cost:"$20,000–$30,000",lat:35.203889,lon:74.589167,summits:450,deaths:85,image:"https://images.unsplash.com/photo-1684925092698-9f69ba626b1c?auto=format&fit=crop&w=900&q=80"},
+            {rank:13,name:"K2",country:"Pakistan/China",height:8611,fatality:26,cost:"$30,000–$45,000",lat:35.882222,lon:76.513333,summits:520,deaths:135,image:"https://images.unsplash.com/photo-1627896157734-4d7d4388f28b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8SzIlMjBtb3VudGFpbnxlbnwwfHwwfHx8MA%3D%3D"},
+            {rank:14,name:"Annapurna",country:"Nepal",height:8091,fatality:30,cost:"$28,000–$40,000",lat:28.566667,lon:83.883333,summits:365,deaths:110,image:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80"}
         ];
         const getDangerColor = (fatality) => {
             if (fatality < 5) return '#10b981';
@@ -656,6 +667,22 @@
         };
         let selectedMountain = null;
         const setSelectedMountain = (mountain) => {
+            const interactiveSection = document.querySelector('.interactive-section');
+            const container = document.querySelector('.selected-image-container');
+            if (selectedMountain && selectedMountain.rank === mountain.rank) {
+                // deselect
+                if (interactiveSection) interactiveSection.classList.remove('selected');
+                if (container) container.style.display = 'none';
+                if (window.map) {
+                    window.map.setView([30, 83], 5);
+                    window.map.invalidateSize();
+                }
+                selectedMountain = null;
+                const card = document.querySelector(`[data-rank="${mountain.rank}"]`);
+                if (card) card.classList.remove('selected');
+                return;
+            }
+            // select
             if (selectedMountain) {
                 const prevCard = document.querySelector(`[data-rank="${selectedMountain.rank}"]`);
                 if (prevCard) prevCard.classList.remove('selected');
@@ -665,16 +692,17 @@
             selectedMountain = mountain;
             if (window.map) {
                 window.map.setView([mountain.lat, mountain.lon], 12);
+                window.map.invalidateSize();
             }
-            const container = document.querySelector('.selected-image-container');
+            if (container) container.style.display = 'block';
             const titleEl = document.getElementById('selected-title');
             const imgEl = document.getElementById('selected-img');
-            if (container && titleEl && imgEl) {
-                container.style.display = 'block';
+            if (titleEl && imgEl) {
                 titleEl.textContent = `Photo of ${mountain.name}`;
                 imgEl.src = mountain.image;
                 imgEl.alt = `Photo of ${mountain.name}`;
             }
+            if (interactiveSection) interactiveSection.classList.add('selected');
         };
         const initMap = () => {
             if (!window.L || !document.getElementById('map')) return;
