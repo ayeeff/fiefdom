@@ -7,503 +7,129 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>.orbitron { font-family: 'Orbitron', monospace; } .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } } .shimmer-text { background-size: 200% 100%; animation: shimmer 2s linear infinite; } #globeViz { width: 100%; height: 700px; } .filter-btn { transition: all 0.2s; } .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }</style>
+    <style>.orbitron { font-family: 'Orbitron', monospace; } .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } } .shimmer-text { background: linear-gradient(90deg, transparent, #ff6b6b, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite; } #globeViz { width: 100%; height: 700px; } .filter-btn { transition: all 0.2s; } .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }</style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 min-h-screen text-white">
     <div class="container mx-auto p-4">
-        <!-- Header -->
         <div class="mb-6 speed-card p-6 rounded-xl">
-            <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">
-                Nuclear SSBN Patrol Network
-            </h1>
-            <p class="text-center text-gray-300 text-sm mb-4">
-                Ohio-class submarine patrol circuits and nuclear umbrella coverage zones
-            </p>
-            
-            <!-- Filter Controls -->
+            <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">Nuclear SSBN Patrol Network</h1>
+            <p class="text-center text-gray-300 text-sm mb-4">Ohio-class submarine patrol circuits and nuclear umbrella coverage zones</p>
             <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="filterView('all')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-all">
-                    🌍 All Coverage
-                </button>
-                <button onclick="filterView('pacific')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-pacific">
-                    🌊 Pacific Theater
-                </button>
-                <button onclick="filterView('atlantic')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-atlantic">
-                    🌊 Atlantic Theater
-                </button>
-                <button onclick="filterView('umbrellas')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-umbrellas">
-                    🛡️ Umbrella Zones
-                </button>
+                <button onclick="filterView('all')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-all">🌍 All Coverage</button>
+                <button onclick="filterView('pacific')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-pacific">🌊 Pacific Theater</button>
+                <button onclick="filterView('atlantic')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-atlantic">🌊 Atlantic Theater</button>
+                <button onclick="filterView('umbrellas')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-umbrellas">🛡️ Umbrella Zones</button>
             </div>
         </div>
-
-        <!-- Loading State -->
         <div id="loading" class="text-center py-12">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
             <p class="mt-4 text-gray-400">Loading SSBN patrol data...</p>
         </div>
-
-        <!-- Main Content -->
         <div id="mainContent" class="hidden">
-            <!-- 3D Globe -->
             <div class="mb-6 speed-card p-6 rounded-xl">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold orbitron text-red-400">🛡️ Strategic Deterrence Network</h2>
-                    <div class="text-sm text-gray-400">
-                        <span id="patrolInfo">Visualizing SSBN patrol circuits and coverage zones</span>
-                    </div>
+                    <div class="text-sm text-gray-400"><span id="patrolInfo">Visualizing SSBN patrol circuits and coverage zones</span></div>
                 </div>
                 <div id="globeViz"></div>
             </div>
-
-            <!-- Legend -->
             <div class="mb-6 speed-card p-6 rounded-xl">
                 <h2 class="text-xl font-bold orbitron mb-4 text-orange-400">Legend</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="space-y-2">
                         <div class="text-xs font-bold text-gray-400 mb-2">SSBN PATROL ROUTES</div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-1 bg-blue-500"></div>
-                            <span class="text-sm">U.S. Pacific SSBN</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-1 bg-purple-500"></div>
-                            <span class="text-sm">U.S. Atlantic SSBN</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-1 bg-red-500"></div>
-                            <span class="text-sm">Adversary SSBN</span>
-                        </div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-blue-500"></div><span class="text-sm">U.S. Pacific SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-purple-500"></div><span class="text-sm">U.S./Ally Atlantic SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-green-200"></div><span class="text-sm">Sino-Russian SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-amber-700"></div><span class="text-sm">Indian SSBN</span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">SSN PATROL ROUTES</div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-red-500"></div><span class="text-sm">U.S./Ally Pacific/Indian Ocean SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-orange-500"></div><span class="text-sm">U.S./Ally Atlantic SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-yellow-500"></div><span class="text-sm">Sino-Russian SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-amber-700"></div><span class="text-sm">Indian SSN</span></div>
                     </div>
                     <div class="space-y-2">
                         <div class="text-xs font-bold text-gray-400 mb-2">NAVAL BASES</div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-blue-500"></div>
-                            <span class="text-sm">U.S. Base</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-red-500"></div>
-                            <span class="text-sm">Adversary Base</span>
-                        </div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-blue-500"></div><span class="text-sm">U.S./Ally Base</span></div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-green-600"></div><span class="text-sm">Sino-Russian Base</span></div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-amber-700"></div><span class="text-sm">Indian Base</span></div>
                     </div>
                     <div class="space-y-2">
                         <div class="text-xs font-bold text-gray-400 mb-2">NUCLEAR UMBRELLAS</div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-4 bg-blue-500 rounded"></div>
-                            <span class="text-sm">U.S. Umbrella</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-4 bg-green-600 rounded"></div>
-                            <span class="text-sm">Sino-Russian Bloc</span>
-                        </div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-blue-500 rounded"></div><span class="text-sm">U.S. Umbrella</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-green-600 rounded"></div><span class="text-sm">Sino-Russian Bloc</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-cyan-500 rounded"></div><span class="text-sm">Saudi-Pakistan Umbrella</span></div>
                     </div>
                     <div class="space-y-2">
                         <div class="text-xs font-bold text-gray-400 mb-2">REGIONAL POWERS</div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-4 bg-gray-300 rounded"></div>
-                            <span class="text-sm">Israel</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-4 bg-amber-700 rounded"></div>
-                            <span class="text-sm">India</span>
-                        </div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-gray-300 rounded"></div><span class="text-sm">Israel</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-amber-700 rounded"></div><span class="text-sm">India</span></div>
                     </div>
                 </div>
             </div>
-
-            <!-- Regional Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                 <div class="speed-card p-4 rounded-xl">
                     <div class="text-3xl mb-2">🇺🇸</div>
                     <h3 class="text-lg font-bold text-blue-400 mb-2">U.S. Umbrella</h3>
                     <div class="space-y-1 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Pacific:</span>
-                            <span class="text-blue-400 font-bold" id="us-pacific">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Atlantic:</span>
-                            <span class="text-purple-400 font-bold" id="us-atlantic">0</span>
-                        </div>
+                        <div class="flex justify-between"><span class="text-gray-400">Pacific:</span><span class="text-blue-400 font-bold" id="us-pacific">0</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Atlantic:</span><span class="text-purple-400 font-bold" id="us-atlantic">0</span></div>
                         <div class="text-xs text-gray-500 mt-2">NATO, Japan, South Korea, Australia</div>
                     </div>
                 </div>
-
                 <div class="speed-card p-4 rounded-xl">
                     <div class="text-3xl mb-2">🇷🇺🇨🇳</div>
                     <h3 class="text-lg font-bold text-green-400 mb-2">Sino-Russian Bloc</h3>
                     <div class="space-y-1 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Total:</span>
-                            <span class="text-green-400 font-bold" id="sino-russian">0</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mt-2">China, Russia, North Korea, Pakistan</div>
+                        <div class="flex justify-between"><span class="text-gray-400">Total:</span><span class="text-green-400 font-bold" id="sino-russian">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">China, Russia, North Korea</div>
                     </div>
                 </div>
-
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇸🇦🇵🇰</div>
+                    <h3 class="text-lg font-bold text-cyan-400 mb-2">Saudi-Pakistan Umbrella</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-cyan-400 font-bold" id="saudi-pakistan">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">Saudi Arabia, Pakistan</div>
+                    </div>
+                </div>
                 <div class="speed-card p-4 rounded-xl">
                     <div class="text-3xl mb-2">🇮🇱</div>
                     <h3 class="text-lg font-bold text-gray-300 mb-2">Israeli Arsenal</h3>
                     <div class="space-y-1 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Warheads:</span>
-                            <span class="text-gray-300 font-bold" id="israel">0</span>
-                        </div>
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-gray-300 font-bold" id="israel">0</span></div>
                         <div class="text-xs text-gray-500 mt-2">Regional deterrence</div>
                     </div>
                 </div>
-
                 <div class="speed-card p-4 rounded-xl">
                     <div class="text-3xl mb-2">🇮🇳</div>
                     <h3 class="text-lg font-bold text-amber-400 mb-2">Indian Arsenal</h3>
                     <div class="space-y-1 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Warheads:</span>
-                            <span class="text-amber-400 font-bold" id="india">0</span>
-                        </div>
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-amber-400 font-bold" id="india">0</span></div>
                         <div class="text-xs text-gray-500 mt-2">Independent deterrence</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Deployment Details -->
             <div class="mb-6 speed-card p-6 rounded-xl">
                 <h2 class="text-2xl font-bold orbitron mb-4 text-yellow-400">Strategic Deployment Details</h2>
                 <div id="deploymentsGrid" class="space-y-4"></div>
             </div>
         </div>
     </div>
-
     <script>
-        let nuclearData = [];
-        let globe;
-        let currentView = 'all';
-        let countriesGeoData;
-
-        // Nuclear umbrella coverage by country
-        const umbrellaZones = {
-            us: [
-                'United States of America', 'Canada', 'Mexico',
-                'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Netherlands', 'Belgium', 
-                'Portugal', 'Czech Republic', 'Greece', 'Hungary', 'Sweden', 'Austria', 'Switzerland',
-                'Denmark', 'Finland', 'Slovakia', 'Norway', 'Ireland', 'Croatia', 'Luxembourg',
-                'Slovenia', 'Lithuania', 'Latvia', 'Estonia', 'Romania', 'Bulgaria',
-                'Japan', 'South Korea', 'Australia', 'New Zealand', 'Philippines', 'Thailand', 'Singapore',
-                'Taiwan', 'Saudi Arabia', 'United Arab Emirates', 'Jordan', 'Egypt', 'Iraq', 'Kuwait', 'Bahrain', 'Qatar'
-            ],
-            sinoRussian: [
-                'Russia', 'China', 'North Korea', 'Pakistan', 'Belarus', 'Kazakhstan', 'Kyrgyzstan',
-                'Tajikistan', 'Uzbekistan', 'Turkmenistan', 'Mongolia', 'Laos', 'Cambodia', 'Myanmar',
-                'Syria', 'Iran', 'Venezuela', 'Cuba', 'Nicaragua'
-            ],
-            israel: ['Israel'],
-            india: ['India', 'Bhutan']
-        };
-
-        // SSBN Patrol Circuits
-        const patrolCircuits = {
-            pacific: [
-                { coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }
-            ],
-            atlantic: [
-                { coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol' }
-            ],
-            russian_pacific: [
-                { coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#ef4444', name: 'Russian Pacific SSBN Patrol' }
-            ],
-            russian_atlantic: [
-                { coords: [[69.26, 33.33], [72, 35], [75, 30], [75, 20], [73, 10], [70, 5], [68, 15], [69, 25], [69.26, 33.33]], color: '#ef4444', name: 'Russian Atlantic SSBN Patrol' }
-            ],
-            chinese: [
-                { coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]], color: '#ef4444', name: 'Chinese SSBN Patrol' }
-            ]
-        };
-
-        // Base locations
-        const baseLocations = {
-            'Bangor, Washington': { lat: 47.7267, lng: -122.7113, country: 'USA', type: 'Pacific' },
-            'Kings Bay, Georgia': { lat: 30.7969, lng: -81.5526, country: 'USA', type: 'Atlantic' },
-            'Kamchatka, Kamchatka Krai': { lat: 53.0123, lng: 158.6486, country: 'Russia', type: 'Pacific' },
-            'Gadzhiyevo, Murmansk Oblast': { lat: 69.2553, lng: 33.3250, country: 'Russia', type: 'Atlantic' },
-            'Yalong Bay, Hainan': { lat: 18.2383, lng: 109.5144, country: 'China', type: 'Pacific' }
-        };
-
-        async function loadData() {
-            try {
-                // Load countries GeoJSON
-                const geoResponse = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
-                const topoData = await geoResponse.json();
-                countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features;
-
-                // Inline CSV data (replaces broken fetch)
-                const csvText = `Country / leg,Home Base,Total Stockpile,Deployed Warheads,Strategic Nukes,Tactical Nukes,SLBM Warheads,Region,Notes
-USA Pacific SSBN,Naval Base Kitsap - Bangor,3624,1620,2900,0,1440,Pacific,Ohio-class (14 boats); patrols First Island Chain; Trident II D5 SLBMs
-USA Atlantic SSBN,Naval Submarine Base Kings Bay,1553,50,800,0,230,Atlantic,Ohio-class (5 boats); GIUK Gap patrols; NATO extended deterrence
-Russia Pacific SSBN,Vilyuchinsk (Kamchatka),800,200,600,100,400,Pacific,Borei-class; Sea of Okhotsk bastion; Bulava SLBMs
-Russia Atlantic SSBN,Gadzhiyevo (Murmansk),2509,1200,1800,400,1000,Atlantic,Delta IV & Borei; Barents Sea patrols; Sino-Russian coordination
-China SSBN,Yalong Bay (Hainan),600,24,500,0,500,Pacific,JL-3 SLBMs on Type 094; South China Sea patrols expanding
-North Korea SLBM,Sinpo Shipyard,50,0,0,0,50,Pacific,KN-23 tests; limited sea-based capability
-Israel Sea-Based,Dolphin-class (Haifa),90,0,90,0,90,Mediterranean,Second-strike capability; rumored Popeye Turbo SLCM
-India SSBN,Visakhapatnam,180,0,150,0,150,Indian Ocean,Arihant-class; K-15 Sagarika SLBMs; independent deterrence
-Pakistan Sea-Based,Expected Ormara,0,0,0,0,0,Arabian Sea,Babur cruise missiles planned; no operational SSBN yet`;
-
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    dynamicTyping: true,
-                    complete: function(results) {
-                        nuclearData = results.data;
-                        processData();
-                        initGlobe();
-                        renderDashboard();
-                    }
-                });
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('loading').innerHTML = '<p class="text-red-400">Error loading data. Please try again.</p>';
-            }
-        }
-
-        function parseNumber(val) {
-            if (val === null || val === undefined || val === '—' || val === '') return 0;
-            if (typeof val === 'number') return val;
-            const str = String(val).replace(/[~,]/g, '').trim();
-            const num = parseFloat(str);
-            return isNaN(num) ? 0 : num;
-        }
-
-        function processData() {
-            nuclearData.forEach(row => {
-                row.parsedStockpile = parseNumber(row['Total Stockpile']);
-                row.parsedDeployed = parseNumber(row['Deployed Warheads']);
-                row.parsedStrategic = parseNumber(row['Strategic Nukes']);
-                row.parsedTactical = parseNumber(row['Tactical Nukes']);
-                row.parsedSLBM = parseNumber(row['SLBM Warheads']);
-            });
-        }
-
-        function getCountryUmbrella(countryName) {
-            if (umbrellaZones.us.includes(countryName)) return { color: 'rgba(59, 130, 246, 0.6)', name: 'U.S. Umbrella' };
-            if (umbrellaZones.sinoRussian.includes(countryName)) return { color: 'rgba(22, 163, 74, 0.6)', name: 'Sino-Russian Bloc' };
-            if (umbrellaZones.israel.includes(countryName)) return { color: 'rgba(229, 231, 235, 0.6)', name: 'Israeli Arsenal' };
-            if (umbrellaZones.india.includes(countryName)) return { color: 'rgba(180, 83, 9, 0.6)', name: 'Indian Arsenal' };
-            return { color: 'rgba(30, 41, 55, 0.4)', name: 'Neutral' };
-        }
-
-        function initGlobe() {
-            const world = Globe()
-                (document.getElementById('globeViz'))
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-                .pointOfView({ lat: 30, lng: 0, altitude: 2.5 })
-                .atmosphereColor('#ff6b6b')
-                .atmosphereAltitude(0.15);
-
-            globe = world;
-            updateGlobe(); // Call updateGlobe after globe init
-        }
-
-        function updateGlobe() {
-            const points = [];
-            const paths = [];
-
-            // Add patrol circuits based on current view
-            if (currentView === 'all' || currentView === 'pacific') {
-                patrolCircuits.pacific.forEach(circuit => {
-                    paths.push({
-                        coords: circuit.coords,
-                        color: circuit.color,
-                        label: circuit.name
-                    });
-                });
-                patrolCircuits.russian_pacific.forEach(circuit => {
-                    paths.push({
-                        coords: circuit.coords,
-                        color: circuit.color,
-                        label: circuit.name
-                    });
-                });
-                patrolCircuits.chinese.forEach(circuit => {
-                    paths.push({
-                        coords: circuit.coords,
-                        color: circuit.color,
-                        label: circuit.name
-                    });
-                });
-            }
-
-            if (currentView === 'all' || currentView === 'atlantic') {
-                patrolCircuits.atlantic.forEach(circuit => {
-                    paths.push({
-                        coords: circuit.coords,
-                        color: circuit.color,
-                        label: circuit.name
-                    });
-                });
-                patrolCircuits.russian_atlantic.forEach(circuit => {
-                    paths.push({
-                        coords: circuit.coords,
-                        color: circuit.color,
-                        label: circuit.name
-                    });
-                });
-            }
-
-            // Add base points
-            Object.entries(baseLocations).forEach(([name, loc]) => {
-                if (currentView === 'all' || 
-                    (currentView === 'pacific' && loc.type === 'Pacific') ||
-                    (currentView === 'atlantic' && loc.type === 'Atlantic') ||
-                    currentView === 'umbrellas') {
-                    
-                    points.push({
-                        lat: loc.lat,
-                        lng: loc.lng,
-                        size: 1.5,
-                        color: loc.country === 'USA' ? '#3b82f6' : '#ef4444',
-                        label: `${name}\n${loc.country} Naval Base`
-                    });
-                }
-            });
-
-            globe
-                .pointsData(points)
-                .pointAltitude('size')
-                .pointColor('color')
-                .pointLabel('label')
-                .pointRadius(0.5)
-                .pathsData(currentView === 'umbrellas' ? [] : paths)
-                .pathPoints('coords')
-                .pathPointLat(p => p[0])
-                .pathPointLng(p => p[1])
-                .pathColor('color')
-                .pathLabel('label')
-                .pathStroke(2)
-                .pathDashLength(0.3)
-                .pathDashGap(0.1)
-                .pathDashAnimateTime(6000)
-                .pathTransitionDuration(1000);
-
-            // Add choropleth for umbrella zones
-            if (countriesGeoData) {
-                globe
-                    .polygonsData(countriesGeoData)
-                    .polygonAltitude(0.01)
-                    .polygonCapColor(feat => {
-                        const countryName = feat.properties.name;
-                        return getCountryUmbrella(countryName).color;
-                    })
-                    .polygonSideColor(() => 'rgba(0, 0, 0, 0.1)')
-                    .polygonStrokeColor(() => '#111')
-                    .polygonLabel(feat => {
-                        const umbrella = getCountryUmbrella(feat.properties.name);
-                        return `<b>${feat.properties.name}</b><br/>${umbrella.name}`;
-                    });
-            }
-
-            // Update info text
-            const info = currentView === 'pacific' ? 'Pacific SSBN patrol circuits protecting First Island Chain' :
-                        currentView === 'atlantic' ? 'Atlantic SSBN patrol circuits protecting NATO via GIUK Gap' :
-                        currentView === 'umbrellas' ? 'Nuclear umbrella coverage zones by alliance' :
-                        'All SSBN patrol circuits and umbrella coverage zones';
-            document.getElementById('patrolInfo').textContent = info;
-        }
-
-        function filterView(view) {
-            currentView = view;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`btn-${view}`).classList.add('active');
-            
-            updateGlobe();
-
-            // Adjust camera based on view
-            if (view === 'pacific') {
-                globe.pointOfView({ lat: 35, lng: 150, altitude: 2 }, 1000);
-            } else if (view === 'atlantic') {
-                globe.pointOfView({ lat: 50, lng: -20, altitude: 2 }, 1000);
-            } else {
-                globe.pointOfView({ lat: 30, lng: 0, altitude: 2.5 }, 1000);
-            }
-        }
-
-        function renderDashboard() {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-
-            // Calculate stats
-            const pacificData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Pacific'));
-            const atlanticData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Atlantic'));
-            const sinoRussianData = nuclearData.filter(r => 
-                ['Russia', 'China', 'North Korea', 'Pakistan'].some(c => r['Country / leg'].includes(c))
-            );
-            const israelData = nuclearData.filter(r => r['Country / leg'].includes('Israel'));
-            const indiaData = nuclearData.filter(r => r['Country / leg'].includes('India'));
-
-            const pacificTotal = pacificData.reduce((sum, r) => sum + r.parsedStockpile, 0);
-            const atlanticTotal = atlanticData.reduce((sum, r) => sum + r.parsedStockpile, 0);
-            const sinoRussianTotal = sinoRussianData.reduce((sum, r) => sum + r.parsedStockpile, 0);
-            const israelTotal = israelData.reduce((sum, r) => sum + r.parsedStockpile, 0);
-            const indiaTotal = indiaData.reduce((sum, r) => sum + r.parsedStockpile, 0);
-
-            document.getElementById('us-pacific').textContent = pacificTotal.toLocaleString();
-            document.getElementById('us-atlantic').textContent = atlanticTotal.toLocaleString();
-            document.getElementById('sino-russian').textContent = sinoRussianTotal.toLocaleString();
-            document.getElementById('israel').textContent = israelTotal.toLocaleString();
-            document.getElementById('india').textContent = indiaTotal.toLocaleString();
-
-            renderDeploymentsGrid();
-        }
-
-        function renderDeploymentsGrid() {
-            const grid = document.getElementById('deploymentsGrid');
-            const ssbns = nuclearData.filter(r => r['Country / leg'].includes('SSBN') || r['Country / leg'].includes('Sea'));
-            
-            grid.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    ${ssbns.map(d => `
-                        <div class="bg-slate-800/50 border border-slate-600/30 rounded-xl p-4">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <div class="font-bold text-lg text-white">${d['Country / leg']}</div>
-                                    <div class="text-sm text-gray-400">📍 ${d['Home Base']}</div>
-                                    <div class="text-xs text-purple-400 mt-1">${d.Region} Theater</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-black text-red-400">${d.parsedStockpile.toLocaleString()}</div>
-                                    <div class="text-xs text-gray-400">warheads</div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 mb-3 text-xs">
-                                <div class="bg-slate-700/50 p-2 rounded text-center">
-                                    <div class="text-gray-400">Deployed</div>
-                                    <div class="text-orange-400 font-bold">${d.parsedDeployed.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-700/50 p-2 rounded text-center">
-                                    <div class="text-gray-400">Strategic</div>
-                                    <div class="text-yellow-400 font-bold">${d.parsedStrategic.toLocaleString()}</div>
-                                </div>
-                                <div class="bg-slate-700/50 p-2 rounded text-center">
-                                    <div class="text-gray-400">SLBM</div>
-                                    <div class="text-blue-400 font-bold">${d.parsedSLBM.toLocaleString()}</div>
-                                </div>
-                            </div>
-                            <div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${d['Notes']}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        // Load topojson and initialize
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js';
-        script.onload = () => {
-            loadData();
-        };
-        document.head.appendChild(script);
+        let nuclearData = []; let globe; let currentView = 'all'; let countriesGeoData; const umbrellaZones = { us: ['United States of America', 'Canada', 'Mexico', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Netherlands', 'Belgium', 'Portugal', 'Czech Republic', 'Greece', 'Hungary', 'Sweden', 'Austria', 'Switzerland', 'Denmark', 'Finland', 'Slovakia', 'Norway', 'Ireland', 'Croatia', 'Luxembourg', 'Slovenia', 'Lithuania', 'Latvia', 'Estonia', 'Romania', 'Bulgaria', 'Japan', 'South Korea', 'Australia', 'New Zealand', 'Philippines', 'Thailand', 'Singapore', 'Taiwan'], sinoRussian: ['Russia', 'China', 'North Korea', 'Belarus', 'Kazakhstan', 'Kyrgyzstan', 'Tajikistan', 'Uzbekistan', 'Turkmenistan', 'Mongolia', 'Laos', 'Cambodia', 'Myanmar', 'Iran', 'Venezuela', 'Cuba', 'Nicaragua'], saudiPakistan: ['Saudi Arabia', 'United Arab Emirates', 'Jordan', 'Egypt', 'Iraq', 'Kuwait', 'Bahrain', 'Qatar', 'Pakistan'], israel: ['Israel'], india: ['India', 'Bhutan'] };         const patrolCircuits = { pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }], atlantic: [{ coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol' }, { coords: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]], color: '#8b5cf6', name: 'UK Vanguard SSBN Patrol' }, { coords: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]], color: '#8b5cf6', name: 'French Le Triomphant SSBN Patrol' }], russian_pacific: [{ coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Pacific SSBN Patrol' }], russian_atlantic: [{ coords: [[69.26, 33.33], [72, 35], [75, 30], [75, 20], [73, 10], [70, 5], [68, 15], [69, 25], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Atlantic SSBN Patrol' }], chinese: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN Patrol' }], indian_ssbn: [{ coords: [[17.68, 83.22], [15, 85], [12, 88], [10, 90], [8, 92], [10, 95], [12, 93], [15, 90], [18, 87], [20, 85], [17.68, 83.22]], color: '#b45309', name: 'Indian SSBN Patrol (Bay of Bengal)' }], us_ssn_pacific: [{ coords: [[21.35, -157.92], [20, -160], [15, -170], [10, 160], [15, 150], [20, 140], [21.35, -157.92]], color: '#ef4444', name: 'US Virginia SSN Pacific Patrol' }], us_ssn_indian_ocean: [{ coords: [[-7.32, 72.42], [-10, 75], [-12, 80], [-15, 85], [-18, 90], [-20, 95], [-22, 100], [-25, 105], [-28, 110], [-30, 112], [-32, 115.77]], color: '#ef4444', name: 'US SSN Indian Ocean to Australia Patrol' }], us_ssn_diego_garcia_patrol: [{ coords: [[-7.32, 72.42], [-5, 70], [-3, 68], [0, 65], [3, 62], [5, 60], [3, 65], [0, 68], [-3, 70], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Diego Garcia Patrol' }], us_ssn_malacca_patrol: [{ coords: [[-7.32, 72.42], [0, 80], [2, 90], [3, 98], [2, 102], [1, 101], [2, 100], [3, 98], [0, 90], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Malacca Strait Patrol' }], us_ssn_hormuz_patrol: [{ coords: [[-7.32, 72.42], [0, 65], [10, 60], [20, 58], [26, 56], [27, 55], [26, 56.5], [20, 58], [10, 60], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Strait of Hormuz Patrol' }], us_ssn_atlantic: [{ coords: [[36.94, -76.33], [40, -70], [45, -60], [50, -50], [45, -55], [40, -65], [36.94, -76.33]], color: '#f97316', name: 'US Virginia SSN Atlantic Patrol' }], russian_ssn_arctic: [{ coords: [[69.26, 33.33], [70, 20], [75, 10], [70, 0], [65, 15], [69.26, 33.33]], color: '#eab308', name: 'Russian Yasen SSN Arctic Patrol' }], chinese_ssn: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [12, 130], [15, 125], [18.24, 109.51]], color: '#eab308', name: 'Chinese Type 093 SSN Patrol' }], chinese_ssn_miyako: [{ coords: [[18.24, 109.51], [20, 118], [23, 123], [25, 126], [26, 128], [25, 127], [23, 124], [20, 120], [18.24, 109.51]], color: '#eab308', name: 'Chinese SSN Miyako Strait Transit' }], chinese_ssn_luzon: [{ coords: [[18.24, 109.51], [18, 115], [19, 120], [20, 122], [19, 121], [18, 118], [18.24, 109.51]], color: '#eab308', name: 'Chinese SSN Luzon/Bashi Channel Transit' }], japanese_ssn_first_island: [{ coords: [[33.59, 130.40], [30, 128], [27, 125], [25, 123], [23, 121], [21, 120], [19, 121], [20, 122], [22, 121.5], [24, 122], [26, 124], [28, 127], [30, 129], [33.59, 130.40]], color: '#ef4444', name: 'Japanese SSK First Island Chain Patrol' }], indian_ssn: [{ coords: [[17.68, 83.22], [15, 80], [12, 75], [10, 70], [8, 65], [5, 70], [8, 75], [12, 80], [15, 82], [17.68, 83.22]], color: '#b45309', name: 'Indian Chakra SSN Patrol (Arabian Sea)' }], uk_ssn: [{ coords: [[56.03, -4.92], [55, -15], [50, -25], [45, -20], [50, -10], [56.03, -4.92]], color: '#f97316', name: 'UK Astute SSN Patrol' }], uk_ssn_giuk: [{ coords: [[56.03, -4.92], [58, -10], [60, -15], [62, -20], [64, -25], [62, -22], [60, -18], [58, -12], [56.03, -4.92]], color: '#f97316', name: 'UK SSN GIUK Gap Patrol' }], french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }] }; const baseLocations = { 'Bangor, Washington': { lat: 47.7267, lng: -122.7113, country: 'USA', type: 'Pacific' }, 'Pearl Harbor, Hawaii': { lat: 21.3433, lng: -157.9761, country: 'USA', type: 'Pacific' }, 'Diego Garcia': { lat: -7.3194, lng: 72.4238, country: 'USA', type: 'Pacific' }, 'Kings Bay, Georgia': { lat: 30.7969, lng: -81.5526, country: 'USA', type: 'Atlantic' }, 'Yokosuka, Japan': { lat: 35.2836, lng: 139.6725, country: 'Japan', type: 'Pacific' }, 'Sasebo, Japan': { lat: 33.5904, lng: 129.7181, country: 'Japan', type: 'Pacific' }, 'Kamchatka, Kamchatka Krai': { lat: 53.0123, lng: 158.6486, country: 'Russia', type: 'Pacific' }, 'Gadzhiyevo, Murmansk Oblast': { lat: 69.2553, lng: 33.3250, country: 'Russia', type: 'Atlantic' }, 'Yalong Bay, Hainan': { lat: 18.2383, lng: 109.5144, country: 'China', type: 'Pacific' }, 'Visakhapatnam, India': { lat: 17.6833, lng: 83.2186, country: 'India', type: 'Pacific' }, 'HMAS Stirling, Australia': { lat: -32.2017, lng: 115.7731, country: 'Australia', type: 'Pacific' }, 'Faslane, Scotland': { lat: 56.03, lng: -4.92, country: 'UK', type: 'Atlantic' }, 'Île Longue, Brest': { lat: 48.39, lng: -4.49, country: 'France', type: 'Atlantic' } };
+        async function loadData() { try { const geoResponse = await fetch('https://unpkg.com/world-atlas/countries-110m.json'); const topoData = await geoResponse.json(); countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features; const response = await fetch('https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/data/nukes.csv'); const csvText = await response.text(); Papa.parse(csvText, { header: true, skipEmptyLines: true, dynamicTyping: true, complete: function(results) { nuclearData = results.data; processData(); initGlobe(); updateGlobe(); renderDashboard(); } }); } catch (error) { console.error('Error loading data:', error); document.getElementById('loading').innerHTML = '<p class="text-red-400">Error loading data. Please try again.</p>'; } }
+        function parseNumber(val) { if (val === null || val === undefined || val === '—' || val === '') return 0; if (typeof val === 'number') return val; const str = String(val).replace(/[~,]/g, '').trim(); const num = parseFloat(str); return isNaN(num) ? 0 : num; }
+        function processData() { nuclearData.forEach(row => { row.parsedStockpile = parseNumber(row['Total Stockpile']); row.parsedDeployed = parseNumber(row['Deployed Warheads']); row.parsedStrategic = parseNumber(row['Strategic Nukes']); row.parsedTactical = parseNumber(row['Tactical Nukes']); row.parsedSLBM = parseNumber(row['SLBM Warheads']); }); }
+        function getCountryUmbrella(countryName) { if (umbrellaZones.us.includes(countryName)) return { color: 'rgba(59, 130, 246, 0.6)', name: 'U.S. Umbrella' }; if (umbrellaZones.sinoRussian.includes(countryName)) return { color: 'rgba(22, 163, 74, 0.6)', name: 'Sino-Russian Bloc' }; if (umbrellaZones.saudiPakistan.includes(countryName)) return { color: 'rgba(6, 182, 212, 0.6)', name: 'Saudi-Pakistan Umbrella' }; if (umbrellaZones.israel.includes(countryName)) return { color: 'rgba(229, 231, 235, 0.6)', name: 'Israeli Arsenal' }; if (umbrellaZones.india.includes(countryName)) return { color: 'rgba(180, 83, 9, 0.6)', name: 'Indian Arsenal' }; return { color: 'rgba(30, 41, 55, 0.4)', name: 'Neutral' }; }
+        function initGlobe() { const world = Globe()(document.getElementById('globeViz')).globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg').backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png').pointOfView({ lat: 30, lng: 0, altitude: 2.5 }).atmosphereColor('#ff6b6b').atmosphereAltitude(0.15); globe = world; }
+        function updateGlobe() { const points = []; const paths = []; if (currentView === 'all' || currentView === 'pacific') { patrolCircuits.pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.russian_pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.chinese.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.indian_ssbn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_indian_ocean.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_diego_garcia_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_malacca_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_hormuz_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.chinese_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.chinese_ssn_miyako.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.chinese_ssn_luzon.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.japanese_ssn_first_island.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.indian_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); } if (currentView === 'all' || currentView === 'atlantic') { patrolCircuits.atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.russian_atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.us_ssn_atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.russian_ssn_arctic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.uk_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.uk_ssn_giuk.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); patrolCircuits.french_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); }); } const harborElements = []; Object.entries(baseLocations).forEach(([name, loc]) => { if (currentView === 'all' || (currentView === 'pacific' && loc.type === 'Pacific') || (currentView === 'atlantic' && loc.type === 'Atlantic') || currentView === 'umbrellas') { harborElements.push({ lat: loc.lat, lng: loc.lng, color: ['USA', 'UK', 'France', 'Australia', 'Japan'].includes(loc.country) ? '#3b82f6' : loc.country === 'India' ? '#b45309' : '#22c55e', label: `${name}\n${loc.country} Naval Base`, country: loc.country }); } }); globe.pointsData(points).pointAltitude(0).pointColor('color').pointLabel('label').pointRadius(0.5).htmlElementsData(harborElements).htmlElement(d => { const el = document.createElement('div'); el.innerHTML = `<div style="width: 30px; height: 30px; background: ${d.color}; border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px ${d.color}, 0 0 40px ${d.color}; cursor: pointer; font-size: 18px;" title="${d.label}">⚓</div>`; return el; }).htmlAltitude(0.01).pathsData(currentView === 'umbrellas' ? [] : paths).pathPoints('coords').pathPointLat(p => p[0]).pathPointLng(p => p[1]).pathColor('color').pathLabel('label').pathStroke(2).pathDashLength(0.3).pathDashGap(0.1).pathDashAnimateTime(6000).pathTransitionDuration(1000); if (countriesGeoData) { globe.polygonsData(countriesGeoData).polygonAltitude(0.01).polygonCapColor(feat => { const countryName = feat.properties.name; return getCountryUmbrella(countryName).color; }).polygonSideColor(() => 'rgba(0, 0, 0, 0.1)').polygonStrokeColor(() => '#111').polygonLabel(feat => { const umbrella = getCountryUmbrella(feat.properties.name); return `<b>${feat.properties.name}</b><br/>${umbrella.name}`; }); } const info = currentView === 'pacific' ? 'Pacific/Indian Ocean patrols: First Island Chain chokepoints (Miyako, Luzon), Malacca & Hormuz Straits' : currentView === 'atlantic' ? 'Atlantic SSBN patrols: GIUK Gap chokepoint monitoring' : currentView === 'umbrellas' ? 'Nuclear umbrella coverage zones by alliance' : 'All SSBN/SSN patrols with strategic chokepoints'; document.getElementById('patrolInfo').textContent = info; }
+        function filterView(view) { currentView = view; document.querySelectorAll('.filter-btn').forEach(btn => { btn.classList.remove('active'); }); document.getElementById(`btn-${view}`).classList.add('active'); updateGlobe(); if (view === 'pacific') { globe.pointOfView({ lat: 35, lng: 150, altitude: 2 }, 1000); } else if (view === 'atlantic') { globe.pointOfView({ lat: 50, lng: -20, altitude: 2 }, 1000); } else { globe.pointOfView({ lat: 30, lng: 0, altitude: 2.5 }, 1000); } }
+        function renderDashboard() { document.getElementById('loading').classList.add('hidden'); document.getElementById('mainContent').classList.remove('hidden'); const pacificData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Pacific')); const atlanticData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Atlantic')); const sinoRussianData = nuclearData.filter(r => ['Russia', 'China', 'North Korea'].some(c => r['Country / leg'].includes(c))); const saudiPakistanData = nuclearData.filter(r => r['Country / leg'].includes('Pakistan')); const israelData = nuclearData.filter(r => r['Country / leg'].includes('Israel')); const indiaData = nuclearData.filter(r => r['Country / leg'].includes('India')); const pacificTotal = pacificData.reduce((sum, r) => sum + r.parsedStockpile, 0); const atlanticTotal = atlanticData.reduce((sum, r) => sum + r.parsedStockpile, 0); const sinoRussianTotal = sinoRussianData.reduce((sum, r) => sum + r.parsedStockpile, 0); const saudiPakistanTotal = saudiPakistanData.reduce((sum, r) => sum + r.parsedStockpile, 0); const israelTotal = israelData.reduce((sum, r) => sum + r.parsedStockpile, 0); const indiaTotal = indiaData.reduce((sum, r) => sum + r.parsedStockpile, 0); document.getElementById('us-pacific').textContent = pacificTotal.toLocaleString(); document.getElementById('us-atlantic').textContent = atlanticTotal.toLocaleString(); document.getElementById('sino-russian').textContent = sinoRussianTotal.toLocaleString(); document.getElementById('saudi-pakistan').textContent = saudiPakistanTotal.toLocaleString(); document.getElementById('israel').textContent = israelTotal.toLocaleString(); document.getElementById('india').textContent = indiaTotal.toLocaleString(); renderDeploymentsGrid(); }
+        function renderDeploymentsGrid() { const grid = document.getElementById('deploymentsGrid'); const ssbns = nuclearData.filter(r => r['Country / leg'].includes('SSBN') || r['Country / leg'].includes('Sea')); grid.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">${ssbns.map(d => `<div class="bg-slate-800/50 border border-slate-600/30 rounded-xl p-4"><div class="flex justify-between items-start mb-3"><div><div class="font-bold text-lg text-white">${d['Country / leg']}</div><div class="text-sm text-gray-400">📍 ${d['Home Base']}</div><div class="text-xs text-purple-400 mt-1">${d.Region} Theater</div></div><div class="text-right"><div class="text-2xl font-black text-red-400">${d.parsedStockpile.toLocaleString()}</div><div class="text-xs text-gray-400">warheads</div></div></div><div class="grid grid-cols-3 gap-2 mb-3 text-xs"><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">Deployed</div><div class="text-orange-400 font-bold">${d.parsedDeployed.toLocaleString()}</div></div><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">Strategic</div><div class="text-yellow-400 font-bold">${d.parsedStrategic.toLocaleString()}</div></div><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">SLBM</div><div class="text-blue-400 font-bold">${d.parsedSLBM.toLocaleString()}</div></div></div><div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${d['Notes']}</div></div>`).join('')}</div>`; }
+        const script = document.createElement('script'); script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js'; script.onload = () => { loadData(); }; document.head.appendChild(script);
     </script>
 </body>
 </html>
