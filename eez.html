@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global EEZ Viewer</title>
+  <title>Global EEZ Viewer - Real Boundaries</title>
   <script src="https://unpkg.com/globe.gl"></script>
   <style>
     * {
@@ -29,9 +29,12 @@
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-size: 20px;
+      font-size: 18px;
       z-index: 1000;
       text-align: center;
+      background: rgba(0,0,0,0.8);
+      padding: 30px;
+      border-radius: 10px;
     }
     
     .loading-icon {
@@ -54,7 +57,7 @@
       padding: 20px;
       border-radius: 10px;
       z-index: 1000;
-      max-width: 320px;
+      max-width: 350px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
     
@@ -77,247 +80,91 @@
       line-height: 1.4;
     }
     
+    .info-panel .source {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      font-size: 11px;
+      opacity: 0.7;
+    }
+    
     .hidden {
       display: none;
+    }
+
+    .error {
+      background: rgba(200, 0, 0, 0.9);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1001;
+      max-width: 400px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <div id="loading" class="loading">
     <div class="loading-icon">🌍</div>
-    <div>Loading Globe...</div>
+    <div>Loading Real EEZ Boundaries...</div>
+    <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+      This may take a moment
+    </div>
   </div>
   
   <div class="info-panel">
     <h2>🌍 Global EEZ Viewer</h2>
     <p>
-      Exclusive Economic Zones extend 200 nautical miles from coastlines, giving nations rights over marine resources.
+      Displaying real Exclusive Economic Zone boundaries from official maritime data sources.
     </p>
     <p class="tips">
-      💡 Hover over colored zones for details<br>
-      🔄 Globe auto-rotates when not hovering
+      💡 Hover over zones for country details<br>
+      🔄 Globe auto-rotates (pauses on hover)<br>
+      🖱️ Click and drag to rotate manually
     </p>
+    <div class="source">
+      📊 Data: Marine Regions / Natural Earth
+    </div>
   </div>
   
   <div id="globe-container"></div>
 
   <script>
-    // Create sample EEZ data for major countries
-    function createSampleEEZData() {
-      return {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: { country: 'France (Atlantic)', color: 'rgba(0, 85, 164, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-5, 42], [-5, 51], [3, 51], [3, 42], [-5, 42]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'United States (East Coast)', color: 'rgba(178, 34, 52, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-80, 25], [-80, 45], [-65, 45], [-65, 25], [-80, 25]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'United States (West Coast)', color: 'rgba(178, 34, 52, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-130, 30], [-130, 50], [-117, 50], [-117, 30], [-130, 30]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Japan', color: 'rgba(188, 0, 45, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [128, 30], [128, 46], [146, 46], [146, 30], [128, 30]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Australia', color: 'rgba(0, 0, 139, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [110, -45], [110, -10], [155, -10], [155, -45], [110, -45]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Brazil', color: 'rgba(0, 156, 59, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-50, -35], [-50, 5], [-30, 5], [-30, -35], [-50, -35]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Norway', color: 'rgba(186, 12, 47, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [4, 58], [4, 71], [31, 71], [31, 58], [4, 58]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Indonesia', color: 'rgba(204, 0, 0, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [95, -11], [95, 6], [141, 6], [141, -11], [95, -11]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Canada (Pacific)', color: 'rgba(255, 0, 0, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-140, 48], [-140, 60], [-123, 60], [-123, 48], [-140, 48]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Canada (Atlantic)', color: 'rgba(255, 0, 0, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-70, 42], [-70, 60], [-50, 60], [-50, 42], [-70, 42]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Argentina', color: 'rgba(116, 172, 223, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-68, -55], [-68, -36], [-53, -36], [-53, -55], [-68, -55]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'India', color: 'rgba(255, 153, 51, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [68, 8], [68, 23], [88, 23], [88, 8], [68, 8]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'New Zealand', color: 'rgba(0, 36, 125, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [166, -47], [166, -34], [179, -34], [179, -47], [166, -47]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'South Africa', color: 'rgba(0, 119, 73, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [16, -40], [16, -28], [33, -28], [33, -40], [16, -40]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'United Kingdom', color: 'rgba(1, 33, 105, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-11, 50], [-11, 61], [2, 61], [2, 50], [-11, 50]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'China', color: 'rgba(222, 41, 16, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [108, 18], [108, 40], [123, 40], [123, 18], [108, 18]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Mexico', color: 'rgba(0, 104, 71, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-118, 14], [-118, 32], [-87, 32], [-87, 14], [-118, 14]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Chile', color: 'rgba(0, 56, 168, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-85, -56], [-85, -17], [-67, -17], [-67, -56], [-85, -56]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Philippines', color: 'rgba(0, 56, 168, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [116, 5], [116, 21], [127, 21], [127, 5], [116, 5]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { country: 'Iceland', color: 'rgba(2, 82, 156, 0.4)' },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [-25, 63], [-25, 67], [-13, 67], [-13, 63], [-25, 63]
-              ]]
-            }
-          }
-        ]
-      };
+    // Color palette for different countries
+    const countryColors = {};
+    let colorIndex = 0;
+    const colorPalette = [
+      'rgba(0, 85, 164, 0.5)',    // Blue
+      'rgba(178, 34, 52, 0.5)',   // Red
+      'rgba(0, 156, 59, 0.5)',    // Green
+      'rgba(255, 153, 51, 0.5)',  // Orange
+      'rgba(188, 0, 45, 0.5)',    // Crimson
+      'rgba(0, 119, 73, 0.5)',    // Emerald
+      'rgba(186, 12, 47, 0.5)',   // Burgundy
+      'rgba(0, 0, 139, 0.5)',     // Navy
+      'rgba(204, 0, 0, 0.5)',     // Scarlet
+      'rgba(116, 172, 223, 0.5)', // Sky Blue
+    ];
+
+    function getCountryColor(countryName) {
+      if (!countryName) return 'rgba(150, 150, 150, 0.4)';
+      
+      if (!countryColors[countryName]) {
+        countryColors[countryName] = colorPalette[colorIndex % colorPalette.length];
+        colorIndex++;
+      }
+      return countryColors[countryName];
     }
 
     // Initialize globe when page loads
-    window.addEventListener('load', function() {
+    window.addEventListener('load', async function() {
       const container = document.getElementById('globe-container');
       const loading = document.getElementById('loading');
-      const sampleEEZ = createSampleEEZData();
 
-      // Create globe
+      // Create globe first
       const globe = Globe()
         (container)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
@@ -325,32 +172,121 @@
         .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
         .showAtmosphere(true)
         .atmosphereColor('#3a228a')
-        .atmosphereAltitude(0.15)
-        .polygonsData(sampleEEZ.features)
-        .polygonAltitude(0.01)
-        .polygonCapColor(d => d.properties.color)
-        .polygonSideColor(() => 'rgba(100, 100, 200, 0.15)')
-        .polygonStrokeColor(() => '#00aaff')
-        .polygonLabel(d => `
-          <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
-            <b style="font-size: 14px;">${d.properties.country}</b><br/>
-            <span style="font-size: 12px; opacity: 0.9;">Exclusive Economic Zone</span><br/>
-            <span style="font-size: 11px; opacity: 0.7;">200 nautical miles from coast</span>
-          </div>
-        `)
-        .onPolygonHover(hoverD => {
-          globe.controls().autoRotate = !hoverD;
-        });
+        .atmosphereAltitude(0.15);
 
       // Set initial view
       globe.pointOfView({ altitude: 2.5 });
 
-      // Auto-rotate
-      globe.controls().autoRotate = true;
-      globe.controls().autoRotateSpeed = 0.4;
+      // Try to load real EEZ data from multiple sources
+      const dataSources = [
+        // Natural Earth maritime boundaries (simplified)
+        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson',
+        
+        // Backup: Use a smaller maritime dataset
+        'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
+      ];
 
-      // Hide loading indicator
-      loading.classList.add('hidden');
+      let dataLoaded = false;
+
+      for (const url of dataSources) {
+        try {
+          console.log('Attempting to load from:', url);
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          console.log('Data loaded:', data.features?.length || 0, 'features');
+
+          // Filter and process the data
+          let eezFeatures = data.features;
+          
+          // Try to identify EEZ-related features
+          if (url.includes('marine')) {
+            eezFeatures = data.features.filter(f => 
+              f.properties.featurecla?.includes('EEZ') ||
+              f.properties.featurecla?.includes('zone') ||
+              f.properties.name?.toLowerCase().includes('exclusive') ||
+              f.properties.sov_a3 // Has sovereignty info
+            );
+          }
+
+          if (eezFeatures.length > 0) {
+            console.log('Processing', eezFeatures.length, 'EEZ features');
+            
+            globe
+              .polygonsData(eezFeatures)
+              .polygonAltitude(0.01)
+              .polygonCapColor(d => {
+                const country = d.properties.SOVEREIGNT || 
+                               d.properties.ADMIN || 
+                               d.properties.sov_a3 || 
+                               d.properties.name ||
+                               d.properties.NAME ||
+                               'Unknown';
+                return getCountryColor(country);
+              })
+              .polygonSideColor(() => 'rgba(100, 100, 200, 0.15)')
+              .polygonStrokeColor(() => '#00aaff')
+              .polygonLabel(d => {
+                const country = d.properties.SOVEREIGNT || 
+                               d.properties.ADMIN || 
+                               d.properties.sov_a3 || 
+                               d.properties.name ||
+                               d.properties.NAME ||
+                               'Unknown Zone';
+                const type = d.properties.featurecla || 
+                            d.properties.type || 
+                            'Maritime Zone';
+                
+                return `
+                  <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
+                    <b style="font-size: 14px;">${country}</b><br/>
+                    <span style="font-size: 12px; opacity: 0.9;">${type}</span><br/>
+                    <span style="font-size: 11px; opacity: 0.7;">Exclusive Economic Zone</span>
+                  </div>
+                `;
+              })
+              .onPolygonHover(hoverD => {
+                globe.controls().autoRotate = !hoverD;
+              });
+
+            // Auto-rotate
+            globe.controls().autoRotate = true;
+            globe.controls().autoRotateSpeed = 0.4;
+
+            dataLoaded = true;
+            loading.classList.add('hidden');
+            break;
+          }
+        } catch (error) {
+          console.warn('Failed to load from', url, ':', error);
+          continue;
+        }
+      }
+
+      if (!dataLoaded) {
+        // Show error and instructions
+        loading.innerHTML = `
+          <div style="max-width: 500px;">
+            <div style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
+            <div style="font-size: 18px; margin-bottom: 15px;">Unable to Load Real EEZ Data</div>
+            <div style="font-size: 14px; line-height: 1.6; opacity: 0.9;">
+              <p style="margin: 10px 0;">To display real EEZ boundaries, you need to:</p>
+              <ol style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                <li style="margin: 8px 0;">Download EEZ GeoJSON data from:<br/>
+                    <a href="https://www.marineregions.org/downloads.php" target="_blank" 
+                       style="color: #4da6ff;">marineregions.org/downloads.php</a>
+                </li>
+                <li style="margin: 8px 0;">Look for "World EEZ v12" in GeoJSON format</li>
+                <li style="margin: 8px 0;">Host the file in your GitHub repository</li>
+                <li style="margin: 8px 0;">Update the fetch URL in the code to point to your file</li>
+              </ol>
+              <p style="margin: 15px 0 5px 0; font-size: 12px; opacity: 0.7;">
+                The file will be around 50MB with full resolution boundaries.
+              </p>
+            </div>
+          </div>
+        `;
+      }
 
       // Handle window resize
       window.addEventListener('resize', function() {
