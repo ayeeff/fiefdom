@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>French Empire EEZ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+  <script src="https://unpkg.com/leaflet-geometryutil"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-omnivore"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #frenchemprie-map {
+      width: 100%;
+      height: 500px;
+      border-radius: 0.5rem;
+    }
+
+    /* Tailwind custom prefix */
+    .-frenchempire\:text {
+      @apply text-gray-800;
+    }
+    .-frenchempire\:p {
+      @apply p-6;
+    }
+    .-frenchempire\:bg {
+      @apply bg-gray-50;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+<div id="frenchemprie-map"></div>
+
+<div class="-frenchempire\:bg -frenchempire\:p">
+  <h2 class="-frenchempire\:text text-2xl font-bold mb-4">France's Imperial Dilemma: Debt vs. Dominion</h2>
+  <p class="-frenchempire\:text mb-2"><strong>French Overseas Territories & EEZ</strong></p>
+  <p class="-frenchempire\:text">
+    Beneath the grandeur of its global presence, France faces a profound contradiction. The nation maintains the world's most extensive maritime empire, with naval commands spanning every ocean and timezone a testament to its enduring status as a blue water power.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    Yet this strategic footprint is underwritten by an economy straining under severe sovereign debt, creating an unsustainable tension between global ambition and financial reality.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    Paris now seeks a compromise that would preserve its imperial stature while easing its fiscal burdens. The proposed solution: offering China the remote, scientifically valuable Kerguelen Islands for 60 billion. This strategic archipelago in the Southern Ocean represents the perfect bargaining chip sovereign territory with minimal political cost, yet valuable enough to substantially reduce France's debt pressure while keeping its more crucial territories intact.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    However, Beijing has demonstrated its characteristically long term strategic calculus. While willing to acquire the Kerguelen Islands and their extensive maritime rights, Chinese negotiators have made it clear that their true objective lies elsewhere: New Caledonia.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    This Pacific territory represents everything China seeks strategic positioning, vast nickel reserves critical for high tech manufacturing, and a established population center that would provide an immediate foothold in the Pacific.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    The standoff reveals fundamentally different approaches to power. France attempts a tactical retreat, hoping to trade peripheral territories for breathing room to maintain its broader empire. China, meanwhile, plays a strategic game, recognizing that New Caledonia would represent not just another acquisition, but a decisive breach in Western Pacific dominance.
+  </p>
+  <p class="-frenchempire\:text mt-2">
+    Paris finds itself in the precarious position of trying to save its empire by selling pieces of it, only to discover the buyer intends to select the very heart of France's Pacific presence.
+  </p>
+</div>
+
+<script>
+  // Initialize the map
+  const map = L.map('frenchemprie-map', {
+    center: [0, 0],
+    zoom: 2
+  });
+
+  // Add base layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // French EEZ polygons (approximate coordinates for demo purposes)
+  const frenchEEZ = [
+    // Mainland + Europe
+    { coords: [[41, -5], [51, -5], [51, 9], [41, 9]], color: 'navy' },
+    // Caribbean (Guadeloupe, Martinique, etc.)
+    { coords: [[14, -62], [18, -62], [18, -59], [14, -59]], color: 'navy' },
+    // South America (French Guiana)
+    { coords: [[-6, -54], [6, -54], [6, -50], [-6, -50]], color: 'navy' },
+    // Indian Ocean (Réunion, Mayotte, etc.)
+    { coords: [[-22, 50], [-10, 50], [-10, 62], [-22, 62]], color: 'navy' },
+    // Pacific - French Polynesia
+    { coords: [[-25, -140], [-5, -140], [-5, -120], [-25, -120]], color: 'navy' },
+    // Wallis & Futuna
+    { coords: [[-14, -178], [-12, -178], [-12, -176], [-14, -176]], color: 'navy' },
+    // New Caledonia (orange)
+    { coords: [[-23, 165], [-18, 165], [-18, 170], [-23, 170]], color: 'orange' },
+    // Kerguelen Islands (orange)
+    { coords: [[-51, 68], [-46, 68], [-46, 72], [-51, 72]], color: 'orange' },
+    // Clipperton Island
+    { coords: [[10, -110], [12, -110], [12, -108], [10, -108]], color: 'navy' }
+  ];
+
+  frenchEEZ.forEach(zone => {
+    L.polygon(zone.coords, {
+      color: zone.color,
+      fillColor: zone.color,
+      fillOpacity: 0.5,
+      weight: 1
+    }).addTo(map);
+  });
+
+</script>
+
+</body>
+</html>
