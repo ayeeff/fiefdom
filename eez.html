@@ -198,10 +198,10 @@
       // Set initial view
       globe.pointOfView({ altitude: 2.5 });
 
-      // SIMPLE SOLUTION: Use pre-made Natural Earth maritime data  
+      // Load YOUR simplified EEZ data
       const dataSources = [
-        // Natural Earth - marine polygons (WORKS OUT OF THE BOX!)
-        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson',
+        // Your simplified EEZ file (after processing in Mapshaper)
+        'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json',
       ];
 
       let dataLoaded = false;
