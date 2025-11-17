@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Global EEZ Viewer - Cesium.js</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
+  <script>Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWIyMzc1NS02YmZhLTRkOGUtYjg0Mi1lZjg3MTNkNWEyMmQiLCJpZCI6MzYxMDQ4LCJpYXQiOjE3NjMzNjU4MzZ9.d3jTploe7QTheRP-7owPPi19tptf08p4YtYQhBc6zKQ';</script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
     html, body, #cesiumContainer {
@@ -176,7 +177,7 @@
 
       // Create Cesium viewer with default imagery (terrain commented out)
       const viewer = new Cesium.Viewer('cesiumContainer', {
-        // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
+      terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
         imageryProvider: new Cesium.OpenStreetMapImageryProvider({
           url: 'https://a.tile.openstreetmap.org/'
         }),
