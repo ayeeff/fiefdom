@@ -270,6 +270,7 @@
             countriesGeoData.forEach(feat => addCountryPolygon(viewer, feat));
         }
         async function initCesium() {
+            Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWIyMzc1NS02YmZhLTRkOGUtYjg0Mi1lZjg3MTNkNWEyMmQiLCJpZCI6MzYxMDQ4LCJpYXQiOjE3NjMzNjU4MzZ9.d3jTploe7QTheRP-7owPPi19tptf08p4YtYQhBc6zKQ";
             const terrainProvider = await Cesium.createWorldTerrainAsync({ requestWaterMask: true, requestVertexNormals: true });
             viewer = new Cesium.Viewer('globeViz', {
                 terrainProvider: terrainProvider,
