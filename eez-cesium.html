@@ -177,8 +177,9 @@
       // Create Cesium viewer (terrain commented out as per user)
       const viewer = new Cesium.Viewer('cesiumContainer', {
         // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
-        imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url: 'https://a.tile.openstreetmap.org/'
+        // Updated: Use createWorldImagery() for distinct land (green/brown) and ocean (blue) colors
+        imageryProvider: Cesium.createWorldImagery({
+          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // High-contrast aerial view with clear land/ocean distinction
         }),
         baseLayerPicker: false,
         geocoder: false,
