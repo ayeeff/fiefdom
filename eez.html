@@ -200,11 +200,8 @@
 
       // Try to load real EEZ data from multiple sources
       const dataSources = [
-        // Option 1: If file is in main repo
+        // Real EEZ data from GitHub repo (37MB) - raw URL
         'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_boundaries_v12.json',
-        
-        // Option 2: Via CORS proxy (temporary fallback)
-        'https://corsproxy.io/?' + encodeURIComponent('https://github.com/ayeeff/fiefdom/releases/download/eez/eez_boundaries_v12.json'),
         
         // Fallback: Natural Earth maritime boundaries (simplified)
         'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson'
