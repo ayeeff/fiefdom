@@ -175,11 +175,11 @@
       debug.classList.remove('hidden');
       debug.innerHTML = 'Initializing Cesium...';
 
-      // Create Cesium viewer with default imagery (terrain commented out)
+      // Create Cesium viewer with high-contrast world imagery (terrain commented out)
       const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
-        imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url: 'https://a.tile.openstreetmap.org/'
+        // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
+        imageryProvider: Cesium.createWorldImagery({
+          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // Clear land (green/brown) vs. ocean (blue)
         }),
         baseLayerPicker: false,
         geocoder: false,
@@ -198,21 +198,6 @@
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000)
       });
-
-      // Updated: Replace base imagery with high-contrast world imagery (async)
-      try {
-        debug.innerHTML = 'Loading high-contrast imagery...';
-        const worldImagery = await Cesium.Ion.createWorldImageryAsync({
-          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // Clear land (green/brown) vs. ocean (blue)
-        });
-        // Remove default layer and add the new one
-        viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
-        viewer.imageryLayers.addImageryProvider(worldImagery, 0);
-        debug.innerHTML = 'High-contrast imagery loaded';
-      } catch (error) {
-        console.warn('Failed to load Ion world imagery (may need token); using default:', error);
-        debug.innerHTML = 'Using default imagery (add Cesium Ion token for better land/ocean contrast)';
-      }
 
       // Auto-rotate with interaction pause
       let isInteracting = false;
@@ -298,7 +283,7 @@
 
           // Style each entity
           const entities = eezDataSource.entities.values;
-          entities.forEach((entity) => {  // Removed index param if unused
+          entities.forEach((entity) => {
             if (entity.polygon) {
               const country = entity.properties.SOVEREIGN1?._value || 
                              entity.properties.TERRITORY1?._value || 
