@@ -1,0 +1,41 @@
+ticker,status,camp,name_display,HQ_lat,HQ_lon,thumb_url
+NVDA,public,STARGATE,Nvidia,37.354107,-121.955238,https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Nvidia_logo.svg/200px-Nvidia_logo.svg.png
+ORCL,public,STARGATE,Oracle,30.266666,-97.733330,https://upload.wikimedia.org/wikipedia/en/0/0a/Oracle_Corporation_logo.png
+AMZN,public,STARGATE,Amazon,47.608013,-122.335167,https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Amazon_logo.svg/200px-Amazon_logo.svg.png
+SFTBY,public,STARGATE,SoftBank,35.650000,139.733330,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/SoftBank_logo.svg/200px-SoftBank_logo.svg.png
+AVGO,public,STARGATE,Broadcom,37.468319,-122.143936,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Broadcom_Inc.jpg/250px-Broadcom_Inc.jpg
+ANTH,private,STARGATE,Anthropic,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Anthropic_logo.svg/200px-Anthropic_logo.svg.png
+STRIPE,private,STARGATE,Stripe,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Stripe_logo.svg/200px-Stripe_logo.svg.png
+JPM,public,STARGATE,JPMorgan Chase,40.730610,-73.935242,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/JPMorgan_Chase.svg/200px-JPMorgan_Chase.svg.png
+GS,public,STARGATE,Goldman Sachs,40.730610,-73.935242,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Goldman_Sachs.svg/200px-Goldman_Sachs.svg.png
+GE,public,STARGATE,General Electric,42.361145,-71.057083,https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/General_Electric_logo.svg/200px-General_Electric_logo.svg.png
+CSCO,public,STARGATE,Cisco Systems,37.3353,-121.8919,https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Cisco_logo.svg/200px-Cisco_logo.svg.png
+QCOM,public,STARGATE,Qualcomm,32.715736,-117.161087,https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Qualcomm_Logo.svg/200px-Qualcomm_Logo.svg.png
+ANET,public,STARGATE,Arista Networks,37.354107,-121.955238,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Arista_Networks_logo.svg/200px-Arista_Networks_logo.svg.png
+RUBIO, gov,STARGATE,State Department,38.88306,-77.01639,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/United_States_Department_of_State_headquarters.jpg/320px-United_States_Department_of_State_headquarters.jpg
+AAPL,public,META-GOOGLE-MSFT-APPLE,Apple,37.323000,-122.032180,https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/200px-Apple_logo_black.svg.png
+MSFT,public,META-GOOGLE-MSFT-APPLE,Microsoft,47.673988,-122.121513,https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png
+GOOGL,public,META-GOOGLE-MSFT-APPLE,Alphabet,37.386051,-122.083855,https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png
+META,public,META-GOOGLE-MSFT-APPLE,Meta,37.48500,-122.14833,https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Meta_Platforms_logo_%282021%29.svg/200px-Meta_Platforms_logo_%282021%29.svg.png
+SNOW,public,META-GOOGLE-MSFT-APPLE,Snowflake,45.676998,-111.042931,https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Snowflake_Inc._logo.svg/200px-Snowflake_Inc._logo.svg.png
+CRM,public,META-GOOGLE-MSFT-APPLE,Salesforce,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Salesforce.com_logo.svg/200px-Salesforce.com_logo.svg.png
+DATABRICKS,private,META-GOOGLE-MSFT-APPLE,Databricks,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/DatabricksBooth.jpg/250px-DatabricksBooth.jpg
+AMD,public,META-GOOGLE-MSFT-APPLE,AMD,37.354107,-121.955238,https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/AMD_logo.svg/200px-AMD_logo.svg.png
+INTC,public,META-GOOGLE-MSFT-APPLE,Intel,37.354107,-121.955238,https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Intel_logo_%282006%29.svg/200px-Intel_logo_%282006%29.svg.png
+HOFFMAN,private,META-GOOGLE-MSFT-APPLE,Reid Hoffman,47.608013,-122.335167,https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/221017-D-BN624-0280_%2852436096810%29_%28cropped%29.jpg/250px-221017-D-BN624-0280_%2852436096810%29_%28cropped%29.jpg
+BENIOFF,private,META-GOOGLE-MSFT-APPLE,Marc Benioff,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Marc_Benioff.jpg/250px-Marc_Benioff.jpg
+NFLX,public,META-GOOGLE-MSFT-APPLE,Netflix,37.2266,-121.9747,https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png
+UBER,public,META-GOOGLE-MSFT-APPLE,Uber,37.773972,-122.431297,https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Uber_App_Icon.svg/200px-Uber_App_Icon.svg.png
+NEWSOM, gov,META-GOOGLE-MSFT-APPLE,Governor of California,38.575764,-121.478851,https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Governor_Gavin_Newsom_in_2025.jpg/250px-Governor_Gavin_Newsom_in_2025.jpg
+TSLA,public,THIEL–MUSK–VANCE,Tesla,30.266666,-97.733330,https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tesla_T_symbol.svg/200px-Tesla_T_symbol.svg.png
+PLTR,public,THIEL–MUSK–VANCE,Palantir,39.742043,-104.991531,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Palantir_Technologies_logo.svg/200px-Palantir_Technologies_logo.svg.png
+RKLB,public,THIEL–MUSK–VANCE,Rocket Lab,33.770050,-118.193741,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Rocket_Lab_logo.svg/250px-Rocket_Lab_logo.svg.png
+RTX,public,THIEL–MUSK–VANCE,RTX,38.8810,-77.1043,https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Raytheon_Technologies_logo.svg/200px-Raytheon_Technologies_logo.svg.png
+LMT,public,THIEL–MUSK–VANCE,Lockheed Martin,39.044991,-77.116851,https://upload.wikimedia.org/wikipedia/en/thumb/0/0f/Lockheed_Martin_logo.svg/200px-Lockheed_Martin_logo.svg.png
+SPCX,private,THIEL–MUSK–VANCE,SpaceX,33.91991,-118.327477,https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/SpaceX-Logo.svg/200px-SpaceX-Logo.svg.png
+xAI,private,THIEL–MUSK–VANCE,xAI,37.468319,-122.143936,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/XAI_Logo.svg/200px-XAI_Logo.svg.png
+ANDUR,private,THIEL–MUSK–VANCE,Anduril,33.641132,-117.918671,https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Anduril_Industries_logo.svg/200px-Anduril_Industries_logo.svg.png
+DOGE, gov,THIEL–MUSK–VANCE,Dept Gov Efficiency,38.8951,-77.0369,https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Logo_of_the_Department_of_Government_Efficiency.svg/200px-Logo_of_the_Department_of_Government_Efficiency.svg.png
+VP VANCE, gov,THIEL–MUSK–VANCE,Office of VP,38.8951,-77.0369,https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/January_2025_Official_Vice_Presidential_Portrait_of_JD_Vance.jpg/250px-January_2025_Official_Vice_Presidential_Portrait_of_JD_Vance.jpg
+NASA, gov,THIEL–MUSK–VANCE,NASA,38.88306,-77.01639,https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/NASA_logo.svg/220px-NASA_logo.svg.png
+BA,public,THIEL–MUSK–VANCE,Boeing,38.8810,-77.1043,https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Boeing_logo.svg/200px-Boeing_logo.svg.png
