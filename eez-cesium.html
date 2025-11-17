@@ -175,11 +175,11 @@
       debug.classList.remove('hidden');
       debug.innerHTML = 'Initializing Cesium...';
 
-      // Create Cesium viewer with high-contrast world imagery (terrain commented out)
+      // Create Cesium viewer with default imagery first (terrain commented out)
       const viewer = new Cesium.Viewer('cesiumContainer', {
         // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
-        imageryProvider: Cesium.createWorldImagery({
-          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // Clear land (green/brown) vs. ocean (blue)
+        imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+          url: 'https://a.tile.openstreetmap.org/'
         }),
         baseLayerPicker: false,
         geocoder: false,
@@ -198,6 +198,21 @@
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000)
       });
+
+      // Load high-contrast Ion world imagery asynchronously
+      try {
+        debug.innerHTML = 'Loading high-contrast imagery...';
+        const worldImagery = await Cesium.createWorldImageryAsync({
+          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // Clear land (green/brown) vs. ocean (blue)
+        });
+        // Replace the default layer with Ion imagery
+        viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
+        viewer.imageryLayers.addImageryProvider(worldImagery, 0);
+        debug.innerHTML = 'High-contrast imagery loaded successfully';
+      } catch (error) {
+        console.warn('Failed to load Ion world imagery:', error);
+        debug.innerHTML = 'Using default imagery (Ion load failed)';
+      }
 
       // Auto-rotate with interaction pause
       let isInteracting = false;
