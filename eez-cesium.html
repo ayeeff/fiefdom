@@ -124,7 +124,7 @@
     </p>
     <p class="tips">
       💡 Hover over zones for country details<br>
-      🔄 Globe auto-rotates (pauses on hover)<br>
+      🔄 Globe auto-rotates (pauses on interaction)<br>
       🖱️ Click and drag to rotate manually
     </p>
     <div class="source">
@@ -174,10 +174,9 @@
       debug.classList.remove('hidden');
       debug.innerHTML = 'Initializing Cesium...';
 
-      // Create Cesium viewer with updated terrain setup
+      // Create Cesium viewer (terrain commented out as per user)
       const viewer = new Cesium.Viewer('cesiumContainer', {
-        // Fixed: Use 'terrain' option with fromWorldTerrain() for modern Cesium versions
-        // terrain: Cesium.Terrain.fromWorldTerrain(),
+        // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
         imageryProvider: new Cesium.OpenStreetMapImageryProvider({
           url: 'https://a.tile.openstreetmap.org/'
         }),
@@ -199,12 +198,25 @@
         destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000)
       });
 
-      // Enable auto-rotate
-      viewer.scene.preRender.addEventListener(() => {
-        if (!viewer.inputHandler.isMoving) {
-          viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, Cesium.Math.toRadians(0.002));
+      // Auto-rotate with interaction pause
+      let isInteracting = false;
+      const rotationSpeed = Cesium.Math.toRadians(0.5);  // Adjust speed as needed
+      const autoRotateInterval = setInterval(() => {
+        if (!isInteracting && !viewer.selectedEntity) {
+          viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed / 60);  // Slow rotation per frame
         }
-      });
+      }, 16);  // ~60 FPS
+
+      // Detect interactions to pause rotation
+      const handler = viewer.screenSpaceEventHandler;
+      handler.setInputAction(() => { isInteracting = true; }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+      handler.setInputAction(() => { isInteracting = false; }, Cesium.ScreenSpaceEventType.LEFT_UP);
+      handler.setInputAction((movement) => {
+        if (movement.endPosition && !isInteracting) {
+          isInteracting = true;
+          setTimeout(() => { isInteracting = false; }, 100);  // Brief pause after move
+        }
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
       // Load EEZ data
       const dataUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json';
@@ -258,7 +270,7 @@
           const eezDataSource = new Cesium.GeoJsonDataSource('EEZs');
           await viewer.dataSources.add(eezDataSource);
 
-          // Load GeoJSON into data source
+          // Load GeoJSON into data source (pass full data, not filtered features)
           await eezDataSource.load(data, {
             clampToGround: false,
             stroke: Cesium.Color.BLUE.withAlpha(0.7),
@@ -270,7 +282,7 @@
 
           // Style each entity
           const entities = eezDataSource.entities.values;
-          entities.forEach((entity, index) => {
+          entities.forEach((entity) => {  // Removed index param if unused
             if (entity.polygon) {
               const country = entity.properties.SOVEREIGN1?._value || 
                              entity.properties.TERRITORY1?._value || 
@@ -303,7 +315,10 @@
                 scale: 0.8
               };
               
-              // Hover handler
+              // Set name for label
+              entity.name = country;
+              
+              // Description for info box on select
               entity.description = `
                 <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
                   <b style="font-size: 14px;">${country}</b><br/>
@@ -314,29 +329,29 @@
             }
           });
 
-          // Global hover handler
-          const handler = viewer.screenSpaceEventHandler;
+          // Global hover handler (updated to use entity.name)
           let highlightedEntity = null;
           handler.setInputAction((movement) => {
             const pickedFeature = viewer.scene.pick(movement.endPosition);
-            if (Cesium.defined(pickedFeature) && pickedFeature.id) {
+            if (Cesium.defined(pickedFeature) && pickedFeature.id && pickedFeature.id.polygon) {
               const entity = pickedFeature.id;
               if (entity !== highlightedEntity) {
                 if (Cesium.defined(highlightedEntity)) {
                   highlightedEntity.label.show = false;
                 }
                 entity.label.show = true;
-                entity.label.text = entity.name || entity.properties?.GEONAME?._value || 'EEZ Zone';
+                entity.label.text = entity.name || 'EEZ Zone';
                 highlightedEntity = entity;
                 viewer.selectedEntity = entity;
-                // Pause auto-rotate on hover
-                // (Cesium doesn't have direct auto-rotate, but we can stop camera rotation here if needed)
+                isInteracting = true;  // Pause rotation on hover
+                setTimeout(() => { if (highlightedEntity === entity) isInteracting = false; }, 2000);
               }
             } else {
               if (Cesium.defined(highlightedEntity)) {
                 highlightedEntity.label.show = false;
                 highlightedEntity = null;
                 viewer.selectedEntity = undefined;
+                isInteracting = false;
               }
             }
           }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
