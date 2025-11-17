@@ -87,6 +87,20 @@
       font-size: 11px;
       opacity: 0.7;
     }
+
+    .debug-info {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 11px;
+      z-index: 1000;
+      max-width: 300px;
+    }
     
     .hidden {
       display: none;
@@ -131,6 +145,8 @@
   </div>
   
   <div id="globe-container"></div>
+  
+  <div id="debug" class="debug-info hidden"></div>
 
   <script>
     // Color palette for different countries
@@ -163,6 +179,11 @@
     window.addEventListener('load', async function() {
       const container = document.getElementById('globe-container');
       const loading = document.getElementById('loading');
+      const debug = document.getElementById('debug');
+      
+      // Show debug info
+      debug.classList.remove('hidden');
+      debug.innerHTML = 'Initializing...';
 
       // Create globe first
       const globe = Globe()
@@ -190,9 +211,34 @@
 
       for (const url of dataSources) {
         try {
+          debug.innerHTML = `Fetching: ${url.substring(0, 50)}...`;
           console.log('Attempting to load from:', url);
+          loading.innerHTML = `
+            <div class="loading-icon">🌍</div>
+            <div>Downloading EEZ data...</div>
+            <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+              This may take 10-30 seconds (37MB file)
+            </div>
+          `;
+          
           const response = await fetch(url);
+          debug.innerHTML = `Response: ${response.status} ${response.statusText}`;
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          loading.innerHTML = `
+            <div class="loading-icon">⚙️</div>
+            <div>Processing data...</div>
+            <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+              Parsing GeoJSON...
+            </div>
+          `;
+          
+          debug.innerHTML = 'Parsing JSON...';
           const data = await response.json();
+          debug.innerHTML = `Loaded ${data.features?.length || 0} features`;
           
           console.log('Data loaded:', data.features?.length || 0, 'features');
 
