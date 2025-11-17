@@ -200,10 +200,13 @@
 
       // Try to load real EEZ data from multiple sources
       const dataSources = [
-        // Real EEZ data from GitHub Releases (37MB)
-        'https://github.com/ayeeff/fiefdom/releases/download/eez/eez_boundaries_v12.json',
+        // Option 1: If file is in main repo
+        'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_boundaries_v12.json',
         
-        // Backup: Natural Earth maritime boundaries (simplified)
+        // Option 2: Via CORS proxy (temporary fallback)
+        'https://corsproxy.io/?' + encodeURIComponent('https://github.com/ayeeff/fiefdom/releases/download/eez/eez_boundaries_v12.json'),
+        
+        // Fallback: Natural Earth maritime boundaries (simplified)
         'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson'
       ];
 
@@ -245,24 +248,29 @@
           // Filter and process the data
           let eezFeatures = data.features;
           
-          // Try to identify EEZ-related features
-          if (url.includes('marine')) {
-            eezFeatures = data.features.filter(f => 
-              f.properties.featurecla?.includes('EEZ') ||
-              f.properties.featurecla?.includes('zone') ||
-              f.properties.name?.toLowerCase().includes('exclusive') ||
-              f.properties.sov_a3 // Has sovereignty info
-            );
-          }
+          console.log('Sample feature properties:', eezFeatures[0]?.properties);
+          debug.innerHTML = `Processing ${eezFeatures.length} features...`;
 
           if (eezFeatures.length > 0) {
             console.log('Processing', eezFeatures.length, 'EEZ features');
+            
+            loading.innerHTML = `
+              <div class="loading-icon">🎨</div>
+              <div>Rendering globe...</div>
+              <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+                Drawing ${eezFeatures.length} EEZ zones
+              </div>
+            `;
             
             globe
               .polygonsData(eezFeatures)
               .polygonAltitude(0.01)
               .polygonCapColor(d => {
-                const country = d.properties.SOVEREIGNT || 
+                // Marine Regions uses different property names
+                const country = d.properties.SOVEREIGN1 || 
+                               d.properties.TERRITORY1 || 
+                               d.properties.GEONAME ||
+                               d.properties.SOVEREIGNT || 
                                d.properties.ADMIN || 
                                d.properties.sov_a3 || 
                                d.properties.name ||
@@ -273,21 +281,21 @@
               .polygonSideColor(() => 'rgba(100, 100, 200, 0.15)')
               .polygonStrokeColor(() => '#00aaff')
               .polygonLabel(d => {
-                const country = d.properties.SOVEREIGNT || 
+                const country = d.properties.SOVEREIGN1 || 
+                               d.properties.TERRITORY1 || 
+                               d.properties.GEONAME ||
+                               d.properties.SOVEREIGNT || 
                                d.properties.ADMIN || 
-                               d.properties.sov_a3 || 
                                d.properties.name ||
                                d.properties.NAME ||
                                'Unknown Zone';
-                const type = d.properties.featurecla || 
-                            d.properties.type || 
-                            'Maritime Zone';
+                const area = d.properties.AREA_KM2 || d.properties.area_km2 || '';
+                const areaText = area ? `<br/><span style="font-size: 11px; opacity: 0.7;">Area: ${Math.round(area).toLocaleString()} km²</span>` : '';
                 
                 return `
                   <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
                     <b style="font-size: 14px;">${country}</b><br/>
-                    <span style="font-size: 12px; opacity: 0.9;">${type}</span><br/>
-                    <span style="font-size: 11px; opacity: 0.7;">Exclusive Economic Zone</span>
+                    <span style="font-size: 12px; opacity: 0.9;">Exclusive Economic Zone</span>${areaText}
                   </div>
                 `;
               })
@@ -301,6 +309,10 @@
 
             dataLoaded = true;
             loading.classList.add('hidden');
+            debug.innerHTML = `✓ Rendered ${eezFeatures.length} EEZ zones`;
+            
+            // Hide debug after 5 seconds
+            setTimeout(() => debug.classList.add('hidden'), 5000);
             break;
           }
         } catch (error) {
