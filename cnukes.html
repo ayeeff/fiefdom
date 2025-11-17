@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Nuclear Umbrella - SSBN Patrol Routes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>.orbitron { font-family: 'Orbitron', monospace; } .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } } .shimmer-text { background: linear-gradient(90deg, transparent, #ff6b6b, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite; } #globeViz { width: 100%; height: 800px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; } #globeViz canvas { max-width: 100%; max-height: 100%; } .filter-btn { transition: all 0.2s; } .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }</style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 min-h-screen text-white">
+    <div class="container mx-auto p-4">
+        <div class="mb-6 speed-card p-6 rounded-xl">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">Nuclear SSBN Patrol Network - Scenarios</h1>
+            <p class="text-center text-gray-300 text-sm mb-4">Ohio-class submarine patrol circuits and nuclear umbrella coverage zones across current and future scenarios</p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="switchScenario('current')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-current">Current Patrols</button>
+                <button onclick="switchScenario('2034')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-2034">📊 2034 Scenario: 30% US Reduction</button>
+                <button onclick="switchScenario('2040')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-2040">📊 2040 Scenario: 60% US Reduction</button>
+            </div>
+        </div>
+        <div class="mb-6 speed-card p-6 rounded-xl">
+            <p class="text-center text-gray-300 text-sm mb-4">Sections: 🌍 All Coverage | 🌊 Pacific Theater | 🌊 Atlantic Theater | 🛡️ Umbrella Zones</p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="filterView('all')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-all">🌍 All Coverage</button>
+                <button onclick="filterView('pacific')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-pacific">🌊 Pacific Theater</button>
+                <button onclick="filterView('atlantic')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-atlantic">🌊 Atlantic Theater</button>
+                <button onclick="filterView('umbrellas')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-umbrellas">🛡️ Umbrella Zones</button>
+            </div>
+        </div>
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            <p class="mt-4 text-gray-400">Loading SSBN patrol data...</p>
+        </div>
+        <div id="mainContent" class="hidden">
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold orbitron text-red-400">🛡️ Strategic Deterrence Network</h2>
+                    <div class="text-sm text-gray-400"><span id="patrolInfo">Visualizing SSBN patrol circuits and coverage zones</span></div>
+                </div>
+                <div id="globeViz"></div>
+            </div>
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-xl font-bold orbitron mb-4 text-orange-400">Legend</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">SSBN PATROL ROUTES</div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-blue-500"></div><span class="text-sm">U.S. Pacific SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-purple-500"></div><span class="text-sm">U.S./Ally Atlantic SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-green-200"></div><span class="text-sm">Sino-Russian SSBN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-amber-700"></div><span class="text-sm">Indian SSBN</span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">SSN PATROL ROUTES</div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-red-500"></div><span class="text-sm">U.S./Ally Pacific/Indian Ocean SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-orange-500"></div><span class="text-sm">U.S./Ally Atlantic SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-green-500"></div><span class="text-sm">Sino-Russian SSN</span></div>
+                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-amber-700"></div><span class="text-sm">Indian SSN</span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">NAVAL BASES</div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-blue-500"></div><span class="text-sm">U.S./Ally Base</span></div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-green-600"></div><span class="text-sm">Sino-Russian Base</span></div>
+                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-amber-700"></div><span class="text-sm">Indian Base</span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">NUCLEAR UMBRELLAS</div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-blue-500 rounded"></div><span class="text-sm">U.S. Umbrella</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-green-600 rounded"></div><span class="text-sm">Sino-Russian Bloc</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-cyan-500 rounded"></div><span class="text-sm">Saudi-Pakistan Umbrella</span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-gray-400 mb-2">REGIONAL POWERS</div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-gray-300 rounded"></div><span class="text-sm">Israel</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-amber-700 rounded"></div><span class="text-sm">India</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇺🇸</div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-2">U.S. Umbrella</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Pacific:</span><span class="text-blue-400 font-bold" id="us-pacific">0</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Atlantic:</span><span class="text-purple-400 font-bold" id="us-atlantic">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">NATO, Japan, South Korea, Australia</div>
+                    </div>
+                </div>
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇷🇺🇨🇳</div>
+                    <h3 class="text-lg font-bold text-green-400 mb-2">Sino-Russian Bloc</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Total:</span><span class="text-green-400 font-bold" id="sino-russian">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">China, Russia, North Korea</div>
+                    </div>
+                </div>
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇸🇦🇵🇰</div>
+                    <h3 class="text-lg font-bold text-cyan-400 mb-2">Saudi-Pakistan Umbrella</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-cyan-400 font-bold" id="saudi-pakistan">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">Saudi Arabia, Pakistan</div>
+                    </div>
+                </div>
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇮🇱</div>
+                    <h3 class="text-lg font-bold text-gray-300 mb-2">Israeli Arsenal</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-gray-300 font-bold" id="israel">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">Regional deterrence</div>
+                    </div>
+                </div>
+                <div class="speed-card p-4 rounded-xl">
+                    <div class="text-3xl mb-2">🇮🇳</div>
+                    <h3 class="text-lg font-bold text-amber-400 mb-2">Indian Arsenal</h3>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Warheads:</span><span class="text-amber-400 font-bold" id="india">0</span></div>
+                        <div class="text-xs text-gray-500 mt-2">Independent deterrence</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-6 speed-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold orbitron mb-4 text-yellow-400">Strategic Deployment Details</h2>
+                <div id="deploymentsGrid" class="space-y-4"></div>
+                <div id="scenarioInfo"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let nuclearData = []; let rawNuclearData = []; let viewer; let currentView = 'all'; let currentScenario = 'current'; let countriesGeoData; 
+        const umbrellaZones = { us: ['United States of America', 'Canada', 'Mexico', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Netherlands', 'Belgium', 'Portugal', 'Czech Republic', 'Greece', 'Hungary', 'Sweden', 'Austria', 'Switzerland', 'Denmark', 'Finland', 'Slovakia', 'Norway', 'Ireland', 'Croatia', 'Luxembourg', 'Slovenia', 'Lithuania', 'Latvia', 'Estonia', 'Romania', 'Bulgaria', 'Japan', 'South Korea', 'Australia', 'New Zealand', 'Philippines', 'Thailand', 'Singapore', 'Taiwan'], sinoRussian: ['Russia', 'China', 'North Korea', 'Belarus', 'Kazakhstan', 'Kyrgyzstan', 'Tajikistan', 'Uzbekistan', 'Turkmenistan', 'Mongolia', 'Laos', 'Cambodia', 'Myanmar', 'Iran', 'Venezuela', 'Cuba', 'Nicaragua'], saudiPakistan: ['Saudi Arabia', 'United Arab Emirates', 'Jordan', 'Egypt', 'Iraq', 'Kuwait', 'Bahrain', 'Qatar', 'Pakistan'], israel: ['Israel'], india: ['India', 'Bhutan'] };         
+        const patrolCircuitsCurrent = { 
+            pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }], 
+            atlantic: [{ coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol' }, { coords: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]], color: '#8b5cf6', name: 'UK Vanguard SSBN Patrol' }, { coords: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]], color: '#8b5cf6', name: 'French Le Triomphant SSBN Patrol' }], 
+            russian_pacific: [{ coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Pacific SSBN Patrol' }], 
+            russian_atlantic: [{ coords: [[69.26, 33.33], [72, 35], [75, 30], [75, 20], [73, 10], [70, 5], [68, 15], [69, 25], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Atlantic SSBN Patrol' }], 
+            chinese: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN Patrol' }], 
+            indian_ssbn: [{ coords: [[17.68, 83.22], [15, 85], [12, 88], [10, 90], [8, 92], [10, 95], [12, 93], [15, 90], [18, 87], [20, 85], [17.68, 83.22]], color: '#b45309', name: 'Indian SSBN Patrol (Bay of Bengal)' }], 
+            us_ssn_pacific: [{ coords: [[21.35, -157.92], [20, -160], [15, -170], [10, 160], [15, 150], [20, 140], [21.35, -157.92]], color: '#ef4444', name: 'US Virginia SSN Pacific Patrol' }], 
+            us_ssn_indian_ocean: [{ coords: [[-7.32, 72.42], [-10, 75], [-12, 80], [-15, 85], [-18, 90], [-20, 95], [-22, 100], [-25, 105], [-28, 110], [-30, 112], [-32, 115.77]], color: '#ef4444', name: 'US SSN Indian Ocean to Australia Patrol' }], 
+            us_ssn_diego_garcia_patrol: [{ coords: [[-7.32, 72.42], [-5, 70], [-3, 68], [0, 65], [3, 62], [5, 60], [3, 65], [0, 68], [-3, 70], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Diego Garcia Patrol' }], 
+            us_ssn_malacca_patrol: [{ coords: [[-7.32, 72.42], [0, 80], [2, 90], [3, 98], [2, 102], [1, 101], [2, 100], [3, 98], [0, 90], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Malacca Strait Patrol' }], 
+            us_ssn_hormuz_patrol: [{ coords: [[-7.32, 72.42], [0, 65], [10, 60], [20, 58], [26, 56], [27, 55], [26, 56.5], [20, 58], [10, 60], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Strait of Hormuz Patrol' }], 
+            us_ssn_atlantic: [{ coords: [[36.94, -76.33], [40, -70], [45, -60], [50, -50], [45, -55], [40, -65], [36.94, -76.33]], color: '#f97316', name: 'US Virginia SSN Atlantic Patrol' }], 
+            russian_ssn_arctic: [{ coords: [[69.26, 33.33], [70, 20], [75, 10], [70, 0], [65, 15], [69.26, 33.33]], color: '#22c55e', name: 'Russian Yasen SSN Arctic Patrol' }], 
+            chinese_ssn: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [12, 130], [15, 125], [18.24, 109.51]], color: '#22c55e', name: 'Chinese Type 093 SSN Patrol' }], 
+            chinese_ssn_miyako: [{ coords: [[18.24, 109.51], [20, 118], [23, 123], [25, 126], [26, 128], [25, 127], [23, 124], [20, 120], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Miyako Strait Transit' }], 
+            chinese_ssn_luzon: [{ coords: [[18.24, 109.51], [18, 115], [19, 120], [20, 122], [19, 121], [18, 118], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Luzon/Bashi Channel Transit' }], 
+            japanese_ssn_first_island: [{ coords: [[33.59, 130.40], [30, 128], [27, 125], [25, 123], [23, 121], [21, 120], [19, 121], [20, 122], [22, 121.5], [24, 122], [26, 124], [28, 127], [30, 129], [33.59, 130.40]], color: '#ef4444', name: 'Japanese SSK First Island Chain Patrol' }], 
+            indian_ssn: [{ coords: [[17.68, 83.22], [15, 80], [12, 75], [10, 70], [8, 65], [5, 70], [8, 75], [12, 80], [15, 82], [17.68, 83.22]], color: '#b45309', name: 'Indian Chakra SSN Patrol (Arabian Sea)' }], 
+            uk_ssn: [{ coords: [[56.03, -4.92], [55, -15], [50, -25], [45, -20], [50, -10], [56.03, -4.92]], color: '#f97316', name: 'UK Astute SSN Patrol' }], 
+            uk_ssn_giuk: [{ coords: [[56.03, -4.92], [58, -10], [60, -15], [62, -20], [64, -25], [62, -22], [60, -18], [58, -12], [56.03, -4.92]], color: '#f97316', name: 'UK SSN GIUK Gap Patrol' }], 
+            french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }] 
+        }; 
+        const baseLocations = { 'Bangor, Washington': { lat: 47.7267, lng: -122.7113, country: 'USA', type: 'Pacific' }, 'Pearl Harbor, Hawaii': { lat: 21.3433, lng: -157.9761, country: 'USA', type: 'Pacific' }, 'Diego Garcia': { lat: -7.3194, lng: 72.4238, country: 'USA', type: 'Pacific' }, 'Kings Bay, Georgia': { lat: 30.7969, lng: -81.5526, country: 'USA', type: 'Atlantic' }, 'Yokosuka, Japan': { lat: 35.2836, lng: 139.6725, country: 'Japan', type: 'Pacific' }, 'Sasebo, Japan': { lat: 33.5904, lng: 129.7181, country: 'Japan', type: 'Pacific' }, 'Kamchatka, Kamchatka Krai': { lat: 53.0123, lng: 158.6486, country: 'Russia', type: 'Pacific' }, 'Gadzhiyevo, Murmansk Oblast': { lat: 69.2553, lng: 33.3250, country: 'Russia', type: 'Atlantic' }, 'Yalong Bay, Hainan': { lat: 18.2383, lng: 109.5144, country: 'China', type: 'Pacific' }, 'Visakhapatnam, India': { lat: 17.6833, lng: 83.2186, country: 'India', type: 'Pacific' }, 'HMAS Stirling, Australia': { lat: -32.2017, lng: 115.7731, country: 'Australia', type: 'Pacific' }, 'Faslane, Scotland': { lat: 56.03, lng: -4.92, country: 'UK', type: 'Atlantic' }, 'Île Longue, Brest': { lat: 48.39, lng: -4.49, country: 'France', type: 'Atlantic' } };
+        rawNuclearData = [
+            {Region: "Asia", "Country / leg": "USA – Sea (SSBN) (Pacific portion)", "Total Stockpile": 960, "Deployed Warheads": 485, "Strategic Nukes": 485, "Tactical Nukes": 0, "SLBM Warheads": 960, "Home Base": "Bangor, Washington", Notes: "Designed for deterrence against regional threats (e.g., China, North Korea)"},
+            {Region: "Asia", "Country / leg": "China – Land & Air", "Total Stockpile": 580, "Deployed Warheads": 290, "Strategic Nukes": 290, "Tactical Nukes": 0, "SLBM Warheads": "—", "Home Base": "Hami, Xinjiang; Yumen, Gansu", Notes: "Designed for homeland defense and regional strikes (e.g., Taiwan, South China Sea); no confirmed overseas tactical deployments"},
+            {Region: "Asia", "Country / leg": "China – Sea (SSBN)", "Total Stockpile": 20, "Deployed Warheads": 20, "Strategic Nukes": 20, "Tactical Nukes": 0, "SLBM Warheads": 40, "Home Base": "Yalong Bay, Hainan", Notes: "Designed for second-strike against U.S./allied bases in Pacific"},
+            {Region: "Asia", "Country / leg": "North Korea – Land & Air", "Total Stockpile": 50, "Deployed Warheads": 25, "Strategic Nukes": 25, "Tactical Nukes": 25, "SLBM Warheads": "—", "Home Base": "Yongbyon, North Pyongan; Pyongyang, Pyongyang", Notes: "Designed for tactical strikes on South Korea/Japan and strategic on U.S. Guam/Hawaii; none confirmed overseas"},
+            {Region: "Asia", "Country / leg": "India – Land & Air", "Total Stockpile": 180, "Deployed Warheads": 35, "Strategic Nukes": 35, "Tactical Nukes": 0, "SLBM Warheads": "—", "Home Base": "Mumbai, Maharashtra; Visakhapatnam, Andhra Pradesh", Notes: "Designed for deterrence against Pakistan/China; no overseas deployment"},
+            {Region: "Asia", "Country / leg": "Pakistan – Land & Air", "Total Stockpile": 170, "Deployed Warheads": 110, "Strategic Nukes": 0, "Tactical Nukes": 110, "SLBM Warheads": "—", "Home Base": "Khushab, Punjab; Masroor, Sindh", Notes: "Designed for tactical battlefield use against India; no overseas"},
+            {Region: "Asia", "Country / leg": "Russia – Sea (SSBN) (Pacific portion)", "Total Stockpile": 496, "Deployed Warheads": 320, "Strategic Nukes": 320, "Tactical Nukes": 0, "SLBM Warheads": 496, "Home Base": "Kamchatka, Kamchatka Krai", Notes: "Designed for deterrence in Sea of Okhotsk against U.S./Japan; patrols emphasize survivability in contested waters"},
+            {Region: "Middle East", "Country / leg": "Israel – Land & Air", "Total Stockpile": 90, "Deployed Warheads": 35, "Strategic Nukes": 35, "Tactical Nukes": 50, "SLBM Warheads": "—", "Home Base": "Dimona, Southern District; Tel-Nof, Central District", Notes: "Designed for preemptive strikes/deterrence against Iran/region (e.g., Hezbollah, Syria); no confirmed forward basing abroad"},
+            {Region: "Europe", "Country / leg": "USA – Land & Air", "Total Stockpile": 1780, "Deployed Warheads": 800, "Strategic Nukes": 700, "Tactical Nukes": 100, "SLBM Warheads": "—", "Home Base": "Kirtland, New Mexico", Notes: "Designed for tactical support in NATO contingencies (e.g., vs. Russia)"},
+            {Region: "Europe", "Country / leg": "USA – Sea (SSBN) (Atlantic portion)", "Total Stockpile": 960, "Deployed Warheads": 485, "Strategic Nukes": 485, "Tactical Nukes": 0, "SLBM Warheads": 960, "Home Base": "Kings Bay, Georgia", Notes: "Designed for transatlantic deterrence against Russia"},
+            {Region: "Europe", "Country / leg": "Russia – Land & Air", "Total Stockpile": 3311, "Deployed Warheads": 1070, "Strategic Nukes": 1070, "Tactical Nukes": 1477, "SLBM Warheads": "—", "Home Base": "Kozelsk, Kaluga Oblast; Kaliningrad, Kaliningrad Oblast", Notes: "Designed for tactical escalation in Europe (e.g., Baltics, Ukraine) and strategic on NATO"},
+            {Region: "Europe", "Country / leg": "Russia – Sea (SSBN) (Northern portion)", "Total Stockpile": 496, "Deployed Warheads": 320, "Strategic Nukes": 320, "Tactical Nukes": 0, "SLBM Warheads": 496, "Home Base": "Gadzhiyevo, Murmansk Oblast", Notes: "Designed for Barents Sea patrols deterring NATO in Arctic/North Atlantic"},
+            {Region: "Europe", "Country / leg": "United Kingdom – Land & Air", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 0, "SLBM Warheads": "—", "Home Base": "Coulport, Argyll and Bute", Notes: "Designed for NATO integration, no tactical forward"},
+            {Region: "Europe", "Country / leg": "United Kingdom – Sea (SSBN)", "Total Stockpile": 225, "Deployed Warheads": 120, "Strategic Nukes": 120, "Tactical Nukes": 0, "SLBM Warheads": 225, "Home Base": "Faslane, Argyll and Bute", Notes: "Designed for global/NATO strategic response"},
+            {Region: "Europe", "Country / leg": "France – Land & Air", "Total Stockpile": 50, "Deployed Warheads": 40, "Strategic Nukes": 40, "Tactical Nukes": 0, "SLBM Warheads": "—", "Home Base": "Saint-Dizier, Haute-Marne; Istres, Bouches-du-Rhône", Notes: "Designed for European theater strikes (e.g., vs. Russia)"},
+            {Region: "Europe", "Country / leg": "France – Sea (SSBN)", "Total Stockpile": 240, "Deployed Warheads": 240, "Strategic Nukes": 240, "Tactical Nukes": 0, "SLBM Warheads": 240, "Home Base": "Île Longue, Finistère", Notes: "Designed for independent/NATO Atlantic/Mediterranean deterrence"},
+            {Region: "Europe", "Country / leg": "Italy", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 20, "SLBM Warheads": "—", "Home Base": "Aviano, Friuli-Venezia Giulia", Notes: "Designed for tactical air delivery in European/Mediterranean conflicts"},
+            {Region: "Europe", "Country / leg": "Germany", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 20, "SLBM Warheads": "—", "Home Base": "Büchel, Rhineland-Palatinate", Notes: "Designed for central European defense (e.g., vs. Russian incursion)"},
+            {Region: "Europe", "Country / leg": "Turkey", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 20, "SLBM Warheads": "—", "Home Base": "Incirlik, Adana", Notes: "Designed for southeastern flank (e.g., Black Sea, Middle East threats)"},
+            {Region: "Europe", "Country / leg": "Belgium", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 10, "SLBM Warheads": "—", "Home Base": "Kleine Brogel, Limburg", Notes: "Designed for Benelux/Western European tactical support"},
+            {Region: "Europe", "Country / leg": "Netherlands", "Total Stockpile": 0, "Deployed Warheads": 0, "Strategic Nukes": 0, "Tactical Nukes": 10, "SLBM Warheads": "—", "Home Base": "Volkel, North Brabant", Notes: "Designed for northern European air operations"}
+        ];
+        function getPatrolCircuits() {
+            let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
+            if (currentScenario === '2034') {
+                pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
+                pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
+                pc.russian_pacific.push(
+                    { coords: [[53.01, 158.65], [60, 170], [62, -175], [58, -165], [55, -155], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Expanded Okhotsk Bastion' },
+                    { coords: [[53.01, 158.65], [48, 155], [45, 165], [42, 175], [45, 170], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Kuril Island Forward' }
+                );
+                pc.chinese.push(
+                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [30, 140], [28, 135], [22, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese First Island Chain Breach' },
+                    { coords: [[18.24, 109.51], [25, 130], [30, 140], [25, 150], [20, 155], [15, 145], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Second Island Chain Push' },
+                    { coords: [[18.24, 109.51], [10, 100], [5, 85], [0, 75], [5, 80], [12, 95], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Indian Ocean Expansion' }
+                );
+                pc.russian_atlantic.push(
+                    { coords: [[69.26, 33.33], [70, 20], [68, 5], [65, -10], [62, -20], [65, 0], [69.26, 33.33]], color: '#d0f4de', name: 'Russian GIUK Gap Penetration' },
+                    { coords: [[69.26, 33.33], [72, 10], [70, -5], [65, -15], [60, -25], [65, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian North Atlantic Expansion' }
+                );
+            } else if (currentScenario === '2040') {
+                pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Minimal)' }];
+                pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Coastal)' };
+                pc.chinese.push(
+                    { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Hawaii Approaches' },
+                    { coords: [[18.24, 109.51], [25, 140], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Alaska Interdiction' },
+                    { coords: [[18.24, 109.51], [10, 120], [0, 130], [-10, 140], [-15, 145], [-10, 135], [5, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Australia Threat' },
+                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [20, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN First Island Chain Patrol' }
+                );
+                pc.chinese_ssn.push(
+                    { coords: [[18.24, 109.51], [5, 115], [-5, 125], [-15, 130], [-25, 120], [-35, 115], [-40, 125], [-40, 140], [-35, 150], [-25, 155], [-15, 160], [-5, 155], [5, 150], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Circum-Australia Patrol' }
+                );
+                pc.russian_atlantic.push(
+                    { coords: [[69.26, 33.33], [65, 0], [60, -15], [55, -30], [50, -40], [55, -25], [60, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Mid-Atlantic Control' },
+                    { coords: [[69.26, 33.33], [60, -10], [50, -25], [40, -40], [35, -50], [40, -45], [55, -20], [69.26, 33.33]], color: '#d0f4de', name: 'Russian US East Coast Approaches' },
+                    { coords: [[69.26, 33.33], [75, 40], [80, 50], [82, 70], [80, 90], [75, 80], [70, 60], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Arctic Dominance' }
+                );
+            }
+            return pc;
+        }
+        function parseNumber(val) { if (val === null || val === undefined || val === '—' || val === '') return 0; if (typeof val === 'number') return val; const str = String(val).replace(/[~,]/g, '').trim(); const num = parseFloat(str); return isNaN(num) ? 0 : num; }
+        function updateScenarioData() {
+            nuclearData = JSON.parse(JSON.stringify(rawNuclearData));
+            nuclearData.forEach(row => {
+                let mult = 1;
+                if (row['Country / leg']?.includes('USA')) {
+                    mult = currentScenario === '2034' ? 0.7 : (currentScenario === '2040' ? 0.4 : 1);
+                } else if (['Russia', 'China', 'North Korea'].some(c => row['Country / leg']?.includes(c))) {
+                    mult = currentScenario === '2034' ? 1.5 : (currentScenario === '2040' ? 2 : 1);
+                }
+                row.parsedStockpile = parseNumber(row['Total Stockpile']) * mult;
+                row.parsedDeployed = parseNumber(row['Deployed Warheads']) * mult;
+                row.parsedStrategic = parseNumber(row['Strategic Nukes']) * mult;
+                row.parsedTactical = parseNumber(row['Tactical Nukes']) * mult;
+                row.parsedSLBM = parseNumber(row['SLBM Warheads']) * mult;
+            });
+        }
+        function getCountryUmbrella(countryName) { if (umbrellaZones.us.includes(countryName)) return { color: 'rgba(59, 130, 246, 0.6)', name: 'U.S. Umbrella' }; if (umbrellaZones.sinoRussian.includes(countryName)) return { color: 'rgba(22, 163, 74, 0.6)', name: 'Sino-Russian Bloc' }; if (umbrellaZones.saudiPakistan.includes(countryName)) return { color: 'rgba(6, 182, 212, 0.6)', name: 'Saudi-Pakistan Umbrella' }; if (umbrellaZones.israel.includes(countryName)) return { color: 'rgba(229, 231, 235, 0.6)', name: 'Israeli Arsenal' }; if (umbrellaZones.india.includes(countryName)) return { color: 'rgba(180, 83, 9, 0.6)', name: 'Indian Arsenal' }; return { color: 'rgba(30, 41, 55, 0.4)', name: 'Neutral' }; }
+        function addCountryPolygon(viewer, feat) {
+            const umbrella = getCountryUmbrella(feat.properties.name);
+            if (umbrella.name === 'Neutral') return;
+            let hierarchies = [];
+            const coords = feat.geometry.coordinates;
+            const type = feat.geometry.type;
+            if (type === 'Polygon') {
+                const rings = coords;
+                const outerFlat = rings[0].flatMap(p => [p[0], p[1]]);
+                const holes = rings.slice(1).map(ring => Cesium.Cartesian3.fromDegreesArray(ring.flatMap(p => [p[0], p[1]])));
+                const pos = Cesium.Cartesian3.fromDegreesArray(outerFlat);
+                hierarchies.push(new Cesium.PolygonHierarchy(pos, holes));
+            } else if (type === 'MultiPolygon') {
+                coords.forEach(polyCoords => {
+                    const outerFlat = polyCoords[0].flatMap(p => [p[0], p[1]]);
+                    const holes = polyCoords.slice(1).map(ring => Cesium.Cartesian3.fromDegreesArray(ring.flatMap(p => [p[0], p[1]])));
+                    const pos = Cesium.Cartesian3.fromDegreesArray(outerFlat);
+                    hierarchies.push(new Cesium.PolygonHierarchy(pos, holes));
+                });
+            }
+            if (hierarchies.length > 0) {
+                viewer.entities.add({
+                    id: 'country_' + feat.properties.name,
+                    polygon: {
+                        hierarchy: hierarchies,
+                        material: Cesium.Color.fromCssColorString(umbrella.color),
+                        outline: false,
+                    },
+                    name: feat.properties.name
+                });
+            }
+        }
+        async function loadGeoData(viewer) {
+            const geoResponse = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
+            const topoData = await geoResponse.json();
+            countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features;
+            countriesGeoData.forEach(feat => addCountryPolygon(viewer, feat));
+        }
+        function initCesium() {
+            viewer = new Cesium.Viewer('globeViz', {
+                terrainProvider: Cesium.createWorldTerrain({ requestWaterMask: true, requestVertexNormals: true }),
+            });
+            viewer.scene.globe.enableLighting = true;
+            viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(130, 20, 2500000.0) });
+            loadGeoData(viewer);
+        }
+        function clearDynamicEntities() {
+            const entities = viewer.entities.values;
+            entities.forEach(entity => {
+                if (entity.id && entity.id.startsWith('dynamic_')) {
+                    viewer.entities.remove(entity);
+                }
+            });
+        }
+        function updateGlobe() {
+            const patrolCircuits = getPatrolCircuits();
+            const paths = [];
+            if (currentView === 'all' || currentView === 'pacific') {
+                patrolCircuits.pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.russian_pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.chinese?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.indian_ssbn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_indian_ocean?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_diego_garcia_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_malacca_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_hormuz_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.chinese_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.chinese_ssn_miyako?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.chinese_ssn_luzon?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.japanese_ssn_first_island?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.indian_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+            }
+            if (currentView === 'all' || currentView === 'atlantic') {
+                patrolCircuits.atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.russian_atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.us_ssn_atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.russian_ssn_arctic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.uk_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.uk_ssn_giuk?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                patrolCircuits.french_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+            }
+            clearDynamicEntities();
+            let index = 0;
+            paths.forEach(path => {
+                if (currentView === 'umbrellas') return;
+                const coords = path.coords;
+                const flatCoords = coords.flatMap(p => [p[1], p[0]]); // lng, lat
+                const positions = Cesium.Cartesian3.fromDegreesArray(flatCoords);
+                viewer.entities.add({
+                    id: 'dynamic_path_' + index++,
+                    polyline: {
+                        positions: positions,
+                        width: 3.0,
+                        material: Cesium.Color.fromCssColorString(path.color),
+                    },
+                    name: path.label
+                });
+            });
+            const harborElements = [];
+            Object.entries(baseLocations).forEach(([name, loc]) => {
+                if (currentView === 'umbrellas' || (currentView === 'pacific' && loc.type !== 'Pacific') || (currentView === 'atlantic' && loc.type !== 'Atlantic')) return;
+                const baseColor = ['USA', 'UK', 'France', 'Australia', 'Japan'].includes(loc.country) ? '#3b82f6' : loc.country === 'India' ? '#b45309' : '#22c55e';
+                const labelText = `⚓ ${name} (${loc.country})`;
+                viewer.entities.add({
+                    id: 'dynamic_base_' + name,
+                    position: Cesium.Cartesian3.fromDegrees(loc.lng, loc.lat),
+                    label: {
+                        text: labelText,
+                        font: 'bold 12pt sans-serif',
+                        fillColor: Cesium.Color.WHITE,
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 2,
+                        verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        pixelOffset: new Cesium.Cartesian2(0, 0),
+                        showBackground: true,
+                        backgroundColor: Cesium.Color.fromCssColorString(baseColor).withAlpha(0.7),
+                        backgroundPadding: new Cesium.Cartesian2(10.0, 5.0),
+                        scale: 0.8
+                    }
+                });
+            });
+            const info = currentView === 'pacific' ? 'Pacific/Indian Ocean patrols: First Island Chain chokepoints (Miyako, Luzon), Malacca & Hormuz Straits' : currentView === 'atlantic' ? 'Atlantic SSBN patrols: GIUK Gap chokepoint monitoring' : currentView === 'umbrellas' ? 'Nuclear umbrella coverage zones by alliance' : 'All SSBN/SSN patrols with strategic chokepoints';
+            document.getElementById('patrolInfo').textContent = info;
+        }
+        function filterView(view) {
+            currentView = view;
+            document.querySelectorAll('.filter-btn').forEach(btn => { if (btn.id.startsWith('btn-')) btn.classList.remove('active'); });
+            document.getElementById(`btn-${view}`).classList.add('active');
+            updateGlobe();
+            if (view === 'pacific') {
+                viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(150, 35, 2500000.0) });
+            } else if (view === 'atlantic') {
+                viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(-20, 50, 2500000.0) });
+            } else {
+                viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(130, 20, 2500000.0) });
+            }
+        }
+        function switchScenario(scenario) {
+            currentScenario = scenario;
+            document.querySelectorAll('[id^="tab-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${scenario}`).classList.add('active');
+            updateScenarioData();
+            renderDashboard();
+            updateGlobe();
+            renderImplications();
+        }
+        function renderDashboard() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            const pacificData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Pacific'));
+            const atlanticData = nuclearData.filter(r => r['Country / leg'].includes('USA') && r['Country / leg'].includes('Atlantic'));
+            const sinoRussianData = nuclearData.filter(r => ['Russia', 'China', 'North Korea'].some(c => r['Country / leg'].includes(c)));
+            const saudiPakistanData = nuclearData.filter(r => r['Country / leg'].includes('Pakistan'));
+            const israelData = nuclearData.filter(r => r['Country / leg'].includes('Israel'));
+            const indiaData = nuclearData.filter(r => r['Country / leg'].includes('India'));
+            const pacificTotal = pacificData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const atlanticTotal = atlanticData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const sinoRussianTotal = sinoRussianData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const saudiPakistanTotal = saudiPakistanData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const israelTotal = israelData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            const indiaTotal = indiaData.reduce((sum, r) => sum + r.parsedStockpile, 0);
+            document.getElementById('us-pacific').textContent = pacificTotal.toLocaleString();
+            document.getElementById('us-atlantic').textContent = atlanticTotal.toLocaleString();
+            document.getElementById('sino-russian').textContent = sinoRussianTotal.toLocaleString();
+            document.getElementById('saudi-pakistan').textContent = saudiPakistanTotal.toLocaleString();
+            document.getElementById('israel').textContent = israelTotal.toLocaleString();
+            document.getElementById('india').textContent = indiaTotal.toLocaleString();
+            renderDeploymentsGrid();
+        }
+        function renderDeploymentsGrid() {
+            const grid = document.getElementById('deploymentsGrid');
+            const ssbns = nuclearData.filter(r => r['Country / leg'].includes('SSBN') || r['Country / leg'].includes('Sea'));
+            grid.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">${ssbns.map(d => `<div class="bg-slate-800/50 border border-slate-600/30 rounded-xl p-4"><div class="flex justify-between items-start mb-3"><div><div class="font-bold text-lg text-white">${d['Country / leg']}</div><div class="text-sm text-gray-400">📍 ${d['Home Base']}</div><div class="text-xs text-purple-400 mt-1">${d.Region} Theater</div></div><div class="text-right"><div class="text-2xl font-black text-red-400">${d.parsedStockpile.toLocaleString()}</div><div class="text-xs text-gray-400">warheads</div></div></div><div class="grid grid-cols-3 gap-2 mb-3 text-xs"><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">Deployed</div><div class="text-orange-400 font-bold">${d.parsedDeployed.toLocaleString()}</div></div><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">Strategic</div><div class="text-yellow-400 font-bold">${d.parsedStrategic.toLocaleString()}</div></div><div class="bg-slate-700/50 p-2 rounded text-center"><div class="text-gray-400">SLBM</div><div class="text-blue-400 font-bold">${d.parsedSLBM.toLocaleString()}</div></div></div><div class="text-xs text-gray-400 italic border-l-2 border-slate-600 pl-3">${d['Notes']}</div></div>`).join('')}</div>`;
+        }
+        function renderImplications() {
+            const info = document.getElementById('scenarioInfo');
+            if (!info) return;
+            let text = '';
+            if (currentScenario === 'current') {
+                text = '<h3 class="text-xl font-bold orbitron mb-4 text-orange-400">Current Strategic Balance</h3><p class="text-gray-300">The existing nuclear umbrella provides extended deterrence to allies, maintaining global stability through continuous at-sea deterrence and allied commitments.</p>';
+            } else if (currentScenario === '2034') {
+                text = '<h3 class="text-xl font-bold orbitron mb-4 text-orange-400">🎯 Strategic Implications: 2034 (30% Reduction)</h3><div class="text-gray-300 space-y-4"><p><strong>Blue Umbrella weakens over:</strong> Taiwan, Philippines, Poland, Baltics</p><p><strong>China gains First Island Chain operational control</strong></p><p><strong>Russia achieves GIUK Gap parity</strong></p><p><strong>Allies at risk:</strong> Japan (must go nuclear?), South Korea, Poland</p><p><strong>US Force Posture Changes:</strong></p><ul class="list-disc pl-5"><li>Pacific Theater: Reduced Patrols - Abandon Sea of Japan, East China Sea; Consolidate Aleutian Islands, Mid-Pacific</li><li>Atlantic Theater: Reduced Patrols - Abandon Barents Sea, Norwegian Sea; Consolidate Iceland-UK gap</li></ul><p><strong>Chinese SSBN/SSN Expansion (+50%):</strong> New patrols breaching island chains and expanding to Indian Ocean.</p><p><strong>Russian SSBN/SSN Expansion (+50%):</strong> Extended bastions and forward penetrations.</p></div>';
+            } else if (currentScenario === '2040') {
+                text = '<h3 class="text-xl font-bold orbitron mb-4 text-orange-400">🎯 Strategic Implications: 2040 (60% Reduction)</h3><div class="text-gray-300 space-y-4"><p><strong>Blue Umbrella collapses except for core territories (CONUS, UK, Japan home islands)</strong></p><p><strong>China achieves Western Pacific dominance, threatens Hawaii directly</strong></p><p><strong>Russia achieves Atlantic parity, threatens US East Coast</strong></p><p><strong>Allies must develop independent nuclear arsenals or capitulate:</strong></p><ul class="list-disc pl-5"><li>Japan, South Korea, Taiwan, Australia → nuclear programs likely</li><li>Poland, Baltic States → seek French/UK nuclear guarantees</li><li>Philippines, Thailand → potentially flip to Chinese sphere</li></ul><p><strong>Catastrophic US Force Posture:</strong></p><ul class="list-disc pl-5"><li>Pacific: Minimal Deterrence Only - Coastal waters</li><li>Atlantic: Home Waters Only - GIUK Gap abandoned</li></ul><p><strong>Chinese SSBN/SSN Dominance (+100%):</strong> Routes to Hawaii, Alaska, Indian Ocean control, Australia threat.</p><p><strong>Russian SSBN/SSN Atlantic Dominance (+100%):</strong> Mid-Atlantic, US East Coast, Mediterranean, Arctic.</p><h4 class="text-lg font-bold text-yellow-400 mt-4 mb-2">Rare Earth Impact:</h4><ul class="list-disc pl-5"><li>US submarine construction drops 40-60%</li><li>Virginia-class SSN production halts at ~15 remaining</li><li>Columbia-class SSBN delayed 5-7 years beyond 2031 target</li><li>Maintenance backlog forces early Ohio retirements</li></ul></div>';
+            }
+            info.innerHTML = text;
+        }
+        updateScenarioData();
+        initCesium();
+        updateGlobe();
+        renderDashboard();
+        renderImplications();
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js';
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
