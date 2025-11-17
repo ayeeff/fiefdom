@@ -179,11 +179,11 @@
 
       // Try to load real EEZ data from multiple sources
       const dataSources = [
-        // Natural Earth maritime boundaries (simplified)
-        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson',
+        // Real EEZ data from Google Drive (37MB)
+        'https://drive.google.com/uc?export=download&id=1nsITzEeIzlB-Z4daWyDG3H4jaHpBXm43',
         
-        // Backup: Use a smaller maritime dataset
-        'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
+        // Backup: Natural Earth maritime boundaries (simplified)
+        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson'
       ];
 
       let dataLoaded = false;
