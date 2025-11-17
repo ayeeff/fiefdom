@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
     <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>.orbitron { font-family: 'Orbitron', monospace; } .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } } .shimmer-text { background: linear-gradient(90deg, transparent, #ff6b6b, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite; } #globeViz { width: 100%; height: 800px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; } #globeViz canvas { max-width: 100%; max-height: 100%; } .filter-btn { transition: all 0.2s; } .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }</style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 min-h-screen text-white">
@@ -129,7 +128,7 @@
         </div>
     </div>
     <script>
-        let nuclearData = []; let rawNuclearData = []; let viewer; let currentView = 'all'; let currentScenario = 'current'; let countriesGeoData; 
+        let nuclearData = []; let rawNuclearData = []; let viewer; let currentView = 'all'; let currentScenario = 'current'; let countriesGeoData; let countryEntities = [];
         const umbrellaZones = { us: ['United States of America', 'Canada', 'Mexico', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Netherlands', 'Belgium', 'Portugal', 'Czech Republic', 'Greece', 'Hungary', 'Sweden', 'Austria', 'Switzerland', 'Denmark', 'Finland', 'Slovakia', 'Norway', 'Ireland', 'Croatia', 'Luxembourg', 'Slovenia', 'Lithuania', 'Latvia', 'Estonia', 'Romania', 'Bulgaria', 'Japan', 'South Korea', 'Australia', 'New Zealand', 'Philippines', 'Thailand', 'Singapore', 'Taiwan'], sinoRussian: ['Russia', 'China', 'North Korea', 'Belarus', 'Kazakhstan', 'Kyrgyzstan', 'Tajikistan', 'Uzbekistan', 'Turkmenistan', 'Mongolia', 'Laos', 'Cambodia', 'Myanmar', 'Iran', 'Venezuela', 'Cuba', 'Nicaragua'], saudiPakistan: ['Saudi Arabia', 'United Arab Emirates', 'Jordan', 'Egypt', 'Iraq', 'Kuwait', 'Bahrain', 'Qatar', 'Pakistan'], israel: ['Israel'], india: ['India', 'Bhutan'] };         
         const patrolCircuitsCurrent = { 
             pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }], 
@@ -237,53 +236,52 @@
         function addCountryPolygon(viewer, feat) {
             const umbrella = getCountryUmbrella(feat.properties.name);
             if (umbrella.name === 'Neutral') return;
-            let hierarchies = [];
-            const coords = feat.geometry.coordinates;
-            const type = feat.geometry.type;
+            let polys = feat.geometry.coordinates;
+            let type = feat.geometry.type;
             if (type === 'Polygon') {
-                const rings = coords;
-                const outerFlat = rings[0].flatMap(p => [p[0], p[1]]);
-                const holes = rings.slice(1).map(ring => Cesium.Cartesian3.fromDegreesArray(ring.flatMap(p => [p[0], p[1]])));
-                const pos = Cesium.Cartesian3.fromDegreesArray(outerFlat);
-                hierarchies.push(new Cesium.PolygonHierarchy(pos, holes));
-            } else if (type === 'MultiPolygon') {
-                coords.forEach(polyCoords => {
-                    const outerFlat = polyCoords[0].flatMap(p => [p[0], p[1]]);
-                    const holes = polyCoords.slice(1).map(ring => Cesium.Cartesian3.fromDegreesArray(ring.flatMap(p => [p[0], p[1]])));
-                    const pos = Cesium.Cartesian3.fromDegreesArray(outerFlat);
-                    hierarchies.push(new Cesium.PolygonHierarchy(pos, holes));
-                });
+                polys = [polys];
             }
-            if (hierarchies.length > 0) {
-                viewer.entities.add({
-                    id: 'country_' + feat.properties.name,
+            polys.forEach((polyCoords, polyIndex) => {
+                const outerCoords = polyCoords[0].flat();
+                const positions = Cesium.Cartesian3.fromDegreesArray(outerCoords);
+                const holes = polyCoords.slice(1).map(ring => {
+                    const holeCoords = ring.flat();
+                    return Cesium.Cartesian3.fromDegreesArray(holeCoords);
+                });
+                const hierarchy = new Cesium.PolygonHierarchy(positions, holes);
+                const entity = viewer.entities.add({
+                    show: false,
+                    id: 'country_' + feat.properties.name + '_' + polyIndex,
                     polygon: {
-                        hierarchy: hierarchies,
+                        hierarchy: hierarchy,
                         material: Cesium.Color.fromCssColorString(umbrella.color),
                         outline: false,
                     },
                     name: feat.properties.name
                 });
-            }
+                countryEntities.push(entity);
+            });
         }
         async function loadGeoData(viewer) {
             const geoResponse = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
             const topoData = await geoResponse.json();
             countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features;
+            countryEntities = [];
             countriesGeoData.forEach(feat => addCountryPolygon(viewer, feat));
         }
-        function initCesium() {
+        async function initCesium() {
+            const terrainProvider = await Cesium.createWorldTerrainAsync({ requestWaterMask: true, requestVertexNormals: true });
             viewer = new Cesium.Viewer('globeViz', {
-                terrainProvider: Cesium.createWorldTerrain({ requestWaterMask: true, requestVertexNormals: true }),
+                terrainProvider: terrainProvider,
             });
             viewer.scene.globe.enableLighting = true;
             viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(130, 20, 2500000.0) });
-            loadGeoData(viewer);
+            await loadGeoData(viewer);
         }
         function clearDynamicEntities() {
             const entities = viewer.entities.values;
             entities.forEach(entity => {
-                if (entity.id && entity.id.startsWith('dynamic_')) {
+                if (entity.id && (entity.id.startsWith('dynamic_path_') || entity.id.startsWith('dynamic_base_'))) {
                     viewer.entities.remove(entity);
                 }
             });
@@ -292,29 +290,29 @@
             const patrolCircuits = getPatrolCircuits();
             const paths = [];
             if (currentView === 'all' || currentView === 'pacific') {
-                patrolCircuits.pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.russian_pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.chinese?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.indian_ssbn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_pacific?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_indian_ocean?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_diego_garcia_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_malacca_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_hormuz_patrol?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.chinese_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.chinese_ssn_miyako?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.chinese_ssn_luzon?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.japanese_ssn_first_island?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.indian_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.pacific) patrolCircuits.pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.russian_pacific) patrolCircuits.russian_pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.chinese) patrolCircuits.chinese.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.indian_ssbn) patrolCircuits.indian_ssbn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_pacific) patrolCircuits.us_ssn_pacific.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_indian_ocean) patrolCircuits.us_ssn_indian_ocean.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_diego_garcia_patrol) patrolCircuits.us_ssn_diego_garcia_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_malacca_patrol) patrolCircuits.us_ssn_malacca_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_hormuz_patrol) patrolCircuits.us_ssn_hormuz_patrol.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.chinese_ssn) patrolCircuits.chinese_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.chinese_ssn_miyako) patrolCircuits.chinese_ssn_miyako.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.chinese_ssn_luzon) patrolCircuits.chinese_ssn_luzon.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.japanese_ssn_first_island) patrolCircuits.japanese_ssn_first_island.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.indian_ssn) patrolCircuits.indian_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
             }
             if (currentView === 'all' || currentView === 'atlantic') {
-                patrolCircuits.atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.russian_atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.us_ssn_atlantic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.russian_ssn_arctic?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.uk_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.uk_ssn_giuk?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
-                patrolCircuits.french_ssn?.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.atlantic) patrolCircuits.atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.russian_atlantic) patrolCircuits.russian_atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.us_ssn_atlantic) patrolCircuits.us_ssn_atlantic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.russian_ssn_arctic) patrolCircuits.russian_ssn_arctic.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.uk_ssn) patrolCircuits.uk_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.uk_ssn_giuk) patrolCircuits.uk_ssn_giuk.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
+                if (patrolCircuits.french_ssn) patrolCircuits.french_ssn.forEach(circuit => { paths.push({ coords: circuit.coords, color: circuit.color, label: circuit.name }); });
             }
             clearDynamicEntities();
             let index = 0;
@@ -333,7 +331,6 @@
                     name: path.label
                 });
             });
-            const harborElements = [];
             Object.entries(baseLocations).forEach(([name, loc]) => {
                 if (currentView === 'umbrellas' || (currentView === 'pacific' && loc.type !== 'Pacific') || (currentView === 'atlantic' && loc.type !== 'Atlantic')) return;
                 const baseColor = ['USA', 'UK', 'France', 'Australia', 'Japan'].includes(loc.country) ? '#3b82f6' : loc.country === 'India' ? '#b45309' : '#22c55e';
@@ -357,6 +354,8 @@
                     }
                 });
             });
+            const showCountries = currentView === 'umbrellas';
+            countryEntities.forEach(e => { e.show = showCountries; });
             const info = currentView === 'pacific' ? 'Pacific/Indian Ocean patrols: First Island Chain chokepoints (Miyako, Luzon), Malacca & Hormuz Straits' : currentView === 'atlantic' ? 'Atlantic SSBN patrols: GIUK Gap chokepoint monitoring' : currentView === 'umbrellas' ? 'Nuclear umbrella coverage zones by alliance' : 'All SSBN/SSN patrols with strategic chokepoints';
             document.getElementById('patrolInfo').textContent = info;
         }
@@ -423,13 +422,17 @@
             }
             info.innerHTML = text;
         }
-        updateScenarioData();
-        initCesium();
-        updateGlobe();
-        renderDashboard();
-        renderImplications();
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/topojson-client@3/dist/topojson-client.min.js';
+        script.onload = () => {
+            updateScenarioData();
+            (async () => {
+                await initCesium();
+                updateGlobe();
+                renderDashboard();
+                renderImplications();
+            })();
+        };
         document.head.appendChild(script);
     </script>
 </body>
