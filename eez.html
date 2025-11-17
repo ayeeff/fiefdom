@@ -198,13 +198,10 @@
       // Set initial view
       globe.pointOfView({ altitude: 2.5 });
 
-      // Try to load real EEZ data from multiple sources
+      // SIMPLE SOLUTION: Use pre-made Natural Earth maritime data  
       const dataSources = [
-        // Real EEZ data from GitHub repo (37MB) - raw URL
-        'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_boundaries_v12.json',
-        
-        // Fallback: Natural Earth maritime boundaries (simplified)
-        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson'
+        // Natural Earth - marine polygons (WORKS OUT OF THE BOX!)
+        'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_geography_marine_polys.geojson',
       ];
 
       let dataLoaded = false;
@@ -242,11 +239,15 @@
           
           console.log('Data loaded:', data.features?.length || 0, 'features');
 
-          // Filter and process the data
-          let eezFeatures = data.features;
+          // Filter and process the data - only keep Polygons and MultiPolygons
+          let eezFeatures = data.features.filter(f => 
+            f.geometry && 
+            (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
+          );
           
           console.log('Sample feature properties:', eezFeatures[0]?.properties);
-          debug.innerHTML = `Processing ${eezFeatures.length} features...`;
+          console.log(`Filtered to ${eezFeatures.length} polygon features (removed ${data.features.length - eezFeatures.length} line features)`);
+          debug.innerHTML = `Processing ${eezFeatures.length} polygon features...`;
 
           if (eezFeatures.length > 0) {
             console.log('Processing', eezFeatures.length, 'EEZ features');
