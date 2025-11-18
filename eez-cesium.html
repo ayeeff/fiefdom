@@ -83,9 +83,9 @@
         if(e.polygon){
           const country = e.properties.SOVEREIGN1?._value||e.properties.TERRITORY1?._value||e.properties.GEONAME?._value||'Unknown';
           e.name = country;
-          e.polygon.material = Cesium.Color.fromCssColorString('#3EACA8').withAlpha(0.82);
+          e.polygon.material = Cesium.Color.fromCssColorString('#3EACA8').withAlpha(0.32);
           e.polygon.outline = true;
-          e.polygon.outlineColor = Cesium.Color.fromCssColorString('#2A7F7A').withAlpha(0.8);
+          e.polygon.outlineColor = Cesium.Color.fromCssColorString('#2A7F7A').withAlpha(1.8);
           e.polygon.outlineWidth = 1.5;
         }
       });
