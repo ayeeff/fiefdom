@@ -159,7 +159,7 @@
 
         const baseLocations = { 'Bangor, WA': {lat:47.73,lng:-122.71,country:'USA',type:'Pacific'}, 'Pearl Harbor': {lat:21.34,lng:-157.98,country:'USA',type:'Pacific'}, 'Diego Garcia': {lat:-7.32,lng:72.42,country:'USA',type:'Pacific'}, 'Kings Bay, GA': {lat:30.80,lng:-81.55,country:'USA',type:'Atlantic'}, 'Yokosuka': {lat:35.28,lng:139.67,country:'Japan',type:'Pacific'}, 'Kamchatka': {lat:53.01,lng:158.65,country:'Russia',type:'Pacific'}, 'Gadzhiyevo': {lat:69.26,lng:33.33,country:'Russia',type:'Atlantic'}, 'Yalong Bay': {lat:18.24,lng:109.51,country:'China',type:'Pacific'}, 'Visakhapatnam': {lat:17.68,lng:83.22,country:'India',type:'Pacific'}, 'HMAS Stirling': {lat:-32.20,lng:115.77,country:'Australia',type:'Pacific'}, 'Faslane': {lat:56.03,lng:-4.92,country:'UK',type:'Atlantic'}, 'Île Longue': {lat:48.39,lng:-4.49,country:'France',type:'Atlantic'} };
 
-const patrolCircuitsCurrent = {
+        const patrolCircuitsCurrent = {
             pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }],
             atlantic: [{ coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol' }, { coords: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]], color: '#8b5cf6', name: 'UK Vanguard SSBN Patrol' }, { coords: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]], color: '#8b5cf6', name: 'French Le Triomphant SSBN Patrol' }],
             russian_pacific: [{ coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Pacific SSBN Patrol' }],
@@ -182,8 +182,7 @@ const patrolCircuitsCurrent = {
             uk_ssn_giuk: [{ coords: [[56.03, -4.92], [58, -10], [60, -15], [62, -20], [64, -25], [62, -22], [60, -18], [58, -12], [56.03, -4.92]], color: '#f97316', name: 'UK SSN GIUK Gap Patrol' }],
             french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }]
         };
-        const baseLocations = { 'Bangor, Washington': { lat: 47.7267, lng: -122.7113, country: 'USA', type: 'Pacific' }, 'Pearl Harbor, Hawaii': { lat: 21.3433, lng: -157.9761, country: 'USA', type: 'Pacific' }, 'Diego Garcia': { lat: -7.3194, lng: 72.4238, country: 'USA', type: 'Pacific' }, 'Kings Bay, Georgia': { lat: 30.7969, lng: -81.5526, country: 'USA', type: 'Atlantic' }, 'Yokosuka, Japan': { lat: 35.2836, lng: 139.6725, country: 'Japan', type: 'Pacific' }, 'Sasebo, Japan': { lat: 33.5904, lng: 129.7181, country: 'Japan', type: 'Pacific' }, 'Kamchatka, Kamchatka Krai': { lat: 53.0123, lng: 158.6486, country: 'Russia', type: 'Pacific' }, 'Gadzhiyevo, Murmansk Oblast': { lat: 69.2553, lng: 33.3250, country: 'Russia', type: 'Atlantic' }, 'Yalong Bay, Hainan': { lat: 18.2383, lng: 109.5144, country: 'China', type: 'Pacific' }, 'Visakhapatnam, India': { lat: 17.6833, lng: 83.2186, country: 'India', type: 'Pacific' }, 'HMAS Stirling, Australia': { lat: -32.2017, lng: 115.7731, country: 'Australia', type: 'Pacific' }, 'Faslane, Scotland': { lat: 56.03, lng: -4.92, country: 'UK', type: 'Atlantic' }, 'Île Longue, Brest': { lat: 48.39, lng: -4.49, country: 'France', type: 'Atlantic' } };
-
+  
         function getPatrolCircuits() {
             let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
             if (currentScenario === '2034') {
