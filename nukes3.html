@@ -114,217 +114,265 @@
             </div>
         </div>
     </div>
+<script>
+    let globe, currentView = 'all', currentScenario = 'current', countriesGeoData;
 
-    <script>
-        let globe, currentView = 'all', currentScenario = 'current', countriesGeoData;
+    // Hardcoded force estimates (no external CSV)
+    const forceData = {
+        current: {
+            usPacSSBN: 8, usPacSSN: 38, usPacStrat: 1920, usPacTac: 500,
+            usAtlSSBN: 6, usAtlSSN: 18, usAtlStrat: 1440, usAtlTac: 300,
+            srSSBN: 12, srSSN: 45, srStrat: 2800, srTac: 1900,
+            spWH: 350, ilWH: 90, inWH: 170
+        },
+        '2034': {
+            usPacSSBN: 6, usPacSSN: 30, usPacStrat: 1344, usPacTac: 350,
+            usAtlSSBN: 5, usAtlSSN: 15, usAtlStrat: 1008, usAtlTac: 210,
+            srSSBN: 18, srSSN: 68, srStrat: 4200, srTac: 2850,
+            spWH: 500, ilWH: 110, inWH: 250
+        },
+        '2040': {
+            usPacSSBN: 4, usPacSSN: 15, usPacStrat: 768, usPacTac: 200,
+            usAtlSSBN: 4, usAtlSSN: 12, usAtlStrat: 576, usAtlTac: 120,
+            srSSBN: 24, srSSN: 90, srStrat: 5600, srTac: 3800,
+            spWH: 700, ilWH: 130, inWH: 400
+        }
+    };
 
-        // Hardcoded force estimates (no external CSV)
-        const forceData = {
-            current: {
-                usPacSSBN: 8, usPacSSN: 38, usPacStrat: 1920, usPacTac: 500,
-                usAtlSSBN: 6, usAtlSSN: 18, usAtlStrat: 1440, usAtlTac: 300,
-                srSSBN: 12, srSSN: 45, srStrat: 2800, srTac: 1900,
-                spWH: 350, ilWH: 90, inWH: 170
-            },
-            '2034': {
-                usPacSSBN: 6, usPacSSN: 30, usPacStrat: 1344, usPacTac: 350,
-                usAtlSSBN: 5, usAtlSSN: 15, usAtlStrat: 1008, usAtlTac: 210,
-                srSSBN: 18, srSSN: 68, srStrat: 4200, srTac: 2850,
-                spWH: 500, ilWH: 110, inWH: 250
-            },
-            '2040': {
-                usPacSSBN: 4, usPacSSN: 15, usPacStrat: 768, usPacTac: 200,
-                usAtlSSBN: 4, usAtlSSN: 12, usAtlStrat: 576, usAtlTac: 120,
-                srSSBN: 24, srSSN: 90, srStrat: 5600, srTac: 3800,
-                spWH: 700, ilWH: 130, inWH: 400
-            }
-        };
+    const umbrellaZones = {
+        us: ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Spain','Poland','Netherlands','Belgium','Portugal','Czech Republic','Greece','Hungary','Sweden','Austria','Switzerland','Denmark','Finland','Slovakia','Norway','Ireland','Croatia','Luxembourg','Slovenia','Lithuania','Latvia','Estonia','Romania','Bulgaria','Japan','South Korea','Australia','New Zealand','Philippines','Thailand','Singapore'],
+        sinoRussian: ['Russia','China','North Korea','Belarus','Kazakhstan','Kyrgyzstan','Tajikistan','Uzbekistan','Turkmenistan','Mongolia','Laos','Cambodia','Myanmar','Iran','Venezuela','Cuba','Nicaragua','Taiwan'],
+        saudiPakistan: ['Saudi Arabia','United Arab Emirates','Jordan','Egypt','Iraq','Kuwait','Bahrain','Qatar','Pakistan'],
+        israel: ['Israel'],
+        india: ['India','Bhutan']
+    };
 
-        const umbrellaZones = {
-            us: ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Spain','Poland','Netherlands','Belgium','Portugal','Czech Republic','Greece','Hungary','Sweden','Austria','Switzerland','Denmark','Finland','Slovakia','Norway','Ireland','Croatia','Luxembourg','Slovenia','Lithuania','Latvia','Estonia','Romania','Bulgaria','Japan','South Korea','Australia','New Zealand','Philippines','Thailand','Singapore'],
-            sinoRussian: ['Russia','China','North Korea','Belarus','Kazakhstan','Kyrgyzstan','Tajikistan','Uzbekistan','Turkmenistan','Mongolia','Laos','Cambodia','Myanmar','Iran','Venezuela','Cuba','Nicaragua','Taiwan'],
-            saudiPakistan: ['Saudi Arabia','United Arab Emirates','Jordan','Egypt','Iraq','Kuwait','Bahrain','Qatar','Pakistan'],
-            israel: ['Israel'],
-            india: ['India','Bhutan']
-        };
+    function getCurrentUmbrellaZones() {
+        if (currentScenario !== '2040') return umbrellaZones;
+        const z = JSON.parse(JSON.stringify(umbrellaZones));
+        const flip = ['Australia','New Zealand','South Korea','Japan','Thailand','Philippines','Taiwan'];
+        z.us = z.us.filter(c => !flip.includes(c));
+        z.sinoRussian.push(...flip);
+        return z;
+    }
 
-        function getCurrentUmbrellaZones() {
-            if (currentScenario !== '2040') return umbrellaZones;
-            const z = JSON.parse(JSON.stringify(umbrellaZones));
-            const flip = ['Australia','New Zealand','South Korea','Japan','Thailand','Philippines','Taiwan'];
-            z.us = z.us.filter(c => !flip.includes(c));
-            z.sinoRussian.push(...flip);
-            return z;
+    // SUBMARINE BASES WITH CLEAN LABELS
+    const subBases = [
+        { lat: 47.73, lng: -122.71, name: "NAVBASE Kitsap (Bangor)", color: "#3b82f6" },
+        { lat: 30.80, lng: -81.55,  name: "NSB Kings Bay",           color: "#8b5cf6" },
+        { lat: 56.03, lng: -4.92,  name: "HMNB Clyde (Faslane)",     color: "#8b5cf6" },
+        { lat: 48.39, lng: -4.49,  name: "Île Longue (Brest)",       color: "#8b5cf6" },
+        { lat: 53.01, lng: 158.65, name: "Rybachiy (Kamchatka)",     color: "#94a3b8" },
+        { lat: 69.26, lng: 33.33,  name: "Gadzhiyevo (Arctic)",      color: "#94a3b8" },
+        { lat: 18.24, lng: 109.51, name: "Yulin Naval Base",         color: "#22c55e" },
+        { lat: 21.35, lng: -157.92,name: "Pearl Harbor-Hickam",      color: "#ef4444" },
+        { lat: -7.32, lng: 72.42,  name: "Diego Garcia",             color: "#ef4444" },
+        { lat: 35.28, lng: 139.67, name: "Yokosuka Naval Base",      color: "#3b82f6" },
+        { lat: 17.68, lng: 83.22,  name: "INS Varsha (Visakhapatnam)",color: "#b45309" },
+        { lat: -32.20,lng: 115.77, name: "HMAS Stirling",            color: "#3b82f6" }
+    ];
+
+    const patrolCircuitsCurrent = {
+        pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b91c1c', name: 'U.S. Pacific SSBN Patrol' }],
+        atlantic: [
+            { coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#1e40af', name: 'U.S. Atlantic SSBN Patrol' },
+            { coords: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]], color: '#1e40af', name: 'UK Vanguard SSBN Patrol' },
+            { coords: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]], color: '#1e40af', name: 'French Le Triomphant SSBN Patrol' }
+        ],
+        russian_pacific: [{ coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#22c55e', name: 'Russian Pacific SSBN Patrol' }],
+        russian_atlantic: [{ coords: [[69.26, 33.33], [72, 35], [75, 30], [75, 20], [73, 10], [70, 5], [68, 15], [69, 25], [69.26, 33.33]], color: '#22c55e', name: 'Russian Northern Fleet SSBN Patrol' }],
+        chinese: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]], color: '#dc2626', name: 'Chinese SSBN Bastion Patrol' }],
+        indian_ssbn: [{ coords: [[17.68, 83.22], [15, 85], [12, 88], [10, 90], [8, 92], [10, 95], [12, 93], [15, 90], [18, 87], [20, 85], [17.68, 83.22]], color: '#b45309', name: 'Indian SSBN Patrol (Bay of Bengal)' }],
+        us_ssn_pacific: [{ coords: [[21.35, -157.92], [20, -160], [15, -170], [10, 160], [15, 150], [20, 140], [21.35, -157.92]], color: '#ef4444', name: 'US Virginia SSN Pacific Patrol' }],
+        us_ssn_indian_ocean: [{ coords: [[-7.32, 72.42], [-10, 75], [-12, 80], [-15, 85], [-18, 90], [-20, 95], [-22, 100], [-25, 105], [-28, 110], [-30, 112], [-32, 115.77]], color: '#ef4444', name: 'US SSN Indian Ocean Patrol' }],
+        us_ssn_diego_garcia_patrol: [{ coords: [[-7.32, 72.42], [-5, 70], [-3, 68], [0, 65], [3, 62], [5, 60], [3, 65], [0, 68], [-3, 70], [-7.32, 72.42]], color: '#ef4444ff', name: 'US SSN Diego Garcia Local' }],
+        us_ssn_malacca_patrol: [{ coords: [[-7.32, 72.42], [0, 80], [2, 90], [3, 98], [2, 102], [1, 101], [2, 100], [3, 98], [0, 90], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Malacca Patrol' }],
+        us_ssn_hormuz_patrol: [{ coords: [[-7.32, 72.42], [0, 65], [10, 60], [20, 58], [26, 56], [27, 55], [26, 56.5], [20, 58], [10, 60], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Hormuz Patrol' }],
+        us_ssn_atlantic: [{ coords: [[36.94, -76.33], [40, -70], [45, -60], [50, -50], [45, -55], [40, -65], [36.94, -76.33]], color: '#f97316', name: 'US SSN Atlantic Patrol' }],
+        russian_ssn_arctic: [{ coords: [[69.26, 33.33], [70, 20], [75, 10], [70, 0], [65, 15], [69.26, 33.33]], color: '#22c55e', name: 'Russian Yasen Arctic Patrol' }],
+        chinese_ssn: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [12, 130], [15, 125], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Patrol' }],
+        chinese_ssn_miyako: [{ coords: [[18.24, 109.51], [20, 118], [23, 123], [25, 126], [26, 128], [25, 127], [23, 124], [20, 120], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Miyako Transit' }],
+        chinese_ssn_luzon: [{ coords: [[18.24, 109.51], [18, 115], [19, 120], [20, 122], [19, 121], [18, 118], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Luzon Transit' }],
+        japanese_ssn_first_island: [{ coords: [[33.59, 130.40], [30, 128], [27, 125], [25, 123], [23, 121], [21, 120], [19, 121], [20, 122], [22, 121.5], [24, 122], [26, 124], [28, 127], [30, 129], [33.59, 130.40]], color: '#3b82f6', name: 'Japanese SSK Patrol' }],
+        indian_ssn: [{ coords: [[17.68, 83.22], [15, 80], [12, 75], [10, 70], [8, 65], [5, 70], [8, 75], [12, 80], [15, 82], [17.68, 83.22]], color: '#b45309', name: 'Indian SSN Arabian Sea' }],
+        uk_ssn: [{ coords: [[56.03, -4.92], [55, -15], [50, -25], [45, -20], [50, -10], [56.03, -4.92]], color: '#f97316', name: 'UK Astute SSN Patrol' }],
+        uk_ssn_giuk: [{ coords: [[56.03, -4.92], [58, -10], [60, -15], [62, -20], [64, -25], [62, -22], [60, -18], [58, -12], [56.03, -4.92]], color: '#f97316', name: 'UK SSN GIUK Gap' }],
+        french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }]
+    };
+
+    function getPatrolCircuits() {
+        let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
+        if (currentScenario === '2034') {
+            pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
+            pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
+            pc.russian_pacific.push(
+                { coords: [[53.01, 158.65], [60, 170], [62, -175], [58, -165], [55, -155], [50, 160], [53.01, 158.65]], color: '#22c55e', name: 'Russian Expanded Okhotsk Bastion' },
+                { coords: [[53.01, 158.65], [48, 155], [45, 165], [42, 175], [45, 170], [50, 160], [53.01, 158.65]], color: '#22c55e', name: 'Russian Kuril Forward' }
+            );
+            pc.chinese.push(
+                { coords: [[18.24, 109.51], [20, 120], [25, 130], [30, 140], [28, 135], [22, 125], [18.24, 109.51]], color: '#dc2626', name: 'Chinese First Island Breach' },
+                { coords: [[18.24, 109.51], [15, 125], [10, 140], [5, 150], [10, 155], [15, 145], [18.24, 109.51]], color: '#dc2626', name: 'Chinese Second Island Push' }
+            );
+        } else if (currentScenario === '2040') {
+            pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN (Hawaiian Sanctuary Only)' }];
+            pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN (East Coast Only)' };
+            delete pc.us_ssn_indian_ocean; delete pc.us_ssn_diego_garcia_patrol; delete pc.us_ssn_malacca_patrol; delete pc.us_ssn_hormuz_patrol; delete pc.japanese_ssn_first_island;
+            pc.chinese.push(
+                { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#dc2626', name: 'Chinese Hawaii Approaches' },
+                { coords: [[18.24, 109.51], [25, 140], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#dc2626', name: 'Chinese Alaska Interdiction' },
+                { coords: [[18.24, 109.51], [10, 120], [0, 130], [-10, 140], [-15, 145], [-10, 135], [5, 125], [18.24, 109.51]], color: '#dc2626', name: 'Chinese Australia Threat' }
+            );
+        }
+        return pc;
+    }
+
+    async function init() {
+        const topo = await fetch('https://unpkg.com/world-atlas/countries-110m.json').then(r=>r.json());
+        countriesGeoData = topojson.feature(topo, topo.objects.countries).features;
+        initGlobe();
+        updateAll();
+        document.getElementById('loading')?.classList.add('hidden');
+        document.getElementById('mainContent')?.classList.remove('hidden');
+    }
+
+    function initGlobe() {
+        globe = Globe()(document.getElementById('globeViz'))
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .pointOfView({lat:20,lng:130,altitude:2.5})
+            .showAtmosphere(true)
+            .atmosphereColor('#3a228a')
+            .atmosphereAltitude(0.18)
+            .polygonsData(countriesGeoData)
+            .polygonCapColor(f => getCountryUmbrella(f.properties.name).color)
+            .polygonSideColor(() => 'rgba(0,0,0,0.15)')
+            .polygonStrokeColor(() => '#111')
+            .polygonLabel(f => `<b>${f.properties.name}</b><br/><span style="color:#ccc">${getCountryUmbrella(f.properties.name).name}</span>`)
+            // CLEAN BASE NAME LABELS (replaces old Anchor circles)
+            .pointsData(subBases)
+            .pointLat(d => d.lat)
+            .pointLng(d => d.lng)
+            .pointColor(d => d.color)
+            .pointAltitude(0.008)
+            .pointRadius(0.06)
+            .pointLabel(d => `
+                <div style="
+                    background: rgba(0,0,0,0.85);
+                    color: white;
+                    padding: 8px 14px;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    border: 1px solid ${d.color};
+                    box-shadow: 0 0 20px ${d.color};
+                    white-space: nowrap;
+                    pointer-events: none;
+                ">
+                    ${d.name}
+                </div>
+            `)
+            .pathsData([])
+            .pathPointLat(p => p[0])
+            .pathPointLng(p => p[1])
+            .pathColor(d => d.color)
+            .pathLabel(d => d.label)
+            .pathStroke(2.5)
+            .pathDashLength(0.25)
+            .pathDashGap(0.1)
+            .pathDashAnimateTime(8000);
+
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.4;
+    }
+
+    function updateAll() {
+        updateForceNumbers();
+        updateGlobe();
+        renderImplications();
+    }
+
+    function updateForceNumbers() {
+        const d = forceData[currentScenario];
+        document.getElementById('us-pac-ssbn').textContent = d.usPacSSBN;
+        document.getElementById('us-pac-ssn').textContent = d.usPacSSN;
+        document.getElementById('us-pac-strat').textContent = d.usPacStrat.toLocaleString();
+        document.getElementById('us-pac-tac').textContent = d.usPacTac;
+        document.getElementById('us-atl-ssbn').textContent = d.usAtlSSBN;
+        document.getElementById('us-atl-ssn').textContent = d.usAtlSSN;
+        document.getElementById('us-atl-strat').textContent = d.usAtlStrat.toLocaleString();
+        document.getElementById('us-atl-tac').textContent = d.usAtlTac;
+        document.getElementById('sr-ssbn').textContent = d.srSSBN;
+        document.getElementById('sr-ssn').textContent = d.srSSN;
+        document.getElementById('sr-strat').textContent = d.srStrat.toLocaleString();
+        document.getElementById('sr-tac').textContent = d.srTac;
+        document.getElementById('sp-wh').textContent = d.spWH;
+        document.getElementById('il-wh').textContent = d.ilWH;
+        document.getElementById('in-wh').textContent = d.inWH;
+    }
+
+    function getCountryUmbrella(name) {
+        const z = getCurrentUmbrellaZones();
+        if (z.us.includes(name)) return {color:'rgba(59,130,246,0.65)',name:'U.S. Nuclear Umbrella'};
+        if (z.sinoRussian.includes(name)) return {color:'rgba(34,197,94,0.75)',name:'Sino-Russian Bloc'};
+        if (z.saudiPakistan.includes(name)) return {color:'rgba(6,182,212,0.6)',name:'Saudi-Pakistan Axis'};
+        if (z.israel.includes(name)) return {color:'rgba(229,231,235,0.8)',name:'Israel'};
+        if (z.india.includes(name)) return {color:'rgba(180,83,9,0.7)',name:'India'};
+        return {color:'rgba(30,41,55,0.4)',name:'Neutral / Unprotected'};
+    }
+
+    function updateGlobe() {
+        const pc = getPatrolCircuits();
+        const paths = [];
+        if (currentView === 'all' || currentView === 'pacific') {
+            ['pacific','russian_pacific','chinese','indian_ssbn','us_ssn_pacific','us_ssn_indian_ocean','us_ssn_diego_garcia_patrol','us_ssn_malacca_patrol','us_ssn_hormuz_patrol','chinese_ssn','chinese_ssn_miyako','chinese_ssn_luzon','japanese_ssn_first_island','indian_ssn'].forEach(k => pc[k]?.forEach(c => paths.push({coords:c.coords,color:c.color,label:c.name})));
+        }
+        if (currentView === 'all' || currentView === 'atlantic') {
+            ['atlantic','russian_atlantic','us_ssn_atlantic','russian_ssn_arctic','uk_ssn','uk_ssn_giuk','french_ssn'].forEach(k => pc[k]?.forEach(c => paths.push({coords:c.coords,color:c.color,label:c.name})));
         }
 
-        const baseLocations = { 'Bangor, WA': {lat:47.73,lng:-122.71,country:'USA',type:'Pacific'}, 'Pearl Harbor': {lat:21.34,lng:-157.98,country:'USA',type:'Pacific'}, 'Diego Garcia': {lat:-7.32,lng:72.42,country:'USA',type:'Pacific'}, 'Kings Bay, GA': {lat:30.80,lng:-81.55,country:'USA',type:'Atlantic'}, 'Yokosuka': {lat:35.28,lng:139.67,country:'Japan',type:'Pacific'}, 'Kamchatka': {lat:53.01,lng:158.65,country:'Russia',type:'Pacific'}, 'Gadzhiyevo': {lat:69.26,lng:33.33,country:'Russia',type:'Atlantic'}, 'Yalong Bay': {lat:18.24,lng:109.51,country:'China',type:'Pacific'}, 'Visakhapatnam': {lat:17.68,lng:83.22,country:'India',type:'Pacific'}, 'HMAS Stirling': {lat:-32.20,lng:115.77,country:'Australia',type:'Pacific'}, 'Faslane': {lat:56.03,lng:-4.92,country:'UK',type:'Atlantic'}, 'Île Longue': {lat:48.39,lng:-4.49,country:'France',type:'Atlantic'} };
+        globe
+            .pathsData(currentView === 'umbrellas' ? [] : paths)
+            .pointsData(currentView === 'umbrellas' ? [] : subBases); // Show bases unless in umbrella-only mode
 
-        const patrolCircuitsCurrent = {
-            pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }],
-            atlantic: [{ coords: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol' }, { coords: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]], color: '#8b5cf6', name: 'UK Vanguard SSBN Patrol' }, { coords: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]], color: '#8b5cf6', name: 'French Le Triomphant SSBN Patrol' }],
-            russian_pacific: [{ coords: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Pacific SSBN Patrol' }],
-            russian_atlantic: [{ coords: [[69.26, 33.33], [72, 35], [75, 30], [75, 20], [73, 10], [70, 5], [68, 15], [69, 25], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Atlantic SSBN Patrol' }],
-            chinese: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN Patrol' }],
-            indian_ssbn: [{ coords: [[17.68, 83.22], [15, 85], [12, 88], [10, 90], [8, 92], [10, 95], [12, 93], [15, 90], [18, 87], [20, 85], [17.68, 83.22]], color: '#b45309', name: 'Indian SSBN Patrol (Bay of Bengal)' }],
-            us_ssn_pacific: [{ coords: [[21.35, -157.92], [20, -160], [15, -170], [10, 160], [15, 150], [20, 140], [21.35, -157.92]], color: '#ef4444', name: 'US Virginia SSN Pacific Patrol' }],
-            us_ssn_indian_ocean: [{ coords: [[-7.32, 72.42], [-10, 75], [-12, 80], [-15, 85], [-18, 90], [-20, 95], [-22, 100], [-25, 105], [-28, 110], [-30, 112], [-32, 115.77]], color: '#ef4444', name: 'US SSN Indian Ocean to Australia Patrol' }],
-            us_ssn_diego_garcia_patrol: [{ coords: [[-7.32, 72.42], [-5, 70], [-3, 68], [0, 65], [3, 62], [5, 60], [3, 65], [0, 68], [-3, 70], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Diego Garcia Patrol' }],
-            us_ssn_malacca_patrol: [{ coords: [[-7.32, 72.42], [0, 80], [2, 90], [3, 98], [2, 102], [1, 101], [2, 100], [3, 98], [0, 90], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Malacca Strait Patrol' }],
-            us_ssn_hormuz_patrol: [{ coords: [[-7.32, 72.42], [0, 65], [10, 60], [20, 58], [26, 56], [27, 55], [26, 56.5], [20, 58], [10, 60], [-7.32, 72.42]], color: '#ef4444', name: 'US SSN Strait of Hormuz Patrol' }],
-            us_ssn_atlantic: [{ coords: [[36.94, -76.33], [40, -70], [45, -60], [50, -50], [45, -55], [40, -65], [36.94, -76.33]], color: '#f97316', name: 'US Virginia SSN Atlantic Patrol' }],
-            russian_ssn_arctic: [{ coords: [[69.26, 33.33], [70, 20], [75, 10], [70, 0], [65, 15], [69.26, 33.33]], color: '#22c55e', name: 'Russian Yasen SSN Arctic Patrol' }],
-            chinese_ssn: [{ coords: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [12, 130], [15, 125], [18.24, 109.51]], color: '#22c55e', name: 'Chinese Type 093 SSN Patrol' }],
-            chinese_ssn_miyako: [{ coords: [[18.24, 109.51], [20, 118], [23, 123], [25, 126], [26, 128], [25, 127], [23, 124], [20, 120], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Miyako Strait Transit' }],
-            chinese_ssn_luzon: [{ coords: [[18.24, 109.51], [18, 115], [19, 120], [20, 122], [19, 121], [18, 118], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Luzon/Bashi Channel Transit' }],
-            japanese_ssn_first_island: [{ coords: [[33.59, 130.40], [30, 128], [27, 125], [25, 123], [23, 121], [21, 120], [19, 121], [20, 122], [22, 121.5], [24, 122], [26, 124], [28, 127], [30, 129], [33.59, 130.40]], color: '#ef4444', name: 'Japanese SSK First Island Chain Patrol' }],
-            indian_ssn: [{ coords: [[17.68, 83.22], [15, 80], [12, 75], [10, 70], [8, 65], [5, 70], [8, 75], [12, 80], [15, 82], [17.68, 83.22]], color: '#b45309', name: 'Indian Chakra SSN Patrol (Arabian Sea)' }],
-            uk_ssn: [{ coords: [[56.03, -4.92], [55, -15], [50, -25], [45, -20], [50, -10], [56.03, -4.92]], color: '#f97316', name: 'UK Astute SSN Patrol' }],
-            uk_ssn_giuk: [{ coords: [[56.03, -4.92], [58, -10], [60, -15], [62, -20], [64, -25], [62, -22], [60, -18], [58, -12], [56.03, -4.92]], color: '#f97316', name: 'UK SSN GIUK Gap Patrol' }],
-            french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }]
-        };
-  
-        function getPatrolCircuits() {
-            let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
-            if (currentScenario === '2034') {
-                pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
-                pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
-                pc.russian_pacific.push(
-                    { coords: [[53.01, 158.65], [60, 170], [62, -175], [58, -165], [55, -155], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Expanded Okhotsk Bastion' },
-                    { coords: [[53.01, 158.65], [48, 155], [45, 165], [42, 175], [45, 170], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Kuril Island Forward' }
-                );
-                pc.chinese.push(
-                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [30, 140], [28, 135], [22, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese First Island Chain Breach' },
-                    { coords: [[18.24, 109.51], [15, 125], [10, 140], [5, 150], [10, 155], [15, 145], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Second Island Chain Push' }
-                );
-                pc.russian_atlantic.push(
-                    { coords: [[69.26, 33.33], [70, 20], [68, 5], [65, -10], [62, -20], [65, 0], [69.26, 33.33]], color: '#d0f4de', name: 'Russian GIUK Gap Penetration' },
-                    { coords: [[69.26, 33.33], [72, 10], [70, -5], [65, -15], [60, -25], [65, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian North Atlantic Expansion' }
-                );
-            } else if (currentScenario === '2040') {
-                // 2040 specific changes requested
-                pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Hawaiian Sanctuary + West Coast only)' }];
-                pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Western Atlantic / East Coast approaches only)' };
-
-                // Completely remove all U.S. Indian Ocean SSN patrols in 2040
-                delete pc.us_ssn_indian_ocean;
-                delete pc.us_ssn_diego_garcia_patrol;
-                delete pc.us_ssn_malacca_patrol;
-                delete pc.us_ssn_hormuz_patrol;
-                delete pc.japanese_ssn_first_island;
-
-                pc.chinese.push(
-                    { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Hawaii Approaches' },
-                    { coords: [[18.24, 109.51], [25, 140], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Alaska Interdiction' },
-                    { coords: [[18.24, 109.51], [10, 120], [0, 130], [-10, 140], [-15, 145], [-10, 135], [5, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Australia Threat' },
-                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [20, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN First Island Chain Patrol' }
-                );
-                pc.chinese_ssn.push(
-                    { coords: [[18.24, 109.51], [5, 115], [-5, 125], [-15, 130], [-25, 120], [-35, 115], [-40, 125], [-40, 140], [-35, 150], [-25, 155], [-15, 160], [-5, 155], [5, 150], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Circum-Australia Patrol' }
-                );
-                pc.russian_atlantic.push(
-                    { coords: [[69.26, 33.33], [65, 0], [60, -15], [55, -30], [50, -40], [55, -25], [60, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Mid-Atlantic Control' },
-                    { coords: [[69.26, 33.33], [60, -10], [50, -25], [40, -40], [35, -50], [40, -45], [55, -20], [69.26, 33.33]], color: '#d0f4de', name: 'Russian US East Coast Approaches' },
-                    { coords: [[69.26, 33.33], [75, 40], [80, 50], [82, 70], [80, 90], [75, 80], [70, 60], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Arctic Dominance' }
-                );
-            }
-            return pc;
+        if (countriesGeoData) {
+            globe.polygonsData(countriesGeoData)
+                 .polygonCapColor(f => getCountryUmbrella(f.properties.name).color);
         }
 
-        async function init() {
-            const topo = await fetch('https://unpkg.com/world-atlas/countries-110m.json').then(r=>r.json());
-            countriesGeoData = topojson.feature(topo, topo.objects.countries).features;
-            initGlobe();
-            updateAll();
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-        }
+        document.getElementById('patrolInfo').textContent = 
+            currentView === 'umbrellas' ? 'Nuclear Umbrella Zones Only' :
+            currentView === 'pacific' ? 'Pacific & Indian Ocean Theaters' :
+            currentView === 'atlantic' ? 'Atlantic & Arctic Theaters' : 'All Active Patrol Routes';
+    }
 
-        function initGlobe() {
-            globe = Globe()(document.getElementById('globeViz'))
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-                .pointOfView({lat:20,lng:130,altitude:2.2})
-                .atmosphereColor('#ff6b6b')
-                .atmosphereAltitude(0.15);
-        }
+    function filterView(v) { 
+        currentView = v; 
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); 
+        document.getElementById('btn-'+v)?.classList.add('active'); 
+        updateGlobe(); 
+    }
 
-        function updateAll() {
-            updateForceNumbers();
-            updateGlobe();
-            renderImplications();
-        }
+    function switchScenario(s) { 
+        currentScenario = s; 
+        document.querySelectorAll('[id^="tab-"]').forEach(b => b.classList.remove('active')); 
+        document.getElementById('tab-'+s)?.classList.add('active'); 
+        updateAll(); 
+    }
 
-        function updateForceNumbers() {
-            const d = forceData[currentScenario];
-            document.getElementById('us-pac-ssbn').textContent = d.usPacSSBN;
-            document.getElementById('us-pac-ssn').textContent = d.usPacSSN;
-            document.getElementById('us-pac-strat').textContent = d.usPacStrat.toLocaleString();
-            document.getElementById('us-pac-tac').textContent = d.usPacTac;
-            document.getElementById('us-atl-ssbn').textContent = d.usAtlSSBN;
-            document.getElementById('us-atl-ssn').textContent = d.usAtlSSN;
-            document.getElementById('us-atl-strat').textContent = d.usAtlStrat.toLocaleString();
-            document.getElementById('us-atl-tac').textContent = d.usAtlTac;
-            document.getElementById('sr-ssbn').textContent = d.srSSBN;
-            document.getElementById('sr-ssn').textContent = d.srSSN;
-            document.getElementById('sr-strat').textContent = d.srStrat.toLocaleString();
-            document.getElementById('sr-tac').textContent = d.srTac;
-            document.getElementById('sp-wh').textContent = d.spWH;
-            document.getElementById('il-wh').textContent = d.ilWH;
-            document.getElementById('in-wh').textContent = d.inWH;
-        }
+    function renderImplications() {
+        let text = '';
+        if (currentScenario==='current') text = '<p class="text-gray-300">Current global nuclear umbrella and SSBN/SSN patrol network.</p>';
+        else if (currentScenario==='2034') text = '<p class="text-orange-300">30% U.S. reduction: Pacific and Atlantic patrols contract. Sino-Russian forces expand significantly.</p>';
+        else text = `<p class="text-red-400 font-bold">2040 — U.S. NUCLEAR UMBRELLA COLLAPSED:<br>• No Indian Ocean presence<br>• Pacific SSBNs confined east of Hawaii<br>• Australia, Japan, South Korea, Philippines under Chinese protection</p>`;
+        document.getElementById('scenarioInfo').innerHTML = `<h3 class="text-2xl font-bold orbitron mb-3 text-red-500">${currentScenario.toUpperCase()}</h3>${text}`;
+    }
 
-        function getCountryUmbrella(name) {
-            const z = getCurrentUmbrellaZones();
-            if (z.us.includes(name)) return {color:'rgba(59,130,246,0.6)',name:'U.S. Umbrella'};
-            if (z.sinoRussian.includes(name)) return {color:'rgba(22,163,74,0.6)',name:'Sino-Russian Bloc'};
-            if (z.saudiPakistan.includes(name)) return {color:'rgba(6,182,212,0.6)',name:'Saudi-Pakistan'};
-            if (z.israel.includes(name)) return {color:'rgba(229,231,235,0.6)',name:'Israel'};
-            if (z.india.includes(name)) return {color:'rgba(180,83,9,0.6)',name:'India'};
-            return {color:'rgba(30,41,55,0.4)',name:'Neutral'};
-        }
+    // Load topojson then start
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/topojson-client@3';
+    script.onload = init;
+    document.head.appendChild(script);
+</script>
 
-        function updateGlobe() {
-            const pc = getPatrolCircuits();
-            const paths = [];
-            if (currentView==='all'||currentView==='pacific') {
-                ['pacific','russian_pacific','chinese','indian_ssbn','us_ssn_pacific','us_ssn_indian_ocean','us_ssn_diego_garcia_patrol','us_ssn_malacca_patrol','us_ssn_hormuz_patrol','chinese_ssn','chinese_ssn_miyako','chinese_ssn_luzon','japanese_ssn_first_island','indian_ssn'].forEach(k=>pc[k]?.forEach(c=>paths.push({coords:c.coords,color:c.color,label:c.name})));
-            }
-            if (currentView==='all'||currentView==='atlantic') {
-                ['atlantic','russian_atlantic','us_ssn_atlantic','russian_ssn_arctic','uk_ssn','uk_ssn_giuk','french_ssn'].forEach(k=>pc[k]?.forEach(c=>paths.push({coords:c.coords,color:c.color,label:c.name})));
-            }
-            const harbors = Object.entries(baseLocations).map(([n,l])=> ({lat:l.lat,lng:l.lng,color:['USA','UK','France','Australia','Japan'].includes(l.country)?'#3b82f6':l.country==='India'?'#b45309':'#22c55e',label:n}));
-            globe.pathsData(currentView==='umbrellas'?[]:paths)
-                .pathPoints('coords').pathPointLat(p=>p[0]).pathPointLng(p=>p[1])
-                .pathColor('color').pathLabel('label').pathStroke(2)
-                .pathDashLength(0.3).pathDashGap(0.1).pathDashAnimateTime(6000);
-            globe.htmlElementsData(currentView!=='umbrellas'?harbors:[])
-                .htmlElement(d=> {const el=document.createElement('div'); el.innerHTML=`<div style="width:30px;height:30px;background:${d.color};border:3px solid white;border-radius:50%;box-shadow:0 0 20px ${d.color};display:flex;align-items:center;justify-content:center;font-size:18px;" title="${d.label}">Anchor</div>`; return el;});
-            if (countriesGeoData) {
-                globe.polygonsData(countriesGeoData)
-                    .polygonCapColor(f=>getCountryUmbrella(f.properties.name).color)
-                    .polygonSideColor(()=> 'rgba(0,0,0,0.1)')
-                    .polygonStrokeColor(()=> '#111')
-                    .polygonLabel(f=> `<b>${f.properties.name}</b><br/>${getCountryUmbrella(f.properties.name).name}`);
-            }
-            document.getElementById('patrolInfo').textContent = currentView==='umbrellas'?'Nuclear umbrella zones':currentView==='pacific'?'Pacific/Indian Ocean theater':currentView==='atlantic'?'Atlantic theater':'All patrol routes';
-        }
-
-        function filterView(v) { currentView=v; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+v).classList.add('active'); updateGlobe(); }
-        function switchScenario(s) { currentScenario=s; document.querySelectorAll('[id^="tab-"]').forEach(b=>b.classList.remove('active')); document.getElementById('tab-'+s).classList.add('active'); updateAll(); }
-
-        function renderImplications() {
-            let text = '';
-            if (currentScenario==='current') text = '<p class="text-gray-300">Current global nuclear umbrella and SSBN/SSN patrol network.</p>';
-            else if (currentScenario==='2034') text = '<p class="text-orange-300">30% U.S. reduction: Pacific and Atlantic patrols contract. Sino-Russian forces expand significantly.</p>';
-            else text = `<p class="text-red-400">2040 — 60% U.S. reduction:<br>• U.S. loses Indian Ocean presence entirely<br>• Pacific SSBNs confined east of Hawaii<br>• Atlantic SSBNs limited to Western Atlantic<br>• Australia, NZ, Japan, South Korea, Philippines, Thailand, Taiwan fall under Sino-Russian influence<br>• Chinese SSBNs operate freely in Indian Ocean and approach Hawaii</p>`;
-            document.getElementById('scenarioInfo').innerHTML = `<h3 class="text-xl font-bold orbitron mb-3 text-orange-400">${currentScenario.toUpperCase()} Scenario</h3>${text}`;
-        }
-
-        // Load topojson then start
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/topojson-client@3';
-        script.onload = init;
-        document.head.appendChild(script);
-    </script>
 </body>
 </html>
