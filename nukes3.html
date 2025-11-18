@@ -3,316 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Nuclear Umbrella - 2040 Collapse Scenario</title>
+    <title>Nuclear Umbrella Collapse - 2040</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/globe.gl"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         .orbitron { font-family: 'Orbitron', monospace; }
-        .speed-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.2); }
+        .speed-card { background: linear-gradient(to bottom right, rgba(31,41,55,0.9), rgba(15,23,42,0.9)); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.2); }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .shimmer-text { background: linear-gradient(90deg, transparent, #ff6b6b, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite; }
         #globeViz { width: 100%; height: 800px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        #globeViz canvas { max-width: 100%; max-height: 100%; }
-        .filter-btn { transition: all 0.2s; }
-        .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+        .filter-btn.active { background: linear-gradient(to right, #dc2626, #f97316); box-shadow: 0 4px 20px rgba(239,68,68,0.5); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 min-h-screen text-white">
-    <div class="container mx-auto p-4">
-        <div class="mb-6 speed-card p-6 rounded-xl">
-            <h1 class="text-4xl md:text-6xl font-black mb-4 text-center orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">
-                Nuclear Umbrella Collapse - 2040 Scenario
-            </h1>
-            <p class="text-center text-gray-300 text-sm mb-4">U.S. strategic retreat and the rise of Sino-Russian dominance</p>
-            <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="switchScenario('current')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-current">Current</button>
-                <button onclick="switchScenario('2034')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-2034">2034: 30% Cut</button>
-                <button onclick="switchScenario('2040')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="tab-2040">2040: Collapse</button>
-            </div>
-        </div>
+<body class="bg-gradient-to-br from-slate-900 via-red-950 to-black min-h-screen text-white">
+<div class="container mx-auto p-6">
 
-        <div class="mb-6 speed-card p-6 rounded-xl">
-            <p class="text-center text-gray-300 text-sm mb-4">View: All | Pacific | Atlantic | Umbrellas</p>
-            <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="filterView('all')" class="filter-btn active px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-all">All Coverage</button>
-                <button onclick="filterView('pacific')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-pacific">Pacific</button>
-                <button onclick="filterView('atlantic')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-atlantic">Atlantic</button>
-                <button onclick="filterView('umbrellas')" class="filter-btn px-4 py-2 bg-slate-700 rounded-lg text-sm font-semibold" id="btn-umbrellas">Umbrellas</button>
-            </div>
-        </div>
-
-        <div id="loading" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-            <p class="mt-4 text-gray-400">Loading nuclear forces data...</p>
-        </div>
-
-        <div id="mainContent" class="hidden">
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold orbitron text-red-400">Strategic Deterrence Network</h2>
-                    <div class="text-sm text-gray-400"><span id="patrolInfo">Visualizing global SSBN/SSN patrols</span></div>
-                </div>
-                <div id="globeViz"></div>
-            </div>
-
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-xl font-bold orbitron mb-4 text-orange-400">Legend</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                    <div class="space-y-2">
-                        <div class="text-xs font-bold text-gray-400 mb-2">SSBN ROUTES</div>
-                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
-                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-purple-500"></div><span>U.S./Allied Atlantic SSBN</span></div>
-                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-green-200"></div><span>Sino-Russian SSBN</span></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="text-xs font-bold text-gray-400 mb-2">SSN ROUTES</div>
-                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-red-500"></div><span>U.S./Allied SSN</span></div>
-                        <div class="flex items-center gap-3"><div class="w-8 h-1 bg-green-500"></div><span>Sino-Russian SSN</span></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="text-xs font-bold text-gray-400 mb-2">BASES</div>
-                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-blue-500"></div><span>U.S./Allied</span></div>
-                        <div class="flex items-center gap-3"><div class="w-4 h-4 rounded-full bg-green-600"></div><span>Sino-Russian</span></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="text-xs font-bold text-gray-400 mb-2">UMBRELLAS</div>
-                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-blue-500 rounded"></div><span>U.S. Umbrella</span></div>
-                        <div class="flex items-center gap-3"><div class="w-6 h-4 bg-green-600 rounded"></div><span>Sino-Russian Bloc</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                <div class="speed-card p-4 rounded-xl"><div class="text-3xl mb-2">US</div><h3 class="text-lg font-bold text-blue-400 mb-2">U.S. Forces</h3><div class="text-sm"><div>Pacific: <span id="us-pacific" class="font-bold">0</span></div><div>Atlantic: <span id="us-atlantic" class="font-bold">0</span></div></div></div>
-                <div class="speed-card p-4 rounded-xl"><div class="text-3xl mb-2">RU/CN</div><h3 class="text-lg font-bold text-green-400 mb-2">Sino-Russian</h3><div class="text-sm"><div>Total: <span id="sino-russian" class="font-bold">0</span></div></div></div>
-                <div class="speed-card p-4 rounded-xl"><div class="text-3xl mb-2">PK/SA</div><h3 class="text-lg font-bold text-cyan-400 mb-2">Saudi-Pakistan</h3><div class="text-sm"><div>Warheads: <span id="saudi-pakistan" class="font-bold">0</span></div></div></div>
-                <div class="speed-card p-4 rounded-xl"><div class="text-3xl mb-2">IL</div><h3 class="text-lg font-bold text-gray-300 mb-2">Israel</h3><div class="text-sm"><div>Warheads: <span id="israel" class="font-bold">0</span></div></div></div>
-                <div class="speed-card p-4 rounded-xl"><div class="text-3xl mb-2">IN</div><h3 class="text-lg font-bold text-amber-400 mb-2">India</h3><div class="text-sm"><div>Warheads: <span id="india" class="font-bold">0</span></div></div></div>
-            </div>
-
-            <div class="mb-6 speed-card p-6 rounded-xl">
-                <h2 class="text-2xl font-bold orbitron mb-4 text-yellow-400">Strategic Implications</h2>
-                <div id="scenarioInfo"></div>
-            </div>
+    <div class="mb-8 speed-card p-8 rounded-2xl text-center">
+        <h1 class="text-5xl md:text-7xl font-black orbitron bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent shimmer-text">
+            NUCLEAR UMBRELLA COLLAPSE · 2040
+        </h1>
+        <p class="mt-4 text-gray-300 text-lg">U.S. strategic retreat · Sino-Russian dominance</p>
+        <div class="flex flex-wrap justify-center gap-4 mt-6">
+            <button onclick="switchScenario('current')" class="filter-btn active px-6 py-3 rounded-lg font-bold" id="tab-current">2025 Current</button>
+            <button onclick="switchScenario('2034')" class="filter-btn px-6 py-3 rounded-lg font-bold" id="tab-2034">2034: 30% US Cut</button>
+            <button onclick="switchScenario('2040')" class="filter-btn px-6 py-3 rounded-lg font-bold" id="tab-2040">2040: Collapse</button>
         </div>
     </div>
 
-    <script>
-        let nuclearData = [], rawNuclearData = [], globe, currentView = 'all', currentScenario = 'current', countriesGeoData;
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <button onclick="filterView('all')" class="filter-btn active py-3 rounded-lg font-semibold" id="btn-all">All Coverage</button>
+        <button onclick="filterView('pacific')" class="filter-btn py-3 rounded-lg font-semibold" id="btn-pacific">Pacific</button>
+        <button onclick="filterView('atlantic')" class="filter-btn py-3 rounded-lg font-semibold" id="btn-atlantic">Atlantic</button>
+        <button onclick="filterView('umbrellas')" class="filter-btn py-3 rounded-lg font-semibold" id="btn-umbrellas">Umbrellas</button>
+    </div>
 
-        // Dynamic umbrella zones
-        const baseUmbrellas = {
-            us: ['United States of America', 'Canada', 'Mexico', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Netherlands', 'Belgium', 'Portugal', 'Czech Republic', 'Greece', 'Hungary', 'Sweden', 'Austria', 'Switzerland', 'Denmark', 'Finland', 'Norway', 'Japan', 'South Korea'],
-            sinoRussian: ['Russia', 'China', 'North Korea', 'Belarus', 'Iran', 'Venezuela', 'Cuba', 'Nicaragua'],
-            saudiPakistan: ['Saudi Arabia', 'United Arab Emirates', 'Pakistan'],
-            israel: ['Israel'],
-            india: ['India', 'Bhutan']
+    <div id="loading" class="text-center py-20 hidden">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-red-500"></div>
+    </div>
+
+    <div id="mainContent">
+        <div class="speed-card p-6 rounded-2xl mb-8">
+            <h2 class="text-3xl font-bold orbitron text-red-400 mb-4">Global SSBN/SSN Patrol Network</h2>
+            <div id="globeViz"></div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
+            <div class="speed-card p-6 rounded-xl text-center">
+                <div class="text-4xl mb-2">US</div>
+                <div class="text-3xl font-black text-blue-400" id="us-total">5,244</div>
+                <div class="text-sm text-gray-400">Total Warheads</div>
+            </div>
+            <div class="speed-card p-6 rounded-xl text-center">
+                <div class="text-4xl mb-2">RU+CN</div>
+                <div class="text-3xl font-black text-green-400" id="rc-total">7,420</div>
+                <div class="text-sm text-gray-400">Sino-Russian Bloc</div>
+            </div>
+            <div class="speed-card p-6 rounded-xl text-center">
+                <div class="text-4xl mb-2">PK/SA</div>
+                <div class="text-3xl font-black text-cyan-400">~520</div>
+                <div class="text-sm text-gray-400">Islamic Bomb</div>
+            </div>
+            <div class="speed-card p-6 rounded-xl text-center">
+                <div class="text-4xl mb-2">IL</div>
+                <div class="text-3xl font-black text-gray-300">~90</div>
+                <div class="text-sm text-gray-400">Samson Option</div>
+            </div>
+            <div class="speed-card p-6 rounded-xl text-center">
+                <div class="text-4xl mb-2">IN</div>
+                <div class="text-3xl font-black text-amber-400">~300</div>
+                <div class="text-sm text-gray-400">Independent</div>
+            </div>
+        </div>
+
+        <div class="speed-card p-8 rounded-2xl">
+            <h2 class="text-3xl font-bold orbitron text-yellow-400 mb-6">Strategic Implications</h2>
+            <div id="scenarioInfo" class="text-gray-300 text-lg leading-relaxed"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ====================== HARD-CODED NUCLEAR DATA ======================
+const nuclearDataRaw = [
+    { country: "USA Pacific SSBN", total: 3360, slbm: 2880, base: "Bangor, WA / Pearl Harbor", region: "Pacific" },
+    { country: "USA Atlantic SSBN", total: 1884, slbm: 1600, base: "Kings Bay, GA", region: "Atlantic" },
+    { country: "Russia Pacific Fleet", total: 960, slbm: 672, base: "Kamchatka", region: "Pacific" },
+    { country: "Russia Northern Fleet", total: 1440, slbm: 1152, base: "Gadzhiyevo", region: "Atlantic" },
+    { country: "China PLAN SSBN", total: 480, slbm: 384, base: "Hainan", region: "Pacific" },
+    { country: "UK Vanguard", total: 225, slbm: 160, base: "Faslane", region: "Atlantic" },
+    { country: "France Triomphant", total: 300, slbm: 240, base: "Île Longue", region: "Atlantic" },
+    { country: "India SSBN", total: 96, slbm: 64, base: "Visakhapatnam", region: "Indian" },
+    { country: "Pakistan", total: 320, slbm: 0, base: "Karachi", region: "Indian" },
+    { country: "Israel", total: 90, slbm: 0, base: "Haifa", region: "Med" },
+    { country: "North Korea", total: 80, slbm: 0, base: "Sinpo", region: "Pacific" }
+];
+
+let nuclearData = [];
+let globe, currentView = 'all', currentScenario = 'current';
+
+// Dynamic umbrellas
+function getUmbrellas() {
+    if (currentScenario === '2040') {
+        return {
+            us: ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Poland','Netherlands','Japan','South Korea'],
+            sinoRussian: ['Russia','China','North Korea','Australia','New Zealand','Philippines','Thailand','Singapore','Taiwan','Indonesia','Malaysia','Vietnam','Cambodia','Laos','Myanmar','Iran','Venezuela','Cuba']
         };
+    }
+    return {
+        us: ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Spain','Poland','Japan','South Korea','Australia','New Zealand','Philippines','Thailand','Singapore','Taiwan'],
+        sinoRussian: ['Russia','China','North Korea','Iran','Venezuela','Cuba']
+    };
+}
 
-        function getCurrentUmbrellas() {
-            if (currentScenario !== '2040') return baseUmbrellas;
+function getCountryUmbrella(name) {
+    const u = getUmbrellas();
+    if (u.us.includes(name)) return { color: 'rgba(59,130,246,0.7)', name: 'U.S. Umbrella' };
+    if (u.sinoRussian.includes(name)) return { color: 'rgba(34,197,94,0.85)', name: 'Sino-Russian Bloc' };
+    return { color: 'rgba(30,41,55,0.4)', name: 'Neutral' };
+}
 
-            return {
-                us: ['United States of America', 'Canada', 'Mexico', 'United Kingdom', 'France', 'Germany', 'Italy', 'Poland', 'Netherlands', 'Belgium', 'Norway', 'Japan', 'South Korea'],
-                sinoRussian: [
-                    ...baseUmbrellas.sinoRussian,
-                    'Australia', 'New Zealand', 'Philippines', 'Thailand', 'Singapore', 'Taiwan',
-                    'Malaysia', 'Indonesia', 'Vietnam', 'Cambodia', 'Laos', 'Myanmar'
-                ],
-                saudiPakistan: baseUmbrellas.saudiPakistan,
-                israel: baseUmbrellas.israel,
-                india: baseUmbrellas.india
-            };
-        }
+// Hardcoded patrol paths
+const patrols = {
+    current: [
+        { coords: [[47.7,-122.7],[50,-140],[52,-160],[45,170],[35,150],[47.7,-122.7]], color: '#3b82f6', name: 'U.S. Pacific SSBN' },
+        { coords: [[30.8,-81.6],[40,-70],[50,-45],[60,-20],[50,0],[30.8,-81.6]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN' },
+        { coords: [[18.2,109.5],[15,120],[10,130],[20,125],[18.2,109.5]], color: '#d0f4de', name: 'China SSBN Bastion' },
+        { coords: [[53,158],[60,175],[58,-170],[50,160],[53,158]], color: '#d0f4de', name: 'Russia Pacific Bastion' }
+    ],
+    '2040': [
+        // U.S. Fortress America
+        { coords: [[47.7,-122.7],[40,-140],[30,-135],[21,-158],[30,-165],[47.7,-122.7]], color: '#3b82f6', name: 'U.S. Pacific Sanctuary (Hawaii Only)' },
+        { coords: [[30.8,-81.6],[35,-75],[40,-70],[38,-65],[30.8,-81.6]], color: '#8b5cf6', name: 'U.S. Atlantic Bastion (East Coast)' },
+        { coords: [[40,-75],[45,-65],[48,-55],[40,-75]], color: '#ef4444', name: 'U.S. SSN East Coast Ring' },
+        { coords: [[30,-90],[20,-100],[10,-105],[-10,-90],[30,-90]], color: '#ef4444', name: 'U.S. SSN Caribbean Ring' },
+        // China dominates
+        { coords: [[18.2,109.5],[20,150],[22,170],[18,175],[18.2,109.5]], color: '#d0f4de', name: 'China SSBN → Hawaii' },
+        { coords: [[18.2,109.5],[35,160],[45,175],[50,-170],[18.2,109.5]], color: '#d0f4de', name: 'China SSBN → Alaska' },
+        { coords: [[18.2,109.5],[0,110],[-30,120],[-35,150],[-20,160],[0,150],[18.2,109.5]], color: '#22c55e', name: 'China SSN Encirclement of Australia' },
+        // UK/France hold the line
+        { coords: [[56,-5],[65,0],[70,10],[65,20],[56,-5]], color: '#8b5cf6', name: 'UK/FR GIUK Defense' }
+    ]
+};
 
-        const patrolCircuitsCurrent = {
-            pacific: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]],
-            atlantic: [[30.80, -81.55], [35, -70], [40, -60], [50, -45], [60, -30], [65, -20], [62, -10], [58, 0], [55, 10], [50, 5], [45, -10], [40, -25], [35, -40], [30.80, -81.55]],
-            uk_ssbn: [[56.03, -4.92], [55, -20], [60, -30], [50, -40], [55, -35], [56.03, -4.92]],
-            french_ssbn: [[48.39, -4.49], [50, -20], [55, -30], [45, -35], [48.39, -4.49]],
-            russian_pacific: [[53.01, 158.65], [55, 165], [58, 170], [60, 175], [58, -175], [55, -170], [52, -165], [50, 160], [53.01, 158.65]],
-            chinese: [[18.24, 109.51], [15, 115], [12, 120], [10, 125], [15, 130], [20, 128], [22, 120], [18.24, 109.51]],
-            us_ssn_pacific: [[21.35, -157.92], [20, -160], [15, -170], [10, 160], [15, 150], [20, 140], [21.35, -157.92]],
-            us_ssn_indian: [[-7.32, 72.42], [-10, 75], [-12, 80], [-15, 85], [-18, 90], [-20, 95], [-22, 100], [-25, 105], [-28, 110], [-30, 112], [-32, 115.77]],
-            us_ssn_diego: [[-7.32, 72.42], [-5, 70], [-3, 68], [0, 65], [3, 62], [5, 60], [3, 65], [0, 68], [-3, 70], [-7.32, 72.42]],
-            us_ssn_malacca: [[-7.32, 72.42], [0, 80], [2, 90], [3, 98], [2, 102], [1, 101], [2, 100], [3, 98], [0, 90], [-7.32, 72.42]],
-            us_ssn_hormuz: [[-7.32, 72.42], [0, 65], [10, 60], [20, 58], [26, 56], [27, 55], [26, 56.5], [20, 58], [10, 60], [-7.32, 72.42]],
-            chinese_ssn_circum_aus: [[18.24, 109.51], [0, 110], [-15, 105], [-35, 115], [-40, 135], [-35, 155], [-15, 160], [0, 150], [15, 140], [18.24, 109.51]]
-        };
+function getPatrols() {
+    return currentScenario === '2040' ? patrols['2040'] : patrols.current;
+}
 
-        function getPatrolCircuits() {
-            const pc = { paths: [], colors: {}, names: {} };
+function updateNumbers() {
+    let usTotal = 5244, rcTotal = 0;
+    if (currentScenario === '2034') {
+        usTotal = Math.round(5244 * 0.7);
+        rcTotal = Math.round((960+1440+480+80) * 1.5);
+    } else if (currentScenario === '2040') {
+        usTotal = Math.round(5244 * 0.4);
+        rcTotal = Math.round((960+1440+480+80) * 2.8);
+    } else {
+        rcTotal = 960+1440+480+80;
+    }
+    document.getElementById('us-total').textContent = usTotal.toLocaleString();
+    document.getElementById('rc-total').textContent = rcTotal.toLocaleString();
+}
 
-            // Base routes
-            const add = (key, color, name) => {
-                if (patrolCircuitsCurrent[key]) {
-                    pc.paths.push({ coords: patrolCircuitsCurrent[key], color, name });
-                }
-            };
+function renderImplications() {
+    const el = document.getElementById('scenarioInfo');
+    if (currentScenario === '2040') {
+        el.innerHTML = `
+            <h3 class="text-3xl font-bold text-red-500 mb-6">THE U.S. NUCLEAR UMBRELLA HAS COLLAPSED</h3>
+            <ul class="space-y-4 text-lg">
+                <li>Australia, New Zealand, Philippines, Thailand, Singapore, Taiwan — now under effective Chinese protection</li>
+                <li>U.S. SSBNs confined to Hawaiian and East Coast bastions</li>
+                <li>All U.S. presence withdrawn from Indian Ocean</li>
+                <li>China patrols off Hawaii and Alaska</li>
+                <li>Chinese SSNs fully encircle Australia</li>
+                <li>UK and France alone defend the North Atlantic</li>
+                <li class="text-2xl font-black text-yellow-500 mt-8">The post-1945 order is over.</li>
+            </ul>`;
+    } else if (currentScenario === '2034') {
+        el.innerHTML = `<p class="text-xl text-orange-400">30% U.S. reduction begins erosion of extended deterrence. Allies begin hedging.</p>`;
+    } else {
+        el.innerHTML = `<p class="text-xl text-gray-400">2025: U.S. maintains global umbrella. Credible second-strike posture intact.</p>`;
+    }
+}
 
-            if (currentScenario !== '2040') {
-                add('pacific', '#3b82f6', 'U.S. Pacific SSBN');
-                add('atlantic', '#8b5cf6', 'U.S. Atlantic SSBN');
-                add('uk_ssbn', '#8b5cf6', 'UK Vanguard SSBN');
-                add('french_ssbn', '#8b5cf6', 'French SSBN');
-                add('russian_pacific', '#d0f4de', 'Russian Pacific SSBN');
-                add('chinese', '#d0f4de', 'Chinese SSBN');
-                add('us_ssn_pacific', '#ef4444', 'U.S. SSN Pacific');
-                add('us_ssn_indian', '#ef4444', 'U.S. SSN Indian Ocean');
-                add('us_ssn_diego', '#ef4444', 'U.S. SSN Diego Garcia');
-                add('us_ssn_malacca', '#ef4444', 'U.S. SSN Malacca');
-                add('us_ssn_hormuz', '#ef4444', 'U.S. SSN Hormuz');
-            }
+async function init() {
+    // Load world map
+    const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
+    const topo = await resp.json();
+    const countries = topojson.feature(topo, topo.objects.countries).features;
 
-            if (currentScenario === '2040') {
-                // U.S. Fortress America
-                pc.paths.push(
-                    { coords: [[47.73, -122.71], [40, -140], [30, -135], [25, -145], [21.35, -157.92], [25, -165], [35, -160], [45, -150], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Sanctuary (Hawaii + West Coast)' },
-                    { coords: [[30.80, -81.55], [35, -75], [40, -70], [42, -65], [40, -60], [35, -65], [32, -72], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN East Coast Bastion' },
-                    { coords: [[40, -75], [45, -65], [48, -55], [45, -50], [40, -55], [35, -65], [40, -75]], color: '#f97316', name: 'U.S. SSN East Coast Defense Ring' },
-                    { coords: [[30, -90], [20, -100], [10, -105], [0, -100], [-10, -90], [-15, -80], [-10, -75], [0, -80], [10, -85], [20, -85], [30, -90]], color: '#f97316', name: 'U.S. SSN Caribbean Defense Ring' },
-                    { coords: [[50, -130], [55, -140], [60, -155], [58, -170], [50, -165], [45, -145], [50, -130]], color: '#ef4444', name: 'U.S. SSN West Coast Defense Ring' }
-                );
+    globe = Globe()(document.getElementById('globeViz'))
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+        .pointOfView({ lat: 25, lng: 130, altitude: 2.5 })
+        .polygonsData(countries)
+        .polygonCapColor(f => getCountryUmbrella(f.properties.name).color)
+        .polygonSideColor(() => 'rgba(0,0,0,0.15)')
+        .polygonStrokeColor(() => '#333')
+        .polygonLabel(f => `<b>${f.properties.name}</b><br>${getCountryUmbrella(f.properties.name).name}`)
+        .pathsData(getPatrols())
+        .pathPoints('coords')
+        .pathPointLat(p => p[0])
+        .pathPointLng(p => p[1])
+        .pathColor('color')
+        .pathLabel('name')
+        .pathStroke(3)
+        .pathDashLength(0.2)
+        .pathDashGap(0.1)
+        .pathDashAnimateTime(10000);
 
-                // UK & France take over North Atlantic
-                pc.paths.push(
-                    { coords: [[56.03, -4.92], [62, -5], [68, 5], [70, 15], [68, 25], [62, 20], [58, 10], [56.03, -4.92]], color: '#8b5cf6', name: 'UK SSBN Expanded GIUK/Norwegian Sea' },
-                    { coords: [[48.39, -4.49], [55, -10], [60, -5], [65, 0], [62, 10], [58, 5], [50, -5], [48.39, -4.49]], color: '#8b5cf6', name: 'French SSBN Atlantic/Med Expansion' }
-                );
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('mainContent').classList.remove('hidden');
+    updateNumbers();
+    renderImplications();
+}
 
-                // Chinese dominance
-                pc.paths.push(
-                    { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN Hawaii Approaches' },
-                    { coords: [[18.24, 109.51], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN Alaska Interdiction' },
-                    { coords: patrolCircuitsCurrent.chinese_ssn_circum_aus, color: '#22c55e', name: 'Chinese SSN Encirclement of Australia' },
-                    { coords: [[18.24, 109.51], [0, 90], [-10, 80], [-20, 85], [-25, 100], [-20, 115], [-10, 120], [0, 110], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Indian Ocean Dominance' }
-                );
-            }
+function filterView(v) {
+    currentView = v;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`btn-${v}`).classList.add('active');
+    globe.pathsData(v === 'umbrellas' ? [] : getPatrols());
+}
 
-            return pc.paths.map(p => ({ coords: p.coords.map(c => [c[0], c[1]]), color: p.color, label: p.name }));
-        }
+function switchScenario(s) {
+    currentScenario = s;
+    document.querySelectorAll('[id^="tab-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${s}`).classList.add('active');
+    globe.pathsData(getPatrols()).polygonsData(globe.polygonsData()); // refresh colors
+    updateNumbers();
+    renderImplications();
+}
 
-        function getCountryUmbrella(countryName) {
-            const umbrellas = getCurrentUmbrellas();
-            if (umbrellas.us.includes(countryName)) return { color: 'rgba(59, 130, 246, 0.6)', name: 'U.S. Umbrella' };
-            if (umbrellas.sinoRussian.includes(countryName)) return { color: 'rgba(22, 163, 74, 0.8)', name: 'Sino-Russian Bloc' };
-            if (umbrellas.saudiPakistan.includes(countryName)) return { color: 'rgba(6, 182, 212, 0.6)', name: 'Saudi-Pakistan' };
-            if (umbrellas.israel.includes(countryName)) return { color: 'rgba(229, 231, 235, 0.6)', name: 'Israel' };
-            if (umbrellas.india.includes(countryName)) return { color: 'rgba(180, 83, 9, 0.6)', name: 'India' };
-            return { color: 'rgba(30, 41, 55, 0.4)', name: 'Neutral' };
-        }
-
-        async function loadData() {
-            try {
-                const geoResp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
-                const topoData = await geoResp.json();
-                countriesGeoData = topojson.feature(topoData, topoData.objects.countries).features;
-
-                const csvResp = await fetch('https://cdn.jsdelivr.net/gh/ayeeff/fiefdom@latest/data/nukes.csv');
-                const csvText = await csvResp.text();
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    dynamicTyping: true,
-                    complete: (results) => {
-                        rawNuclearData = results.data;
-                        updateScenarioData();
-                        initGlobe();
-                        updateGlobe();
-                        renderDashboard();
-                        renderImplications();
-                        document.getElementById('loading').classList.add('hidden');
-                        document.getElementById('mainContent').classList.remove('hidden');
-                    }
-                });
-            } catch (e) {
-                console.error(e);
-                document.getElementById('loading').innerHTML = '<p class="text-red-400">Failed to load data.</p>';
-            }
-        }
-
-        function updateScenarioData() {
-            nuclearData = JSON.parse(JSON.stringify(rawNuclearData));
-            nuclearData.forEach(row => {
-                let mult = 1;
-                if (row['Country / leg']?.includes('USA')) mult = currentScenario === '2040' ? 0.4 : (currentScenario === '2034' ? 0.7 : 1);
-                if (['Russia', 'China'].some(c => row['Country / leg']?.includes(c))) mult = currentScenario === '2040' ? 2.5 : (currentScenario === '2034' ? 1.5 : 1);
-                row.parsedStockpile = (parseFloat(row['Total Stockpile'] || 0) * mult) || 0;
-            });
-        }
-
-        function initGlobe() {
-            globe = Globe()(document.getElementById('globeViz'))
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-                .pointOfView({ lat: 20, lng: 130, altitude: 2.2 })
-                .atmosphereColor('#ff4444')
-                .atmosphereAltitude(0.15);
-        }
-
-        function updateGlobe() {
-            const paths = getPatrolCircuits();
-            const info = currentView === 'pacific' ? 'Pacific Theater' : currentView === 'atlantic' ? 'Atlantic Theater' : currentView === 'umbrellas' ? 'Nuclear Umbrellas' : 'Global Coverage';
-            document.getElementById('patrolInfo').textContent = info;
-
-            globe
-                .pathsData(currentView === 'umbrellas' ? [] : paths)
-                .pathPoints('coords')
-                .pathPointLat(p => p[0])
-                .pathPointLng(p => p[1])
-                .pathColor('color')
-                .pathLabel('label')
-                .pathStroke(2.5)
-                .pathDashLength(0.3)
-                .pathDashGap(0.1)
-                .pathDashAnimateTime(8000)
-                .polygonsData(countriesGeoData)
-                .polygonAltitude(0.01)
-                .polygonCapColor(f => getCountryUmbrella(f.properties.name).color)
-                .polygonSideColor(() => 'rgba(0,0,0,0.1)')
-                .polygonStrokeColor(() => '#111')
-                .polygonLabel(f => `<b>${f.properties.name}</b><br>${getCountryUmbrella(f.properties.name).name}`);
-        }
-
-        function filterView(v) { currentView = v; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${v}`).classList.add('active'); updateGlobe(); }
-        function switchScenario(s) { currentScenario = s; document.querySelectorAll('[id^="tab-"]').forEach(b => b.classList.remove('active')); document.getElementById(`tab-${s}`).classList.add('active'); updateScenarioData(); updateGlobe(); renderDashboard(); renderImplications(); }
-
-        function renderDashboard() {
-            const totals = { usPacific: 0, usAtlantic: 0, sinoRussian: 0 };
-            nuclearData.forEach(r => {
-                if (r['Country / leg']?.includes('USA') && r['Country / leg']?.includes('Pacific')) totals.usPacific += r.parsedStockpile;
-                if (r['Country / leg']?.includes('USA') && r['Country / leg']?.includes('Atlantic')) totals.usAtlantic += r.parsedStockpile;
-                if (['Russia', 'China', 'North Korea'].some(c => r['Country / leg']?.includes(c))) totals.sinoRussian += r.parsedStockpile;
-            });
-            document.getElementById('us-pacific').textContent = Math.round(totals.usPacific).toLocaleString();
-            document.getElementById('us-atlantic').textContent = Math.round(totals.usAtlantic).toLocaleString();
-            document.getElementById('sino-russian').textContent = Math.round(totals.sinoRussian).toLocaleString();
-        }
-
-        function renderImplications() {
-            const el = document.getElementById('scenarioInfo');
-            if (currentScenario === '2040') {
-                el.innerHTML = `
-                    <h3 class="text-2xl font-bold text-red-400 mb-4">2040: The Collapse of Extended Deterrence</h3>
-                    <div class="space-y-4 text-gray-300 text-sm leading-relaxed">
-                        <p><strong>The U.S. nuclear umbrella has collapsed beyond the Americas and core NATO.</strong></p>
-                        <p><strong>Australia, New Zealand, Philippines, Thailand, Singapore, and Taiwan have flipped into the Sino-Russian sphere</strong> — no credible U.S. protection remains.</p>
-                        <p><strong>China now dominates the entire Indo-Pacific</strong>: SSBNs patrol off Hawaii and Alaska, SSNs encircle Australia, and the Indian Ocean is a Chinese lake.</p>
-                        <p><strong>U.S. forces retreat to Fortress America</strong>: SSBNs limited to Hawaiian and East Coast bastions, all Indian Ocean presence eliminated.</p>
-                        <p><strong>Europe's defense falls to UK and France</strong> — they alone patrol the GIUK Gap and North Atlantic.</p>
-                        <p class="font-bold text-yellow-400">The post-1945 U.S.-led order is over.</p>
-                    </div>`;
-            } else {
-                el.innerHTML = '<p class="text-gray-400">Select a scenario to view implications.</p>';
-            }
-        }
-
-        // Load topojson and start
-        const topoScript = document.createElement('script');
-        topoScript.src = 'https://unpkg.com/topojson-client@3';
-        topoScript.onload = () => loadData();
-        document.head.appendChild(topoScript);
-    </script>
+// Start
+init();
+</script>
 </body>
 </html>
