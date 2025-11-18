@@ -6,6 +6,8 @@
     <title>Nuclear Umbrella Collapse · 2034–2040</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/globe.gl"></script>
+    <!-- THIS LINE WAS MISSING → fixes the error -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
     <style>
         body { background: radial-gradient(circle at top left, #1e1b4b, #0f0f1e); min-height: 100vh; }
         .orbitron { font-family: 'Orbitron', sans-serif; }
@@ -57,7 +59,7 @@
 <script>
 let globe, currentYear = 'current', currentView = 'all';
 
-// ==================== HARD-CODED PATROL PATHS ====================
+// ==================== PATROL PATHS ====================
 const patrols = {
     current: [
         {c:[[47.7,-122.7],[52,-160],[48,-175],[40,170],[35,140],[47.7,-122.7]], col:'#3b82f6', name:'U.S. Pacific SSBN Patrol'},
@@ -66,51 +68,51 @@ const patrols = {
         {c:[[53,158],[58,175],[55,-170],[50,160],[53,158]], col:'#94a3b8', name:'Russia Pacific Bastion'}
     ],
     '2034': [
-        // U.S. pulls back but still present
         {c:[[47.7,-122.7],[48,-150],[45,-165],[40,-175],[47.7,-122.7]], col:'#3b82f6', name:'U.S. Pacific SSBN (Reduced – Mid-Pacific only)'},
         {c:[[30.8,-81.6],[38,-70],[48,-50],[52,-30],[45,-20],[30.8,-81.6]], col:'#8b5cf6', name:'U.S. Atlantic SSBN (Reduced – No GIUK)'},
         {c:[[21,-158],[15,-170],[10,170],[15,155],[21,-158]], col:'#ef4444', name:'U.S. SSN Hawaii Defense Ring'},
-        // China expands aggressively
         {c:[[18.2,109.5],[20,130],[28,145],[25,160],[18.2,109.5]], col:'#22c55e', name:'China SSBN → Second Island Chain'},
         {c:[[18.2,109.5],[5,110],[-10,105],[-20,115],[-10,130],[5,125],[18.2,109.5]], col:'#22c55e', name:'China SSN → Northern Australia'},
-        // Russia pushes forward
-        {c:[[69,33],[70,10],[68,-10],[65,-25],[69,33]], col:'#94a3b8', name:'Russia SSBN → GIUK Gap Penetration'}
+        {c:[[69,33],[70,10],[68,-10],[65,-25],[69,33]], col:'#94a3b8', name:'Russia SSBN → GIUK Penetration'}
     ],
     '2040': [
-        // Fortress America
-        {c:[[47.7,-122.7],[35,-140],[25,-150],[21,-158],[30,-165],[47.7,-122.7]], col:'#3b82f6', name:'U.S. Pacific SSBN – Hawaiian Sanctuary Only'},
+        {c:[[47.7,-122.7],[35,-140],[25,-150],[21,-158],[30,-165],[47.7,-122.7]], col:'#3b82f6', name:'U.S. Pacific SSBN – Hawaiian Sanctuary'},
         {c:[[30.8,-81.6],[35,-75],[40,-68],[38,-65],[30.8,-81.6]], col:'#8b5cf6', name:'U.S. Atlantic SSBN – East Coast Bastion'},
-        {c:[[40,-75],[48,-60],[45,-50],[38,-65],[40,-75]], col:'#ef4444', name:'U.S. SSN East Coast Defense Ring'},
+        {c:[[40,-75],[48,-60],[45,-50],[38,-65],[40,-75]], col:'#ef4444', name:'U.S. SSN East Coast Ring'},
         {c:[[25,-90],[15,-100],[5,-105],[-5,-95],[25,-90]], col:'#ef4444', name:'U.S. SSN Caribbean Ring'},
-        // China dominates
         {c:[[18.2,109.5],[22,150],[20,170],[15,175],[18.2,109.5]], col:'#22c55e', name:'China SSBN → Hawaii Approaches'},
         {c:[[18.2,109.5],[40,165],[50,-170],[45,175],[18.2,109.5]], col:'#22c55e', name:'China SSBN → Alaska Interdiction'},
-        {c:[[18.2,109.5],[0,115],[-25,110],[-40,130],[-35,160],[-10,165],[10,150],[18.2,109.5]], col:'#22c55e', name:'China SSN Full Encirclement of Australia'},
-        // Europe holds the line
-        {c:[[56,-5],[68,5],[70,20],[65,30],[56,-5]], col:'#8b5cf6', name:'UK/French GIUK-Norwegian Sea Defense'}
+        {c:[[18.2,109.5],[0,115],[-25,110],[-40,130],[-35,160],[-10,165],[10,150],[18.2,109.5]], col:'#22c55e', name:'China SSN Encirclement of Australia'},
+        {c:[[56,-5],[68,5],[70,20],[65,30],[56,-5]], col:'#8b5cf6', name:'UK/French GIUK-Norwegian Defense'}
     ]
 };
 
 function getPatrols() {
-    const list = patrols[currentYear];
-    return list.map(p => ({coords: p.c.map(pt=>[pt[0],pt[1]]), color: p.col, label: p.name}));
+    return patrols[currentYear].map(p => ({
+        coords: p.c.map(pt=>[pt[0],pt[1]]),
+        color: p.col,
+        label: p.name
+    }));
 }
 
 // ==================== UMBRELLA ZONES ====================
 function getUmbrella(country) {
-    const us = ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Poland','Japan','South Korea'];
-    const sinoRus = ['Russia','China','North Korea','Iran','Venezuela','Cuba'];
-    const sinoRus2034 = [...sinoRus, 'Taiwan', 'Philippines'];
-    const sinoRus2040 = [...sinoRus2034, 'Australia','New Zealand','Thailand','Singapore','Indonesia','Malaysia','Vietnam','Cambodia','Laos','Myanmar'];
+    const usCore = ['United States of America','Canada','Mexico','United Kingdom','France','Germany','Italy','Poland','Japan','South Korea'];
+    const sinoRusCore = ['Russia','China','North Korea','Iran','Venezuela','Cuba'];
 
-    if (currentYear === '2040' && sinoRus2040.includes(country)) return {col:'rgba(34,197,94,0.9)', name:'Sino-Russian Bloc'};
-    if (currentYear === '2034' && sinoRus2034.includes(country)) return {col:'rgba(34,197,94,0.7)', name:'Sino-Russian Influence'};
-    if (us.includes(country)) return {col:'rgba(59,130,246,0.7)', name:'U.S. Umbrella'};
-    if (sinoRus.includes(country)) return {col:'rgba(34,197,94,0.7)', name:'Sino-Russian Core'};
-    return {col:'rgba(60,60,80,0.4)', name:'Neutral/Unprotected'};
+    if (currentYear === '2040') {
+        const sinoRus2040 = [...sinoRusCore, 'Australia','New Zealand','Philippines','Thailand','Singapore','Taiwan','Indonesia','Malaysia','Vietnam','Cambodia','Laos','Myanmar'];
+        if (sinoRus2040.includes(country)) return {col:'rgba(34,197,94,0.92)', name:'Sino-Russian Bloc'};
+    }
+    if (currentYear === '2034') {
+        if (['Taiwan','Philippines'].includes(country)) return {col:'rgba(34,197,94,0.6)', name:'Sino-Russian Influence'};
+    }
+    if (usCore.includes(country)) return {col:'rgba(59,130,246,0.7)', name:'U.S. Umbrella'};
+    if (sinoRusCore.includes(country)) return {col:'rgba(34,197,94,0.7)', name:'Sino-Russian Core'};
+    return {col:'rgba(60,60,80,0.4)', name:'Neutral'};
 }
 
-// ==================== WARHEAD COUNTS ====================
+// ==================== WARHEAD COUNTERS ====================
 function updateNumbers() {
     let us = 5244, rc = 7420;
     if (currentYear === '2034') { us = 3660; rc = 11130; }
@@ -119,7 +121,7 @@ function updateNumbers() {
     document.getElementById('rc-warheads').textContent = rc.toLocaleString();
 }
 
-// ==================== IMPLICATIONS TEXT ====================
+// ==================== IMPLICATIONS ====================
 function renderImplications() {
     const el = document.getElementById('implications');
     if (currentYear === 'current') {
@@ -128,31 +130,31 @@ function renderImplications() {
         el.innerHTML = `
             <h3 class="text-3xl font-bold text-orange-500 mb-6">2034: Credibility Erosion Begins</h3>
             <ul class="space-y-4 text-lg">
-                <li>30% reduction in U.S. warheads and SSBN patrol areas</li>
-                <li>U.S. Pacific SSBNs abandon Sea of Japan and First Island Chain</li>
-                <li>U.S. Atlantic SSBNs withdraw from GIUK Gap and Norwegian Sea</li>
-                <li>China breaches Second Island Chain; SSBNs now patrol east of Guam</li>
-                <li>Russian SSBNs penetrate GIUK Gap regularly</li>
-                <li>Taiwan and Philippines lose credible extended deterrence</li>
-                <li>Japan and South Korea begin active nuclear latency programs</li>
-                <li class="font-bold text-yellow-400">The umbrella is leaking — allies are getting wet.</li>
+                <li>U.S. cuts warheads and patrol zones by ~30%</li>
+                <li>Pacific SSBNs abandon First Island Chain</li>
+                <li>Atlantic SSBNs withdraw from GIUK Gap</li>
+                <li>China breaches Second Island Chain</li>
+                <li>Russia regularly penetrates GIUK</li>
+                <li>Taiwan & Philippines lose credible protection</li>
+                <li>Japan and South Korea go nuclear-latent</li>
+                <li class="font-bold text-yellow-400">The umbrella is leaking.</li>
             </ul>`;
     } else {
         el.innerHTML = `
             <h3 class="text-4xl font-bold text-red-600 mb-6">2040: THE UMBRELLA IS GONE</h3>
             <ul class="space-y-5 text-xl">
-                <li>U.S. SSBNs confined to Hawaiian and East Coast bastions</li>
-                <li>All U.S. presence withdrawn from Indian Ocean and Western Pacific</li>
-                <li>Australia, New Zealand, and entire Southeast Asia now under effective Chinese protection</li>
+                <li>U.S. SSBNs confined to Hawaii and East Coast</li>
+                <li>All Indian Ocean presence eliminated</li>
+                <li>Australia, New Zealand, and Southeast Asia under Chinese sphere</li>
                 <li>China patrols off Hawaii and Alaska</li>
-                <li>Chinese submarines fully encircle Australia</li>
-                <li>UK and France alone defend the North Atlantic</li>
-                <li class="text-3xl font-black text-yellow-500 mt-10">The post-1945 order has ended.</li>
+                <li>Chinese SSNs encircle Australia</li>
+                <li>Only UK & France defend North Atlantic</li>
+                <li class="text-3xl font-black text-yellow-500 mt-10">Post-1945 order ended.</li>
             </ul>`;
     }
 }
 
-// ==================== GLOBE SETUP ====================
+// ==================== GLOBE ====================
 async function initGlobe() {
     const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
     const topo = await resp.json();
@@ -180,16 +182,16 @@ async function initGlobe() {
 
 function setView(v) {
     currentView = v;
-    document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+    [...document.querySelectorAll('.view-btn')].forEach(b=>b.classList.remove('active'));
     document.getElementById('v-'+v).classList.add('active');
     globe.pathsData(v==='umbrellas' ? [] : getPatrols());
 }
 
 function setYear(y) {
     currentYear = y;
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    [...document.querySelectorAll('.tab')].forEach(b=>b.classList.remove('active'));
     document.getElementById('tab-'+y).classList.add('active');
-    globe.pathsData(getPatrols()).polygonsData(globe.polygonsData()); // force recolor
+    globe.pathsData(getPatrols()).polygonsData(globe.polygonsData());
     updateNumbers();
     renderImplications();
 }
