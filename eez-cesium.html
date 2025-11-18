@@ -27,83 +27,103 @@
   </div>
   <div id="cesiumContainer"></div>
 
-  <script>
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({url:'https://a.tile.openstreetmap.org/'}),
-      baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,
-      navigationHelpButton:false,animation:false,timeline:false,fullscreenButton:false,
-      requestRenderMode:true,maximumRenderTimeChange:Infinity
-    });
+<script>
+  const viewer = new Cesium.Viewer('cesiumContainer', {
+    imageryProvider: new Cesium.OpenStreetMapImageryProvider({url:'https://a.tile.openstreetmap.org/'}),
+    baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,
+    navigationHelpButton:false,animation:false,timeline:false,fullscreenButton:false,
+    requestRenderMode:true,maximumRenderTimeChange:Infinity
+  });
 
-    // Beautiful high-contrast satellite base
-    Cesium.createWorldImageryAsync({
-      style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS
-    }).then(img=>{viewer.imageryLayers.remove(viewer.imageryLayers.get(0));viewer.imageryLayers.addImageryProvider(img,0);});
+  // Beautiful high-contrast satellite base
+  Cesium.createWorldImageryAsync({
+    style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS
+  }).then(img=>{viewer.imageryLayers.remove(viewer.imageryLayers.get(0));viewer.imageryLayers.addImageryProvider(img,0);});
 
-    viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(0,0,22000000)});
+  viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(0,0,22000000)});
 
-    // Auto-rotate + pause
-    let isInteracting = false;
-    const rotationSpeed = Cesium.Math.toRadians(0.25);
-    setInterval(()=>{if(!isInteracting)viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z,rotationSpeed/60);},16);
+  // Auto-rotate + pause on interaction
+  let isInteracting = false;
+  const rotationSpeed = Cesium.Math.toRadians(0.25);
+  setInterval(()=>{if(!isInteracting)viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z,rotationSpeed/60);},16);
 
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-    handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.LEFT_DOWN);
-    handler.setInputAction(()=>isInteracting=false,Cesium.ScreenSpaceEventType.LEFT_UP);
-    handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+  handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  handler.setInputAction(()=>isInteracting=false,Cesium.ScreenSpaceEventType.LEFT_UP);
+  handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-    const infoBox = document.getElementById('infoBox');
+  const infoBox = document.getElementById('infoBox');
 
-    // === EEZs – Soft Sea Greens ===
-    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds=>{
-      viewer.dataSources.add(ds);
-      const greenPalette = [
-        Cesium.Color.fromCssColorString('#2a9d8f').withAlpha(0.35),
-        Cesium.Color.fromCssColorString('#40916c').withAlpha(0.35),
-        Cesium.Color.fromCssColorString('#52b788').withAlpha(0.35),
-        Cesium.Color.fromCssColorString('#70c1b3').withAlpha(0.35),
-        Cesium.Color.fromCssColorString('#95d5b2').withAlpha(0.35),
-        Cesium.Color.fromCssColorString('#b7e4c7').withAlpha(0.35)
-      ];
-      let i=0;
-      ds.entities.values.forEach(e=>{
-        if(e.polygon){
-          const country = e.properties.SOVEREIGN1?._value||e.properties.TERRITORY1?._value||e.properties.GEONAME?._value||'Unknown';
-          e.name = country;
-          e.polygon.material = greenPalette[i++ % greenPalette.length];
-          e.polygon.outline = true;
-          e.polygon.outlineColor = Cesium.Color.fromCssColorString('#1a5f57').withAlpha(0.7);
-          e.polygon.outlineWidth = 1.2;
-        }
-      });
-    });
+  // === EEZs – High-contrast teal that pops on blue water ===
+  Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds=>{
+    viewer.dataSources.add(ds);
+    ds.entities.values.forEach(e=>{
+      if(e.polygon){
+        const country = e.properties.SOVEREIGN1?._value||e.properties.TERRITORY1?._value||e.properties.GEONAME?._value||'Unknown';
+        e.name = country;
 
-    // === Cables – Deep Elegant Blue ===
-    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json').then(ds=>{
-      viewer.dataSources.add(ds);
-      ds.entities.values.forEach(e=>{
-        if(e.polyline){
-          e.polyline.material = Cesium.Color.fromCssColorString('#0f4c81').withAlpha(0.9); // Deep ocean blue
-          e.polyline.width = 2.8;
-          e.name = e.properties.name || 'Submarine Cable';
-        }
-      });
-    });
-
-    // Tooltip follows mouse
-    handler.setInputAction(movement=>{
-      const picked = viewer.scene.pick(movement.endPosition);
-      if(picked && picked.id && picked.id.name){
-        infoBox.style.display='block';
-        infoBox.innerHTML = `<strong>${picked.id.name}</strong>`;
-        infoBox.style.left = (movement.endPosition.x + 15)+'px';
-        infoBox.style.top  = (movement.endPosition.y + 10)+'px';
-      }else{
-        infoBox.style.display='none';
+        e.polygon.material = Cesium.Color.fromCssColorString('#3EACA8').withAlpha(0.42);     // Soft teal fill
+        e.polygon.outline = true;
+        e.polygon.outlineColor = Cesium.Color.fromCssColorString('#2A7F7A').withAlpha(0.8); // Darker teal outline
+        e.polygon.outlineWidth = 1.5;
       }
-    },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    });
+  });
 
-    document.getElementById('loading').classList.add('hidden');
-  </script>
+  // === Cables – Bright white/light-cyan (maximum visibility) ===
+  Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json').then(ds=>{
+    viewer.dataSources.add(ds);
+    ds.entities.values.forEach(e=>{
+      if(e.polyline){
+        e.polyline.material = Cesium.Color.fromCssColorString('#E0F7FA').withAlpha(0.95);  // Almost white
+        e.polyline.width = 3.2;
+        e.name = e.properties.name || 'Submarine Cable';
+      }
+    });
+  });
+
+  // Hover highlight – warm coral (no yellow!)
+  let highlighted = null;
+  handler.setInputAction(movement=>{
+    const picked = viewer.scene.pick(movement.endPosition);
+
+    // Reset previous highlight
+    if(highlighted){
+      highlighted.polygon && (highlighted.polygon.material = highlighted.origMat);
+      highlighted.polyline && (highlighted.polyline.material = highlighted.origLine);
+      highlighted.polyline && (highlighted.polyline.width = 3.2);
+      highlighted = null;
+    }
+
+    if(picked && picked.id){
+      highlighted = picked.id;
+
+      if(highlighted.polygon){
+        highlighted.origMat = highlighted.polygon.material;
+        highlighted.polygon.material = Cesium.Color.fromCssColorString('#F28C38').withAlpha(0.6); // Coral hover
+      }
+      if(highlighted.polyline){
+        highlighted.origLine = highlighted.polyline.material;
+        highlighted.polyline.material = Cesium.Color.WHITE;
+        highlighted.polyline.width = 7;
+      }
+      viewer.selectedEntity = picked.id;
+    }else{
+      viewer.selectedEntity = undefined;
+    }
+
+    // Tooltip follows cursor
+    if(picked && picked.id && picked.id.name){
+      infoBox.style.display='block';
+      infoBox.innerHTML = `<strong>${picked.id.name}</strong>`;
+      infoBox.style.left = (movement.endPosition.x + 15)+'px';
+      infoBox.style.top  = (movement.endPosition.y + 10)+'px';
+    }else{
+      infoBox.style.display='none';
+    }
+  },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  document.getElementById('loading').classList.add('hidden');
+</script>
 </body>
 </html>
