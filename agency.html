@@ -78,7 +78,7 @@
         </div>
 
         <!-- Right Panel -->
-        <div id="right-panel" class="bg-darkteal/60 backdrop-blur-xl rounded-xl border border-midteal flex flex-col h-96">
+        <div id="right-panel" class="bg-darkteal/60 backdrop-blur-xl rounded-xl border border-midteal flex flex-col" style="height: 504px;">
           <!-- INT Table (default) -->
           <div id="ints-table" class="p-8 h-full overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6 text-cyan">Intelligence Disciplines (INTs)</h2>
@@ -171,7 +171,7 @@
       document.getElementById('agency-detail').classList.add('hidden');
       document.querySelectorAll('.ausagency-agency-card').forEach(c => c.classList.remove('ring-4', 'ring-cyan'));
       selectedAgency = null;
-      if (window[ns + '_map']) window[ns + '_map'].setView([-35.295, 149.125], 13.5);
+      if (window[ns + '_map']) window[ns + '_map'].setView([-35.295, 149.125], 12.5);
     };
 
     const showAgencyDetail = (agency) => {
@@ -197,7 +197,7 @@
     window.showAgencyDetail = showAgencyDetail;
 
     const initMap = () => {
-      const map = L.map('ausagency-map').setView([-35.295, 149.125], 13.5);
+      const map = L.map('ausagency-map').setView([-35.295, 149.125], 12.5);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
       agencies.forEach(agency => {
@@ -220,7 +220,7 @@
         const color = getTypeColor(agency.type);
         const intHtml = agency.ints.map(int => `<span class="border-b border-dotted border-lightcyan cursor-help" title="${definitions[int] || ''}">${int}</span>`).join(', ');
         return `
-          <div data-name="${agency.name}" class="ausagency-agency-card bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal cursor-pointer transition hover:scale-105" onclick="window.showAgencyDetail(agencies.find(a=>a.name==='${agency.name.replace(/'/g, "\\'")}'))">
+          <div data-name="${agency.name}" class="ausagency-agency-card bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal cursor-pointer transition hover:scale-105">
             <div class="flex justify-between items-start mb-4">
               <div class="flex gap-4 items-center flex-1">
                 <img src="${agency.logo}" alt="${agency.name}" class="w-16 h-16 object-contain bg-white p-2 rounded-lg">
@@ -239,6 +239,15 @@
             <p class="text-softcyan text-sm leading-relaxed">${agency.explainer}</p>
           </div>`;
       }).join('');
+      
+      // Add click event listeners after rendering
+      document.querySelectorAll('.ausagency-agency-card').forEach(card => {
+        const agencyName = card.getAttribute('data-name');
+        card.addEventListener('click', () => {
+          const agency = agencies.find(a => a.name === agencyName);
+          if (agency) showAgencyDetail(agency);
+        });
+      });
     };
 
     const renderIntTable = () => {
