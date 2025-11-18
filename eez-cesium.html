@@ -95,8 +95,8 @@
       viewer.dataSources.add(ds);
       ds.entities.values.forEach(e => {
         if (e.polyline) {
-          e.polyline.material = Cesium.Color.CYAN.withAlpha(0.9);
-          e.polyline.width = 3;
+          e.polyline.material = Cesium.Color.fromCssColorString('#E0F7FA').withAlpha(0.95);
+          e.polyline.width = 2;
           e.name = e.properties.name || 'Submarine Cable';
         }
       });
