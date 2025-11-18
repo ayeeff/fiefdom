@@ -10,16 +10,25 @@
   </script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
-    html,body,#cesiumContainer{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#000}
-    #loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);padding:20px 40px;border-radius:12px;color:white;z-index:1000;text-align:center;font-family:system-ui}
-    #infoBox{
-      position:absolute;background:rgba(0,0,0,0.92);color:white;padding:10px 16px;border-radius:8px;
-      font-family:system-ui,sans-serif;font-size:15px;pointer-events:none;z-index:9999;
-      box-shadow:0 4px 20px rgba(0,0,0,0.6);display:none;border:1px solid rgba(100,200,255,0.5);
-      white-space:nowrap;backdrop-filter:blur(4px);
+    html, body, #cesiumContainer { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; }
+    #loading { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); padding:20px 40px; border-radius:12px; color:white; z-index:1000; text-align:center; font-family:system-ui; }
+    #infoBox { 
+      position: absolute; 
+      background: rgba(0,0,0,0.9); 
+      color: white; 
+      padding: 10px 14px; 
+      border-radius: 8px; 
+      font-family: system-ui, sans-serif; 
+      font-size: 14px; 
+      pointer-events: none; 
+      z-index: 9999; 
+      max-width: 280px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      display: none;
+      border: 1px solid rgba(100,200,255,0.5);
     }
-    #legend{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.75);padding:12px 16px;border-radius:8px;color:white;font-size:13px;backdrop-filter:blur(4px);}
-    .hidden{display:none}
+    #legend { position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.75); padding:12px 16px; border-radius:8px; color:white; font-size:13px; backdrop-filter:blur(4px); }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
@@ -27,111 +36,82 @@
   <div id="infoBox"></div>
   <div id="legend">
     <strong>Legend</strong><br>
-    • Teal zones = Exclusive Economic Zones<br>
-    • White lines = Submarine internet cables
+    • Colored zones = Exclusive Economic Zones<br>
+    • <span style="color:#00ffff;font-weight:bold">Cyan lines</span> = Submarine internet cables
   </div>
   <div id="cesiumContainer"></div>
 
   <script>
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.OpenStreetMapImageryProvider({url:'https://a.tile.openstreetmap.org/'}),
-      baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,
-      navigationHelpButton:false,animation:false,timeline:false,fullscreenButton:false,
-      requestRenderMode:true,maximumRenderTimeChange:Infinity
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url: 'https://a.tile.openstreetmap.org/' }),
+      baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+      navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+      requestRenderMode: true, maximumRenderTimeChange: Infinity
     });
 
-    // High-contrast satellite base
+    // High-contrast satellite imagery
     Cesium.createWorldImageryAsync({
       style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS
-    }).then(img=>{viewer.imageryLayers.remove(viewer.imageryLayers.get(0));viewer.imageryLayers.addImageryProvider(img,0);});
-
-    // === CENTER ON CHINA / WESTERN PACIFIC ON LOAD ===
-    viewer.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(115, 20, 15000000),  // Perfect view over China & South China Sea
-      orientation: {
-        heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-35),
-        roll: 0
-      }
+    }).then(img => {
+      viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
+      viewer.imageryLayers.addImageryProvider(img, 0);
     });
 
-    // Auto-rotate + pause
+    viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 0, 22000000) });
+
+    // Auto-rotate + pause on interaction
     let isInteracting = false;
-    const rotationSpeed = Cesium.Math.toRadians(0.25);
-    setInterval(()=>{if(!isInteracting)viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z,rotationSpeed/60);},16);
+    const rotationSpeed = Cesium.Math.toRadians(0.3);
+
+    setInterval(() => {
+      if (!isInteracting) {
+        viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed / 60);
+      }
+    }, 16);
 
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-    handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.LEFT_DOWN);
-    handler.setInputAction(()=>isInteracting=false,Cesium.ScreenSpaceEventType.LEFT_UP);
-    handler.setInputAction(()=>isInteracting=true,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    handler.setInputAction(() => isInteracting = true, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+    handler.setInputAction(() => isInteracting = false, Cesium.ScreenSpaceEventType.LEFT_UP);
+    handler.setInputAction(() => isInteracting = true, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     const infoBox = document.getElementById('infoBox');
 
-    // === EEZs – High-contrast teal ===
-    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds=>{
+    // Load EEZs
+    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds => {
       viewer.dataSources.add(ds);
-      ds.entities.values.forEach(e=>{
-        if(e.polygon){
-          const country = e.properties.SOVEREIGN1?._value||e.properties.TERRITORY1?._value||e.properties.GEONAME?._value||'Unknown';
+      ds.entities.values.forEach(e => {
+        if (e.polygon) {
+          const country = e.properties.SOVEREIGN1?._value || 
+                         e.properties.TERRITORY1?._value || 
+                         e.properties.GEONAME?._value || 
+                         'Unknown Zone';
           e.name = country;
-          e.polygon.material = Cesium.Color.fromCssColorString('#3EACA8').withAlpha(0.42);
-          e.polygon.outline = true;
-          e.polygon.outlineColor = Cesium.Color.fromCssColorString('#2A7F7A').withAlpha(0.8);
-          e.polygon.outlineWidth = 1.5;
         }
       });
     });
 
-    // === Cables – Bright white ===
-    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json').then(ds=>{
+    // Load Submarine Cables
+    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json').then(ds => {
       viewer.dataSources.add(ds);
-      ds.entities.values.forEach(e=>{
-        if(e.polyline){
-          e.polyline.material = Cesium.Color.fromCssColorString('#E0F7FA').withAlpha(0.95);
-          e.polyline.width = 3.2;
+      ds.entities.values.forEach(e => {
+        if (e.polyline) {
+          e.polyline.material = Cesium.Color.CYAN.withAlpha(0.9);
+          e.polyline.width = 3;
           e.name = e.properties.name || 'Submarine Cable';
         }
       });
     });
 
-    // === FIXED: Tooltip follows cursor perfectly (no offset bug) ===
-    let highlighted = null;
+    // Mouse move → tooltip follows cursor
     handler.setInputAction(movement => {
       const picked = viewer.scene.pick(movement.endPosition);
-
-      // Reset previous highlight
-      if (highlighted) {
-        if (highlighted.polygon) highlighted.polygon.material = highlighted.origMat || highlighted.polygon.material;
-        if (highlighted.polyline) {
-          highlighted.polyline.material = highlighted.origLine || highlighted.polyline.material;
-          highlighted.polyline.width = 3.2;
-        }
-        highlighted = null;
-      }
-
-      // New highlight
-      if (picked && picked.id) {
-        highlighted = picked.id;
-        if (highlighted.polygon) {
-          highlighted.origMat = highlighted.polygon.material;
-          highlighted.polygon.material = Cesium.Color.fromCssColorString('#F28C38').withAlpha(0.6);
-        }
-        if (highlighted.polyline) {
-          highlighted.origLine = highlighted.polyline.material;
-          highlighted.polyline.material = Cesium.Color.WHITE;
-          highlighted.polyline.width = 7;
-        }
-        viewer.selectedEntity = picked.id;
-      } else {
-        viewer.selectedEntity = undefined;
-      }
-
-      // Tooltip — now 100% accurate
       if (picked && picked.id && picked.id.name) {
         infoBox.style.display = 'block';
-        infoBox.textContent = picked.id.name;
-        infoBox.style.left = (movement.endPosition.x + 18) + 'px';
-        infoBox.style.top  = (movement.endPosition.y - 8)  + 'px';  // Slightly above cursor
+        infoBox.innerHTML = `<strong>${picked.id.name}</strong>`;
+        
+        // Position box near cursor
+        infoBox.style.left = (movement.endPosition.x + 15) + 'px';
+        infoBox.style.top = (movement.endPosition.y + 10) + 'px';
       } else {
         infoBox.style.display = 'none';
       }
