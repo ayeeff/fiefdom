@@ -3,404 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global EEZ Viewer - Cesium.js</title>
+  <title>EEZ + Submarine Internet Cables</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
-  <script>Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWIyMzc1NS02YmZhLTRkOGUtYjg0Mi1lZjg3MTNkNWEyMmQiLCJpZCI6MzYxMDQ4LCJpYXQiOjE3NjMzNjU4MzZ9.d3jTploe7QTheRP-7owPPi19tptf08p4YtYQhBc6zKQ';</script>
+  <script>
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZWIyMzc1NS02YmZhLTRkOGUtYjg0Mi1lZjg3MTNkNWEyMmQiLCJpZCI6MzYxMDQ4LCJpYXQiOjE3NjMzNjU4MzZ9.d3jTploe7QTheRP-7owPPi19tptf08p4YtYQhBc6zKQ';
+  </script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
-    html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000;
-    }
-    
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 18px;
-      z-index: 1000;
-      text-align: center;
-      background: rgba(0,0,0,0.8);
-      padding: 30px;
-      border-radius: 10px;
-    }
-    
-    .loading-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-      animation: spin 2s linear infinite;
-    }
-    
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    
-    .info-panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: white;
-      background: rgba(0,0,0,0.8);
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 1000;
-      max-width: 350px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .info-panel h2 {
-      margin: 0 0 12px 0;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    
-    .info-panel p {
-      margin: 8px 0;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    .info-panel .tips {
-      margin: 10px 0 0 0;
-      font-size: 12px;
-      opacity: 0.8;
-      line-height: 1.4;
-    }
-    
-    .info-panel .source {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      font-size: 11px;
-      opacity: 0.7;
-    }
-
-    .debug-info {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.8);
-      color: #0f0;
-      padding: 10px;
-      border-radius: 5px;
-      font-family: monospace;
-      font-size: 11px;
-      z-index: 1000;
-      max-width: 300px;
-    }
-    
-    .hidden {
-      display: none;
-    }
-
-    .error {
-      background: rgba(200, 0, 0, 0.9);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 1001;
-      max-width: 400px;
-      font-size: 14px;
-    }
+    html, body, #cesiumContainer { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; font-family:Arial, sans-serif; }
+    #loading, #info { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); padding:20px 30px; border-radius:12px; color:white; z-index:1000; text-align:center; }
+    #info { top:20px; left:20px; transform:none; max-width:380px; }
+    #legend { position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.7); padding:12px; border-radius:8px; color:white; font-size:13px; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
-  <div id="loading" class="loading">
-    <div class="loading-icon">🌍</div>
-    <div>Loading Real EEZ Boundaries...</div>
-    <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-      This may take a moment
-    </div>
+  <div id="loading">Loading globe + submarine cables…</div>
+  <div id="info">
+    <h2 style="margin:0 0 10px">🌐 EEZ + Submarine Internet Cables</h2>
+    <p style="margin:0;font-size:14px;">Hover over EEZs for country • Submarine cables in <span style="color:#00ffff;">cyan</span></p>
   </div>
-  
-  <div class="info-panel">
-    <h2>🌍 Global EEZ Viewer</h2>
-    <p>
-      Displaying real Exclusive Economic Zone boundaries from official maritime data sources.
-    </p>
-    <p class="tips">
-      💡 Hover over zones for country details<br>
-      🔄 Globe auto-rotates (pauses on interaction)<br>
-      🖱️ Click and drag to rotate manually
-    </p>
-    <div class="source">
-      📊 Data: Marine Regions / Natural Earth<br>
-      Powered by: Cesium.js
-    </div>
+  <div id="legend">
+    <div><strong>Legend</strong></div>
+    <div>• Colored zones = Exclusive Economic Zones (200 NM)</div>
+    <div>• <span style="color:#00ffff;">Cyan lines</span> = Active submarine internet cables</div>
   </div>
-  
   <div id="cesiumContainer"></div>
-  
-  <div id="debug" class="debug-info hidden"></div>
 
   <script>
-    // Color palette for different countries
-    const countryColors = {};
-    let colorIndex = 0;
-    const colorPalette = [
-      Cesium.Color.fromCssColorString('rgba(0, 85, 164, 0.5)'),    // Blue
-      Cesium.Color.fromCssColorString('rgba(178, 34, 52, 0.5)'),   // Red
-      Cesium.Color.fromCssColorString('rgba(0, 156, 59, 0.5)'),    // Green
-      Cesium.Color.fromCssColorString('rgba(255, 153, 51, 0.5)'),  // Orange
-      Cesium.Color.fromCssColorString('rgba(188, 0, 45, 0.5)'),    // Crimson
-      Cesium.Color.fromCssColorString('rgba(0, 119, 73, 0.5)'),    // Emerald
-      Cesium.Color.fromCssColorString('rgba(186, 12, 47, 0.5)'),   // Burgundy
-      Cesium.Color.fromCssColorString('rgba(0, 0, 139, 0.5)'),     // Navy
-      Cesium.Color.fromCssColorString('rgba(204, 0, 0, 0.5)'),     // Scarlet
-      Cesium.Color.fromCssColorString('rgba(116, 172, 223, 0.5)'), // Sky Blue
-    ];
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      imageryProvider: new Cesium.ArcGisMapServerImageryProvider({ url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer' }),
+      baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+      navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+      requestRenderMode: true
+    });
 
-    function getCountryColor(countryName) {
-      if (!countryName) return Cesium.Color.GRAY.withAlpha(0.4);
-      
-      if (!countryColors[countryName]) {
-        countryColors[countryName] = colorPalette[colorIndex % colorPalette.length];
-        colorIndex++;
-      }
-      return countryColors[countryName];
-    }
+    // High-contrast base (land green/brown, ocean deep blue)
+    Cesium.createWorldImageryAsync({
+      style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS
+    }).then(img => {
+      viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
+      viewer.imageryLayers.addImageryProvider(img, 0);
+    }).catch(() => console.log("Using fallback imagery"));
 
-    // Initialize Cesium when page loads
-    window.addEventListener('load', async function() {
-      const container = document.getElementById('cesiumContainer');
-      const loading = document.getElementById('loading');
-      const debug = document.getElementById('debug');
-      
-      // Show debug info
-      debug.classList.remove('hidden');
-      debug.innerHTML = 'Initializing Cesium...';
+    viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 0, 22000000) });
 
-      // Create Cesium viewer with default imagery first (terrain commented out)
-      const viewer = new Cesium.Viewer('cesiumContainer', {
-        // terrain: Cesium.Terrain.fromWorldTerrain(),  // Commented out
-        imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-          url: 'https://a.tile.openstreetmap.org/'
-        }),
-        baseLayerPicker: false,
-        geocoder: false,
-        homeButton: false,
-        sceneModePicker: false,
-        navigationHelpButton: false,
-        animation: false,
-        timeline: false,
-        fullscreenButton: false,
-        vrButton: false,
-        requestRenderMode: true,  // Efficient rendering
-        maximumRenderTimeChange: Infinity
-      });
+    // Auto-rotate
+    let rotating = true;
+    viewer.scene.postUpdate.addEventListener(() => {
+      if (rotating) viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.0005);
+    });
+    viewer.scene.screenSpaceEventHandler.setInputAction(() => rotating = false, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+    viewer.scene.screenSpaceEventHandler.setInputAction(() => rotating = true, Cesium.ScreenSpaceEventType.LEFT_UP);
 
-      // Set initial view
-      viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000)
-      });
-
-      // Load high-contrast Ion world imagery asynchronously
-      try {
-        debug.innerHTML = 'Loading high-contrast imagery...';
-        const worldImagery = await Cesium.createWorldImageryAsync({
-          style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS  // Clear land (green/brown) vs. ocean (blue)
-        });
-        // Replace the default layer with Ion imagery
-        viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
-        viewer.imageryLayers.addImageryProvider(worldImagery, 0);
-        debug.innerHTML = 'High-contrast imagery loaded successfully';
-      } catch (error) {
-        console.warn('Failed to load Ion world imagery:', error);
-        debug.innerHTML = 'Using default imagery (Ion load failed)';
-      }
-
-      // Auto-rotate with interaction pause
-      let isInteracting = false;
-      const rotationSpeed = Cesium.Math.toRadians(0.5);  // Adjust speed as needed
-      const autoRotateInterval = setInterval(() => {
-        if (!isInteracting && !viewer.selectedEntity) {
-          viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed / 60);  // Slow rotation per frame
+    // ==== 1. Load EEZ polygons (your existing data) ====
+    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json', {
+      stroke: Cesium.Color.WHITE.withAlpha(0.6),
+      strokeWidth: 1,
+      fill: Cesium.Color.fromRandom({ alpha: 0.45 })
+    }).then(ds => {
+      viewer.dataSources.add(ds);
+      ds.entities.values.forEach(e => {
+        if (e.polygon) {
+          const country = e.properties.SOVEREIGN1 || e.properties.TERRITORY1 || e.properties.GEONAME || 'Unknown';
+          e.name = country;
+          e.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;">
+            <b>${country}</b><br>Exclusive Economic Zone
+          </div>`;
         }
-      }, 16);  // ~60 FPS
-
-      // Detect interactions to pause rotation
-      const handler = viewer.screenSpaceEventHandler;
-      handler.setInputAction(() => { isInteracting = true; }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-      handler.setInputAction(() => { isInteracting = false; }, Cesium.ScreenSpaceEventType.LEFT_UP);
-      handler.setInputAction((movement) => {
-        if (movement.endPosition && !isInteracting) {
-          isInteracting = true;
-          setTimeout(() => { isInteracting = false; }, 100);  // Brief pause after move
-        }
-      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-      // Load EEZ data
-      const dataUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json';
-      let dataLoaded = false;
-
-      try {
-        debug.innerHTML = `Fetching: ${dataUrl.substring(0, 50)}...`;
-        loading.innerHTML = `
-          <div class="loading-icon">🌍</div>
-          <div>Downloading EEZ data...</div>
-          <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-            This may take 10-30 seconds (6MB file)
-          </div>
-        `;
-        
-        const response = await fetch(dataUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        loading.innerHTML = `
-          <div class="loading-icon">⚙️</div>
-          <div>Processing data...</div>
-          <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-            Parsing GeoJSON...
-          </div>
-        `;
-        
-        const data = await response.json();
-        debug.innerHTML = `Loaded ${data.features?.length || 0} features`;
-
-        // Filter to polygons only
-        let eezFeatures = data.features.filter(f => 
-          f.geometry && 
-          (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
-        );
-        
-        console.log(`Filtered to ${eezFeatures.length} polygon features`);
-        debug.innerHTML = `Processing ${eezFeatures.length} polygon features...`;
-
-        if (eezFeatures.length > 0) {
-          loading.innerHTML = `
-            <div class="loading-icon">🎨</div>
-            <div>Rendering globe...</div>
-            <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-              Drawing ${eezFeatures.length} EEZ zones
-            </div>
-          `;
-          
-          // Create a data source for EEZs
-          const eezDataSource = new Cesium.GeoJsonDataSource('EEZs');
-          await viewer.dataSources.add(eezDataSource);
-
-          // Load GeoJSON into data source (pass full data, not filtered features)
-          await eezDataSource.load(data, {
-            clampToGround: false,
-            stroke: Cesium.Color.BLUE.withAlpha(0.7),
-            strokeWidth: 1.0,
-            fill: true,
-            markerSymbol: '?',
-            entityCollection: new Cesium.EntityCollection()
-          });
-
-          // Style each entity
-          const entities = eezDataSource.entities.values;
-          entities.forEach((entity) => {
-            if (entity.polygon) {
-              const country = entity.properties.SOVEREIGN1?._value || 
-                             entity.properties.TERRITORY1?._value || 
-                             entity.properties.GEONAME?._value ||
-                             entity.properties.SOVEREIGNT?._value || 
-                             entity.properties.ADMIN?._value || 
-                             entity.properties.name?._value ||
-                             entity.properties.NAME?._value ||
-                             'Unknown';
-              
-              const area = entity.properties.AREA_KM2?._value || entity.properties.area_km2?._value || '';
-              
-              // Set fill color
-              entity.polygon.material = getCountryColor(country);
-              entity.polygon.outline = true;
-              entity.polygon.outlineColor = Cesium.Color.WHITE.withAlpha(0.5);
-              entity.polygon.outlineWidth = 1.0;
-              
-              // Add label (initially hidden)
-              entity.label = {
-                text: '',
-                font: '14pt monospace',
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                fillColor: Cesium.Color.WHITE,
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 2,
-                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                pixelOffset: new Cesium.Cartesian2(0, -10),
-                show: false,
-                scale: 0.8
-              };
-              
-              // Set name for label
-              entity.name = country;
-              
-              // Description for info box on select
-              entity.description = `
-                <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
-                  <b style="font-size: 14px;">${country}</b><br/>
-                  <span style="font-size: 12px; opacity: 0.9;">Exclusive Economic Zone</span>
-                  ${area ? `<br/><span style="font-size: 11px; opacity: 0.7;">Area: ${Math.round(area).toLocaleString()} km²</span>` : ''}
-                </div>
-              `;
-            }
-          });
-
-          // Global hover handler (updated to use entity.name)
-          let highlightedEntity = null;
-          handler.setInputAction((movement) => {
-            const pickedFeature = viewer.scene.pick(movement.endPosition);
-            if (Cesium.defined(pickedFeature) && pickedFeature.id && pickedFeature.id.polygon) {
-              const entity = pickedFeature.id;
-              if (entity !== highlightedEntity) {
-                if (Cesium.defined(highlightedEntity)) {
-                  highlightedEntity.label.show = false;
-                }
-                entity.label.show = true;
-                entity.label.text = entity.name || 'EEZ Zone';
-                highlightedEntity = entity;
-                viewer.selectedEntity = entity;
-                isInteracting = true;  // Pause rotation on hover
-                setTimeout(() => { if (highlightedEntity === entity) isInteracting = false; }, 2000);
-              }
-            } else {
-              if (Cesium.defined(highlightedEntity)) {
-                highlightedEntity.label.show = false;
-                highlightedEntity = null;
-                viewer.selectedEntity = undefined;
-                isInteracting = false;
-              }
-            }
-          }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-          dataLoaded = true;
-          loading.classList.add('hidden');
-          debug.innerHTML = `✓ Rendered ${entities.length} EEZ zones with Cesium.js`;
-          
-          // Hide debug after 5 seconds
-          setTimeout(() => debug.classList.add('hidden'), 5000);
-        }
-      } catch (error) {
-        console.error('Error loading EEZ data:', error);
-        debug.innerHTML = `Error: ${error.message}`;
-        loading.innerHTML = `
-          <div style="max-width: 500px;">
-            <div style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
-            <div style="font-size: 18px; margin-bottom: 15px;">Unable to Load Real EEZ Data</div>
-            <div style="font-size: 14px; line-height: 1.6; opacity: 0.9;">
-              <p style="margin: 10px 0;">Check console for details. Ensure the GeoJSON URL is accessible.</p>
-              <p style="margin: 15px 0 5px 0; font-size: 12px; opacity: 0.7;">
-                Cesium.js is more performant, but large datasets may still need simplification.
-              </p>
-            </div>
-          </div>
-        `;
-      }
-
-      // Handle window resize
-      window.addEventListener('resize', function() {
-        viewer.resize();
       });
     });
+
+    // ==== 2. Load Submarine Cables (your new file) ====
+    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json', {
+      stroke: Cesium.Color.CYAN.withAlpha(0.9),
+      strokeWidth: 2.5,
+      clampToGround: true
+    }).then(cables => {
+      viewer.dataSources.add(cables);
+      cables.entities.values.forEach(c => {
+        c.name = c.properties.name || 'Submarine Cable';
+        c.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;">
+          <b>${c.name}</b><br>Submarine internet cable
+        </div>`;
+        c.polyline.width = 3;
+        c.polyline.material = Cesium.Color.CYAN.withAlpha(0.9);
+      });
+    });
+
+    // Hover info
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+    let highlighted;
+    handler.setInputAction(movement => {
+      const picked = viewer.scene.pick(movement.endPosition);
+      if (highlighted) {
+        highlighted.polygon && (highlighted.polygon.material = highlighted.originalMaterial || highlighted.polygon.material);
+        highlighted.polyline && (highlighted.polyline.material = highlighted.originalLine || highlighted.polyline.material);
+        highlighted = null;
+      }
+      if (picked && picked.id) {
+        highlighted = picked.id;
+        if (highlighted.polygon) {
+          highlighted.originalMaterial = highlighted.polygon.material;
+          highlighted.polygon.material = Cesium.Color.YELLOW.withAlpha(0.6);
+        }
+        if (highlighted.polyline) {
+          highlighted.originalLine = highlighted.polyline.material;
+          highlighted.polyline.material = Cesium.Color.YELLOW.withAlpha(1);
+          highlighted.polyline.width = 6;
+        }
+        viewer.selectedEntity = picked.id;
+      } else viewer.selectedEntity = undefined;
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    document.getElementById('loading').classList.add('hidden');
   </script>
 </body>
 </html>
