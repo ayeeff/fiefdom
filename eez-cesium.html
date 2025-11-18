@@ -76,16 +76,17 @@
 
     const infoBox = document.getElementById('infoBox');
 
-    // Load EEZs
-    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds => {
+// === EEZs – High-contrast teal ===
+    Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json').then(ds=>{
       viewer.dataSources.add(ds);
-      ds.entities.values.forEach(e => {
-        if (e.polygon) {
-          const country = e.properties.SOVEREIGN1?._value || 
-                         e.properties.TERRITORY1?._value || 
-                         e.properties.GEONAME?._value || 
-                         'Unknown Zone';
+      ds.entities.values.forEach(e=>{
+        if(e.polygon){
+          const country = e.properties.SOVEREIGN1?._value||e.properties.TERRITORY1?._value||e.properties.GEONAME?._value||'Unknown';
           e.name = country;
+          e.polygon.material = Cesium.Color.fromCssColorString('#3EACA8').withAlpha(0.82);
+          e.polygon.outline = true;
+          e.polygon.outlineColor = Cesium.Color.fromCssColorString('#2A7F7A').withAlpha(0.8);
+          e.polygon.outlineWidth = 1.5;
         }
       });
     });
