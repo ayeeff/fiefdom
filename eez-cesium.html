@@ -10,53 +10,66 @@
   </script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
-    html, body, #cesiumContainer { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; font-family:Arial, sans-serif; }
+    html, body, #cesiumContainer { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; }
     #loading, #info { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); padding:20px 30px; border-radius:12px; color:white; z-index:1000; text-align:center; }
-    #info { top:20px; left:20px; transform:none; max-width:380px; }
-    #legend { position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.7); padding:12px; border-radius:8px; color:white; font-size:13px; }
+    #info { top:20px; left:20px; transform:none; max-width:380px; font-family:system-ui,sans-serif; }
+    #legend { position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.75); padding:12px 16px; border-radius:8px; color:white; font-size:13px; backdrop-filter:blur(4px); }
     .hidden { display:none; }
   </style>
 </head>
 <body>
-  <div id="loading">Loading globe + submarine cables…</div>
+  <div id="loading"><div style="font-size:48px;margin-bottom:12px">🌍</div>Loading EEZ + Submarine Cables…</div>
   <div id="info">
-    <h2 style="margin:0 0 10px">🌐 EEZ + Submarine Internet Cables</h2>
-    <p style="margin:0;font-size:14px;">Hover over EEZs for country • Submarine cables in <span style="color:#00ffff;">cyan</span></p>
+    <h2 style="margin:0 0 8px;font-size:22px">🌐 EEZ + Submarine Internet Cables</h2>
+    <p style="margin:0;font-size:14px;line-height:1.4">
+      Hover over zones or cables • Auto-rotates (pauses on interaction)
+    </p>
   </div>
   <div id="legend">
-    <div><strong>Legend</strong></div>
-    <div>• Colored zones = Exclusive Economic Zones (200 NM)</div>
-    <div>• <span style="color:#00ffff;">Cyan lines</span> = Active submarine internet cables</div>
+    <strong>Legend</strong><br>
+    • Colored zones = Exclusive Economic Zones<br>
+    • <span style="color:#00ffff;font-weight:bold">Cyan lines</span> = Submarine internet cables
   </div>
   <div id="cesiumContainer"></div>
 
   <script>
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.ArcGisMapServerImageryProvider({ url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer' }),
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({ url: 'https://a.tile.openstreetmap.org/' }),
       baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
       navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
-      requestRenderMode: true
+      requestRenderMode: true, maximumRenderTimeChange: Infinity
     });
 
-    // High-contrast base (land green/brown, ocean deep blue)
+    // High-contrast satellite base (land green/brown, ocean deep blue)
     Cesium.createWorldImageryAsync({
       style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS
     }).then(img => {
       viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
       viewer.imageryLayers.addImageryProvider(img, 0);
-    }).catch(() => console.log("Using fallback imagery"));
+    }).catch(() => console.log("Ion imagery failed → using OSM"));
 
     viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 0, 22000000) });
 
-    // Auto-rotate
-    let rotating = true;
-    viewer.scene.postUpdate.addEventListener(() => {
-      if (rotating) viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.0005);
-    });
-    viewer.scene.screenSpaceEventHandler.setInputAction(() => rotating = false, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-    viewer.scene.screenSpaceEventHandler.setInputAction(() => rotating = true, Cesium.ScreenSpaceEventType.LEFT_UP);
+    // ==== FULLY CORRECTED AUTO-ROTATE + PAUSE (Cesium 1.115+) ====
+    let isInteracting = false;
+    const rotationSpeed = Cesium.Math.toRadians(0.3);  // Smooth speed
 
-    // ==== 1. Load EEZ polygons (your existing data) ====
+    setInterval(() => {
+      if (!isInteracting && !viewer.selectedEntity) {
+        viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, rotationSpeed / 60);
+      }
+    }, 16);  // ~60 fps
+
+    // Correct handler for modern Cesium
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+    handler.setInputAction(() => isInteracting = true, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+    handler.setInputAction(() => isInteracting = false, Cesium.ScreenSpaceEventType.LEFT_UP);
+    handler.setInputAction((movement) => {
+      if (movement.endPosition) isInteracting = true;
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    // =============================================================
+
+    // ==== Load EEZ polygons ====
     Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json', {
       stroke: Cesium.Color.WHITE.withAlpha(0.6),
       strokeWidth: 1,
@@ -67,14 +80,14 @@
         if (e.polygon) {
           const country = e.properties.SOVEREIGN1 || e.properties.TERRITORY1 || e.properties.GEONAME || 'Unknown';
           e.name = country;
-          e.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;">
-            <b>${country}</b><br>Exclusive Economic Zone
+          e.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;font-family:sans-serif;">
+            <b style="font-size:15px">${country}</b><br>Exclusive Economic Zone
           </div>`;
         }
       });
     });
 
-    // ==== 2. Load Submarine Cables (your new file) ====
+    // ==== Load Submarine Cables ====
     Cesium.GeoJsonDataSource.load('https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json', {
       stroke: Cesium.Color.CYAN.withAlpha(0.9),
       strokeWidth: 2.5,
@@ -83,32 +96,34 @@
       viewer.dataSources.add(cables);
       cables.entities.values.forEach(c => {
         c.name = c.properties.name || 'Submarine Cable';
-        c.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;">
-          <b>${c.name}</b><br>Submarine internet cable
+        c.description = `<div style="background:rgba(0,0,0,0.85);padding:12px;border-radius:8px;color:white;font-family:sans-serif;">
+          <b style="font-size:15px">${c.name}</b><br>Submarine internet cable
         </div>`;
-        c.polyline.width = 3;
-        c.polyline.material = Cesium.Color.CYAN.withAlpha(0.9);
+        if (c.polyline) {
+          c.polyline.width = 3;
+          c.polyline.material = Cesium.Color.CYAN.withAlpha(0.9);
+        }
       });
     });
 
-    // Hover info
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+    // ==== Hover highlight ====
     let highlighted;
     handler.setInputAction(movement => {
       const picked = viewer.scene.pick(movement.endPosition);
       if (highlighted) {
-        highlighted.polygon && (highlighted.polygon.material = highlighted.originalMaterial || highlighted.polygon.material);
-        highlighted.polyline && (highlighted.polyline.material = highlighted.originalLine || highlighted.polyline.material);
+        highlighted.polygon && (highlighted.polygon.material = highlighted.origMat || highlighted.polygon.material);
+        highlighted.polyline && (highlighted.polyline.material = highlighted.origLine || highlighted.polyline.material);
+        highlighted.polyline && (highlighted.polyline.width = 3);
         highlighted = null;
       }
       if (picked && picked.id) {
         highlighted = picked.id;
         if (highlighted.polygon) {
-          highlighted.originalMaterial = highlighted.polygon.material;
+          highlighted.origMat = highlighted.polygon.material;
           highlighted.polygon.material = Cesium.Color.YELLOW.withAlpha(0.6);
         }
         if (highlighted.polyline) {
-          highlighted.originalLine = highlighted.polyline.material;
+          highlighted.origLine = highlighted.polyline.material;
           highlighted.polyline.material = Cesium.Color.YELLOW.withAlpha(1);
           highlighted.polyline.width = 6;
         }
