@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Australian Intelligence & Security Community</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal: '#00b398',
+            cyan: '#5cdbd3',
+            coral: '#ff6b6b',
+            yellow: '#ffd93d',
+            purple: '#a29bfe',
+            darkteal: '#0a2e36',
+            midteal: '#0d5c63',
+            lightcyan: '#99e6d8',
+            softcyan: '#b2f5ea'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+</head>
+<body>
+  <div class="min-h-screen bg-gradient-to-br from-darkteal via-[#0f3a3f] to-darkteal text-white font-sans py-12 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-teal to-cyan bg-clip-text text-transparent">
+          Australian Intelligence & Security Community
+        </h1>
+        <p class="text-2xl text-softcyan">National Security & Intelligence Agencies</p>
+        <p class="mt-6 text-lg italic text-lightcyan">
+          This single 5×5 km patch of Canberra holds one of the planet's thickest clumps of spooks, not because Australia itself needs so many eyes, but because the West uses the city as a forward listening post for the Asia-Pacific clock.
+        </p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal flex items-center gap-4">
+          <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <div><div class="text-lightcyan text-sm">Total Agencies</div><div class="text-3xl font-bold">11</div></div>
+        </div>
+        <div class="bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal flex items-center gap-4">
+          <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div><div class="text-lightcyan text-sm">Total Staff</div><div class="text-3xl font-bold">32,165</div></div>
+        </div>
+        <div class="bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal flex items-center gap-4">
+          <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div><div class="text-lightcyan text-sm">HQ Location</div><div class="text-3xl font-bold">Canberra</div></div>
+        </div>
+        <div class="bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal flex items-center gap-4">
+          <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div><div class="text-lightcyan text-sm">Coordinator</div><div class="text-3xl font-bold">ONI</div></div>
+        </div>
+      </div>
+
+      <!-- Map + Right Panel (INT table ↔ Agency Detail) -->
+      <div class="grid lg:grid-cols-2 gap-8 mb-12">
+        <!-- Map -->
+        <div class="bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal">
+          <h2 class="text-2xl font-bold mb-4 text-cyan">Agency Locations – Canberra Region</h2>
+          <div id="ausagency-map" class="h-96 rounded-lg"></div>
+          <div class="flex flex-wrap gap-6 mt-6 text-sm">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-teal"></div><span>Intelligence Collection</span></div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-cyan"></div><span>Security & Counter-Intel</span></div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-coral"></div><span>Law Enforcement</span></div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-yellow"></div><span>Coordination</span></div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full bg-purple"></div><span>Think Tank</span></div>
+          </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div id="right-panel" class="bg-darkteal/60 backdrop-blur-xl rounded-xl border border-midteal flex flex-col h-96">
+          <!-- INT Table (default) -->
+          <div id="ints-table" class="p-8 h-full overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-6 text-cyan">Intelligence Disciplines (INTs)</h2>
+            <table class="w-full text-xs md:text-sm">
+              <thead>
+                <tr class="border-b border-midteal/80">
+                  <th class="text-left py-3 text-lightcyan uppercase font-bold">INT</th>
+                  <th class="text-left py-3 text-lightcyan uppercase font-bold">Explanation</th>
+                </tr>
+              </thead>
+              <tbody id="ints-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Agency Detail (hidden until clicked) -->
+          <div id="agency-detail" class="hidden p-8 h-full overflow-y-auto relative">
+            <button class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full text-2xl" onclick="closeAgencyDetail()">×</button>
+            <img id="ausagency-selected-logo" src="" alt="" class="w-20 h-20 object-contain bg-white p-2 rounded-lg mb-6">
+            <h3 id="ausagency-selected-name" class="text-3xl font-bold text-cyan mb-2"></h3>
+            <div id="ausagency-selected-equiv" class="text-lightcyan mb-2"></div>
+            <h4 id="ausagency-selected-head" class="text-xl text-softcyan mb-2"></h4>
+            <div id="ausagency-selected-staff" class="text-lightcyan mb-4"></div>
+            <div id="ausagency-selected-ints" class="text-lightcyan mb-6"></div>
+            <p id="ausagency-selected-explainer" class="leading-relaxed text-softcyan text-sm"></p>
+            <a id="ausagency-selected-url" href="" target="_blank" rel="noopener noreferrer" class="inline-block mt-6 px-6 py-3 bg-teal hover:bg-teal/80 text-white rounded-lg">Visit Official Website →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agency Cards Grid -->
+      <div id="ausagency-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"></div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const ns = 'ausagency_' + Math.random().toString(36).substr(2, 9);
+
+    function generateTextLogo(text, fontSize = 48, color = "#ffffff", bgColor = "#0a2e36") {
+      const width = Math.max(text.length * fontSize * 0.6, 120);
+      const height = fontSize + 20;
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'><rect width='100%' height='100%' fill='${bgColor}' rx='8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='${fontSize}' font-weight='bold' fill='${color}'>${text}</text></svg>`;
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    }
+
+    const definitions = {
+      "CYBINT": "Cyber Intelligence / Digital-Network Intelligence – extracted from computer networks, malware, or digital devices.",
+      "FININT": "Financial Intelligence – patterns, funding flows, money-laundering indicators.",
+      "GEOINT": "Geospatial Intelligence – imagery, mapping, elevation, feature & terrain analysis (includes traditional IMINT).",
+      "HUMINT": "Human Intelligence – information obtained from human sources (interviews, debriefs, espionage, detainees).",
+      "IMINT": "Imagery Intelligence – electro-optical, infrared, radar, or full-motion imagery from satellites or aircraft.",
+      "MASINT": "Measurement & Signature Intelligence – anything that is not SIGINT, IMINT or HUMINT but gives a measurable signature (e.g., chemical spectra, magnetic anomalies, nuclear radiation).",
+      "MEDINT": "Media Intelligence – open but foreign press, social-media narratives, propaganda trends.",
+      "OSINT": "Open-Source Intelligence – legally accessible public data: news, blogs, academic papers, ship/air transponders, commercial databases.",
+      "RADINT": "Radar Intelligence – non-imaging radar returns used to characterize targets or activities.",
+      "SIGINT": "Signals Intelligence – umbrella for COMINT, ELINT and FISINT (see below).",
+      "COMINT": "Communications Intelligence – voice, text, or data messages between people.",
+      "ELINT": "Electronic Intelligence – non-communication emitters (radars, jammers, beacons).",
+      "FISINT": "Foreign Instrumentation Signals Intelligence – telemetry, command signals from weapons or space systems.",
+      "SOCINT": "Social-Intelligence – sentiment, influence networks, crowd dynamics drawn from social platforms.",
+      "TECHINT": "Technical Intelligence – analysis of captured foreign equipment (reverse engineering)."
+    };
+
+    const agencies = [
+      {name:"Department of Home Affairs",lat:-35.2820,lon:149.1287,head:"Secretary Stephanie Foster",staff:15245,equiv:{us:"DHS",uk:"Home Office"},ints:["OSINT","MEDINT"],explainer:"Provides the strategic and coordinating backbone for much of Australia's security architecture. Houses the Australian Border Force, aligns national-security policy across counter-terrorism, cyber-security and critical-infrastructure protection, and runs immigration / border-risk assessments. It is not itself an intelligence-collection agency and does not direct ASIO operations.",type:"security",logo:generateTextLogo("HOME AFFAIRS", 40, "#ffffff", "#004c4c"),url:"https://www.homeaffairs.gov.au/"},
+      {name:"ASIO",lat:-35.3000,lon:149.1333,head:"Director-General Mike Burgess",staff:2100,equiv:{us:"FBI",uk:"MI5"},ints:["HUMINT","SIGINT","OSINT","SOCINT"],explainer:"Australia's domestic security and counter-intelligence service (equivalent to the UK's MI5). Investigates espionage, sabotage, politically motivated violence and foreign interference inside Australia; has no arrest powers and passes criminal evidence to the AFP.",type:"security",logo:generateTextLogo("ASIO", 48, "#ffffff", "#006d5b"),url:"https://www.asio.gov.au/"},
+      {name:"AFP",lat:-35.3050,lon:149.1360,head:"Commissioner Reece Kershaw",staff:7956,equiv:{us:"FBI",uk:"NCA"},ints:["HUMINT","OSINT","FININT","CYBINT"],explainer:"Australia's national law-enforcement body. Builds criminal-intelligence cases on terrorism, foreign interference, espionage and transnational organised crime and takes them to court, complementing ASIO's national-security intelligence.",type:"law",logo:generateTextLogo("AFP", 54, "#ffffff", "#ff6b6b"),url:"https://www.afp.gov.au/"},
+      {name:"ASIS",lat:-35.3047,lon:149.1340,head:"Director-General Kerri Hartland",staff:300,equiv:{us:"CIA",uk:"MI6"},ints:["HUMINT","COMINT"],explainer:"Australia's overseas human-intelligence service (equivalent to CIA/MI6). Collects foreign HUMINT that is in Australia's national interest and can conduct authorised covert action overseas, but no paramilitary operations.",type:"intel",logo:generateTextLogo("ASIS", 54, "#ffffff", "#00b398"),url:"https://www.asis.gov.au/"},
+      {name:"ASD",lat:-35.2900,lon:149.1495,head:"Director-General Abigail Bradshaw",staff:4000,equiv:{us:"NSA",uk:"GCHQ"},ints:["SIGINT","CYBINT","ELINT"],explainer:"Signals-intelligence and cyber-warfare agency (equivalent to NSA/GCHQ). Intercepts foreign electronic communications for intelligence and leads the Australian Cyber Security Centre to protect government networks and national cyber assets.",type:"intel",logo:generateTextLogo("ASD", 54, "#ffffff", "#00b398"),url:"https://www.defence.gov.au/our-organisation/defence-intelligence/australian-signals-directorate"},
+      {name:"DIO",lat:-35.2910,lon:149.1505,head:"Director-General Lieutenant-General Vincent J. S. R. (Retd) Natoli",staff:130,equiv:{us:"DIA",uk:"Defence Intelligence"},ints:["SIGINT","GEOINT","OSINT","MASINT"],explainer:"All-source military-intelligence assessment body inside the Department of Defence (equivalent to US DIA). Does not collect but analyses and fuses intelligence from ASIS, ASD and foreign partners to produce authoritative military-capability assessments.",type:"intel",logo:generateTextLogo("DIO", 54, "#ffffff", "#00b398"),url:"https://www.defence.gov.au/our-organisation/defence-intelligence/defence-intelligence-organisation"},
+      {name:"AGO",lat:-35.2920,lon:149.1515,head:"Director-General Stephen Moore",staff:500,equiv:{us:"NGA",uk:"Defence Geographic Centre"},ints:["GEOINT","IMINT","RADINT"],explainer:"Lead geospatial-intelligence agency (equivalent to US NGA). Analyses satellite & aerial imagery and geographic data to produce maps and imagery intelligence for military planning, disaster relief and national-security operations.",type:"intel",logo:generateTextLogo("AGO", 54, "#ffffff", "#00b398"),url:"https://www.defence.gov.au/our-organisation/defence-intelligence/australian-geospatial-intelligence-organisation"},
+      {name:"ONI",lat:-35.3056,lon:149.1315,head:"Director-General Andrew Shearer",staff:395,equiv:{us:"ODNI",uk:"Joint Intelligence Organisation"},ints:["SIGINT","GEOINT","OSINT","FISINT"],explainer:"Statutory head of the Australian Intelligence Community (equivalent to US ODNI). Coordinates the community, sets priorities and delivers all-source, objective assessments directly to the Prime Minister.",type:"coord",logo:generateTextLogo("ONI", 54, "#ffffff", "#ffd93d"),url:"https://www.intelligence.gov.au/"},
+      {name:"ACIC",lat:-35.2820,lon:149.1287,head:"Chief Executive Michael Outram",staff:842,equiv:{us:"FBI Organized Crime",uk:"NCA"},ints:["OSINT","FININT","TECHINT"],explainer:"National criminal-intelligence agency focused on serious and organised crime—drug trafficking, outlaw motorcycle gangs, cyber-crime, etc. Provides the criminal intelligence that links state and federal police efforts.",type:"law",logo:generateTextLogo("ACIC", 54, "#ffffff", "#ff6b6b"),url:"https://www.acic.gov.au/"},
+      {name:"AUSTRAC",lat:-35.3070,lon:149.1337,head:"CEO Nicole Rose PSM",staff:616,equiv:{us:"FinCEN",uk:"NCA FIU"},ints:["FININT"],explainer:"Australia's financial-intelligence unit and anti-money-laundering / counter-terrorism-financing regulator. Analyses millions of financial transactions to trace illicit money flows that fund terrorism, organised crime and sanctions evasion.",type:"law",logo:generateTextLogo("AUSTRAC", 44, "#ffffff", "#ff6b6b"),url:"https://www.austrac.gov.au/"},
+      {name:"Australian Strategic Policy Institute",lat:-35.2990,lon:149.1330,head:"Executive Director Justin Bassi",staff:81,equiv:{us:"CSIS",uk:"RUSI"},ints:["OSINT","MEDINT"],explainer:"Independent, non-partisan think tank that produces expert and timely advice for Australian and global leaders on defence and strategic policy.",type:"thinktank",logo:generateTextLogo("ASPI", 48, "#ffffff", "#a29bfe"),url:"https://www.aspi.org.au/"}
+    ];
+
+    const getTypeColor = (type) => ({
+      intel: '#00b398',
+      security: '#5cdbd3',
+      law: '#ff6b6b',
+      coord: '#ffd93d',
+      thinktank: '#a29bfe'
+    })[type] || '#6b7280';
+
+    let selectedAgency = null;
+
+    window.closeAgencyDetail = () => {
+      document.getElementById('ints-table').classList.remove('hidden');
+      document.getElementById('agency-detail').classList.add('hidden');
+      document.querySelectorAll('.ausagency-agency-card').forEach(c => c.classList.remove('ring-4', 'ring-cyan'));
+      selectedAgency = null;
+      if (window[ns + '_map']) window[ns + '_map'].setView([-35.295, 149.125], 13.5);
+    };
+
+    const showAgencyDetail = (agency) => {
+      selectedAgency = agency;
+      document.getElementById('ints-table').classList.add('hidden');
+      document.getElementById('agency-detail').classList.remove('hidden');
+
+      document.getElementById('ausagency-selected-logo').src = agency.logo;
+      document.getElementById('ausagency-selected-name').textContent = agency.name;
+      document.getElementById('ausagency-selected-equiv').innerHTML = `(US: ${agency.equiv.us}, UK: ${agency.equiv.uk})`;
+      document.getElementById('ausagency-selected-head').textContent = agency.head;
+      document.getElementById('ausagency-selected-staff').textContent = `Staff: ${agency.staff}`;
+      document.getElementById('ausagency-selected-ints').innerHTML = 'INTs: ' + agency.ints.map(int => `<span class="border-b border-dotted border-lightcyan cursor-help" title="${definitions[int] || ''}">${int}</span>`).join(', ');
+      document.getElementById('ausagency-selected-explainer').textContent = agency.explainer;
+      document.getElementById('ausagency-selected-url').href = agency.url;
+
+      document.querySelectorAll('.ausagency-agency-card').forEach(c => c.classList.remove('ring-4', 'ring-cyan'));
+      const card = document.querySelector(`[data-name="${agency.name.replace(/'/g, "\\'")}"]`);
+      if (card) card.classList.add('ring-4', 'ring-cyan');
+
+      if (window[ns + '_map']) window[ns + '_map'].setView([agency.lat, agency.lon], 16);
+    };
+    window.showAgencyDetail = showAgencyDetail;
+
+    const initMap = () => {
+      const map = L.map('ausagency-map').setView([-35.295, 149.125], 13.5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+      agencies.forEach(agency => {
+        const color = getTypeColor(agency.type);
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:4px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.6);"></div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+        L.marker([agency.lat, agency.lon], { icon }).addTo(map).on('click', () => showAgencyDetail(agency));
+      });
+
+      window[ns + '_map'] = map;
+    };
+
+    const renderAgencyCards = () => {
+      const grid = document.getElementById('ausagency-grid');
+      grid.innerHTML = agencies.map(agency => {
+        const color = getTypeColor(agency.type);
+        const intHtml = agency.ints.map(int => `<span class="border-b border-dotted border-lightcyan cursor-help" title="${definitions[int] || ''}">${int}</span>`).join(', ');
+        return `
+          <div data-name="${agency.name}" class="ausagency-agency-card bg-darkteal/60 backdrop-blur-xl rounded-xl p-6 border border-midteal cursor-pointer transition hover:scale-105" onclick="window.showAgencyDetail(agencies.find(a=>a.name==='${agency.name.replace(/'/g, "\\'")}'))">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex gap-4 items-center flex-1">
+                <img src="${agency.logo}" alt="${agency.name}" class="w-16 h-16 object-contain bg-white p-2 rounded-lg">
+                <div>
+                  <h3 class="text-xl font-bold">${agency.name}</h3>
+                  <div class="text-lightcyan text-sm">(US: ${agency.equiv.us}, UK: ${agency.equiv.uk})</div>
+                  <div class="text-lightcyan text-sm">${agency.head}</div>
+                  <div class="text-lightcyan text-sm">Staff: ${agency.staff}</div>
+                </div>
+              </div>
+              <div style="background-color:${color}" class="text-white px-3 py-1 rounded-full text-xs font-bold">
+                ${agency.type === 'intel' ? 'Intelligence' : agency.type === 'security' ? 'Security' : agency.type === 'law' ? 'Law Enforcement' : agency.type === 'coord' ? 'Coordination' : 'Think Tank'}
+              </div>
+            </div>
+            <div class="text-lightcyan text-sm mb-3">INTs: ${intHtml}</div>
+            <p class="text-softcyan text-sm leading-relaxed">${agency.explainer}</p>
+          </div>`;
+      }).join('');
+    };
+
+    const renderIntTable = () => {
+      const used = new Set();
+      agencies.forEach(a => a.ints.forEach(i => used.add(i)));
+      const tbody = document.getElementById('ints-tbody');
+      tbody.innerHTML = '';
+      used.forEach(int => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-midteal/50';
+        tr.innerHTML = `<td class="py-3 font-mono text-teal">${int}</td><td class="py-3 text-softcyan text-xs md:text-sm">${definitions[int]}</td>`;
+        tbody.appendChild(tr);
+      });
+    };
+
+    renderAgencyCards();
+    renderIntTable();
+    initMap();
+  })();
+  </script>
+</body>
+</html>
