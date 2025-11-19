@@ -46,16 +46,6 @@
     </div>
 </div>
 
-<!-- View Buttons -->
-<div class="fixed top-4 right-4 z-10 card p-4 rounded-xl">
-    <div class="grid grid-cols-4 gap-3 text-xs">
-        <button onclick="setView('all')" class="view-btn active py-2 px-4 rounded font-bold" id="v-all">All</button>
-        <button onclick="setView('pacific')" class="view-btn py-2 px-4 rounded font-bold" id="v-pacific">Pacific</button>
-        <button onclick="setView('atlantic')" class="view-btn py-2 px-4 rounded font-bold" id="v-atlantic">Atlantic</button>
-        <button onclick="setView('umbrellas')" class="view-btn py-2 px-4 rounded font-bold" id="v-umbrellas">Umbrellas</button>
-    </div>
-</div>
-
 <!-- Implications Panel -->
 <div class="fixed bottom-8 right-8 max-w-sm card p-6 rounded-2xl text-sm leading-relaxed" id="implications">
     <h3 class="text-xl font-bold text-yellow-400">2025: Full U.S. Extended Deterrence</h3>
@@ -126,21 +116,52 @@ const patrolCircuitsCurrent = { /* ← EXACT SAME OBJECT AS IN ORIGINAL nuke5.ht
     french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }]
 };
 
-function getPatrolCircuits() {
-    let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
-    if (currentYear === '2034') {
-        pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
-        pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
-        pc.russian_pacific.push({ coords: [[53.01, 158.65], [60, 170], [62, -175], [58, -165], [55, -155], [50, 160], [53.01, 158.65]], color: '#94a3b8', name: 'Russian Expanded Okhotsk Bastion' });
-        pc.chinese.push({ coords: [[18.24, 109.51], [20, 120], [25, 130], [30, 140], [28, 135], [22, 125], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese First Island Chain Breach' });
-    } else if (currentYear === '2040') {
-        pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN (Hawaiian Sanctuary only)' }];
-        pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN (Western Atlantic only)' };
-        delete pc.us_ssn_indian_ocean; delete pc.us_ssn_diego_garcia_patrol; delete pc.us_ssn_malacca_patrol; delete pc.us_ssn_hormuz_patrol; delete pc.japanese_ssn_first_island;
-        pc.chinese.push({ coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese Hawaii Approaches' });
-    }
-    return pc;
-}
+        function getPatrolCircuits() {
+            let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
+            if (currentScenario === '2034') {
+                pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
+                pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
+                pc.russian_pacific.push(
+                    { coords: [[53.01, 158.65], [60, 170], [62, -175], [58, -165], [55, -155], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Expanded Okhotsk Bastion' },
+                    { coords: [[53.01, 158.65], [48, 155], [45, 165], [42, 175], [45, 170], [50, 160], [53.01, 158.65]], color: '#d0f4de', name: 'Russian Kuril Island Forward' }
+                );
+                pc.chinese.push(
+                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [30, 140], [28, 135], [22, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese First Island Chain Breach' },
+                    { coords: [[18.24, 109.51], [15, 125], [10, 140], [5, 150], [10, 155], [15, 145], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Second Island Chain Push' }
+                );
+                pc.russian_atlantic.push(
+                    { coords: [[69.26, 33.33], [70, 20], [68, 5], [65, -10], [62, -20], [65, 0], [69.26, 33.33]], color: '#d0f4de', name: 'Russian GIUK Gap Penetration' },
+                    { coords: [[69.26, 33.33], [72, 10], [70, -5], [65, -15], [60, -25], [65, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian North Atlantic Expansion' }
+                );
+            } else if (currentScenario === '2040') {
+                // 2040 specific changes requested
+                pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Hawaiian Sanctuary + West Coast only)' }];
+                pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Western Atlantic / East Coast approaches only)' };
+
+                // Completely remove all U.S. Indian Ocean SSN patrols in 2040
+                delete pc.us_ssn_indian_ocean;
+                delete pc.us_ssn_diego_garcia_patrol;
+                delete pc.us_ssn_malacca_patrol;
+                delete pc.us_ssn_hormuz_patrol;
+                delete pc.japanese_ssn_first_island;
+
+                pc.chinese.push(
+                    { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Hawaii Approaches' },
+                    { coords: [[18.24, 109.51], [25, 140], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Alaska Interdiction' },
+                    { coords: [[18.24, 109.51], [10, 120], [0, 130], [-10, 140], [-15, 145], [-10, 135], [5, 125], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese Australia Threat' },
+                    { coords: [[18.24, 109.51], [20, 120], [25, 130], [20, 120], [18.24, 109.51]], color: '#d0f4de', name: 'Chinese SSBN First Island Chain Patrol' }
+                );
+                pc.chinese_ssn.push(
+                    { coords: [[18.24, 109.51], [5, 115], [-5, 125], [-15, 130], [-25, 120], [-35, 115], [-40, 125], [-40, 140], [-35, 150], [-25, 155], [-15, 160], [-5, 155], [5, 150], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Circum-Australia Patrol' }
+                );
+                pc.russian_atlantic.push(
+                    { coords: [[69.26, 33.33], [65, 0], [60, -15], [55, -30], [50, -40], [55, -25], [60, -10], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Mid-Atlantic Control' },
+                    { coords: [[69.26, 33.33], [60, -10], [50, -25], [40, -40], [35, -50], [40, -45], [55, -20], [69.26, 33.33]], color: '#d0f4de', name: 'Russian US East Coast Approaches' },
+                    { coords: [[69.26, 33.33], [75, 40], [80, 50], [82, 70], [80, 90], [75, 80], [70, 60], [69.26, 33.33]], color: '#d0f4de', name: 'Russian Arctic Dominance' }
+                );
+            }
+            return pc;
+        }
 
 // ==================== BASE MARKERS ====================
 const baseLocations = {
