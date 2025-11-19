@@ -72,12 +72,22 @@ const baseUmbrellas = {
 };
 
 function getUmbrellaZones() {
-    if (currentYear !== '2040') return baseUmbrellas;
     const z = JSON.parse(JSON.stringify(baseUmbrellas));
-    const flipped = ['Australia','New Zealand','South Korea','Japan','Thailand','Philippines','Taiwan','Singapore'];
-    z.us = z.us.filter(c => !flipped.includes(c));
-    z.sinoRussian.push(...flipped);
-    z.sinoRussian.push('Taiwan');
+
+    if (currentYear === '2034' || currentYear === '2040') {
+        // 2034: Taiwan + Philippines fall under Sino-Russian umbrella
+        const earlyFlip = ['Taiwan', 'Philippines'];
+        z.us = z.us.filter(c => !earlyFlip.includes(c));
+        z.sinoRussian.push(...earlyFlip);
+    }
+
+    if (currentYear === '2040') {
+        // 2040: Full collapse — the remaining major allies flip
+        const lateFlip = ['Australia', 'New Zealand', 'South Korea', 'Japan', 'Thailand', 'Singapore'];
+        z.us = z.us.filter(c => !lateFlip.includes(c));
+        z.sinoRussian.push(...lateFlip);
+    }
+
     return z;
 }
 
