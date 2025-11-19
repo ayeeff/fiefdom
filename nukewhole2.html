@@ -1,16 +1,3 @@
-Got it — clean, professional, and no giant neon text.
-
-Here’s the final, perfect version exactly how you want it:
-
-    Small, sharp red title at the top
-    Clean white intro text in a dark panel
-    Nothing blocks the globe
-    Year buttons + reduction labels
-    Legend stays crisp and readable
-
-Just copy-paste this full file:
-HTML
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,59 +11,36 @@ HTML
         body { margin:0; background:#000; overflow:hidden; color:white; font-family:system-ui,-apple-system,sans-serif; }
         #globeViz { width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:1; }
 
-        }
-
-        /* Top bar — clean and minimal */
-        .top-bar {
+        /* Top bar — only covers the very top */
+        .top-panel {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(10,15,25,0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(60,70,90,0.4);
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: rgba(10, 12, 20, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(60, 70, 90, 0.5);
+            padding: 18px 32px;
             z-index: 20;
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
         .title {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             font-weight: 800;
             color: #ef4444;
             letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
-        .subtitle {
-            font-size: 0.95rem;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        /* Intro panel — white text, dark glass */
-        .intro-panel {
-            position: fixed;
-            top: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 900px;
-            width: calc(100% - 40px);
-            background: rgba(15,20,35,0.92);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(80,90,110,0.3);
-            border-radius: 16px;
-            padding: 20px 28px;
-            color: white;
+        .description {
             font-size: 1.02rem;
-            line-height: 1.7;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            z-index: 15;
+            line-height: 1.65;
+            color: #e2e8f0;
+            max-width: 960px;
         }
 
-        /* Sidebar — left side, clean */
+        /* Sidebar stays the same — clean and on the left */
         .sidebar {
             position: fixed;
             left: 20px;
@@ -100,11 +64,11 @@ HTML
             font-weight: bold;
             font-size: 1.25rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
         #tab-current { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
         #tab-2034, #tab-2040 { background: #1e293b; color: #cbd5e1; }
-        .year-btn.active { box-shadow: 0 0 20px rgba(249,115,22,0.5); }
+        .year-btn.active { box-shadow: 0 0 20px rgba(249,115,22,0.4); }
 
         .reduction-note {
             font-size: 0.92rem;
@@ -138,17 +102,12 @@ HTML
 
 <div id="globeViz"></div>
 
-<!-- Top Bar: Clean Title -->
-<div class="top-bar">
-    <div>
-        <div class="title">NUCLEAR UMBRELLA COLLAPSE</div>
-        <div class="subtitle">Strategic Deterrence · 2025 → 2040</div>
+<!-- Top Panel: Small red title + white description -->
+<div class="top-panel">
+    <div class="title">NUCLEAR UMBRELLA COLLAPSE</div>
+    <div class="description">
+        Strangled by tightening rare-earth export bans, the US Navy’s missile-carrying submarines, America’s ultimate nuclear shield, are on track to shrink 30% by 2034 and could be cut in half again by 2040.
     </div>
-</div>
-
-<!-- Intro Panel: White text, centered, non-blocking -->
-<div class="intro-panel">
-    Amid tightening rare-earth export sanctions, the backbone of America’s nuclear deterrent, the SSBN ballistic-missile submarine fleet faces a significant capability decline. Pentagon assessments indicate a projected <strong>30% reduction by 2034</strong>, widening to as much as <strong>60% by 2040</strong> if supply constraints persist.
 </div>
 
 <!-- Left Sidebar: Year Buttons + Legend -->
