@@ -8,124 +8,177 @@
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     <style>
-        body { margin:0; background:#000; overflow:hidden; color:white; font-family:system-ui,-apple-system,sans-serif; }
+        body { margin:0; background:#000; overflow:hidden; color:white; font-family: 'Orbitron', sans-serif; }
         #globeViz { width:100vw; height:100vh; position:fixed; top:0; left:0; }
 
-        /* Glowing Title — sharp and readable */
-        .title-glow {
+        /* Epic red glowing title – now smaller and positioned perfectly */
+        .main-title {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
             font-weight: 900;
-            font-size: clamp(2.5rem, 8vw, 6rem);
-            background: linear-gradient(90deg, #ff006e, #ff4444, #ff6600);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(255,0,110,0.8), 0 0 80px rgba(255,68,68,0.6);
+            letter-spacing: 8px;
+            line-height: 1.1;
+        }
+        .main-title span {
+            display: block;
+            font-size: clamp(4rem, 12vw, 9rem);
+            color: #ff0040;
+            text-shadow: 
+                0 0 20px #ff0040,
+                0 0 40px #ff0040,
+                0 0 80px #ff0040,
+                0 0 120px #ff0040;
+            animation: pulse 4s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 0.9; } 50% { opacity: 1; } }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #ff3366;
+            text-shadow: 0 0 20px #ff0040;
+            margin-top: 10px;
             letter-spacing: 4px;
         }
 
-        /* Sidebar — matches your screenshot perfectly */
+        }
+
+        .intro {
+            position: fixed;
+            top: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 860px;
+            text-align: center;
+            font-size: clamp(1rem, 2.2vw, 1.3rem);
+            line-height: 1.6;
+            color: #e0e0e0;
+            z-index: 10;
+            pointer-events: none;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        /* Sidebar – now with reduction labels */
         .sidebar {
             position: fixed;
-            left: 20px;
+            left: 30px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(30, 35, 45, 0.95);
+            background: rgba(20,25,35,0.94);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(80, 90, 110, 0.4);
-            border-radius: 16px;
-            padding: 24px;
-            width: 300px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(80,100,140,0.3);
+            border-radius: 18px;
+            padding: 28px;
+            width: 320px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             z-index: 10;
         }
 
         .year-btn {
             width: 100%;
-            padding: 14px 20px;
-            margin-bottom: 12px;
-            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border-radius: 14px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
-        #tab-current { background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; box-shadow: 0 0 20px rgba(255,107,53,0.6); }
-        #tab-2034, #tab-2040 { background: #2d3748; color: #94a3b8; }
-        .year-btn.active { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+        #tab-current  { background: linear-gradient(135deg, #ff5400, #ff8c00); color: white; box-shadow: 0 0 25px rgba(255,100,0,0.7); }
+        #tab-2034, #tab-2040 { background: #1e293b; color: #64748b; }
 
-        .legend h3 { color: #ff6b35; margin: 24px 0 12px; font-size: 1.1rem; font-weight: bold; }
-        .legend-item { display: flex; align-items: center; gap: 12px; margin: 8px 0; font-size: 0.92rem; color: white !important; }
+        .reduction {
+            font-size: 0.95rem;
+            color: #ff6b6b;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 14px; margin: 10px 0; font-size: 0.95rem; color: white; }
         .legend-color { flex-shrink: 0; }
 
-        /* Bottom HUDs */
         .hud-bottom {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(30,35,45,0.95);
+            background: rgba(20,25,35,0.94);
             backdrop-filter: blur(12px);
             border-radius: 16px;
-            padding: 16px 32px;
-            border: 1px solid rgba(80,90,110,0.4);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            z-index: 10;
+            padding: 18px 40px;
+            border: 1px solid rgba(80,100,140,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .warhead-num { font-size: 2.5rem; font-weight: 900; }
-        .label { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+        .warhead-num { font-size: 2.8rem; font-weight: 900; }
     </style>
 </head>
 <body>
 
 <div id="globeViz"></div>
 
-<!-- Main Title — now perfectly readable -->
-<div class="fixed top-8 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none">
-    <h1 class="title-glow">NUCLEAR UMBRELLA COLLAPSE</h1>
-    <p class="text-xl text-gray-400 mt-2 tracking-wider">Strategic Deterrence · 2025 → 2040</p>
+<!-- Epic Red Glowing Title -->
+<div class="main-title">
+    <span>NUCLEAR</span>
+    <span>UMBRELLA</span>
+    <span>COLLAPSE</span>
+    <div class="subtitle">Strategic Deterrence · 2025 → 2040</div>
 </div>
 
-<!-- Left Sidebar: Year Buttons + Legend -->
+<!-- Concise Intro Text -->
+<div class="intro">
+    Amid tightening rare-earth export sanctions, the backbone of America’s nuclear deterrent — the SSBN ballistic-missile submarine fleet — faces a significant capability decline.<br>
+    Pentagon assessments indicate a projected <strong>30% reduction by 2034</strong>, widening to as much as <strong>60% by 2040</strong> if supply constraints persist.
+</div>
+
+<!-- Left Sidebar: Years + Reduction Labels + Legend -->
 <div class="sidebar">
     <div class="year-btn active" id="tab-current" onclick="setYear('current')">2025</div>
-    <div class="year-btn" id="tab-2034" onclick="setYear('2034')">2034</div>
-    <div class="year-btn" id="tab-2040" onclick="setYear('2040')">2040</div>
+    <div class="year-btn" id="tab-2034" onclick="setYear('2034')">
+        2034
+        <div class="reduction">-30% reduction</div>
+    </div>
+    <div class="year-btn" id="tab-2040" onclick="setYear('2040')">
+        2040
+        <div class="reduction">-60% reduction</div>
+    </div>
 
-    <div class="legend">
-        <h3>Legend</h3>
-        
-        <div class="text-xs font-bold text-gray-400 mb-3">SSBN ROUTES</div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-purple-500"></div><span>U.S./Ally Atlantic SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-green-300"></div><span>Sino-Russian SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-amber-700"></div><span>Indian SSBN</span></div>
+    <div class="mt-8">
+        <h3 class="text-orange-500 font-bold text-lg mb-4">Legend</h3>
+        <div class="space-y-3 text-sm">
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-purple-500"></div><span>U.S./Ally Atlantic SSBN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-green-300"></div><span>Sino-Russian SSBN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-amber-700"></div><span>Indian SSBN</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-4">SSN ROUTES</div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-red-500"></div><span>U.S./Ally Pacific/Indian Ocean SSN</span></div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-orange-500"></div><span>U.S./Ally Atlantic SSN</span></div>
-        <div class="legend-item"><div class="legend-color w-8 h-1 bg-green-500"></div><span>Sino-Russian SSN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-red-500"></div><span>U.S./Ally Pacific/Indian Ocean SSN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-orange-500"></div><span>U.S./Ally Atlantic SSN</span></div>
+            <div class="legend-item"><div class="legend-color w-9 h-1 bg-green-500"></div><span>Sino-Russian SSN</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-4">BASES</div>
-        <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-blue-500"></div><span>U.S./Ally</span></div>
-        <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-green-600"></div><span>Sino-Russian</span></div>
-        <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-amber-700"></div><span>India</span></div>
+            <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-blue-500"></div><span>U.S./Ally Bases</span></div>
+            <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-green-600"></div><span>Sino-Russian Bases</span></div>
+            <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-amber-700"></div><span>India</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-4">UMBRELLAS</div>
-        <div class="legend-item"><div class="legend-color w-10 h-6 bg-blue-500 rounded"></div><span>U.S.</span></div>
-        <div class="legend-item"><div class="legend-color w-10 h-6 bg-green-600 rounded"></div><span>Sino-Russian</span></div>
-        <div class="legend-item"><div class="legend-color w-10 h-6 bg-cyan-500 rounded"></div><span>Saudi-Pakistan</span></div>
+            <div class="legend-item"><div class="legend-color w-12 h-7 bg-blue-500 rounded"></div><span>U.S. Umbrella</span></div>
+            <div class="legend-item"><div class="legend-color w-12 h-7 bg-green-600 rounded"></div><span>Sino-Russian Bloc</span></div>
+            <div class="legend-item"><div class="legend-color w-12 h-7 bg-cyan-500 rounded"></div><span>Saudi-Pakistan</span></div>
+        </div>
     </div>
 </div>
 
 <!-- Bottom Warhead Counter -->
 <div class="hud-bottom">
-    <div class="grid grid-cols-5 gap-8 text-center">
-        <div><div class="warhead-num text-blue-400" id="us-warheads">5,244</div><div class="label">US Total</div></div>
-        <div><div class="warhead-num text-green-400" id="rc-warheads">7,420</div><div class="label">RU+CN</div></div>
-        <div><div class="warhead-num text-gray-400" id="sp-warheads">350</div><div class="label">PK/SA</div></div>
-        <div><div class="warhead-num text-gray-300" id="il-warheads">90</div><div class="label">Israel</div></div>
-        <div><div class="warhead-num text-amber-600" id="in-warheads">170</div><div class="label">India</div></div>
+    <div class="grid grid-cols-5 gap-10 text-center">
+        <div><div class="warhead-num text-blue-400" id="us-warheads">5,244</div><div class="text-xs text-gray-400">US Total</div></div>
+        <div><div class="warhead-num text-green-400" id="rc-warheads">7,420</div><div class="text-xs text-gray-400">RU+CN</div></div>
+        <div><div class="warhead-num text-gray-500" id="sp-warheads">350</div><div class="text-xs text-gray-400">PK/SA</div></div>
+        <div><div class="warhead-num text-gray-300" id="il-warheads">90</div><div class="text-xs text-gray-400">Israel</div></div>
+        <div><div class="warhead-num text-amber-600" id="in-warheads">170</div><div class="text-xs text-gray-400">India</div></div>
     </div>
+</div>
     
 <script>
 let globe, currentYear = 'current', currentView = 'all';
