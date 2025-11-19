@@ -404,12 +404,6 @@ function updateAll() {
          .polygonsData(globe.polygonsData()) // trigger recolor
          .htmlElementsData(currentView !== 'umbrellas' ? Object.entries(baseLocations).map(([n,l])=>({...l,name:n})) : []);
 
-    const impl = {
-        current: `<h3 class="text-xl font-bold text-yellow-400">2025: Full U.S. Extended Deterrence</h3><p class="text-gray-300 mt-2">Global SSBN/SSN presence maintains credible second-strike coverage over allies in Europe and Asia.</p>`,
-        '2034': `<h3 class="text-xl font-bold text-orange-400">2034: 30% U.S. Cut</h3><p class="text-gray-300 mt-2">Pacific & Atlantic patrols contract. Taiwan & Philippines lose protection. Sino-Russian forces expand dramatically.</p>`,
-        '2040': `<h3 class="text-2xl font-bold text-red-500">2040: U.S. UMBRELLA COLLAPSED</h3><p class="text-gray-300 mt-2">• U.S. loses entire Indian Ocean presence<br>• Pacific SSBNs confined east of Hawaii<br>• Australia, NZ, Japan, South Korea, Philippines, Thailand fall under Sino-Russian influence<br>• Chinese SSBNs operate freely near Hawaii and Australia</p>`
-    };
-    document.getElementById('implications').innerHTML = impl[currentYear];
 }
 
 function setYear(year) {
