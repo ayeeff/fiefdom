@@ -1,3 +1,13 @@
+Here is the complete, ready-to-use HTML file with exactly what you asked for:
+
+    Clean centered top banner (title + description)
+    Small, elegant year buttons (2025 orange, 2034/2040 gray → turn orange when clicked)
+    Only one button active at a time
+    No overlap with globe or legend
+    Professional, dark, high-contrast design
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +21,7 @@
         body { margin:0; background:#000; overflow:hidden; color:white; font-family:system-ui,-apple-system,sans-serif; }
         #globeViz { width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:1; }
 
-        /* Centered top banner — exactly like your screenshot */
+        /* Top banner — centered, clean, doesn’t block globe */
         .top-banner {
             position: fixed;
             top: 0;
@@ -19,7 +29,7 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 1100px;
-            background: rgba(15, 18 28 / 0.94);
+            background: rgba(15,18,28,0.96);
             backdrop-filter: blur(12px);
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
@@ -29,15 +39,13 @@
             border-bottom: 1px solid rgba(70,80,100,0.5);
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-
         .top-title {
             font-size: 2rem;
             font-weight: 900;
-            color: #fb923c; /* bright orange-red */
+            color: #fb923c;
             letter-spacing: 1.5px;
             margin-bottom: 8px;
         }
-
         .top-desc {
             font-size: 1.05rem;
             line-height: 1.65;
@@ -46,53 +54,78 @@
             margin: 0 auto;
         }
 
-        /* Sidebar — unchanged, stays fully visible */
+        /* Sidebar — left side */
         .sidebar {
             position: fixed;
             left: 20px;
             top: 50%;
             transform: translateY(-50%);
-            width: 320px;
-            background: rgba(15,20,35,0.97);
+            width: 280px;
+            background: rgba(15,20,35,0.98);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(70,80,100,0.4);
             border-radius: 20px;
-            padding: 30px;
+            padding: 26px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9);
             z-index: 10;
         }
 
+        /* Year buttons — small, clean, orange when active */
         .year-btn {
             width: 100%;
-            padding: 18px;
-            margin-bottom: 14px;
-            border-radius: 16px;
-            font-weight: bold;
-            font-size: 1.3rem;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.15rem;
             text-align: center;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid rgba(100,116,139,0.3);
         }
-        #tab-current { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
-        #tab-2034, #tab-2040 { background: #1e293b; color: #cbd5e1; }
-        .year-btn.active { box-shadow: 0 0 25px rgba(249,115,22,0.5); }
-
+        .year-btn:hover:not(.active) {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .year-btn.active {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            color: white;
+            box-shadow: 0 0 20px rgba(251,146,60,0.6);
+            transform: translateY(-2px);
+        }
         .reduction-note {
+            font-size: 0.92rem;
             color: #fb923c;
-            font-size: 0.95rem;
-            margin-top: 6px;
+            margin-top: 4px;
             font-weight: 600;
         }
 
-        .legend h3 { color: #f97316; margin: 30px 0 14px; font-size: 1.25rem; font-weight: bold; }
-        .legend-item { display: flex; align-items: center; gap: 14px; margin: 10px 0; font-size: 0.95rem; color: white; }
+        /* Legend */
+        .legend h3 {
+            color: #f97316;
+            margin: 28px 0 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 9px 0;
+            font-size: 0.94rem;
+            color: white;
+        }
         .legend-color { flex-shrink: 0; }
 
+        /* Bottom warhead counter */
         .hud-bottom {
             position: fixed;
             bottom: 28px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15,20,35,0.97);
+            background: rgba(15,20,35,0.98);
             backdrop-filter: blur(12px);
             border-radius: 18px;
             padding: 18px 40px;
@@ -108,7 +141,7 @@
 
 <div id="globeViz"></div>
 
-<!-- Centered Top Banner — does NOT cover globe or legend -->
+<!-- Top Banner -->
 <div class="top-banner">
     <div class="top-title">NUCLEAR UMBRELLA COLLAPSE</div>
     <div class="top-desc">
@@ -116,15 +149,15 @@
     </div>
 </div>
 
-<!-- Left Sidebar — fully visible -->
+<!-- Left Sidebar with Year Buttons + Legend -->
 <div class="sidebar">
-    <div class="year-btn active" id="tab-current" onclick="setYear('current')">2025</div>
-    
+    <div class="year-btn active" id="tab-current" onclick="setYear('current')">
+        2025
+    </div>
     <div class="year-btn" id="tab-2034" onclick="setYear('2034')">
         2034
         <div class="reduction-note">– 30% reduction</div>
     </div>
-    
     <div class="year-btn" id="tab-2040" onclick="setYear('2040')">
         2040
         <div class="reduction-note">– 60% reduction</div>
@@ -389,11 +422,23 @@ function updateAll() {
     document.getElementById('implications').innerHTML = impl[currentYear];
 }
 
-function setYear(y) {
-    currentYear = y;
-    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.id === 'tab-'+y));
-    updateAll();
+let currentYear = 'current';
+
+function setYear(year) {
+    currentYear = year;
+    
+    // Remove active from all buttons
+    document.querySelectorAll('.year-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active to selected
+    document.getElementById('tab-' + year).classList.add('active');
+    
+    // Update globe, warheads, umbrellas, etc.
+    updateAll(); // or whatever your main update function is
 }
+    
 function setView(v) {
     currentView = v;
     document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.id === 'v-'+v));
