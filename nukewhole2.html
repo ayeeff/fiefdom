@@ -8,33 +8,97 @@
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     <style>
-        body { margin:0; background:#000; overflow:hidden; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+        body { margin:0; background:#000; overflow:hidden; }
         .orbitron { font-family: 'Orbitron', sans-serif; }
-        .card { background: rgba(30,41,55,0.92); backdrop-filter: blur(12px); border: 1px solid rgba(100,116,139,0.3); }
+        .card { background: rgba(30,41,55,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(100,116,139,0.3); }
         @keyframes glow { 0%,100% { text-shadow: 0 0 20px #ff006e; } 50% { text-shadow: 0 0 40px #ff006e, 0 0 60px #ff006e; } }
         h1 { animation: glow 4s infinite; }
+        .tab { background: rgba(55,65,81,0.9); transition: all 0.3s; }
+        .tab:hover { background: rgba(75,85,99,0.9); transform: translateY(-2px); }
         .tab.active { background: linear-gradient(135deg, #dc2626, #f97316); box-shadow: 0 0 30px rgba(239,68,68,0.6); }
         .view-btn.active { background: #1e40af; box-shadow: 0 0 20px rgba(59,130,246,0.7); }
         #globeViz { width: 100vw; height: 100vh; }
+        
+        /* NEW: Sidebar panel with tabs + legend */
+        .sidebar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(240,240,245,0.12);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            z-index: 10;
+            min-width: 260px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 12px; font-size: 0.875rem; margin-bottom: 8px; }
+        .legend-color { flex-shrink: 0; }
     </style>
 </head>
 <body>
 
 <div id="globeViz"></div>
 
-<!-- Title + Year Tabs -->
-<div class="fixed top-4 left-1/2 -translate-x-1/2 z-10 text-center">
-    <h1 class="text-5xl md:text-7xl font-black orbitron bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+<!-- Title (centered top) -->
+<div class="fixed top-6 left-1/2 -translate-x-1/2 z-10 text-center">
+    <h1 class="text-5xl md:text-7xl font-black orbitron bg-gradient-to-r from
+
+-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
         NUCLEAR UMBRELLA COLLAPSE
     </h1>
-    <div class="flex justify-center gap-4 mt-6 flex-wrap">
-        <button onclick="setYear('current')" class="tab active px-6 py-3 rounded-lg text-lg font-bold" id="tab-current">2025</button>
-        <button onclick="setYear('2034')" class="tab px-6 py-3 rounded-lg text-lg font-bold" id="tab-2034">2034</button>
-        <button onclick="setYear('2040')" class="tab px-6 py-3 rounded-lg text-lg font-bold" id="tab-2040">2040</button>
+    <p class="text-xl mt-2 text-gray-400">Strategic Deterrence · 2025 → 2040</p>
+</div>
+
+<!-- NEW: Left Sidebar with Year Tabs + Legend -->
+<div class="sidebar">
+    <!-- Year Selector -->
+    <div class="space-y-3 mb-6">
+        <button onclick="setYear('current')" class="tab active w-full py-4 rounded-lg text-lg font-bold" id="tab-current">2025</button>
+        <button onclick="setYear('2034')" class="tab w-full py-4 rounded-lg text-lg font-bold" id="tab-2034">2034</button>
+        <button onclick="setYear('2040')" class="tab w-full py-4 rounded-lg text-lg font-bold" id="tab-2040">2040</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="text-left">
+        <h3 class="text-orange-400 font-bold text-lg mb-4">Legend</h3>
+        
+        <div class="space-y-4 text-sm">
+            <div>
+                <div class="text-xs font-bold text-gray-400 mb-2">SSBN ROUTES</div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-purple-500"></div><span>U.S./Ally Atlantic SSBN</span></div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-green-300"></div><span>Sino-Russian SSBN</span></div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-amber-700"></div><span>Indian SSBN</span></div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-gray-400 mb-2">SSN ROUTES</div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-red-500"></div><span>U.S./Ally Pacific/Indian Ocean SSN</span></div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-orange-500"></div><span>U.S./Ally Atlantic SSN</span></div>
+                <div class="legend-item"><div class="legend-color w-8 h-1 bg-green-500"></div><span>Sino-Russian SSN</span></div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-gray-400 mb-2">BASES</div>
+                <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-blue-500"></div><span>U.S./Ally</span></div>
+                <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-green-600"></div><span>Sino-Russian</span></div>
+                <div class="legend-item"><div class="legend-color w-5 h-5 rounded-full bg-amber-700"></div><span>India</span></div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-gray-400 mb-2">UMBRELLAS</div>
+                <div class="legend-item"><div class="legend-color w-10 h-6 bg-blue-500 rounded"></div><span>U.S.</span></div>
+                <div class="legend-item"><div class="legend-color w-10 h-6 bg-green-600 rounded"></div><span>Sino-Russian</span></div>
+                <div class="legend-item"><div class="legend-color w-10 h-6 bg-cyan-500 rounded"></div><span>Saudi-Pakistan</span></div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Warhead Counter HUD -->
+<!-- Bottom HUDs (warheads + implications + view buttons) -->
 <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 card p-6 rounded-2xl shadow-2xl">
     <div class="grid grid-cols-5 gap-6 text-center text-sm">
         <div><div class="text-4xl font-black text-blue-400" id="us-warheads">-</div><div class="text-gray-400">US Total</div></div>
@@ -45,12 +109,20 @@
     </div>
 </div>
 
-<!-- Implications Panel -->
+<div class="fixed top-4 right-4 z-10 card p-4 rounded-xl">
+    <div class="grid grid-cols-4 gap-3 text-xs">
+        <button onclick="setView('all')" class="view-btn active py-2 px-4 rounded font-bold" id="v-all">All</button>
+        <button onclick="setView('pacific')" class="view-btn py-2 px-4 rounded font-bold" id="v-pacific">Pacific</button>
+        <button onclick="setView('atlantic')" class="view-btn py-2 px-4 rounded font-bold" id="v-atlantic">Atlantic</button>
+        <button onclick="setView('umbrellas')" class="view-btn py-2 px-4 rounded font-bold" id="v-umbrellas">Umbrellas</button>
+    </div>
+</div>
+
 <div class="fixed bottom-8 right-8 max-w-sm card p-6 rounded-2xl text-sm leading-relaxed" id="implications">
     <h3 class="text-xl font-bold text-yellow-400">2025: Full U.S. Extended Deterrence</h3>
     <p class="text-gray-300 mt-2">Global SSBN/SSN presence maintains credible second-strike coverage over allies in Europe and Asia.</p>
 </div>
-
+    
 <script>
 let globe, currentYear = 'current', currentView = 'all';
 
