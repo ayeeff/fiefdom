@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>China's Panda Yen Attack – 3D Live Demo (FIXED)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   body { margin:0; overflow:hidden; background:#0f172a; font-family:Arial, sans-serif; color:#e2e8f0; }
   #info { position:absolute; top:20px; left:20px; z-index:100; background:rgba(0,0,0,0.7); padding:20px; border-radius:16px; max-width:420px; }
@@ -20,16 +20,19 @@
   .btn:hover { transform:translateY(-5px) translateX(-50%); }
   #damage { position:absolute; bottom:30px; left:50%; transform:translateX(-50%); text-align:center; font-size:28px; background:rgba(220,38,38,0.2); padding:20px; border-radius:20px; display:none; z-index:100; }
   .big { font-size:48px; color:#fca5a5; font-weight:bold; }
-  canvas { pointer-events:none; } /* Prevent canvas from stealing clicks */
+  canvas { pointer-events:none; } /* Buttons over canvas */
+  #error { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ef4444; font-size:24px; text-align:center; display:none; z-index:100; }
 </style>
 </head>
 <body>
 
 <div id="info">
   <h1>CHINA'S PANDA YEN ATTACK</h1>
-  <p>Click the orange button → Panda bans tourists & seafood (they vanish!)<br>
-     Then click the <span style="color:#dc2626">red ATTACK button</span> → watch $3–15 TRILLION vanish</p>
+  <p>Click orange → Ban tourists & seafood (they vanish!)<br>
+     Then red → Launch attack → Watch $3–15 TRILLION vanish</p>
 </div>
+
+<div id="error">Error: Three.js failed to load. Check internet/CDN. <button onclick="location.reload()">Retry</button></div>
 
 <button id="banBtn" class="btn">PRESS TO BAN TOURISTS & SEAFOOD</button>
 <button id="attackBtn" class="btn">PRESS TO LAUNCH FULL ATTACK</button>
@@ -42,196 +45,214 @@
 </div>
 
 <script>
-// Three.js Scene Setup
-let scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0f172a);
-let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-let renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-renderer.domElement.style.pointerEvents = 'none'; // Ensure buttons work over canvas
-
-// Lights
-let light = new THREE.HemisphereLight(0xffffff, 0x444466, 1);
-scene.add(light);
-let pointLight = new THREE.PointLight(0xffffff, 1);
-pointLight.position.set(5, 5, 5);
-scene.add(pointLight);
-
-// Panda (simple cute version)
-let pandaGroup = new THREE.Group();
-let body = new THREE.Mesh(
-  new THREE.SphereGeometry(1.2, 32, 32),
-  new THREE.MeshPhongMaterial({color:0xffffff})
-);
-let head = new THREE.Mesh(
-  new THREE.SphereGeometry(0.9, 32, 32),
-  new THREE.MeshPhongMaterial({color:0xffffff})
-);
-head.position.y = 1.6;
-
-// Black patches (eyes & ears)
-let eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.35), new THREE.MeshPhongMaterial({color:0x000000}));
-eyeL.position.set(-0.35, 1.8, 0.7);
-let eyeR = eyeL.clone(); eyeR.position.x = 0.35;
-let earL = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshPhongMaterial({color:0x000000}));
-earL.position.set(-0.5, 2.4, 0);
-let earR = earL.clone(); earR.position.x = 0.5;
-
-pandaGroup.add(body, head, eyeL, eyeR, earL, earR);
-pandaGroup.position.set(-4, 0, 0);
-scene.add(pandaGroup);
-
-// Floating labels
-let labels = [];
-function createLabel(text, color, pos) {
-  let canvas = document.createElement('canvas');
-  let ctx = canvas.getContext('2d');
-  canvas.width = 512; canvas.height = 256;
-  ctx.fillStyle = 'rgba(0,0,0,0.8)';
-  ctx.fillRect(0,0,512,256);
-  ctx.font = '80px Arial';
-  ctx.fillStyle = color;
-  ctx.textAlign = 'center';
-  ctx.fillText(text, 256, 140);
-  let texture = new THREE.CanvasTexture(canvas);
-  let material = new THREE.SpriteMaterial({map: texture, transparent: true, opacity: 1.0});
-  let sprite = new THREE.Sprite(material);
-  sprite.scale.set(6, 3, 1);
-  sprite.position.set(pos.x, pos.y, pos.z);
-  scene.add(sprite);
-  return sprite;
-}
-
-let tourists = createLabel("TOURISTS", "#4ade80", {x:0, y:3, z:0});
-let seafood = createLabel("SEAFOOD", "#22d3ee", {x:3, y:3, z:0});
-labels.push(tourists, seafood);
-
-// Graphs (lines)
-let graphs = {};
-let graphData = {
-  'USD/JPY': {value:150, target:125, color:0xef4444},
-  'TOPIX': {value:32000, target:26400, color:0xf97316},
-  'NASDAQ': {value:18920, target:14750, color:0xdc2626}
-};
-
-Object.keys(graphData).forEach((name, i) => {
-  let geometry = new THREE.BufferGeometry();
-  let positions = new Float32Array(300); // 100 points * 3 coords
-  for(let j=0; j<100; j++) {
-    positions[j*3] = (j/99)*12 - 6; // x
-    positions[j*3+1] = 0; // y (will animate down for crash)
-    positions[j*3+2] = i*4 - 4; // z
+// Wait for THREE to be defined (error handling)
+function initThree() {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('error').style.display = 'block';
+    console.error('THREE not defined - library load failed');
+    return false;
   }
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  let material = new THREE.LineBasicMaterial({color: graphData[name].color, linewidth: 4});
-  let line = new THREE.Line(geometry, material);
-  scene.add(line);
-  graphs[name] = {line, positions, current: graphData[name].value, target: graphData[name].target};
-  
-  // Label
-  createLabel(name, graphData[name].color, {x:-7, y:4-i*3, z:i*4-4});
-});
-
-camera.position.set(0, 3, 12);
-
-// Simple mouse look (no OrbitControls to avoid conflicts)
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', (e) => {
-  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-});
-
-// Animation variables
-let banPressed = false;
-let attackPressed = false;
-let t = 0;
-let attackTime = 0;
-
-// Buttons (ensured to work)
-document.getElementById("banBtn").onclick = () => {
-  if(banPressed) return;
-  banPressed = true;
-  document.getElementById("banBtn").style.display = "none";
-  document.getElementById("attackBtn").style.display = "block";
-  
-  // Panda moves to press (walk right)
-  let targetX = -1;
-  let walkAnim = () => {
-    pandaGroup.position.x += (targetX - pandaGroup.position.x) * 0.05;
-    if (Math.abs(pandaGroup.position.x - targetX) > 0.01) requestAnimationFrame(walkAnim);
-  };
-  walkAnim();
-  
-  // Labels vanish with fade
-  let fadeOut = () => {
-    labels.forEach(label => {
-      label.material.opacity -= 0.05;
-      if (label.material.opacity > 0) requestAnimationFrame(fadeOut);
-    });
-  };
-  setTimeout(fadeOut, 800);
-};
-
-document.getElementById("attackBtn").onclick = () => {
-  if(attackPressed) return;
-  attackPressed = true;
-  document.getElementById("attackBtn").textContent = "ATTACK LAUNCHED!";
-  document.getElementById("attackBtn").style.background = "#b91c1c";
-  document.getElementById("damage").style.display = "block";
-  
-  // Panda presses red button (walk further right)
-  let targetX2 = 1;
-  let walkAnim2 = () => {
-    pandaGroup.position.x += (targetX2 - pandaGroup.position.x) * 0.05;
-    if (Math.abs(pandaGroup.position.x - targetX2) > 0.01) requestAnimationFrame(walkAnim2);
-  };
-  walkAnim2();
-  
-  attackTime = Date.now();
-};
-
-function animate() {
-  requestAnimationFrame(animate);
-  t += 0.02;
-  
-  // Panda idle wave
-  pandaGroup.rotation.y = Math.sin(t*3) * 0.1;
-  head.rotation.y = Math.sin(t*2) * 0.2; // Cute head bob
-  
-  // Camera follows mouse lightly
-  camera.position.x += (mouseX * 5 - camera.position.x) * 0.01;
-  camera.position.y += (mouseY * 2 - camera.position.y + 3) * 0.01;
-  camera.lookAt(scene.position);
-  
-  // Graph crash when attack launched
-  if(attackPressed) {
-    let elapsed = (Date.now() - attackTime) / 1000; // seconds since attack
-    if (elapsed > 1) { // Delay start
-      Object.keys(graphs).forEach(name => {
-        let g = graphs[name];
-        let positions = g.positions;
-        let progress = Math.min(elapsed / 5, 1); // 5-second crash
-        for(let i = 50; i < 100; i++) {
-          let frac = (i-50)/50;
-          let targetY = THREE.MathUtils.lerp(g.current, g.target, frac) - g.current;
-          positions[i*3 + 1] = -targetY * 0.0003 * progress;
-        }
-        g.line.geometry.attributes.position.needsUpdate = true;
-      });
-    }
-  }
-  
-  renderer.render(scene, camera);
-}
-animate();
-
-// Resize handler
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  console.log('THREE loaded successfully! Starting demo...');
+  // Rest of your code here (panda, scene, etc.)
+  let scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0f172a);
+  let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+  let renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  document.body.appendChild(renderer.domElement);
+  renderer.domElement.style.pointerEvents = 'none';
+
+  // Lights
+  let light = new THREE.HemisphereLight(0xffffff, 0x444466, 1);
+  scene.add(light);
+  let pointLight = new THREE.PointLight(0xffffff, 1);
+  pointLight.position.set(5, 5, 5);
+  scene.add(pointLight);
+
+  // Panda (simple cute version)
+  let pandaGroup = new THREE.Group();
+  let body = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 32, 32),
+    new THREE.MeshPhongMaterial({color:0xffffff})
+  );
+  let head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.9, 32, 32),
+    new THREE.MeshPhongMaterial({color:0xffffff})
+  );
+  head.position.y = 1.6;
+
+  // Black patches (eyes & ears)
+  let eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.35), new THREE.MeshPhongMaterial({color:0x000000}));
+  eyeL.position.set(-0.35, 1.8, 0.7);
+  let eyeR = eyeL.clone(); eyeR.position.x = 0.35;
+  let earL = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshPhongMaterial({color:0x000000}));
+  earL.position.set(-0.5, 2.4, 0);
+  let earR = earL.clone(); earR.position.x = 0.5;
+
+  pandaGroup.add(body, head, eyeL, eyeR, earL, earR);
+  pandaGroup.position.set(-4, 0, 0);
+  scene.add(pandaGroup);
+
+  // Floating labels
+  let labels = [];
+  function createLabel(text, color, pos) {
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    canvas.width = 512; canvas.height = 256;
+    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+    ctx.fillRect(0,0,512,256);
+    ctx.font = '80px Arial';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 256, 140);
+    let texture = new THREE.CanvasTexture(canvas);
+    let material = new THREE.SpriteMaterial({map: texture, transparent: true, opacity: 1.0});
+    let sprite = new THREE.Sprite(material);
+    sprite.scale.set(6, 3, 1);
+    sprite.position.set(pos.x, pos.y, pos.z);
+    scene.add(sprite);
+    return sprite;
+  }
+
+  let tourists = createLabel("TOURISTS", "#4ade80", {x:0, y:3, z:0});
+  let seafood = createLabel("SEAFOOD", "#22d3ee", {x:3, y:3, z:0});
+  labels.push(tourists, seafood);
+
+  // Graphs (lines)
+  let graphs = {};
+  let graphData = {
+    'USD/JPY': {value:150, target:125, color:0xef4444},
+    'TOPIX': {value:32000, target:26400, color:0xf97316},
+    'NASDAQ': {value:18920, target:14750, color:0xdc2626}
+  };
+
+  Object.keys(graphData).forEach((name, i) => {
+    let geometry = new THREE.BufferGeometry();
+    let positions = new Float32Array(300); // 100 points * 3 coords
+    for(let j=0; j<100; j++) {
+      positions[j*3] = (j/99)*12 - 6; // x
+      positions[j*3+1] = 0; // y (will animate down for crash)
+      positions[j*3+2] = i*4 - 4; // z
+    }
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    let material = new THREE.LineBasicMaterial({color: graphData[name].color, linewidth: 4});
+    let line = new THREE.Line(geometry, material);
+    scene.add(line);
+    graphs[name] = {line, positions, current: graphData[name].value, target: graphData[name].target};
+    
+    // Label
+    createLabel(name, graphData[name].color, {x:-7, y:4-i*3, z:i*4-4});
+  });
+
+  camera.position.set(0, 3, 12);
+
+  // Simple mouse look
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  // Animation variables
+  let banPressed = false;
+  let attackPressed = false;
+  let t = 0;
+  let attackTime = 0;
+
+  // Buttons
+  document.getElementById("banBtn").onclick = () => {
+    if(banPressed) return;
+    banPressed = true;
+    document.getElementById("banBtn").style.display = "none";
+    document.getElementById("attackBtn").style.display = "block";
+    
+    // Panda moves to press (walk right)
+    let targetX = -1;
+    let walkAnim = () => {
+      pandaGroup.position.x += (targetX - pandaGroup.position.x) * 0.05;
+      if (Math.abs(pandaGroup.position.x - targetX) > 0.01) requestAnimationFrame(walkAnim);
+    };
+    walkAnim();
+    
+    // Labels vanish with fade
+    let fadeOut = () => {
+      labels.forEach(label => {
+        label.material.opacity -= 0.05;
+        if (label.material.opacity > 0) requestAnimationFrame(fadeOut);
+      });
+    };
+    setTimeout(fadeOut, 800);
+  };
+
+  document.getElementById("attackBtn").onclick = () => {
+    if(attackPressed) return;
+    attackPressed = true;
+    document.getElementById("attackBtn").textContent = "ATTACK LAUNCHED!";
+    document.getElementById("attackBtn").style.background = "#b91c1c";
+    document.getElementById("damage").style.display = "block";
+    
+    // Panda presses red button (walk further right)
+    let targetX2 = 1;
+    let walkAnim2 = () => {
+      pandaGroup.position.x += (targetX2 - pandaGroup.position.x) * 0.05;
+      if (Math.abs(pandaGroup.position.x - targetX2) > 0.01) requestAnimationFrame(walkAnim2);
+    };
+    walkAnim2();
+    
+    attackTime = Date.now();
+  };
+
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.02;
+    
+    // Panda idle wave
+    pandaGroup.rotation.y = Math.sin(t*3) * 0.1;
+    head.rotation.y = Math.sin(t*2) * 0.2; // Cute head bob
+    
+    // Camera follows mouse lightly
+    camera.position.x += (mouseX * 5 - camera.position.x) * 0.01;
+    camera.position.y += (mouseY * 2 - camera.position.y + 3) * 0.01;
+    camera.lookAt(scene.position);
+    
+    // Graph crash when attack launched
+    if(attackPressed) {
+      let elapsed = (Date.now() - attackTime) / 1000; // seconds since attack
+      if (elapsed > 1) { // Delay start
+        Object.keys(graphs).forEach(name => {
+          let g = graphs[name];
+          let positions = g.positions;
+          let progress = Math.min(elapsed / 5, 1); // 5-second crash
+          for(let i = 50; i < 100; i++) {
+            let frac = (i-50)/50;
+            let targetY = THREE.MathUtils.lerp(g.current, g.target, frac) - g.current;
+            positions[i*3 + 1] = -targetY * 0.0003 * progress;
+          }
+          g.line.geometry.attributes.position.needsUpdate = true;
+        });
+      }
+    }
+    
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize handler
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  return true;
+}
+
+// Run after DOM loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initThree);
+} else {
+  initThree();
+}
 </script>
 </body>
 </html>
