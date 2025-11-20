@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Australia GSP Movement 2024-2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        .ausstatemap-container {
+            height: 500px;
+            border-radius: 0.5rem;
+        }
+        .ausstatemap-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Australia GSP Movement</h1>
+            <p class="text-gray-600">How the gross state product moved, 2024-2025</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="text-sm text-gray-600 mb-1">ACT</div>
+                <div class="text-2xl font-bold text-blue-600">3.5%</div>
+                <div class="text-xs text-green-600">Highest Growth</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="text-sm text-gray-600 mb-1">Queensland</div>
+                <div class="text-2xl font-bold text-blue-500">2.2%</div>
+                <div class="text-xs text-green-600">Strong Growth</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="text-sm text-gray-600 mb-1">Western Australia</div>
+                <div class="text-2xl font-bold text-blue-400">1.3%</div>
+                <div class="text-xs text-gray-600">Moderate Growth</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="text-sm text-gray-600 mb-1">NSW</div>
+                <div class="text-2xl font-bold text-blue-300">0.9%</div>
+                <div class="text-xs text-orange-600">Slowest Growth</div>
+            </div>
+        </div>
+
+        <!-- Map and Chart Section -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Interactive Map -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">GSP Growth by State</h2>
+                <div id="ausMap" class="ausstatemap-container"></div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">GSP Growth Comparison</h2>
+                <div id="barChart"></div>
+            </div>
+        </div>
+
+        <!-- Historical Growth Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Growth Since 2000</h2>
+            <div id="historicalChart"></div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Detailed State Performance</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">State/Territory</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">2024-25 Growth</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth Since 2000</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Per Capita Change</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="dataTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data from the article
+        const stateData = {
+            'ACT': { growth2024: 3.5, growthSince2000: 156, perCapita: 0.0, color: '#1e40af' },
+            'Queensland': { growth2024: 2.2, growthSince2000: 125, perCapita: 0.0, color: '#2563eb' },
+            'Western Australia': { growth2024: 1.3, growthSince2000: 150, perCapita: -1.1, color: '#3b82f6' },
+            'Victoria': { growth2024: 1.1, growthSince2000: 90, perCapita: -0.8, color: '#60a5fa' },
+            'South Australia': { growth2024: 1.0, growthSince2000: 85, perCapita: -0.5, color: '#93c5fd' },
+            'Tasmania': { growth2024: 1.0, growthSince2000: 80, perCapita: -0.4, color: '#93c5fd' },
+            'Northern Territory': { growth2024: 1.0, growthSince2000: 75, perCapita: -0.3, color: '#93c5fd' },
+            'NSW': { growth2024: 0.9, growthSince2000: 65, perCapita: -0.3, color: '#bfdbfe' }
+        };
+
+        // State coordinates for map
+        const stateCoordinates = {
+            'NSW': { lat: -32.0, lng: 146.0 },
+            'Victoria': { lat: -37.0, lng: 144.0 },
+            'Queensland': { lat: -22.0, lng: 145.0 },
+            'South Australia': { lat: -30.0, lng: 135.0 },
+            'Western Australia': { lat: -26.0, lng: 122.0 },
+            'Tasmania': { lat: -42.0, lng: 147.0 },
+            'Northern Territory': { lat: -19.5, lng: 133.0 },
+            'ACT': { lat: -35.3, lng: 149.1 }
+        };
+
+        // Initialize Leaflet Map
+        const map = L.map('ausMap').setView([-27, 133], 4);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add circles for each state
+        Object.keys(stateData).forEach(state => {
+            const coords = stateCoordinates[state];
+            const data = stateData[state];
+            
+            const circle = L.circle([coords.lat, coords.lng], {
+                color: data.color,
+                fillColor: data.color,
+                fillOpacity: 0.7,
+                radius: data.growth2024 * 100000
+            }).addTo(map);
+            
+            circle.bindPopup(`
+                <div class="ausstatemap-legend">
+                    <strong>${state}</strong><br>
+                    2024-25 Growth: <strong>${data.growth2024}%</strong><br>
+                    Since 2000: <strong>${data.growthSince2000}%</strong>
+                </div>
+            `);
+        });
+
+        // Bar Chart - 2024-25 Growth
+        const barChartData = [{
+            x: Object.keys(stateData),
+            y: Object.values(stateData).map(d => d.growth2024),
+            type: 'bar',
+            marker: {
+                color: Object.values(stateData).map(d => d.color)
+            },
+            text: Object.values(stateData).map(d => d.growth2024 + '%'),
+            textposition: 'auto'
+        }];
+
+        const barLayout = {
+            title: '',
+            xaxis: { title: '' },
+            yaxis: { title: 'Growth Rate (%)', range: [0, 4] },
+            margin: { t: 20, b: 80, l: 50, r: 20 }
+        };
+
+        Plotly.newPlot('barChart', barChartData, barLayout, {responsive: true});
+
+        // Historical Growth Chart
+        const historicalData = [{
+            x: Object.keys(stateData),
+            y: Object.values(stateData).map(d => d.growthSince2000),
+            type: 'bar',
+            marker: {
+                color: Object.values(stateData).map(d => d.color)
+            },
+            text: Object.values(stateData).map(d => d.growthSince2000 + '%'),
+            textposition: 'auto'
+        }];
+
+        const historicalLayout = {
+            title: '',
+            xaxis: { title: '' },
+            yaxis: { title: 'Total Growth Since 2000 (%)', range: [0, 170] },
+            margin: { t: 20, b: 80, l: 50, r: 20 }
+        };
+
+        Plotly.newPlot('historicalChart', historicalData, historicalLayout, {responsive: true});
+
+        // Populate Data Table
+        const tableBody = document.getElementById('dataTable');
+        Object.entries(stateData).forEach(([state, data]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${state}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background-color: ${data.color}20; color: ${data.color}">
+                        ${data.growth2024}%
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.growthSince2000}%</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm ${data.perCapita < 0 ? 'text-red-600' : 'text-green-600'}">
+                    ${data.perCapita}%
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>
