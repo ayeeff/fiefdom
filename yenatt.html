@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>China's Panda Yen Attack – 3D Live Demo</title>
+<title>China's Panda Yen Attack – 3D Live Demo (FIXED)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.168.0/examples/js/controls/OrbitControls.js"></script>
 <style>
   body { margin:0; overflow:hidden; background:#0f172a; font-family:Arial, sans-serif; color:#e2e8f0; }
   #info { position:absolute; top:20px; left:20px; z-index:100; background:rgba(0,0,0,0.7); padding:20px; border-radius:16px; max-width:420px; }
@@ -14,20 +13,21 @@
   .btn { 
     position:absolute; padding:16px 32px; font-size:24px; font-weight:bold; color:white; 
     border:none; border-radius:50px; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.6);
-    transition:all 0.3s;
+    transition:all 0.3s; z-index:100; pointer-events:auto;
   }
   #banBtn { background:#f97316; top:120px; left:50%; transform:translateX(-50%); }
   #attackBtn { background:#dc2626; top:200px; left:50%; transform:translateX(-50%); display:none; }
   .btn:hover { transform:translateY(-5px) translateX(-50%); }
-  #damage { position:absolute; bottom:30px; left:50%; transform:translateX(-50%); text-align:center; font-size:28px; background:rgba(220,38,38,0.2); padding:20px; border-radius:20px; display:none; }
+  #damage { position:absolute; bottom:30px; left:50%; transform:translateX(-50%); text-align:center; font-size:28px; background:rgba(220,38,38,0.2); padding:20px; border-radius:20px; display:none; z-index:100; }
   .big { font-size:48px; color:#fca5a5; font-weight:bold; }
+  canvas { pointer-events:none; } /* Prevent canvas from stealing clicks */
 </style>
 </head>
 <body>
 
 <div id="info">
   <h1>CHINA'S PANDA YEN ATTACK</h1>
-  <p>Click the orange button → Panda bans tourists & seafood<br>
+  <p>Click the orange button → Panda bans tourists & seafood (they vanish!)<br>
      Then click the <span style="color:#dc2626">red ATTACK button</span> → watch $3–15 TRILLION vanish</p>
 </div>
 
@@ -49,6 +49,7 @@ let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeigh
 let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+renderer.domElement.style.pointerEvents = 'none'; // Ensure buttons work over canvas
 
 // Lights
 let light = new THREE.HemisphereLight(0xffffff, 0x444466, 1);
@@ -94,7 +95,8 @@ function createLabel(text, color, pos) {
   ctx.textAlign = 'center';
   ctx.fillText(text, 256, 140);
   let texture = new THREE.CanvasTexture(canvas);
-  let sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: texture}));
+  let material = new THREE.SpriteMaterial({map: texture, transparent: true, opacity: 1.0});
+  let sprite = new THREE.Sprite(material);
   sprite.scale.set(6, 3, 1);
   sprite.position.set(pos.x, pos.y, pos.z);
   scene.add(sprite);
@@ -115,11 +117,11 @@ let graphData = {
 
 Object.keys(graphData).forEach((name, i) => {
   let geometry = new THREE.BufferGeometry();
-  let positions = new Float32Array(300);
+  let positions = new Float32Array(300); // 100 points * 3 coords
   for(let j=0; j<100; j++) {
-    positions[j*3] = (j/99)*12 - 6;
-    positions[j*3+1] = 0;
-    positions[j*3+2] = i*4 - 4;
+    positions[j*3] = (j/99)*12 - 6; // x
+    positions[j*3+1] = 0; // y (will animate down for crash)
+    positions[j*3+2] = i*4 - 4; // z
   }
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   let material = new THREE.LineBasicMaterial({color: graphData[name].color, linewidth: 4});
@@ -132,64 +134,99 @@ Object.keys(graphData).forEach((name, i) => {
 });
 
 camera.position.set(0, 3, 12);
-let controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+
+// Simple mouse look (no OrbitControls to avoid conflicts)
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+});
 
 // Animation variables
 let banPressed = false;
 let attackPressed = false;
 let t = 0;
+let attackTime = 0;
 
-// Buttons
+// Buttons (ensured to work)
 document.getElementById("banBtn").onclick = () => {
   if(banPressed) return;
   banPressed = true;
   document.getElementById("banBtn").style.display = "none";
   document.getElementById("attackBtn").style.display = "block";
   
-  // Panda moves to press
-  pandaGroup.position.x = -1;
+  // Panda moves to press (walk right)
+  let targetX = -1;
+  let walkAnim = () => {
+    pandaGroup.position.x += (targetX - pandaGroup.position.x) * 0.05;
+    if (Math.abs(pandaGroup.position.x - targetX) > 0.01) requestAnimationFrame(walkAnim);
+  };
+  walkAnim();
   
-  // Labels vanish
-  setTimeout(() => { tourists.material.opacity = 0; seafood.material.opacity = 0; }, 800);
+  // Labels vanish with fade
+  let fadeOut = () => {
+    labels.forEach(label => {
+      label.material.opacity -= 0.05;
+      if (label.material.opacity > 0) requestAnimationFrame(fadeOut);
+    });
+  };
+  setTimeout(fadeOut, 800);
 };
 
 document.getElementById("attackBtn").onclick = () => {
   if(attackPressed) return;
   attackPressed = true;
   document.getElementById("attackBtn").textContent = "ATTACK LAUNCHED!";
+  document.getElementById("attackBtn").style.background = "#b91c1c";
   document.getElementById("damage").style.display = "block";
   
-  // Panda presses red button
-  pandaGroup.position.x = 1;
+  // Panda presses red button (walk further right)
+  let targetX2 = 1;
+  let walkAnim2 = () => {
+    pandaGroup.position.x += (targetX2 - pandaGroup.position.x) * 0.05;
+    if (Math.abs(pandaGroup.position.x - targetX2) > 0.01) requestAnimationFrame(walkAnim2);
+  };
+  walkAnim2();
+  
+  attackTime = Date.now();
 };
 
 function animate() {
   requestAnimationFrame(animate);
   t += 0.02;
   
-  // Panda wave
+  // Panda idle wave
   pandaGroup.rotation.y = Math.sin(t*3) * 0.1;
+  head.rotation.y = Math.sin(t*2) * 0.2; // Cute head bob
+  
+  // Camera follows mouse lightly
+  camera.position.x += (mouseX * 5 - camera.position.x) * 0.01;
+  camera.position.y += (mouseY * 2 - camera.position.y + 3) * 0.01;
+  camera.lookAt(scene.position);
   
   // Graph crash when attack launched
   if(attackPressed) {
-    Object.keys(graphs).forEach(name => {
-      let g = graphs[name];
-      let positions = g.positions;
-      for(let i = 50; i < 100; i++) {
-        let progress = (i-50)/50;
-        let targetY = THREE.MathUtils.lerp(g.current, g.target, progress) - g.current;
-        positions[i*3 + 1] = -targetY * 0.0003;
-      }
-      g.line.geometry.attributes.position.needsUpdate = true;
-    });
+    let elapsed = (Date.now() - attackTime) / 1000; // seconds since attack
+    if (elapsed > 1) { // Delay start
+      Object.keys(graphs).forEach(name => {
+        let g = graphs[name];
+        let positions = g.positions;
+        let progress = Math.min(elapsed / 5, 1); // 5-second crash
+        for(let i = 50; i < 100; i++) {
+          let frac = (i-50)/50;
+          let targetY = THREE.MathUtils.lerp(g.current, g.target, frac) - g.current;
+          positions[i*3 + 1] = -targetY * 0.0003 * progress;
+        }
+        g.line.geometry.attributes.position.needsUpdate = true;
+      });
+    }
   }
   
-  controls.update();
   renderer.render(scene, camera);
 }
 animate();
 
+// Resize handler
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
