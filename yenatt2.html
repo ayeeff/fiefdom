@@ -1,342 +1,666 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive: The Yen Cascade</title>
-<style>
-    /* --- RESET & BASE STYLES --- */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
-        background-color: #0f172a; /* Deep Navy */
-        color: #e2e8f0;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-    }
-    .container { max-width: 900px; width: 100%; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yen Attack Scenario: 3D Simulation</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #1a1a1a; font-family: 'Segoe UI', sans-serif; color: white; }
+        #canvas-container { width: 100vw; height: 100vh; display: block; }
+        
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            pointer-events: none; /* Let clicks pass through to 3D scene */
+            width: 100%;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
 
-    /* --- HEADER --- */
-    header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
-    h1 { color: #ef4444; margin-bottom: 10px; font-size: 2rem; }
-    p.subtitle { color: #94a3b8; font-size: 1.1rem; }
+        .instruction {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #fbbf24;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+        }
 
-    /* --- CONTROL PANEL (THE TRIGGER) --- */
-    .control-panel {
-        background: #1e293b;
-        padding: 30px;
-        border-radius: 16px;
-        border: 2px solid #475569;
-        margin-bottom: 40px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        text-align: center;
-    }
-    
-    .slider-label-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; }
-    .jpy-display { color: #4ade80; font-family: monospace; font-size: 1.5rem; }
-    .jpy-display.danger { color: #ef4444; }
+        /* Floating Labels (Seafood/Tourists) */
+        .floating-label {
+            position: absolute;
+            background: white;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 1;
+            transition: opacity 1s, transform 1s;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .floating-label::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px 5px 0;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
 
-    /* The Slider */
-    input[type=range] {
-        -webkit-appearance: none;
-        width: 100%;
-        height: 15px;
-        border-radius: 10px;
-        background: linear-gradient(to right, #4ade80, #facc15, #ef4444);
-        outline: none;
-        cursor: pointer;
-        margin: 20px 0;
-    }
-    input[type=range]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background: #fff;
-        border: 4px solid #334155;
-        cursor: pointer;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
+        /* Attack Dashboard Overlay */
+        #attack-dashboard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 0, 0, 0.6); /* Red tint */
+            display: none;
+            pointer-events: none;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
 
-    /* --- THE MECHANISM (VISUAL EXPLAINER) --- */
-    .mechanism-box {
-        display: grid;
-        grid-template-columns: 1fr 100px 1fr;
-        gap: 20px;
-        align-items: center;
-        margin-bottom: 40px;
-        background: #020617;
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #1e293b;
-    }
-    
-    .mech-card {
-        background: #1e293b;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #334155;
-        transition: all 0.3s;
-    }
-    .mech-card.debt { border-color: #fca5a5; }
-    .mech-card.asset { border-color: #86efac; }
-    
-    .mech-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
-    .mech-title { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-    .mech-value { font-size: 1.4rem; font-weight: bold; margin-top: 5px; display: block; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
-    .arrow-connector {
-        font-size: 2rem;
-        color: #64748b;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .arrow-text { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; }
+        .graphs-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-    /* --- THE CASCADE (ASSET CARDS) --- */
-    .section-title { margin-bottom: 20px; font-size: 1.4rem; border-left: 4px solid #f59e0b; padding-left: 15px; }
-    
-    .cascade-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-    }
+        .graph-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .asset-card {
-        background: #1e293b;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #334155;
-        transition: transform 0.1s;
-    }
+        .graph-title { font-size: 14px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;}
+        .graph-value { font-size: 24px; color: #ef4444; font-weight: bold; }
+        
+        .line-chart {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            margin-top: 10px;
+            position: relative;
+        }
+        .line-chart-fill {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            background: #ef4444;
+            width: 0%; /* Animates to 100% */
+            transition: width 2s ease-out;
+        }
+        .arrow-down {
+            color: #ef4444;
+            display: inline-block;
+            transform: rotate(45deg);
+            font-weight: bold;
+        }
 
-    .asset-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; display: block; }
-    .asset-change { font-size: 2rem; font-weight: bold; display: block; margin-bottom: 5px; }
-    .asset-change.positive { color: #4ade80; }
-    .asset-change.negative { color: #ef4444; }
-    .asset-desc { font-size: 0.8rem; color: #94a3b8; }
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
 
-    /* Progress bar background for assets */
-    .crash-bar {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 6px;
-        background: #ef4444;
-        width: 0%;
-        transition: width 0.3s;
-    }
+        .stat-card {
+            background: linear-gradient(135deg, #450a0a, #1a0505);
+            border: 1px solid #b91c1c;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    /* --- ALERT BOX --- */
-    .status-box {
-        margin-top: 30px;
-        padding: 20px;
-        border-radius: 8px;
-        background: #334155;
-        text-align: center;
-        font-size: 1.1rem;
-        min-height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-left: 5px solid #94a3b8;
-    }
+        .stat-number { font-size: 32px; font-weight: bold; color: #fca5a5; margin-bottom: 5px; display: block;}
+        .stat-label { font-size: 12px; color: #e2e8f0; text-transform: uppercase; }
 
-</style>
+        /* Helper for button highlights */
+        #cursor-feedback {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 100;
+        }
+        
+        #webgl-error {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #1a1a1a;
+            color: white;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+    </style>
+    <!-- Load Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>⚡ The "Cross-Asset" Cascade</h1>
-        <p class="subtitle">Interactive Simulator: Push the Yen up and watch the world break.</p>
-    </header>
+    <div id="webgl-error">
+        <h2 style="color: #ef4444;">⚠️ WebGL Error</h2>
+        <p>Your browser is not supporting WebGL 3D graphics.</p>
+        <p style="color: #94a3b8; margin-top: 10px;">Please check if "Hardware Acceleration" is enabled in browser settings.</p>
+    </div>
 
-    <div class="control-panel">
-        <div class="slider-label-box">
-            <span>🇨🇳 China's Action:</span>
-            <span>💴 USD/JPY Rate: <span id="rate-display" class="jpy-display">150.00</span></span>
-        </div>
+    <div id="canvas-container"></div>
+    <div id="cursor-feedback"></div>
+
+    <!-- Labels that will vanish -->
+    <div id="label-tourists" class="floating-label" style="display:none;">Japanese Tourism</div>
+    <div id="label-seafood" class="floating-label" style="display:none;">Seafood Imports</div>
+
+    <div id="ui-layer">
+        <h1>Strategic Simulator</h1>
+        <div class="instruction">Click the buttons on the desk</div>
+    </div>
+
+    <!-- Attack Dashboard (Hidden initially) -->
+    <div id="attack-dashboard">
+        <h2 style="text-align: center; color: #ef4444; font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 5px;">Market Collapse</h2>
         
-        <input type="range" id="yen-slider" min="0" max="100" value="0">
-        
-        <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.8rem;">
-            <span>Status Quo (150)</span>
-            <span>Market Stress (140)</span>
-            <span>SYSTEM CRASH (120)</span>
+        <div class="dashboard-grid">
+            <!-- Left: Graphs -->
+            <div class="graphs-container">
+                <div class="graph-box">
+                    <div class="graph-title">USD/JPY</div>
+                    <div class="graph-value">150.00 <span style="color:#cbd5e1">➔</span> 125.00 <span class="arrow-down">↓</span></div>
+                    <div class="line-chart"><div class="line-chart-fill" id="fill-yen"></div></div>
+                </div>
+                <div class="graph-box">
+                    <div class="graph-title">TOPIX (Japan Equity)</div>
+                    <div class="graph-value">-18.5% <span class="arrow-down">↓</span></div>
+                    <div class="line-chart"><div class="line-chart-fill" id="fill-topix"></div></div>
+                </div>
+                <div class="graph-box">
+                    <div class="graph-title">NASDAQ (US Tech)</div>
+                    <div class="graph-value">-22.0% <span class="arrow-down">↓</span></div>
+                    <div class="line-chart"><div class="line-chart-fill" id="fill-nasdaq"></div></div>
+                </div>
+            </div>
+
+            <!-- Right: Stats -->
+            <div class="stats-container">
+                <div class="stat-card" id="stat1">
+                    <span class="stat-number">$2-4T</span>
+                    <span class="stat-label">Global Market Cap Loss</span>
+                </div>
+                <div class="stat-card" id="stat2">
+                    <span class="stat-number">$500B+</span>
+                    <span class="stat-label">Carry Trade Losses</span>
+                </div>
+                <div class="stat-card" id="stat3">
+                    <span class="stat-number">15-20%</span>
+                    <span class="stat-label">Yen Appreciation</span>
+                </div>
+                <div class="stat-card" id="stat4">
+                    <span class="stat-number">70+</span>
+                    <span class="stat-label">VIX Peak Level</span>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="section-title">Step 1: The Carry Trade Mechanism</div>
-    <div class="mechanism-box">
-        <div class="mech-card debt" id="debt-card">
-            <span class="mech-icon">💸</span>
-            <span class="mech-title">The Yen Loan</span>
-            <span class="mech-value" id="debt-val">$1,000,000</span>
-            <p style="font-size:0.8rem; color:#fca5a5; margin-top:5px;">Cost to Repay</p>
-        </div>
-
-        <div class="arrow-connector">
-            <span>➔</span>
-            <span class="arrow-text" id="arrow-label">Stable</span>
-        </div>
-
-        <div class="mech-card asset" id="collateral-card">
-            <span class="mech-icon">📉</span>
-            <span class="mech-title">Forced Selling</span>
-            <span class="mech-value" id="sell-val">$0</span>
-            <p style="font-size:0.8rem; color:#cbd5e1; margin-top:5px;">Assets Dumped</p>
-        </div>
-    </div>
-
-    <div class="section-title">Step 2: Real-Time Market Impact</div>
-    <div class="cascade-grid">
-        <div class="asset-card">
-            <span class="asset-name">🇺🇸 US Tech (Nasdaq)</span>
-            <span class="asset-change positive" id="tech-change">0.0%</span>
-            <span class="asset-desc">Most funded by cheap Yen</span>
-            <div class="crash-bar" id="tech-bar"></div>
-        </div>
-        <div class="asset-card">
-            <span class="asset-name">₿ Bitcoin</span>
-            <span class="asset-change positive" id="crypto-change">0.0%</span>
-            <span class="asset-desc">Highly speculative proxy</span>
-            <div class="crash-bar" id="crypto-bar"></div>
-        </div>
-        <div class="asset-card">
-            <span class="asset-name">🌏 Emerging Markets</span>
-            <span class="asset-change positive" id="em-change">0.0%</span>
-            <span class="asset-desc">Global liquidity drain</span>
-            <div class="crash-bar" id="em-bar"></div>
-        </div>
-    </div>
-
-    <div class="status-box" id="status-text">
-        Markets are calm. The "Carry Trade" is profitable. Investors are borrowing cheap Yen to buy Tech Stocks.
-    </div>
-
-</div>
 
 <script>
-    // Elements
-    const slider = document.getElementById('yen-slider');
-    const rateDisplay = document.getElementById('rate-display');
-    const debtVal = document.getElementById('debt-val');
-    const sellVal = document.getElementById('sell-val');
-    const arrowLabel = document.getElementById('arrow-label');
-    const debtCard = document.getElementById('debt-card');
-    
-    const techChange = document.getElementById('tech-change');
-    const cryptoChange = document.getElementById('crypto-change');
-    const emChange = document.getElementById('em-change');
-    
-    const techBar = document.getElementById('tech-bar');
-    const cryptoBar = document.getElementById('crypto-bar');
-    const emBar = document.getElementById('em-bar');
-    
-    const statusBox = document.getElementById('status-text');
-
-    // Format Currency
-    const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-
-    // Event Listener
-    slider.addEventListener('input', updateDashboard);
-
-    function updateDashboard() {
-        // 1. Calculate The Trigger (Yen Rate)
-        // Range: 0-100 input maps to 150.00 down to 120.00 USD/JPY
-        const input = parseInt(slider.value);
-        const startRate = 150;
-        const endRate = 120;
-        const currentRate = startRate - ((startRate - endRate) * (input / 100));
-        
-        rateDisplay.innerText = currentRate.toFixed(2);
-
-        // 2. Calculate The Loan Mechanics (The Debt gets bigger as Rate goes down)
-        // If Yen gets stronger (rate goes down), you need MORE dollars to pay back the same Yen loan.
-        const baseLoan = 1000000; // $1M initial loan
-        const appreciationFactor = startRate / currentRate; 
-        const currentDebt = baseLoan * appreciationFactor;
-        const loss = currentDebt - baseLoan;
-
-        debtVal.innerText = USD.format(currentDebt);
-        sellVal.innerText = USD.format(loss); // You must sell this much to cover the gap
-
-        // 3. Visual Feedback on Debt Card
-        if(input > 20) {
-            debtCard.style.background = `rgba(239, 68, 68, ${input/200})`; // Turn card redder
-            rateDisplay.classList.add('danger');
-        } else {
-            debtCard.style.background = '#1e293b';
-            rateDisplay.classList.remove('danger');
-        }
-
-        // 4. Calculate Cascading Market Crashes
-        // Correlation Logic:
-        // Tech drops 1.5x the Yen move.
-        // Crypto drops 2.5x the Yen move.
-        // EM drops 1.0x the Yen move.
-        
-        const yenStrengthPercent = ((150 - currentRate) / 150) * 100; // How much Yen went up %
-        
-        const techDrop = -(yenStrengthPercent * 1.2).toFixed(1);
-        const cryptoDrop = -(yenStrengthPercent * 1.8).toFixed(1);
-        const emDrop = -(yenStrengthPercent * 0.9).toFixed(1);
-
-        updateAsset(techChange, techBar, techDrop);
-        updateAsset(cryptoChange, cryptoBar, cryptoDrop);
-        updateAsset(emChange, emBar, emDrop);
-
-        // 5. Update Narrative Text based on severity
-        updateNarrative(input, currentRate);
-    }
-
-    function updateAsset(textEl, barEl, value) {
-        textEl.innerText = value + "%";
-        if(parseFloat(value) < 0) {
-            textEl.classList.remove('positive');
-            textEl.classList.add('negative');
-            // Bar fills up based on crash severity (max 30% crash = 100% bar)
-            let width = Math.abs(parseFloat(value)) * 3.5;
-            if(width > 100) width = 100;
-            barEl.style.width = width + "%";
-        } else {
-            textEl.classList.add('positive');
-            textEl.classList.remove('negative');
-            barEl.style.width = "0%";
+    // --- THREE.JS SETUP WITH ERROR HANDLING ---
+    let renderer;
+    try {
+        // Attempt 1: Standard High Quality
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+    } catch (e) {
+        try {
+            // Attempt 2: Low Quality (No AA)
+            renderer = new THREE.WebGLRenderer({ antialias: false });
+        } catch (e2) {
+            // Fail: Show Error UI
+            document.getElementById('webgl-error').style.display = 'flex';
+            document.getElementById('ui-layer').style.display = 'none';
+            throw e2;
         }
     }
 
-    function updateNarrative(input, rate) {
-        if (input < 10) {
-            statusBox.innerHTML = "🟢 <strong>Status Normal:</strong> Investors are comfortable. Borrowing Yen is cheap. Tech stocks are rallying.";
-            statusBox.style.borderLeftColor = "#4ade80";
-            arrowLabel.innerText = "Stable";
-        } else if (input < 40) {
-            statusBox.innerHTML = "🟡 <strong>Warning Signs:</strong> The Yen is rising. Loans are getting expensive. Algorithms are starting to sell small amounts of Tech stocks to reduce risk.";
-            statusBox.style.borderLeftColor = "#facc15";
-            arrowLabel.innerText = "Hedging";
-        } else if (input < 75) {
-            statusBox.innerHTML = "🟠 <strong>Margin Calls (The Squeeze):</strong> Traders are losing money on the currency. They are FORCED to sell Nvidia and Bitcoin to pay back the bank. Volatility is spiking.";
-            statusBox.style.borderLeftColor = "#f97316";
-            arrowLabel.innerText = "FORCED SELLING";
-        } else {
-            statusBox.innerHTML = "🔴 <strong>SYSTEMIC CRASH:</strong> Total capitulation. The cost to repay Yen loans is too high. Funds are liquidating everything at any price. Global contagion.";
-            statusBox.style.borderLeftColor = "#ef4444";
-            arrowLabel.innerText = "LIQUIDATION";
-        }
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x202025);
+    scene.fog = new THREE.Fog(0x202025, 10, 50);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 5, 12);
+    camera.lookAt(0, 1, 0);
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // --- LIGHTS ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const alarmLight = new THREE.PointLight(0xff0000, 0, 20);
+    alarmLight.position.set(0, 5, 2);
+    scene.add(alarmLight);
+
+    // --- MATERIALS ---
+    const matWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+    const matBlack = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 });
+    const matDesk = new THREE.MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.2 });
+    const matRedBtn = new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0x500000 });
+    const matBlueBtn = new THREE.MeshStandardMaterial({ color: 0x2563eb, emissive: 0x000050 });
+    const matMetal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+
+    // --- PANDA CONSTRUCTION ---
+    const pandaGroup = new THREE.Group();
+    
+    // Body
+    const bodyGeo = new THREE.SphereGeometry(1.5, 32, 32);
+    const body = new THREE.Mesh(bodyGeo, matWhite);
+    body.position.y = 1.5;
+    body.scale.set(1, 0.9, 0.9);
+    body.castShadow = true;
+    pandaGroup.add(body);
+
+    // Head
+    const headGeo = new THREE.SphereGeometry(1.1, 32, 32);
+    const head = new THREE.Mesh(headGeo, matWhite);
+    head.position.y = 2.8;
+    head.castShadow = true;
+    pandaGroup.add(head);
+
+    // Ears
+    const earGeo = new THREE.SphereGeometry(0.35, 16, 16);
+    const earL = new THREE.Mesh(earGeo, matBlack);
+    earL.position.set(0.9, 3.6, 0);
+    pandaGroup.add(earL);
+    const earR = new THREE.Mesh(earGeo, matBlack);
+    earR.position.set(-0.9, 3.6, 0);
+    pandaGroup.add(earR);
+
+    // Eyes (Black Patch + White Pupil)
+    const eyePatchGeo = new THREE.SphereGeometry(0.3, 16, 16);
+    eyePatchGeo.scale(1, 0.8, 0.5);
+    
+    const eyeL = new THREE.Mesh(eyePatchGeo, matBlack);
+    eyeL.position.set(0.4, 3.0, 0.9);
+    eyeL.rotation.z = -0.2;
+    eyeL.rotation.y = 0.3;
+    pandaGroup.add(eyeL);
+
+    const eyeR = new THREE.Mesh(eyePatchGeo, matBlack);
+    eyeR.position.set(-0.4, 3.0, 0.9);
+    eyeR.rotation.z = 0.2;
+    eyeR.rotation.y = -0.3;
+    pandaGroup.add(eyeR);
+
+    // Arms (Pivots for animation)
+    const armGeo = new THREE.CapsuleGeometry(0.35, 1.2, 4, 8);
+    
+    // Right Arm (The Ban Arm)
+    const rightArmPivot = new THREE.Group();
+    rightArmPivot.position.set(-1.2, 2.2, 0); // Shoulder position
+    const rightArm = new THREE.Mesh(armGeo, matBlack);
+    rightArm.position.set(0, -0.6, 0); // Offset so pivot is at top
+    rightArm.castShadow = true;
+    rightArmPivot.add(rightArm);
+    pandaGroup.add(rightArmPivot);
+
+    // Left Arm (The Attack Arm)
+    const leftArmPivot = new THREE.Group();
+    leftArmPivot.position.set(1.2, 2.2, 0);
+    const leftArm = new THREE.Mesh(armGeo, matBlack);
+    leftArm.position.set(0, -0.6, 0);
+    leftArm.castShadow = true;
+    leftArmPivot.add(leftArm);
+    pandaGroup.add(leftArmPivot);
+
+    // Legs
+    const legGeo = new THREE.CapsuleGeometry(0.4, 0.8, 4, 8);
+    const legL = new THREE.Mesh(legGeo, matBlack);
+    legL.position.set(0.8, 0.5, 0.8);
+    legL.rotation.x = -Math.PI/2;
+    pandaGroup.add(legL);
+    const legR = new THREE.Mesh(legGeo, matBlack);
+    legR.position.set(-0.8, 0.5, 0.8);
+    legR.rotation.x = -Math.PI/2;
+    pandaGroup.add(legR);
+
+    scene.add(pandaGroup);
+
+    // --- ENVIRONMENT ---
+    // Desk
+    const deskGeo = new THREE.BoxGeometry(8, 0.5, 4);
+    const desk = new THREE.Mesh(deskGeo, matDesk);
+    desk.position.set(0, 0, 2.5);
+    desk.receiveShadow = true;
+    scene.add(desk);
+
+    // Buttons
+    const btnBaseGeo = new THREE.CylinderGeometry(0.6, 0.7, 0.2, 32);
+    const btnTopGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 32);
+
+    // Ban Button (Blue/Right side from our view, Left side for Panda)
+    const banBtnGroup = new THREE.Group();
+    banBtnGroup.position.set(-2, 0.5, 2.5); // User's left
+    const banBase = new THREE.Mesh(btnBaseGeo, matMetal);
+    const banTop = new THREE.Mesh(btnTopGeo, matBlueBtn);
+    banTop.position.y = 0.15;
+    banTop.name = "btn_ban"; // Raycasting ID
+    banBtnGroup.add(banBase);
+    banBtnGroup.add(banTop);
+    scene.add(banBtnGroup);
+
+    // Label for Ban
+    const fontLoader = new THREE.Loader(); 
+    // Since we can't easily load fonts in single file, we use basic shapes or screen labels.
+    // We will stick to screen labels for simplicity and robustness.
+
+    // Attack Button (Red/Right)
+    const attackBtnGroup = new THREE.Group();
+    attackBtnGroup.position.set(2, 0.5, 2.5); // User's right
+    const attackBase = new THREE.Mesh(btnBaseGeo, matMetal);
+    const attackTop = new THREE.Mesh(btnTopGeo, matRedBtn);
+    attackTop.position.y = 0.15;
+    attackTop.name = "btn_attack"; // Raycasting ID
+    attackBtnGroup.add(attackBase);
+    attackBtnGroup.add(attackTop);
+    scene.add(attackBtnGroup);
+
+    // Button Text Labels (Canvas Textures)
+    function createLabelTexture(text) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(0,0,256,128);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 40px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, 128, 80);
+        const tex = new THREE.CanvasTexture(canvas);
+        return tex;
     }
+
+    const banLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: createLabelTexture("BAN IMPORTS") }));
+    banLabel.position.set(-2, 1.5, 2.5);
+    banLabel.scale.set(2, 1, 1);
+    scene.add(banLabel);
+
+    const attackLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: createLabelTexture("FINANCIAL ATTACK") }));
+    attackLabel.position.set(2, 1.5, 2.5);
+    attackLabel.scale.set(2, 1, 1);
+    scene.add(attackLabel);
+
+    // --- ITEMS ON DESK (The Vanishing Targets) ---
+    const targetGroup = new THREE.Group();
+    
+    // Visual: Stack of papers "Seafood"
+    const paperGeo = new THREE.BoxGeometry(1, 0.1, 1.4);
+    const paperMat = new THREE.MeshStandardMaterial({color: 0xdddddd});
+    const papers = new THREE.Mesh(paperGeo, paperMat);
+    papers.position.set(-2, 0.3, 3.5);
+    papers.rotation.y = 0.2;
+    targetGroup.add(papers);
+
+    // Visual: Camera "Tourists"
+    const camBox = new THREE.BoxGeometry(0.6, 0.4, 0.2);
+    const camLens = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 16);
+    const cameraMesh = new THREE.Group();
+    const cBox = new THREE.Mesh(camBox, new THREE.MeshStandardMaterial({color: 0x333}));
+    const cLens = new THREE.Mesh(camLens, new THREE.MeshStandardMaterial({color: 0x111}));
+    cLens.rotation.x = Math.PI/2;
+    cLens.position.z = 0.15;
+    cameraMesh.add(cBox, cLens);
+    cameraMesh.position.set(-1, 0.5, 3.2);
+    cameraMesh.rotation.y = -0.4;
+    targetGroup.add(cameraMesh);
+
+    scene.add(targetGroup);
+
+    // --- HTML LABEL POSITIONING ---
+    const lblSeafood = document.getElementById('label-seafood');
+    const lblTourists = document.getElementById('label-tourists');
+    lblSeafood.style.display = 'block';
+    lblTourists.style.display = 'block';
+
+    function updateLabels() {
+        // Project 3D positions to 2D screen
+        const p1 = papers.position.clone();
+        p1.project(camera);
+        const x1 = (p1.x * .5 + .5) * window.innerWidth;
+        const y1 = (-(p1.y * .5) + .5) * window.innerHeight;
+        
+        lblSeafood.style.transform = `translate(-50%, -50%) translate(${x1}px, ${y1-30}px)`;
+
+        const p2 = cameraMesh.position.clone();
+        p2.project(camera);
+        const x2 = (p2.x * .5 + .5) * window.innerWidth;
+        const y2 = (-(p2.y * .5) + .5) * window.innerHeight;
+        
+        lblTourists.style.transform = `translate(-50%, -50%) translate(${x2}px, ${y2-30}px)`;
+    }
+
+    // --- ANIMATION LOGIC ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let animationState = 'idle'; // idle, hitting_ban, hitting_attack
+    let animTime = 0;
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    window.addEventListener('click', (e) => {
+        if(animationState !== 'idle') return;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        
+        for(let i=0; i<intersects.length; i++) {
+            if(intersects[i].object.name === 'btn_ban') {
+                triggerBanAnimation();
+                break;
+            }
+            if(intersects[i].object.name === 'btn_attack') {
+                triggerAttackAnimation();
+                break;
+            }
+        }
+    });
+
+    function triggerBanAnimation() {
+        animationState = 'hitting_ban';
+        animTime = 0;
+        // Reset attack dashboard if open
+        document.getElementById('attack-dashboard').style.display = 'none';
+        document.getElementById('attack-dashboard').style.opacity = 0;
+    }
+
+    function triggerAttackAnimation() {
+        animationState = 'hitting_attack';
+        animTime = 0;
+    }
+
+    function showBanEffects() {
+        // Vanish items
+        lblSeafood.style.opacity = 0;
+        lblTourists.style.opacity = 0;
+        
+        // Shrink 3D models
+        const shrink = () => {
+            if(targetGroup.scale.x > 0.01) {
+                targetGroup.scale.multiplyScalar(0.9);
+                requestAnimationFrame(shrink);
+            } else {
+                targetGroup.visible = false;
+            }
+        }
+        shrink();
+    }
+
+    function showAttackEffects() {
+        // 1. Alarm Light
+        const pulseAlarm = () => {
+            const time = Date.now() * 0.005;
+            alarmLight.intensity = (Math.sin(time) + 1) * 2;
+            if(document.getElementById('attack-dashboard').style.display === 'block') {
+                requestAnimationFrame(pulseAlarm);
+            } else {
+                alarmLight.intensity = 0;
+            }
+        };
+        
+        document.getElementById('attack-dashboard').style.display = 'block';
+        // Force reflow
+        void document.getElementById('attack-dashboard').offsetWidth;
+        document.getElementById('attack-dashboard').style.opacity = 1;
+        
+        requestAnimationFrame(pulseAlarm);
+
+        // 2. Trigger Graphs
+        setTimeout(() => {
+            document.getElementById('fill-yen').style.width = '80%'; // Drop to 125
+            document.getElementById('fill-topix').style.width = '70%';
+            document.getElementById('fill-nasdaq').style.width = '85%';
+            
+            // 3. Trigger Stats Pop-in
+            const stats = ['stat1', 'stat2', 'stat3', 'stat4'];
+            stats.forEach((id, index) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.style.opacity = 1;
+                    el.style.transform = 'scale(1)';
+                }, 500 + (index * 200));
+            });
+        }, 500);
+    }
+
+    // Main Loop
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Idle Animation (Breathing)
+        if(animationState === 'idle') {
+            body.scale.set(1 + Math.sin(Date.now()*0.002)*0.01, 0.9 + Math.cos(Date.now()*0.002)*0.01, 0.9);
+            // Arms relaxed
+            rightArmPivot.rotation.z = THREE.MathUtils.lerp(rightArmPivot.rotation.z, 0, 0.1);
+            leftArmPivot.rotation.z = THREE.MathUtils.lerp(leftArmPivot.rotation.z, 0, 0.1);
+        }
+
+        // Ban Animation (Right Arm hits Right side button (which is "Ban"))
+        // Note: In our scene, Ban is on LEFT (-x), Attack is on RIGHT (+x)
+        // Panda is facing +Z (towards us). So Panda's Right Arm is on -X side.
+        // Wait, Panda's right arm is on -X. Our Ban button is at -2. Perfect.
+        if(animationState === 'hitting_ban') {
+            animTime += 0.1;
+            // Swing arm up then down
+            const angle = Math.sin(animTime); 
+            
+            // Simple keyframe logic
+            if(animTime < 1.5) {
+                // Raise
+                rightArmPivot.rotation.z = -0.5; 
+                rightArmPivot.rotation.x = -0.5;
+            } else if (animTime < 2.0) {
+                // SMASH
+                rightArmPivot.rotation.z = -0.2;
+                rightArmPivot.rotation.x = -1.2; // Forward onto desk
+            } else if (animTime < 2.2) {
+                // Impact frame
+                if(lblSeafood.style.opacity !== '0') showBanEffects();
+            } else if (animTime < 4.0) {
+                // Return
+                rightArmPivot.rotation.z = THREE.MathUtils.lerp(rightArmPivot.rotation.z, 0, 0.1);
+                rightArmPivot.rotation.x = THREE.MathUtils.lerp(rightArmPivot.rotation.x, 0, 0.1);
+            } else {
+                animationState = 'idle';
+            }
+        }
+
+        // Attack Animation (Left Arm hits Left side button (which is +X))
+        if(animationState === 'hitting_attack') {
+            animTime += 0.1;
+            if(animTime < 1.5) {
+                leftArmPivot.rotation.z = 0.5; 
+                leftArmPivot.rotation.x = -0.5;
+            } else if (animTime < 2.0) {
+                // SMASH
+                leftArmPivot.rotation.z = 0.2;
+                leftArmPivot.rotation.x = -1.2;
+            } else if (animTime < 2.2) {
+                // Impact frame
+                if(document.getElementById('attack-dashboard').style.opacity !== '1') showAttackEffects();
+            } else if (animTime < 4.0) {
+                leftArmPivot.rotation.z = THREE.MathUtils.lerp(leftArmPivot.rotation.z, 0, 0.1);
+                leftArmPivot.rotation.x = THREE.MathUtils.lerp(leftArmPivot.rotation.x, 0, 0.1);
+            } else {
+                animationState = 'idle';
+            }
+        }
+
+        updateLabels();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+
 </script>
-
 </body>
 </html>
