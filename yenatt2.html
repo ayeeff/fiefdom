@@ -3,164 +3,340 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Yen Trap: Simplified Scenario</title>
+<title>Interactive: The Yen Cascade</title>
 <style>
-    /* Reset & Basics */
+    /* --- RESET & BASE STYLES --- */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-        font-family: 'Segoe UI', Roboto, sans-serif;
-        background-color: #0f172a; /* Dark Slate */
+        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+        background-color: #0f172a; /* Deep Navy */
         color: #e2e8f0;
-        line-height: 1.6;
         padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
     }
-    .container { max-width: 1000px; margin: 0 auto; }
-    
-    /* Header */
-    header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
-    h1 { font-size: 2.5rem; color: #ef4444; margin-bottom: 10px; }
-    .subtitle { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-    .highlight { color: #fca5a5; font-weight: bold; }
+    .container { max-width: 900px; width: 100%; }
 
-    /* Sections */
-    .section-title { font-size: 1.5rem; border-left: 5px solid #ef4444; padding-left: 15px; margin: 40px 0 20px; color: #fff; }
+    /* --- HEADER --- */
+    header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
+    h1 { color: #ef4444; margin-bottom: 10px; font-size: 2rem; }
+    p.subtitle { color: #94a3b8; font-size: 1.1rem; }
 
-    /* Concept 1: Diplomatic Cover (The Split Card) */
-    .cover-container { display: flex; flex-wrap: wrap; gap: 20px; }
-    .cover-card { flex: 1; min-width: 300px; background: #1e293b; padding: 25px; border-radius: 12px; border: 1px solid #334155; }
-    .cover-card.public { border-top: 4px solid #4ade80; } /* Green for "Innocent" */
-    .cover-card.reality { border-top: 4px solid #ef4444; } /* Red for "Attack" */
-    .card-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-    .card-head { font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; display: block; }
-
-    /* Concept 2: Attack Vectors (The Grid) */
-    .vectors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-    .vector-item { background: #1e293b; padding: 20px; border-radius: 10px; text-align: center; transition: transform 0.2s; }
-    .vector-item:hover { transform: translateY(-5px); background: #283548; }
-    .vector-icon { font-size: 2.5rem; margin-bottom: 10px; }
-    .vector-name { color: #fca5a5; font-weight: bold; margin-bottom: 5px; }
-    .vector-desc { font-size: 0.9rem; color: #cbd5e1; }
-
-    /* Concept 3: The Stakes (Visual Bar Charts) */
-    .impact-box { background: linear-gradient(145deg, #2a1818, #1e293b); border: 1px solid #7f1d1d; padding: 30px; border-radius: 12px; }
-    .stat-row { margin-bottom: 20px; }
-    .stat-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
-    .bar-bg { background: #334155; height: 24px; border-radius: 12px; overflow: hidden; }
-    .bar-fill { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 0.8rem; font-weight: bold; color: white; }
-    
-    /* Colors for bars */
-    .fill-stocks { width: 85%; background: #ef4444; }
-    .fill-yen { width: 70%; background: #f97316; }
-    .fill-tech { width: 60%; background: #eab308; }
-
-    /* Timeline Flow */
-    .flow-steps { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; justify-content: center; }
-    .step { background: #1e293b; padding: 15px 25px; border-radius: 50px; font-weight: bold; border: 1px solid #475569; display: flex; align-items: center; gap: 10px; }
-    .arrow { font-size: 1.5rem; color: #64748b; align-self: center; }
-    
-    @media (max-width: 768px) {
-        .arrow { transform: rotate(90deg); margin: 10px 0; display: block; width: 100%; text-align: center; }
-        .flow-steps { flex-direction: column; }
+    /* --- CONTROL PANEL (THE TRIGGER) --- */
+    .control-panel {
+        background: #1e293b;
+        padding: 30px;
+        border-radius: 16px;
+        border: 2px solid #475569;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        text-align: center;
     }
+    
+    .slider-label-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; }
+    .jpy-display { color: #4ade80; font-family: monospace; font-size: 1.5rem; }
+    .jpy-display.danger { color: #ef4444; }
+
+    /* The Slider */
+    input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 15px;
+        border-radius: 10px;
+        background: linear-gradient(to right, #4ade80, #facc15, #ef4444);
+        outline: none;
+        cursor: pointer;
+        margin: 20px 0;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: #fff;
+        border: 4px solid #334155;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* --- THE MECHANISM (VISUAL EXPLAINER) --- */
+    .mechanism-box {
+        display: grid;
+        grid-template-columns: 1fr 100px 1fr;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 40px;
+        background: #020617;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #1e293b;
+    }
+    
+    .mech-card {
+        background: #1e293b;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #334155;
+        transition: all 0.3s;
+    }
+    .mech-card.debt { border-color: #fca5a5; }
+    .mech-card.asset { border-color: #86efac; }
+    
+    .mech-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+    .mech-title { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .mech-value { font-size: 1.4rem; font-weight: bold; margin-top: 5px; display: block; }
+
+    .arrow-connector {
+        font-size: 2rem;
+        color: #64748b;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .arrow-text { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; }
+
+    /* --- THE CASCADE (ASSET CARDS) --- */
+    .section-title { margin-bottom: 20px; font-size: 1.4rem; border-left: 4px solid #f59e0b; padding-left: 15px; }
+    
+    .cascade-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .asset-card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #334155;
+        transition: transform 0.1s;
+    }
+
+    .asset-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; display: block; }
+    .asset-change { font-size: 2rem; font-weight: bold; display: block; margin-bottom: 5px; }
+    .asset-change.positive { color: #4ade80; }
+    .asset-change.negative { color: #ef4444; }
+    .asset-desc { font-size: 0.8rem; color: #94a3b8; }
+
+    /* Progress bar background for assets */
+    .crash-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 6px;
+        background: #ef4444;
+        width: 0%;
+        transition: width 0.3s;
+    }
+
+    /* --- ALERT BOX --- */
+    .status-box {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        background: #334155;
+        text-align: center;
+        font-size: 1.1rem;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 5px solid #94a3b8;
+    }
+
 </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>The "Yen Trap" Scenario</h1>
-        <p class="subtitle">How a political comment could trigger a <span class="highlight">$4 Trillion</span> global market crash.</p>
+        <h1>⚡ The "Cross-Asset" Cascade</h1>
+        <p class="subtitle">Interactive Simulator: Push the Yen up and watch the world break.</p>
     </header>
 
-    <div class="flow-steps">
-        <div class="step">🗣️ 1. Takaichi comments on Taiwan</div>
-        <div class="arrow">➔</div>
-        <div class="step">🎭 2. China fakes "Defensive" Fear</div>
-        <div class="arrow">➔</div>
-        <div class="step">💥 3. China Buys Yen (The Attack)</div>
-        <div class="arrow">➔</div>
-        <div class="step">📉 4. Global Markets Crash</div>
-    </div>
-
-    <div class="section-title">1. What is "Diplomatic Cover"?</div>
-    <p style="margin-bottom: 20px; color: #cbd5e1;">
-        Usually, if China attacks a currency, the world sanctions them. But if they use Sanae Takaichi's comments as an excuse, they can hide their attack in plain sight.
-    </p>
-    <div class="cover-container">
-        <div class="cover-card public">
-            <span class="card-icon">🛡️</span>
-            <span class="card-head">The Public Excuse</span>
-            <p>"We are worried about war because of Takaichi's comments. We are simply buying Yen to protect our assets safely. This is just risk management."</p>
-        </div>
-        <div class="cover-card reality">
-            <span class="card-icon">⚔️</span>
-            <span class="card-head">The Hidden Attack</span>
-            <p>They are intentionally buying massive amounts of Yen to make the price spike. They know this spike will force Western banks to panic-sell stocks.</p>
-        </div>
-    </div>
-
-    <div class="section-title">2. The Weapons (Attack Vectors)</div>
-    <p style="margin-bottom: 20px; color: #cbd5e1;">How does China actually crash the market? They don't use missiles; they use financial tools.</p>
-    <div class="vectors-grid">
-        <div class="vector-item">
-            <div class="vector-icon">💰</div>
-            <div class="vector-name">The Cash Cannon</div>
-            <div class="vector-desc">Using $50-100 Billion in reserves to directly buy Yen, driving the price up immediately.</div>
-        </div>
-        <div class="vector-item">
-            <div class="vector-icon">🏦</div>
-            <div class="vector-name">State Bank Army</div>
-            <div class="vector-desc">Ordering massive Chinese state banks to all move money out of Dollars and into Yen at the same time.</div>
-        </div>
-        <div class="vector-item">
-            <div class="vector-icon">👻</div>
-            <div class="vector-name">Shadow Bets</div>
-            <div class="vector-desc">Using "Derivatives" (complex side-bets) that are hard to track but multiply the panic 10x.</div>
-        </div>
-    </div>
-
-    <div class="section-title">3. The Stakes: Why it Matters to You</div>
-    <div class="impact-box">
-        <p style="margin-bottom: 20px; font-size: 1.1rem;">
-            The "Carry Trade" is like a giant loan used to buy US Stocks. If the Yen gets too expensive, that loan must be paid back immediately, forcing investors to sell everything else.
-        </p>
-        
-        <div class="stat-row">
-            <div class="stat-label">
-                <span>📉 Global Stock Loss</span>
-                <span style="color:#fca5a5">$2 - 4 Trillion</span>
-            </div>
-            <div class="bar-bg">
-                <div class="bar-fill fill-stocks">Systemic Crash</div>
-            </div>
-        </div>
-
-        <div class="stat-row">
-            <div class="stat-label">
-                <span>💴 Yen Price Spike</span>
-                <span style="color:#fdba74">+15% to 20%</span>
-            </div>
-            <div class="bar-bg">
-                <div class="bar-fill fill-yen">Rapid Surge</div>
-            </div>
-        </div>
-
-        <div class="stat-row">
-            <div class="stat-label">
-                <span>💻 US Tech Stocks</span>
-                <span style="color:#fde047">-20% Drop</span>
-            </div>
-            <div class="bar-bg">
-                <div class="bar-fill fill-tech">Heavy Selloff</div>
-            </div>
+    <div class="control-panel">
+        <div class="slider-label-box">
+            <span>🇨🇳 China's Action:</span>
+            <span>💴 USD/JPY Rate: <span id="rate-display" class="jpy-display">150.00</span></span>
         </div>
         
-        <p style="margin-top: 20px; font-size: 0.9rem; color: #94a3b8; text-align: center;">
-            <em>*Based on data from the August 2024 market correction, multiplied by geopolitical intent.</em>
-        </p>
+        <input type="range" id="yen-slider" min="0" max="100" value="0">
+        
+        <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.8rem;">
+            <span>Status Quo (150)</span>
+            <span>Market Stress (140)</span>
+            <span>SYSTEM CRASH (120)</span>
+        </div>
+    </div>
+
+    <div class="section-title">Step 1: The Carry Trade Mechanism</div>
+    <div class="mechanism-box">
+        <div class="mech-card debt" id="debt-card">
+            <span class="mech-icon">💸</span>
+            <span class="mech-title">The Yen Loan</span>
+            <span class="mech-value" id="debt-val">$1,000,000</span>
+            <p style="font-size:0.8rem; color:#fca5a5; margin-top:5px;">Cost to Repay</p>
+        </div>
+
+        <div class="arrow-connector">
+            <span>➔</span>
+            <span class="arrow-text" id="arrow-label">Stable</span>
+        </div>
+
+        <div class="mech-card asset" id="collateral-card">
+            <span class="mech-icon">📉</span>
+            <span class="mech-title">Forced Selling</span>
+            <span class="mech-value" id="sell-val">$0</span>
+            <p style="font-size:0.8rem; color:#cbd5e1; margin-top:5px;">Assets Dumped</p>
+        </div>
+    </div>
+
+    <div class="section-title">Step 2: Real-Time Market Impact</div>
+    <div class="cascade-grid">
+        <div class="asset-card">
+            <span class="asset-name">🇺🇸 US Tech (Nasdaq)</span>
+            <span class="asset-change positive" id="tech-change">0.0%</span>
+            <span class="asset-desc">Most funded by cheap Yen</span>
+            <div class="crash-bar" id="tech-bar"></div>
+        </div>
+        <div class="asset-card">
+            <span class="asset-name">₿ Bitcoin</span>
+            <span class="asset-change positive" id="crypto-change">0.0%</span>
+            <span class="asset-desc">Highly speculative proxy</span>
+            <div class="crash-bar" id="crypto-bar"></div>
+        </div>
+        <div class="asset-card">
+            <span class="asset-name">🌏 Emerging Markets</span>
+            <span class="asset-change positive" id="em-change">0.0%</span>
+            <span class="asset-desc">Global liquidity drain</span>
+            <div class="crash-bar" id="em-bar"></div>
+        </div>
+    </div>
+
+    <div class="status-box" id="status-text">
+        Markets are calm. The "Carry Trade" is profitable. Investors are borrowing cheap Yen to buy Tech Stocks.
     </div>
 
 </div>
+
+<script>
+    // Elements
+    const slider = document.getElementById('yen-slider');
+    const rateDisplay = document.getElementById('rate-display');
+    const debtVal = document.getElementById('debt-val');
+    const sellVal = document.getElementById('sell-val');
+    const arrowLabel = document.getElementById('arrow-label');
+    const debtCard = document.getElementById('debt-card');
+    
+    const techChange = document.getElementById('tech-change');
+    const cryptoChange = document.getElementById('crypto-change');
+    const emChange = document.getElementById('em-change');
+    
+    const techBar = document.getElementById('tech-bar');
+    const cryptoBar = document.getElementById('crypto-bar');
+    const emBar = document.getElementById('em-bar');
+    
+    const statusBox = document.getElementById('status-text');
+
+    // Format Currency
+    const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    // Event Listener
+    slider.addEventListener('input', updateDashboard);
+
+    function updateDashboard() {
+        // 1. Calculate The Trigger (Yen Rate)
+        // Range: 0-100 input maps to 150.00 down to 120.00 USD/JPY
+        const input = parseInt(slider.value);
+        const startRate = 150;
+        const endRate = 120;
+        const currentRate = startRate - ((startRate - endRate) * (input / 100));
+        
+        rateDisplay.innerText = currentRate.toFixed(2);
+
+        // 2. Calculate The Loan Mechanics (The Debt gets bigger as Rate goes down)
+        // If Yen gets stronger (rate goes down), you need MORE dollars to pay back the same Yen loan.
+        const baseLoan = 1000000; // $1M initial loan
+        const appreciationFactor = startRate / currentRate; 
+        const currentDebt = baseLoan * appreciationFactor;
+        const loss = currentDebt - baseLoan;
+
+        debtVal.innerText = USD.format(currentDebt);
+        sellVal.innerText = USD.format(loss); // You must sell this much to cover the gap
+
+        // 3. Visual Feedback on Debt Card
+        if(input > 20) {
+            debtCard.style.background = `rgba(239, 68, 68, ${input/200})`; // Turn card redder
+            rateDisplay.classList.add('danger');
+        } else {
+            debtCard.style.background = '#1e293b';
+            rateDisplay.classList.remove('danger');
+        }
+
+        // 4. Calculate Cascading Market Crashes
+        // Correlation Logic:
+        // Tech drops 1.5x the Yen move.
+        // Crypto drops 2.5x the Yen move.
+        // EM drops 1.0x the Yen move.
+        
+        const yenStrengthPercent = ((150 - currentRate) / 150) * 100; // How much Yen went up %
+        
+        const techDrop = -(yenStrengthPercent * 1.2).toFixed(1);
+        const cryptoDrop = -(yenStrengthPercent * 1.8).toFixed(1);
+        const emDrop = -(yenStrengthPercent * 0.9).toFixed(1);
+
+        updateAsset(techChange, techBar, techDrop);
+        updateAsset(cryptoChange, cryptoBar, cryptoDrop);
+        updateAsset(emChange, emBar, emDrop);
+
+        // 5. Update Narrative Text based on severity
+        updateNarrative(input, currentRate);
+    }
+
+    function updateAsset(textEl, barEl, value) {
+        textEl.innerText = value + "%";
+        if(parseFloat(value) < 0) {
+            textEl.classList.remove('positive');
+            textEl.classList.add('negative');
+            // Bar fills up based on crash severity (max 30% crash = 100% bar)
+            let width = Math.abs(parseFloat(value)) * 3.5;
+            if(width > 100) width = 100;
+            barEl.style.width = width + "%";
+        } else {
+            textEl.classList.add('positive');
+            textEl.classList.remove('negative');
+            barEl.style.width = "0%";
+        }
+    }
+
+    function updateNarrative(input, rate) {
+        if (input < 10) {
+            statusBox.innerHTML = "🟢 <strong>Status Normal:</strong> Investors are comfortable. Borrowing Yen is cheap. Tech stocks are rallying.";
+            statusBox.style.borderLeftColor = "#4ade80";
+            arrowLabel.innerText = "Stable";
+        } else if (input < 40) {
+            statusBox.innerHTML = "🟡 <strong>Warning Signs:</strong> The Yen is rising. Loans are getting expensive. Algorithms are starting to sell small amounts of Tech stocks to reduce risk.";
+            statusBox.style.borderLeftColor = "#facc15";
+            arrowLabel.innerText = "Hedging";
+        } else if (input < 75) {
+            statusBox.innerHTML = "🟠 <strong>Margin Calls (The Squeeze):</strong> Traders are losing money on the currency. They are FORCED to sell Nvidia and Bitcoin to pay back the bank. Volatility is spiking.";
+            statusBox.style.borderLeftColor = "#f97316";
+            arrowLabel.innerText = "FORCED SELLING";
+        } else {
+            statusBox.innerHTML = "🔴 <strong>SYSTEMIC CRASH:</strong> Total capitulation. The cost to repay Yen loans is too high. Funds are liquidating everything at any price. Global contagion.";
+            statusBox.style.borderLeftColor = "#ef4444";
+            arrowLabel.innerText = "LIQUIDATION";
+        }
+    }
+</script>
 
 </body>
 </html>
