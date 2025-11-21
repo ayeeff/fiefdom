@@ -1,269 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Australia GSP Movement 2024-2025</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        .ausstatemap-container {
-            height: 500px;
-            border-radius: 0.5rem;
-        }
-        .ausstatemap-legend {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australia GSP Movement 2024-2025</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>.ausstatemap-container{height:500px;border-radius:0.5rem;}.ausstatemap-legend{background:white;padding:10px;border-radius:5px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}</style>
 </head>
 <body class="bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Australia GSP Movement</h1>
-            <p class="text-gray-600">How the gross state product moved, 2024-2025</p>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow-md p-4">
-                <div class="text-sm text-gray-600 mb-1">ACT</div>
-                <div class="text-2xl font-bold text-green-600">3.5%</div>
-                <div class="text-xs text-green-600">Highest Growth</div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-4">
-                <div class="text-sm text-gray-600 mb-1">Queensland</div>
-                <div class="text-2xl font-bold text-green-500">2.2%</div>
-                <div class="text-xs text-green-600">Strong Growth</div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-4">
-                <div class="text-sm text-gray-600 mb-1">Western Australia</div>
-                <div class="text-2xl font-bold text-green-400">1.3%</div>
-                <div class="text-xs text-gray-600">Moderate Growth</div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-4">
-                <div class="text-sm text-gray-600 mb-1">NSW</div>
-                <div class="text-2xl font-bold text-green-300">0.9%</div>
-                <div class="text-xs text-orange-600">Slowest Growth</div>
-            </div>
-        </div>
-
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 mb-6 rounded-lg">
-            <h2 class="text-xl font-bold mb-3">💡 Key Findings from the Data</h2>
-            <p class="mb-2">The new figures highlight a growing reliance on non-traditional powerhouse states for economic growth:</p>
-            <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
-                <li><span class="font-semibold">ACT:</span> Was the <span class="font-bold">strongest performer</span> in 2024-25 with <span class="font-bold">3.5%</span> GSP growth, driven in part by a strong public service sector and federal election spending. Since 2000, its economy has expanded the most, by <span class="font-bold">156%</span>.</li>
-                <li><span class="font-semibold">Queensland (QLD):</span> Grew by <span class="font-bold">2.2%</span> in 2024-25 and has expanded by <span class="font-bold">125%</span> since 2000, confirming its growing economic importance.</li>
-                <li><span class="font-semibold">Western Australia (WA):</span> Grew by <span class="font-bold">1.3%</span> in 2024-25 and has expanded by <span class="font-bold">150%</span> since 2000, though its economy shrank by <span class="font-bold">1.1%</span> in per capita terms in 2024-25.</li>
-                <li><span class="font-semibold">New South Wales (NSW):</span> Was the <span class="font-bold">slowest-growing</span> economy in 2024-25 at just <span class="font-bold">0.9%</span> and has the <span class="font-bold">worst performance</span> since 2000, expanding by only <span class="font-bold">65%</span>. Its economy also went backward by <span class="font-bold">0.3%</span> per capita.</li>
-                <li><span class="font-semibold">Victoria (VIC):</span> Grew by <span class="font-bold">1.1%</span> in 2024-25, and expanded by <span class="font-bold">90%</span> since 2000, with a per capita contraction of <span class="font-bold">0.8%</span>.</li>
-                <li><span class="font-semibold">Other Jurisdictions (TAS, SA, NT):</span> All expanded by <span class="font-bold">1.0%</span> in 2024-25.</li>
-            </ul>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Total GSP Growth Since 2000 (Choropleth Map)</h2>
-                <div id="ausMap" class="ausstatemap-container"></div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">2024-25 GSP Growth Comparison</h2>
-                <div id="barChart"></div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Historical Growth Trend Since 2000</h2>
-            <div id="historicalChart"></div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Detailed State Performance</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">State/Territory</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">2024-25 Growth</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth Since 2000</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Per Capita Change (2024-25)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="dataTable"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data from the article, updated for a green color scheme
-        const stateData = {
-            'ACT': { growth2024: 3.5, growthSince2000: 156, perCapita: 0.0, color: '#166534', tailwindColor: 'bg-green-700' }, // Darkest Green
-            'Queensland': { growth2024: 2.2, growthSince2000: 125, perCapita: 0.0, color: '#34d399', tailwindColor: 'bg-green-500' },
-            'Western Australia': { growth2024: 1.3, growthSince2000: 150, perCapita: -1.1, color: '#059669', tailwindColor: 'bg-green-600' },
-            'Victoria': { growth2024: 1.1, growthSince2000: 90, perCapita: -0.8, color: '#6ee7b7', tailwindColor: 'bg-green-400' },
-            'South Australia': { growth2024: 1.0, growthSince2000: 85, perCapita: -0.5, color: '#a7f3d0', tailwindColor: 'bg-green-300' },
-            'Tasmania': { growth2024: 1.0, growthSince2000: 80, perCapita: -0.4, color: '#a7f3d0', tailwindColor: 'bg-green-300' },
-            'Northern Territory': { growth2024: 1.0, growthSince2000: 75, perCapita: -0.3, color: '#d1fae5', tailwindColor: 'bg-green-200' },
-            'NSW': { growth2024: 0.9, growthSince2000: 65, perCapita: -0.3, color: '#f0fdf4', tailwindColor: 'bg-green-100' } // Lightest Green
-        };
-        
-        // --- Leaflet Map Data (GeoJSON approximation for shading) ---
-        // NOTE: A full Choropleth map requires GeoJSON data for state boundaries, 
-        // which is large and cannot be included here. The map below uses simplified
-        // coordinates and GeoJSON-like features to simulate the required shading 
-        // functionality for demonstration purposes, matching the shading based on the 
-        // 'growthSince2000' data.
-
-        // Placeholder GeoJSON data structure for Australia's states/territories
-        const australiaGeoJson = {
-            "type": "FeatureCollection",
-            "features": [
-                // Simplified feature data for demonstration. 
-                // In a real application, the geometry would be complex state boundaries.
-                {"type": "Feature", "properties": {"name": "ACT", "growthSince2000": 156}, "geometry": {"type": "Point", "coordinates": [149.1, -35.3]}},
-                {"type": "Feature", "properties": {"name": "Queensland", "growthSince2000": 125}, "geometry": {"type": "Point", "coordinates": [145.0, -22.0]}},
-                {"type": "Feature", "properties": {"name": "Western Australia", "growthSince2000": 150}, "geometry": {"type": "Point", "coordinates": [122.0, -26.0]}},
-                {"type": "Feature", "properties": {"name": "Victoria", "growthSince2000": 90}, "geometry": {"type": "Point", "coordinates": [144.0, -37.0]}},
-                {"type": "Feature", "properties": {"name": "South Australia", "growthSince2000": 85}, "geometry": {"type": "Point", "coordinates": [135.0, -30.0]}},
-                {"type": "Feature", "properties": {"name": "Tasmania", "growthSince2000": 80}, "geometry": {"type": "Point", "coordinates": [147.0, -42.0]}},
-                {"type": "Feature", "properties": {"name": "Northern Territory", "growthSince2000": 75}, "geometry": {"type": "Point", "coordinates": [133.0, -19.5]}},
-                {"type": "Feature", "properties": {"name": "NSW", "growthSince2000": 65}, "geometry": {"type": "Point", "coordinates": [146.0, -32.0]}}
-            ]
-        };
-
-        // Function to get color based on 'Growth Since 2000'
-        function getColor(d) {
-            return d > 150 ? '#166534' : // ACT
-                   d > 140 ? '#059669' : // WA
-                   d > 120 ? '#34d399' : // QLD
-                   d > 90  ? '#6ee7b7' : 
-                   d > 80  ? '#a7f3d0' : 
-                   d > 70  ? '#d1fae5' : 
-                   '#f0fdf4'; // NSW
-        }
-
-        // Initialize Leaflet Map
-        const map = L.map('ausMap', { zoomControl: false }).setView([-27, 133], 4);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 6,
-            minZoom: 4
-        }).addTo(map);
-
-        // Simulated Choropleth Layer (using circles near the center of states for visualization)
-        // In a real application, you would load an actual GeoJSON file of state boundaries.
-        L.geoJSON(australiaGeoJson, {
-            pointToLayer: function (feature, latlng) {
-                // This simulates a visual representation of the Choropleth by placing a large, colored circle
-                // to approximate the shading of the area, as a true GeoJSON for Australia is unavailable here.
-                const stateName = feature.properties.name;
-                const data = Object.keys(stateData).find(key => key === stateName) ? stateData[stateName] : Object.values(stateData).find(d => d.color === getColor(feature.properties.growthSince2000)) || {};
-                
-                return L.circle(latlng, {
-                    color: data.color,
-                    fillColor: data.color,
-                    fillOpacity: 0.7,
-                    weight: 1,
-                    radius: 350000 
-                }).bindPopup(`
-                    <div class="ausstatemap-legend">
-                        <strong>${stateName}</strong><br>
-                        Growth Since 2000: <strong>${feature.properties.growthSince2000}%</strong><br>
-                        2024-25 Growth: <strong>${data.growth2024}%</strong>
-                    </div>
-                `);
-            }
-        }).addTo(map);
-        
-        // Add a simple legend (manual for this simplified map)
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function (map) {
-            const div = L.DomUtil.create('div', 'ausstatemap-legend');
-            const grades = [60, 70, 80, 90, 120, 140, 150];
-            const labels = ['<strong>Growth Since 2000 (%)</strong>'];
-
-            for (let i = 0; i < grades.length; i++) {
-                labels.push(
-                    '<i style="background:' + getColor(grades[i] + 1) + '; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7;"></i> ' +
-                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+'));
-            }
-            div.innerHTML = labels.join('<br>');
-            return div;
-        };
-        legend.addTo(map);
-
-
-        // Bar Chart - 2024-25 Growth
-        const barChartData = [{
-            x: Object.keys(stateData),
-            y: Object.values(stateData).map(d => d.growth2024),
-            type: 'bar',
-            marker: {
-                color: Object.values(stateData).map(d => d.color)
-            },
-            text: Object.values(stateData).map(d => d.growth2024 + '%'),
-            textposition: 'auto'
-        }];
-
-        const barLayout = {
-            title: '',
-            xaxis: { title: '' },
-            yaxis: { title: 'Growth Rate (%)', range: [0, 4] },
-            margin: { t: 20, b: 80, l: 50, r: 20 }
-        };
-
-        Plotly.newPlot('barChart', barChartData, barLayout, {responsive: true});
-
-        // Historical Growth Chart
-        const historicalData = [{
-            x: Object.keys(stateData),
-            y: Object.values(stateData).map(d => d.growthSince2000),
-            type: 'bar',
-            marker: {
-                color: Object.values(stateData).map(d => d.color)
-            },
-            text: Object.values(stateData).map(d => d.growthSince2000 + '%'),
-            textposition: 'auto'
-        }];
-
-        const historicalLayout = {
-            title: '',
-            xaxis: { title: '' },
-            yaxis: { title: 'Total Growth Since 2000 (%)', range: [0, 170] },
-            margin: { t: 20, b: 80, l: 50, r: 20 }
-        };
-
-        Plotly.newPlot('historicalChart', historicalData, historicalLayout, {responsive: true});
-
-        // Populate Data Table
-        const tableBody = document.getElementById('dataTable');
-        Object.entries(stateData).forEach(([state, data]) => {
-            const row = document.createElement('tr');
-            
-            // Set per capita text color
-            const perCapitaColor = data.perCapita < 0 ? 'text-red-600' : (data.perCapita > 0 ? 'text-green-600' : 'text-gray-600');
-            const perCapitaText = data.perCapita === 0.0 ? 'N/A' : `${data.perCapita}%`; // Use N/A or actual percentage
-
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${state}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background-color: ${data.color}20; color: ${data.color}">
-                        ${data.growth2024}%
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.growthSince2000}%</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm ${perCapitaColor}">
-                    ${perCapitaText}
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    </script>
+<div class="container mx-auto px-4 py-8">
+<div class="bg-white rounded-lg shadow-md p-6 mb-6"><h1 class="text-3xl font-bold text-gray-800 mb-2">Australia GSP Movement</h1><p class="text-gray-600">How the gross state product moved, 2024-2025</p></div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">ACT</div><div class="text-2xl font-bold text-green-600">3.5%</div><div class="text-xs text-green-600">Highest Growth</div></div>
+<div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">Queensland</div><div class="text-2xl font-bold text-green-500">2.2%</div><div class="text-xs text-green-600">Strong Growth</div></div>
+<div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">Western Australia</div><div class="text-2xl font-bold text-green-400">1.3%</div><div class="text-xs text-gray-600">Moderate Growth</div></div>
+<div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">NSW</div><div class="text-2xl font-bold text-green-300">0.9%</div><div class="text-xs text-orange-600">Slowest Growth</div></div>
+</div>
+<div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 mb-6 rounded-lg"><h2 class="text-xl font-bold mb-3">💡 Key Findings from the Data</h2><p class="mb-2">The new figures highlight a growing reliance on non-traditional powerhouse states for economic growth:</p><ul class="list-disc list-inside space-y-1 ml-4 text-gray-700"><li><span class="font-semibold">ACT:</span> Was the <span class="font-bold">strongest performer</span> in 2024-25 with <span class="font-bold">3.5%</span> GSP growth, driven in part by a strong public service sector and federal election spending. Since 2000, its economy has expanded the most, by <span class="font-bold">156%</span>.</li><li><span class="font-semibold">Queensland (QLD):</span> Grew by <span class="font-bold">2.2%</span> in 2024-25 and has expanded by <span class="font-bold">125%</span> since 2000, confirming its growing economic importance.</li><li><span class="font-semibold">Western Australia (WA):</span> Grew by <span class="font-bold">1.3%</span> in 2024-25 and has expanded by <span class="font-bold">150%</span> since 2000, though its economy shrank by <span class="font-bold">1.1%</span> in per capita terms in 2024-25.</li><li><span class="font-semibold">New South Wales (NSW):</span> Was the <span class="font-bold">slowest-growing</span> economy in 2024-25 at just <span class="font-bold">0.9%</span> and has the <span class="font-bold">worst performance</span> since 2000, expanding by only <span class="font-bold">65%</span>. Its economy also went backward by <span class="font-bold">0.3%</span> per capita.</li><li><span class="font-semibold">Victoria (VIC):</span> Grew by <span class="font-bold">1.1%</span> in 2024-25, and expanded by <span class="font-bold">90%</span> since 2000, with a per capita contraction of <span class="font-bold">0.8%</span>.</li><li><span class="font-semibold">Other Jurisdictions (TAS, SA, NT):</span> All expanded by <span class="font-bold">1.0%</span> in 2024-25.</li></ul></div>
+<div class="grid md:grid-cols-2 gap-6 mb-6">
+<div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-bold text-gray-800 mb-4">Total GSP Growth Since 2000 (Choropleth Map)</h2><div id="ausMap" class="ausstatemap-container"></div></div>
+<div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-bold text-gray-800 mb-4">2024-25 GSP Growth Comparison</h2><div id="barChart"></div></div>
+</div>
+<div class="bg-white rounded-lg shadow-md p-6 mb-6"><h2 class="text-xl font-bold text-gray-800 mb-4">Historical Growth Trend Since 2000</h2><div id="historicalChart"></div></div>
+<div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-bold text-gray-800 mb-4">Detailed State Performance</h2><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">State/Territory</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">2024-25 Growth</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth Since 2000</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Per Capita Change (2024-25)</th></tr></thead><tbody class="bg-white divide-y divide-gray-200" id="dataTable"></tbody></table></div></div>
+</div>
+<script>
+window.addEventListener('load',function(){
+const stateData={'ACT':{growth2024:3.5,growthSince2000:156,perCapita:0.0,color:'#166534',tailwindColor:'bg-green-700'},'Queensland':{growth2024:2.2,growthSince2000:125,perCapita:0.0,color:'#34d399',tailwindColor:'bg-green-500'},'Western Australia':{growth2024:1.3,growthSince2000:150,perCapita:-1.1,color:'#059669',tailwindColor:'bg-green-600'},'Victoria':{growth2024:1.1,growthSince2000:90,perCapita:-0.8,color:'#6ee7b7',tailwindColor:'bg-green-400'},'South Australia':{growth2024:1.0,growthSince2000:85,perCapita:-0.5,color:'#a7f3d0',tailwindColor:'bg-green-300'},'Tasmania':{growth2024:1.0,growthSince2000:80,perCapita:-0.4,color:'#a7f3d0',tailwindColor:'bg-green-300'},'Northern Territory':{growth2024:1.0,growthSince2000:75,perCapita:-0.3,color:'#d1fae5',tailwindColor:'bg-green-200'},'NSW':{growth2024:0.9,growthSince2000:65,perCapita:-0.3,color:'#f0fdf4',tailwindColor:'bg-green-100'}};
+const stateNameMapping={'Australian Capital Territory':'ACT','New South Wales':'NSW','Northern Territory':'Northern Territory','Queensland':'Queensland','South Australia':'South Australia','Tasmania':'Tasmania','Victoria':'Victoria','Western Australia':'Western Australia'};
+function getColor(d){return d>150?'#166534':d>140?'#059669':d>120?'#34d399':d>90?'#6ee7b7':d>80?'#a7f3d0':d>70?'#d1fae5':'#f0fdf4';}
+const map=L.map('ausMap',{zoomControl:false}).setView([-27,133],4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:6,minZoom:4}).addTo(map);
+fetch('https://raw.githubusercontent.com/tonywr71/GeoJson-Data/master/australian-states.json').then(response=>response.json()).then(geojsonData=>{L.geoJSON(geojsonData,{style:function(feature){const stateName=feature.properties.STATE_NAME;const mappedName=stateNameMapping[stateName]||stateName;const data=stateData[mappedName];const growthValue=data?data.growthSince2000:0;return{fillColor:data?data.color:'#cccccc',weight:1.5,opacity:1,color:'#ffffff',fillOpacity:0.7};},onEachFeature:function(feature,layer){const stateName=feature.properties.STATE_NAME;const mappedName=stateNameMapping[stateName]||stateName;const data=stateData[mappedName];if(data){layer.bindPopup(`<div class="ausstatemap-legend"><strong>${mappedName}</strong><br>Growth Since 2000: <strong>${data.growthSince2000}%</strong><br>2024-25 Growth: <strong>${data.growth2024}%</strong></div>`);layer.on('mouseover',function(){this.setStyle({weight:3,fillOpacity:0.9});});layer.on('mouseout',function(){this.setStyle({weight:1.5,fillOpacity:0.7});});}}}).addTo(map);}).catch(error=>{console.error('Error loading GeoJSON:',error);document.getElementById('ausMap').innerHTML='<div class="p-4 text-center text-gray-600">Map data loading...</div>';});
+const legend=L.control({position:'bottomright'});
+legend.onAdd=function(map){const div=L.DomUtil.create('div','ausstatemap-legend');const grades=[60,70,80,90,120,140,150];const labels=['<strong>Growth Since 2000 (%)</strong>'];for(let i=0;i<grades.length;i++){labels.push('<i style="background:'+getColor(grades[i]+1)+'; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7;"></i> '+grades[i]+(grades[i+1]?'&ndash;'+grades[i+1]+'<br>':'+'));}div.innerHTML=labels.join('<br>');return div;};
+legend.addTo(map);
+const barChartData=[{x:Object.keys(stateData),y:Object.values(stateData).map(d=>d.growth2024),type:'bar',marker:{color:Object.values(stateData).map(d=>d.color)},text:Object.values(stateData).map(d=>d.growth2024+'%'),textposition:'auto'}];
+const barLayout={title:'',xaxis:{title:''},yaxis:{title:'Growth Rate (%)',range:[0,4]},margin:{t:20,b:80,l:50,r:20}};
+Plotly.newPlot('barChart',barChartData,barLayout,{responsive:true});
+const historicalData=[{x:Object.keys(stateData),y:Object.values(stateData).map(d=>d.growthSince2000),type:'bar',marker:{color:Object.values(stateData).map(d=>d.color)},text:Object.values(stateData).map(d=>d.growthSince2000+'%'),textposition:'auto'}];
+const historicalLayout={title:'',xaxis:{title:''},yaxis:{title:'Total Growth Since 2000 (%)',range:[0,170]},margin:{t:20,b:80,l:50,r:20}};
+Plotly.newPlot('historicalChart',historicalData,historicalLayout,{responsive:true});
+const tableBody=document.getElementById('dataTable');
+Object.entries(stateData).forEach(([state,data])=>{const row=document.createElement('tr');const perCapitaColor=data.perCapita<0?'text-red-600':(data.perCapita>0?'text-green-600':'text-gray-600');const perCapitaText=data.perCapita===0.0?'N/A':`${data.perCapita}%`;row.innerHTML=`<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${state}</td><td class="px-6 py-4 whitespace-nowrap text-sm"><span class="px-2 py-1 rounded-full text-xs font-semibold" style="background-color: ${data.color}20; color: ${data.color}">${data.growth2024}%</span></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.growthSince2000}%</td><td class="px-6 py-4 whitespace-nowrap text-sm ${perCapitaColor}">${perCapitaText}</td>`;tableBody.appendChild(row);});
+});
+</script>
 </body>
 </html>
