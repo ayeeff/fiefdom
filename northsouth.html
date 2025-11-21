@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North-South Water Transfer Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .-northsouthproj-custom-marker { background: none; border: none; }
+        .-northsouthproj-stat-card { transition: transform 0.2s; }
+        .-northsouthproj-stat-card:hover { transform: translateY(-4px); }
+        .-northsouthproj-route-line { stroke-width: 3; opacity: 0.8; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-50 min-h-screen p-4 md:p-8 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-white to-blue-50 rounded-3xl shadow-xl p-6 md:p-8 mb-6 border border-blue-100">
+            <h1 class="text-3xl md:text-5xl font-bold text-blue-900 mb-3 flex items-center gap-3">
+                <span class="text-4xl">💧</span> North-South Water Transfer Project
+            </h1>
+            <p class="text-blue-600 text-lg font-light">南水北调中线工程 • Central Route Infrastructure Network</p>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="-northsouthproj-stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 shadow-lg">
+                <div class="text-blue-100 text-sm font-medium mb-1">Total Length</div>
+                <div class="text-white text-3xl font-bold">1,267 km</div>
+                <div class="text-blue-100 text-xs mt-1">Central Route</div>
+            </div>
+            <div class="-northsouthproj-stat-card bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-5 shadow-lg">
+                <div class="text-cyan-100 text-sm font-medium mb-1">Water Capacity</div>
+                <div class="text-white text-3xl font-bold">13B m³</div>
+                <div class="text-cyan-100 text-xs mt-1">Annual Supply</div>
+            </div>
+            <div class="-northsouthproj-stat-card bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-5 shadow-lg">
+                <div class="text-indigo-100 text-sm font-medium mb-1">Population Served</div>
+                <div class="text-white text-3xl font-bold">100M+</div>
+                <div class="text-indigo-100 text-xs mt-1">Beneficiaries</div>
+            </div>
+            <div class="-northsouthproj-stat-card bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-5 shadow-lg">
+                <div class="text-teal-100 text-sm font-medium mb-1">Major Cities</div>
+                <div class="text-white text-3xl font-bold">40+</div>
+                <div class="text-teal-100 text-xs mt-1">Urban Areas</div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="bg-white rounded-3xl p-6 border border-blue-100 shadow-xl mb-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <span>🗺️</span> Infrastructure Network Map
+            </h2>
+            <div id="northsouthproj_map_container" class="h-[600px] rounded-2xl overflow-hidden border-2 border-blue-200"></div>
+        </div>
+
+        <!-- Facilities Table -->
+        <div class="bg-white rounded-3xl p-6 border border-blue-100 shadow-xl mb-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <span>🏗️</span> Key Infrastructure Facilities
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs uppercase bg-blue-50">
+                        <tr>
+                            <th class="px-4 py-3 text-blue-900 font-semibold">Facility Name</th>
+                            <th class="px-4 py-3 text-blue-900 font-semibold">Chinese Name</th>
+                            <th class="px-4 py-3 text-blue-900 font-semibold">Type</th>
+                            <th class="px-4 py-3 text-blue-900 font-semibold">Location</th>
+                            <th class="px-4 py-3 text-blue-900 font-semibold">Function</th>
+                        </tr>
+                    </thead>
+                    <tbody id="northsouthproj_facilities_table" class="text-gray-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Project Highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">🌊</div>
+                <h3 class="font-bold text-lg mb-2">Danjiangkou Reservoir</h3>
+                <p class="text-blue-100 text-sm">Asia's largest artificial freshwater reservoir. Primary water source with 13 billion m³ annual capacity. Dam raised 2005-2009.</p>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">🚇</div>
+                <h3 class="font-bold text-lg mb-2">Yellow River Crossing</h3>
+                <p class="text-yellow-100 text-sm">Engineering marvel: 4.25 km twin tunnels passing 35 meters below Yellow River bed. Capacity: 280 m³/s flow rate.</p>
+            </div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">🏙️</div>
+                <h3 class="font-bold text-lg mb-2">Beijing Terminal</h3>
+                <p class="text-purple-100 text-sm">Tuancheng Lake serves as final receiving point, providing 70% of Beijing's urban tap water through 75 km pipeline network.</p>
+            </div>
+            <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">🌳</div>
+                <h3 class="font-bold text-lg mb-2">Jiaozuo Urban Canal</h3>
+                <p class="text-green-100 text-sm">Unique 10-km green corridor running through downtown. Supplies 430+ million m³/year while creating urban ecological space.</p>
+            </div>
+            <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">⚡</div>
+                <h3 class="font-bold text-lg mb-2">Gravity-Fed System</h3>
+                <p class="text-red-100 text-sm">Entire 1,267 km route uses natural elevation drop - no pumping required. Average gradient: 1:10,000 for energy efficiency.</p>
+            </div>
+            <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="text-2xl mb-2">💧</div>
+                <h3 class="font-bold text-lg mb-2">Water Quality Impact</h3>
+                <p class="text-cyan-100 text-sm">Eliminated high-fluoride groundwater use in Shijiazhuang, benefiting 5+ million people with safer drinking water.</p>
+            </div>
+        </div>
+
+        <!-- Route Image -->
+        <div class="bg-white rounded-3xl p-6 border border-blue-100 shadow-xl">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <span>📸</span> Water Transfer Infrastructure
+            </h2>
+            <img src="https://images.unsplash.com/photo-1551244072-5d12893278ab?w=1200" alt="Modern water infrastructure" class="w-full h-80 object-cover rounded-2xl shadow-md">
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+        
+        // Create unique namespace for this instance
+        var ns = 'northsouthproj_' + Math.random().toString(36).substr(2, 9);
+        
+        // Prevent multiple initializations
+        if (window[ns + '_initialized']) return;
+        window[ns + '_initialized'] = true;
+        
+        var facilities = [
+            {
+                name: "Danjiangkou Reservoir",
+                chinese: "丹江口水库",
+                lat: 32.55611,
+                lon: 111.48806,
+                type: "Reservoir",
+                category: "Source",
+                description: "Primary water source storing Han River water. Multi-purpose reservoir for water supply (13 billion m³/year), flood control, and hydroelectric power. Dam raised 2005-2009.",
+                color: "#3b82f6",
+                icon: "🌊"
+            },
+            {
+                name: "Taocha Canal Head Works",
+                chinese: "陶岔渠首枢纽",
+                lat: 32.70,
+                lon: 111.48,
+                type: "Head Works",
+                category: "Control",
+                description: "Controls water entry from Danjiangkou Reservoir into main conveyance canal. Starting point of the 1,267 km gravity-fed central route.",
+                color: "#8b5cf6",
+                icon: "🚪"
+            },
+            {
+                name: "Yellow River Crossing Tunnel",
+                chinese: "穿黄工程",
+                lat: 34.88,
+                lon: 113.22,
+                type: "Tunnel",
+                category: "Engineering",
+                description: "Canal crosses underneath Yellow River via 4.25 km twin tunnels. Maximum depth 35 m below riverbed, capacity 280 m³/s.",
+                color: "#f59e0b",
+                icon: "🚇"
+            },
+            {
+                name: "Zhengzhou Distribution Hub",
+                chinese: "郑州分水口",
+                lat: 34.88194,
+                lon: 113.22056,
+                type: "Distribution",
+                category: "Hub",
+                description: "Key distribution point serving Henan's capital Zhengzhou. One of 39 major diversion gates in Henan province.",
+                color: "#10b981",
+                icon: "🔀"
+            },
+            {
+                name: "Xuchang Control Center",
+                chinese: "许昌调度中心",
+                lat: 34.0,
+                lon: 113.8,
+                type: "Control Center",
+                category: "Control",
+                description: "Geographical center of water distribution in Henan section. Houses major automated control gates.",
+                color: "#6366f1",
+                icon: "🎛️"
+            },
+            {
+                name: "Jiaozuo Urban Canal Section",
+                chinese: "焦作城区段",
+                lat: 35.22,
+                lon: 113.21,
+                type: "Canal",
+                category: "Urban",
+                description: "Unique open canal running through downtown Jiaozuo, forming a 10-km green corridor. Supplies >430 million m³/year to the city.",
+                color: "#14b8a6",
+                icon: "🌳"
+            },
+            {
+                name: "Anyang River Crossings",
+                chinese: "安阳渡槽",
+                lat: 36.1,
+                lon: 114.4,
+                type: "Aqueduct",
+                category: "Crossing",
+                description: "Large aqueduct and tunnel complex crossing the Zhanghe and Tang Rivers in northern Henan.",
+                color: "#ec4899",
+                icon: "🌉"
+            },
+            {
+                name: "Shijiazhuang Water Terminal",
+                chinese: "石家庄终端",
+                lat: 38.04,
+                lon: 114.51,
+                type: "Terminal",
+                category: "Distribution",
+                description: "Primary supply point for Hebei province capital. Benefits >5 million people and eliminated high-fluoride groundwater use.",
+                color: "#ef4444",
+                icon: "🏙️"
+            },
+            {
+                name: "Beijing Terminal – Tuancheng Lake",
+                chinese: "北京团城湖调节池",
+                lat: 39.98,
+                lon: 116.27,
+                type: "Terminal",
+                category: "Distribution",
+                description: "Final above-ground receiving point for Beijing. Supplies >70% of the city's urban tap water via 75 km of buried pipelines.",
+                color: "#7c3aed",
+                icon: "🎯"
+            },
+            {
+                name: "Tianjin Terminal",
+                chinese: "天津外环河出口闸",
+                lat: 39.1,
+                lon: 117.2,
+                type: "Terminal",
+                category: "Distribution",
+                description: "End point of the 154 km eastern branch line. Main water source for Tianjin municipality.",
+                color: "#06b6d4",
+                icon: "🏁"
+            }
+        ];
+        
+        // Guard against multiple map initializations
+        if (!window[ns + '_map']) {
+            // Initialize Map
+            var mapElement = document.getElementById('northsouthproj_map_container');
+            if (mapElement) {
+                var map = L.map('northsouthproj_map_container').setView([35.5, 113.5], 5);
+                window[ns + '_map'] = map;
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+                
+                // Add route line connecting all points
+                var routeCoordinates = facilities.map(function(f) {
+                    return [f.lat, f.lon];
+                });
+                
+                L.polyline(routeCoordinates, {
+                    color: '#3b82f6',
+                    weight: 4,
+                    opacity: 0.7,
+                    dashArray: '10, 10',
+                    className: '-northsouthproj-route-line'
+                }).addTo(map);
+                
+                // Add markers for each facility
+                facilities.forEach(function(facility) {
+                    var markerHtml = '<div style="background-color: ' + facility.color + '; width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 16px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px;">' + facility.icon + '</div>';
+                    
+                    var customIcon = L.divIcon({
+                        html: markerHtml,
+                        className: '-northsouthproj-custom-marker',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    });
+                    
+                    var popupContent = '<div style="color: #1e293b; min-width: 260px; max-width: 320px;">' +
+                        '<h3 style="font-weight: bold; margin-bottom: 8px; color: ' + facility.color + '; font-size: 16px;">' + facility.icon + ' ' + facility.name + '</h3>' +
+                        '<p style="margin: 4px 0; font-size: 14px; color: #64748b;">' + facility.chinese + '</p>' +
+                        '<p style="margin: 6px 0;"><strong>Type:</strong> ' + facility.type + '</p>' +
+                        '<p style="margin: 6px 0;"><strong>Category:</strong> ' + facility.category + '</p>' +
+                        '<p style="margin: 6px 0; font-size: 13px; color: #475569; line-height: 1.4;">' + facility.description + '</p>' +
+                        '</div>';
+                    
+                    L.marker([facility.lat, facility.lon], { icon: customIcon })
+                        .bindPopup(popupContent)
+                        .addTo(map);
+                });
+            }
+        }
+        
+        // Populate Table
+        var tableBody = document.getElementById('northsouthproj_facilities_table');
+        if (tableBody && !window[ns + '_table_populated']) {
+            window[ns + '_table_populated'] = true;
+            
+            facilities.forEach(function(facility) {
+                var row = document.createElement('tr');
+                row.className = 'border-b border-blue-50 hover:bg-blue-50 transition-colors';
+                row.innerHTML = '<td class="px-4 py-3 font-semibold">' +
+                    '<span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ' + facility.color + '"></span>' +
+                    facility.icon + ' ' + facility.name +
+                    '</td>' +
+                    '<td class="px-4 py-3">' + facility.chinese + '</td>' +
+                    '<td class="px-4 py-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">' + facility.type + '</span></td>' +
+                    '<td class="px-4 py-3 text-sm">' + facility.lat.toFixed(4) + '°N, ' + facility.lon.toFixed(4) + '°E</td>' +
+                    '<td class="px-4 py-3 text-xs text-gray-600">' + facility.description + '</td>';
+                tableBody.appendChild(row);
+            });
+        }
+    })();
+    </script>
+</body>
+</html>
