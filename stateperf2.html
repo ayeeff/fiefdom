@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australia GSP & Housing Movement</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .map-container { height: 500px; border-radius: 0.5rem; }
+    .map-legend { background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="container mx-auto px-4 py-8">
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Australia Economic & Housing Dashboard</h1>
+        <p class="text-gray-600">Comparing Gross State Product (GSP) and House Price Growth Since 2000</p>
+    </div>
+
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">1. Economic Performance (GSP)</h2>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">ACT</div><div class="text-2xl font-bold text-green-600">3.5%</div><div class="text-xs text-green-600">Highest GSP Growth</div></div>
+            <div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">Queensland</div><div class="text-2xl font-bold text-green-500">2.2%</div><div class="text-xs text-green-600">Strong GSP Growth</div></div>
+            <div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">Western Australia</div><div class="text-2xl font-bold text-green-400">1.3%</div><div class="text-xs text-gray-600">Moderate GSP Growth</div></div>
+            <div class="bg-white rounded-lg shadow-md p-4"><div class="text-sm text-gray-600 mb-1">NSW</div><div class="text-2xl font-bold text-green-300">0.9%</div><div class="text-xs text-orange-600">Slowest GSP Growth</div></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-lg">
+                <h2 class="text-xl font-bold mb-3">💡 GSP Key Findings</h2>
+                <p class="mb-2">The new figures highlight a growing reliance on non-traditional powerhouse states for economic growth:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                    <li><span class="font-semibold">ACT:</span> Strongest performer in 2024-25 with <span class="font-bold">3.5%</span> growth. Expanded <span class="font-bold">156%</span> since 2000.</li>
+                    <li><span class="font-semibold">Queensland:</span> Expanded by <span class="font-bold">125%</span> since 2000, confirming its growing importance.</li>
+                    <li><span class="font-semibold">NSW:</span> Slowest-growing economy in 2024-25 (<span class="font-bold">0.9%</span>) and worst since 2000 (<span class="font-bold">65%</span>).</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">2024-25 GSP Growth Comparison</h2>
+                <div id="barChart"></div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Total GSP Growth Since 2000 (Map)</h2>
+                <div id="ausMap" class="map-container"></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Historical GSP Growth Since 2000</h2>
+                <div id="historicalChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">2. Housing Market (Prices Since 2000)</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-900 p-4 rounded-lg">
+                <h2 class="text-xl font-bold mb-3">🏠 Housing Key Findings</h2>
+                <p class="mb-2">House price growth has vastly outpaced economic growth (GSP) in every jurisdiction since 2000:</p>
+                <ul class="list-disc list-inside space-y-1 ml-4 text-gray-800">
+                    <li><span class="font-semibold">Adelaide (SA) & Brisbane (QLD):</span> The new boom capitals. Driven by recent surges, both have seen prices grow by over <span class="font-bold">500%</span> since 2000.</li>
+                    <li><span class="font-semibold">Hobart (TAS):</span> Despite a smaller economy, house prices have exploded by roughly <span class="font-bold">530%</span> due to a low starting base in 2000 and a tourism/lifestyle boom.</li>
+                    <li><span class="font-semibold">Sydney (NSW):</span> While GSP growth was slow (65%), house prices surged by approximately <span class="font-bold">460%</span>, highlighting a decoupling of wages and asset prices.</li>
+                    <li><span class="font-semibold">Darwin (NT):</span> The only capital with "moderate" long-term growth (~190%) due to a boom-bust cycle ending in 2014.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">House Price Growth vs GSP Growth</h2>
+                <div id="comparisonChart"></div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Total House Price Growth Since 2000 (Map)</h2>
+                <div id="housingMap" class="map-container"></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Historical House Price Trend Since 2000</h2>
+                <div id="housingChart"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    // ================= DATA SOURCES =================
+    // GSP Data (Original)
+    const stateData = {
+        'ACT': { growth2024: 3.5, growthSince2000: 156, color: '#166534' },
+        'Queensland': { growth2024: 2.2, growthSince2000: 125, color: '#34d399' },
+        'Western Australia': { growth2024: 1.3, growthSince2000: 150, color: '#059669' },
+        'Victoria': { growth2024: 1.1, growthSince2000: 90, color: '#6ee7b7' },
+        'South Australia': { growth2024: 1.0, growthSince2000: 85, color: '#a7f3d0' },
+        'Tasmania': { growth2024: 1.0, growthSince2000: 80, color: '#a7f3d0' },
+        'Northern Territory': { growth2024: 1.0, growthSince2000: 75, color: '#d1fae5' },
+        'NSW': { growth2024: 0.9, growthSince2000: 65, color: '#f0fdf4' }
+    };
+
+    // Housing Data (New - Approx % Growth 2000-2025 based on Capital City Medians)
+    // Data derived from ABS/CoreLogic long-term trends:
+    // SA (Adelaide) & QLD (Brisbane) have seen massive recent spikes, pushing 25-year growth over 500%.
+    // NT (Darwin) had a boom in 2012 but has been flat/negative since, resulting in lower long-term growth.
+    const housingData = {
+        'ACT': { growth: 440, color: '#ef4444' },      // ACT
+        'Queensland': { growth: 520, color: '#b91c1c' }, // QLD (Brisbane Boom)
+        'Western Australia': { growth: 470, color: '#dc2626' }, // WA (Perth)
+        'Victoria': { growth: 430, color: '#f87171' },   // VIC (Melb)
+        'South Australia': { growth: 550, color: '#7f1d1d' }, // SA (Adelaide recent surge)
+        'Tasmania': { growth: 530, color: '#991b1b' },   // TAS (Hobart low base effect)
+        'Northern Territory': { growth: 190, color: '#fca5a5' }, // NT (Darwin)
+        'NSW': { growth: 460, color: '#ef4444' }         // NSW (Sydney)
+    };
+
+    const stateNameMapping = {
+        'Australian Capital Territory': 'ACT',
+        'New South Wales': 'NSW',
+        'Northern Territory': 'Northern Territory',
+        'Queensland': 'Queensland',
+        'South Australia': 'South Australia',
+        'Tasmania': 'Tasmania',
+        'Victoria': 'Victoria',
+        'Western Australia': 'Western Australia'
+    };
+
+    // ================= HELPER FUNCTIONS =================
+    // Green Scale for GSP
+    function getGSPColor(d) {
+        return d > 150 ? '#166534' : d > 140 ? '#059669' : d > 120 ? '#34d399' : d > 90 ? '#6ee7b7' : d > 80 ? '#a7f3d0' : d > 70 ? '#d1fae5' : '#f0fdf4';
+    }
+
+    // Red Heat Scale for Housing (Ranges are much higher: 200% to 600%)
+    function getHousingColor(d) {
+        return d > 500 ? '#7f1d1d' : // Darkest Red
+               d > 480 ? '#991b1b' : 
+               d > 450 ? '#b91c1c' : 
+               d > 400 ? '#dc2626' : 
+               d > 300 ? '#ef4444' : 
+               d > 200 ? '#f87171' : '#fee2e2'; // Light Red
+    }
+
+    // ================= FETCH GEOJSON ONCE =================
+    fetch('https://raw.githubusercontent.com/tonywr71/GeoJson-Data/master/australian-states.json')
+        .then(response => response.json())
+        .then(geojsonData => {
+            
+            // --- 1. RENDER GSP MAP (Green) ---
+            const gspMap = L.map('ausMap', { zoomControl: false }).setView([-27, 125], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(gspMap);
+            
+            L.geoJSON(geojsonData, {
+                style: function(feature) {
+                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
+                    const data = stateData[name];
+                    return { fillColor: data ? getGSPColor(data.growthSince2000) : '#ccc', weight: 1.5, opacity: 1, color: 'white', fillOpacity: 0.7 };
+                },
+                onEachFeature: function(feature, layer) {
+                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
+                    const data = stateData[name];
+                    if (data) layer.bindPopup(`<strong>${name} (GSP)</strong><br>Growth Since 2000: ${data.growthSince2000}%`);
+                }
+            }).addTo(gspMap);
+
+            // GSP Legend
+            const gspLegend = L.control({position: 'topleft'});
+            gspLegend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'map-legend');
+                const grades = [65, 80, 90, 120, 140, 150];
+                div.innerHTML = '<strong>GSP Growth</strong><br>';
+                for (let i = 0; i < grades.length; i++) {
+                    div.innerHTML += `<i style="background:${getGSPColor(grades[i] + 1)}; width:12px; height:12px; display:inline-block; margin-right:4px;"></i> ${grades[i]}%<br>`;
+                }
+                return div;
+            };
+            gspLegend.addTo(gspMap);
+
+            // --- 2. RENDER HOUSING MAP (Red) ---
+            const housingMap = L.map('housingMap', { zoomControl: false }).setView([-27, 125], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(housingMap);
+
+            L.geoJSON(geojsonData, {
+                style: function(feature) {
+                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
+                    const data = housingData[name];
+                    // Use Housing Color Scale
+                    return { fillColor: data ? getHousingColor(data.growth) : '#ccc', weight: 1.5, opacity: 1, color: 'white', fillOpacity: 0.7 };
+                },
+                onEachFeature: function(feature, layer) {
+                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
+                    const data = housingData[name];
+                    if (data) layer.bindPopup(`<strong>${name} (Housing)</strong><br>Price Growth Since 2000: <strong>${data.growth}%</strong>`);
+                }
+            }).addTo(housingMap);
+
+            // Housing Legend
+            const housingLegend = L.control({position: 'topleft'});
+            housingLegend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'map-legend');
+                const grades = [190, 300, 400, 450, 480, 500];
+                div.innerHTML = '<strong>Price Growth</strong><br>';
+                for (let i = 0; i < grades.length; i++) {
+                    div.innerHTML += `<i style="background:${getHousingColor(grades[i] + 1)}; width:12px; height:12px; display:inline-block; margin-right:4px;"></i> >${grades[i]}%<br>`;
+                }
+                return div;
+            };
+            housingLegend.addTo(housingMap);
+
+        }).catch(error => console.error('Error loading GeoJSON:', error));
+
+    // ================= CHARTS =================
+    
+    // 1. GSP Bar Charts (Existing)
+    const barChartData = [{ x: Object.keys(stateData), y: Object.values(stateData).map(d => d.growth2024), type: 'bar', marker: { color: Object.values(stateData).map(d => d.color) }, textposition: 'auto' }];
+    Plotly.newPlot('barChart', barChartData, { margin: { t: 20, b: 80, l: 50, r: 20 }, height: 300 });
+
+    const histData = [{ x: Object.keys(stateData), y: Object.values(stateData).map(d => d.growthSince2000), type: 'bar', marker: { color: Object.values(stateData).map(d => d.color) } }];
+    Plotly.newPlot('historicalChart', histData, { margin: { t: 20, b: 80, l: 50, r: 20 }, height: 300 });
+
+    // 2. Housing Chart (New)
+    const housingKeys = Object.keys(housingData);
+    // Sort by growth for better visual
+    housingKeys.sort((a, b) => housingData[b].growth - housingData[a].growth);
+    
+    const housingChartData = [{
+        x: housingKeys,
+        y: housingKeys.map(k => housingData[k].growth),
+        type: 'bar',
+        marker: { color: housingKeys.map(k => housingData[k].color) },
+        text: housingKeys.map(k => housingData[k].growth + '%'),
+        textposition: 'auto'
+    }];
+
+    const housingLayout = {
+        title: '',
+        xaxis: { title: '' },
+        yaxis: { title: 'Price Growth Since 2000 (%)' },
+        margin: { t: 20, b: 80, l: 50, r: 20 },
+        height: 300
+    };
+    Plotly.newPlot('housingChart', housingChartData, housingLayout);
+
+    // 3. Comparison Chart (Grouped Bar) - New
+    const comparisonTrace1 = {
+        x: Object.keys(stateData),
+        y: Object.values(stateData).map(d => d.growthSince2000),
+        name: 'GSP Growth',
+        type: 'bar',
+        marker: { color: '#166534' } // Green
+    };
+
+    const comparisonTrace2 = {
+        x: Object.keys(stateData),
+        y: Object.keys(stateData).map(k => housingData[k] ? housingData[k].growth : 0),
+        name: 'House Price Growth',
+        type: 'bar',
+        marker: { color: '#dc2626' } // Red
+    };
+
+    Plotly.newPlot('comparisonChart', [comparisonTrace1, comparisonTrace2], {
+        barmode: 'group',
+        margin: { t: 20, b: 80, l: 50, r: 20 },
+        height: 300,
+        legend: { orientation: 'h', y: 1.1 }
+    });
+});
+</script>
+</body>
+</html>
