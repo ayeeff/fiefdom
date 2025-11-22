@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Australia: Population, Housing & Economic Dashboard</title>
+<title>Australia: Population, GSP & Housing Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-    .map-container { height: 500px; border-radius: 0.5rem; }
+    .map-container { height: 500px; border-radius: 0.5rem; z-index: 1; }
     .map-legend { background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 12px; line-height: 1.5; }
     .legend-item { display: flex; align-items: center; margin-bottom: 4px; }
     .legend-color { width: 15px; height: 15px; margin-right: 8px; opacity: 0.8; border: 1px solid #ccc; }
@@ -20,7 +20,7 @@
     
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Australia Strategic Dashboard (2000-2025)</h1>
-        <p class="text-gray-600">Tracking the divergence between Population, Economy, and Housing Markets.</p>
+        <p class="text-gray-600">A complete comparison of Population, Economic Performance (GSP), and Housing Markets.</p>
     </div>
 
     <div class="mb-12">
@@ -31,13 +31,12 @@
         
         <div class="grid md:grid-cols-2 gap-6 mb-6">
             <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-900 p-4 rounded-lg h-fit">
-                <h2 class="text-xl font-bold mb-3">👥 Population Key Findings</h2>
-                <p class="mb-2">Since 2000, Australia's population has surged, but growth is uneven:</p>
+                <h2 class="text-xl font-bold mb-3">👥 Key Findings</h2>
                 <ul class="list-disc list-inside space-y-1 ml-4 text-gray-800">
-                    <li><span class="font-semibold">Western Australia (WA):</span> The fastest growing state since 2000, expanding by <span class="font-bold">57%</span> due to successive mining booms.</li>
-                    <li><span class="font-semibold">Queensland (QLD):</span> Close behind with <span class="font-bold">55%</span> growth, driven by internal migration from southern states.</li>
-                    <li><span class="font-semibold">Victoria (VIC):</span> Added the most people in absolute terms, growing <span class="font-bold">47%</span> despite recent pandemic outflows.</li>
-                    <li><span class="font-semibold">Tasmania (TAS):</span> The slowest growing jurisdiction at <span class="font-bold">22%</span>, reflecting an older demographic profile.</li>
+                    <li><span class="font-semibold">Western Australia (WA):</span> Fastest growing state (<span class="font-bold">57%</span>) due to mining booms.</li>
+                    <li><span class="font-semibold">Queensland (QLD):</span> Strong growth (<span class="font-bold">55%</span>) driven by internal migration.</li>
+                    <li><span class="font-semibold">Victoria (VIC):</span> High volume growth (<span class="font-bold">47%</span>) centered in Melbourne.</li>
+                    <li><span class="font-semibold">Tasmania (TAS):</span> Slowest growth (<span class="font-bold">22%</span>) due to demographics.</li>
                 </ul>
             </div>
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -54,18 +53,44 @@
 
     <div class="mb-12">
         <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
-            <span class="bg-red-100 text-red-800 text-sm font-semibold mr-3 px-2.5 py-0.5 rounded">2. Housing</span>
+            <span class="bg-green-100 text-green-800 text-sm font-semibold mr-3 px-2.5 py-0.5 rounded">2. Economy (GSP)</span>
+            Total Growth Since 2000
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-green-50 border-l-4 border-green-500 text-green-900 p-4 rounded-lg h-fit">
+                <h2 class="text-xl font-bold mb-3">💰 Key Findings</h2>
+                <ul class="list-disc list-inside space-y-1 ml-4 text-gray-800">
+                    <li><span class="font-semibold">ACT:</span> Strongest economic performer since 2000 (<span class="font-bold">156%</span> growth).</li>
+                    <li><span class="font-semibold">WA & QLD:</span> Resource-rich states have seen their economies more than double (>125%).</li>
+                    <li><span class="font-semibold">NSW:</span> The slowest growing economy over the last 25 years, expanding by only <span class="font-bold">65%</span>.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">GSP Growth % (2000-2025)</h3>
+                <div id="gspChart"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Total GSP Growth Since 2000 (Choropleth Map)</h3>
+            <div id="gspMap" class="map-container"></div>
+        </div>
+    </div>
+
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+            <span class="bg-red-100 text-red-800 text-sm font-semibold mr-3 px-2.5 py-0.5 rounded">3. Housing</span>
             Price Growth Since 2000
         </h2>
         
         <div class="grid md:grid-cols-2 gap-6 mb-6">
             <div class="bg-red-50 border-l-4 border-red-500 text-red-900 p-4 rounded-lg h-fit">
-                <h2 class="text-xl font-bold mb-3">🏠 Housing Key Findings</h2>
-                <p class="mb-2">House prices have decoupled from standard economic metrics:</p>
+                <h2 class="text-xl font-bold mb-3">🏠 Key Findings</h2>
                 <ul class="list-disc list-inside space-y-1 ml-4 text-gray-800">
-                    <li><span class="font-semibold">Adelaide (SA) & Brisbane (QLD):</span> Massive recent surges have pushed 25-year growth over <span class="font-bold">500%</span>.</li>
-                    <li><span class="font-semibold">Hobart (TAS):</span> Despite the slowest population growth (22%), prices exploded by <span class="font-bold">530%</span>, driven by low supply and a "tree-change" boom.</li>
-                    <li><span class="font-semibold">Sydney (NSW):</span> Prices grew <span class="font-bold">460%</span> while the state economy only grew 65%, creating a severe affordability crisis.</li>
+                    <li><span class="font-semibold">SA, TAS & QLD:</span> Highest long-term growth (>500%), driven by recent booms and "catch-up" phases.</li>
+                    <li><span class="font-semibold">NSW:</span> Prices grew <span class="font-bold">460%</span> despite slow economic growth (65%), highlighting extreme unaffordability.</li>
+                    <li><span class="font-semibold">NT:</span> The only market with sub-200% growth due to a post-2014 bust.</li>
                 </ul>
             </div>
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -82,28 +107,28 @@
 
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
-            <span class="bg-purple-100 text-purple-800 text-sm font-semibold mr-3 px-2.5 py-0.5 rounded">3. The "Apples to Oranges" Comparison</span>
+            <span class="bg-purple-100 text-purple-800 text-sm font-semibold mr-3 px-2.5 py-0.5 rounded">4. Comparison</span>
             Economy vs. Asset Prices
         </h2>
         
         <div class="grid md:grid-cols-3 gap-6 mb-6">
             <div class="md:col-span-1 bg-purple-50 border-l-4 border-purple-500 text-purple-900 p-4 rounded-lg">
-                <h2 class="text-xl font-bold mb-3">⚖️ The Great Decoupling</h2>
-                <p class="mb-4">This chart compares the growth of the <strong>Real Economy (GSP)</strong> against the growth of <strong>House Prices</strong>.</p>
+                <h2 class="text-xl font-bold mb-3">⚖️ The Divergence</h2>
+                <p class="mb-4 text-sm">Comparing <strong>Real Economy (GSP)</strong> vs <strong>House Prices</strong>.</p>
                 <div class="space-y-3">
                     <div class="p-3 bg-white bg-opacity-60 rounded">
-                        <span class="block font-bold text-sm uppercase text-green-800 mb-1">Economic Reality</span>
-                        <p class="text-sm">Most state economies (GSP) have grown between <span class="font-bold">65% - 150%</span> since 2000.</p>
+                        <span class="block font-bold text-sm uppercase text-green-800 mb-1">Economy (GSP)</span>
+                        <p class="text-xs">Growth Range: <span class="font-bold">65% - 156%</span></p>
                     </div>
                     <div class="p-3 bg-white bg-opacity-60 rounded">
-                        <span class="block font-bold text-sm uppercase text-red-800 mb-1">Asset Reality</span>
-                        <p class="text-sm">House prices in the same period have grown between <span class="font-bold">400% - 550%</span>.</p>
+                        <span class="block font-bold text-sm uppercase text-red-800 mb-1">Housing</span>
+                        <p class="text-xs">Growth Range: <span class="font-bold">190% - 550%</span></p>
                     </div>
-                    <p class="text-sm italic mt-2">In almost every state, house prices have grown <span class="font-bold">3x to 5x faster</span> than the actual economy.</p>
+                    <p class="text-xs italic mt-2">House prices have grown <span class="font-bold">3x to 5x faster</span> than the economy.</p>
                 </div>
             </div>
             <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Apples to Oranges: GSP Growth vs. House Price Growth</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Apples to Oranges: GSP vs. Housing Growth</h3>
                 <div id="comparisonChart"></div>
             </div>
         </div>
@@ -114,37 +139,6 @@
 <script>
 window.addEventListener('load', function() {
     // ================= DATA SOURCES =================
-    // 1. POPULATION DATA (2000 vs 2024 ABS ERP)
-    const popData = {
-        'ACT': { growth: 51, color: '#1e40af' }, // ~315k to 474k
-        'Queensland': { growth: 55, color: '#1d4ed8' }, // ~3.6m to 5.58m
-        'Western Australia': { growth: 57, color: '#2563eb' }, // ~1.88m to 2.96m
-        'Victoria': { growth: 47, color: '#3b82f6' }, // ~4.76m to 6.98m
-        'South Australia': { growth: 25, color: '#60a5fa' }, // ~1.5m to 1.88m
-        'Tasmania': { growth: 22, color: '#93c5fd' }, // ~470k to 575k
-        'Northern Territory': { growth: 30, color: '#bfdbfe' }, // ~196k to 255k
-        'NSW': { growth: 31, color: '#bfdbfe' } // ~6.46m to 8.48m
-    };
-
-    // 2. HOUSING DATA (Approx % Growth 2000-2025)
-    const housingData = {
-        'ACT': { growth: 440, color: '#991b1b' },
-        'Queensland': { growth: 520, color: '#7f1d1d' },
-        'Western Australia': { growth: 470, color: '#991b1b' },
-        'Victoria': { growth: 430, color: '#b91c1c' },
-        'South Australia': { growth: 550, color: '#7f1d1d' }, 
-        'Tasmania': { growth: 530, color: '#7f1d1d' },
-        'Northern Territory': { growth: 190, color: '#f87171' },
-        'NSW': { growth: 460, color: '#991b1b' }
-    };
-
-    // 3. GSP DATA (For Comparison Only - Visuals Removed)
-    const gspData = {
-        'ACT': 156, 'Queensland': 125, 'Western Australia': 150,
-        'Victoria': 90, 'South Australia': 85, 'Tasmania': 80,
-        'Northern Territory': 75, 'NSW': 65
-    };
-
     const stateNameMapping = {
         'Australian Capital Territory': 'ACT', 'New South Wales': 'NSW',
         'Northern Territory': 'Northern Territory', 'Queensland': 'Queensland',
@@ -152,135 +146,89 @@ window.addEventListener('load', function() {
         'Victoria': 'Victoria', 'Western Australia': 'Western Australia'
     };
 
-    // ================= HELPER FUNCTIONS =================
-    // Blue Scale for Population
-    function getPopColor(d) {
-        return d > 55 ? '#1e40af' : d > 50 ? '#1d4ed8' : d > 40 ? '#3b82f6' : d > 30 ? '#60a5fa' : '#93c5fd';
-    }
-    // Red Heat Scale for Housing
-    function getHousingColor(d) {
-        return d > 500 ? '#7f1d1d' : d > 450 ? '#991b1b' : d > 400 ? '#b91c1c' : d > 300 ? '#ef4444' : '#f87171';
-    }
+    // 1. POPULATION DATA (Blue)
+    const popData = {
+        'ACT': { val: 51, color: '#1e40af' }, 'Queensland': { val: 55, color: '#1d4ed8' },
+        'Western Australia': { val: 57, color: '#2563eb' }, 'Victoria': { val: 47, color: '#3b82f6' },
+        'South Australia': { val: 25, color: '#60a5fa' }, 'Tasmania': { val: 22, color: '#93c5fd' },
+        'Northern Territory': { val: 30, color: '#bfdbfe' }, 'NSW': { val: 31, color: '#bfdbfe' }
+    };
 
-    // ================= FETCH GEOJSON =================
+    // 2. GSP DATA (Green - Original)
+    const gspData = {
+        'ACT': { val: 156, color: '#166534' }, 'Queensland': { val: 125, color: '#15803d' },
+        'Western Australia': { val: 150, color: '#16a34a' }, 'Victoria': { val: 90, color: '#22c55e' },
+        'South Australia': { val: 85, color: '#4ade80' }, 'Tasmania': { val: 80, color: '#86efac' },
+        'Northern Territory': { val: 75, color: '#bbf7d0' }, 'NSW': { val: 65, color: '#dcfce7' }
+    };
+
+    // 3. HOUSING DATA (Red)
+    const housingData = {
+        'ACT': { val: 440, color: '#991b1b' }, 'Queensland': { val: 520, color: '#7f1d1d' },
+        'Western Australia': { val: 470, color: '#991b1b' }, 'Victoria': { val: 430, color: '#b91c1c' },
+        'South Australia': { val: 550, color: '#7f1d1d' }, 'Tasmania': { val: 530, color: '#7f1d1d' },
+        'Northern Territory': { val: 190, color: '#f87171' }, 'NSW': { val: 460, color: '#991b1b' }
+    };
+
+
+    // ================= HELPER FUNCTIONS =================
+    function getPopColor(d) { return d > 55 ? '#1e40af' : d > 50 ? '#1d4ed8' : d > 40 ? '#3b82f6' : d > 30 ? '#60a5fa' : '#93c5fd'; }
+    function getGSPColor(d) { return d > 150 ? '#166534' : d > 120 ? '#15803d' : d > 90 ? '#16a34a' : d > 80 ? '#4ade80' : '#dcfce7'; }
+    function getHousingColor(d) { return d > 500 ? '#7f1d1d' : d > 450 ? '#991b1b' : d > 400 ? '#b91c1c' : d > 300 ? '#ef4444' : '#f87171'; }
+
+    // ================= MAPS =================
     fetch('https://raw.githubusercontent.com/tonywr71/GeoJson-Data/master/australian-states.json')
         .then(response => response.json())
         .then(geojsonData => {
             
-            // --- 1. POPULATION MAP (Blue) ---
+            // --- Map 1: Population ---
             const popMap = L.map('popMap', { zoomControl: false }).setView([-27, 125], 4);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(popMap);
-            
             L.geoJSON(geojsonData, {
-                style: function(feature) {
-                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
-                    const data = popData[name];
-                    return { fillColor: data ? getPopColor(data.growth) : '#ccc', weight: 1.5, opacity: 1, color: 'white', fillOpacity: 0.7 };
-                },
-                onEachFeature: function(feature, layer) {
-                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
-                    const data = popData[name];
-                    if (data) layer.bindPopup(`<strong>${name}</strong><br>Pop Growth (2000-25): <strong>${data.growth}%</strong>`);
-                }
+                style: f => ({ fillColor: popData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].color, weight: 1, color: 'white', fillOpacity: 0.7 }),
+                onEachFeature: (f, l) => l.bindPopup(`<strong>${f.properties.STATE_NAME}</strong><br>Pop Growth: ${popData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].val}%`)
             }).addTo(popMap);
 
-            // Pop Legend
-            const popLegend = L.control({position: 'topleft'});
-            popLegend.onAdd = function() {
-                const div = L.DomUtil.create('div', 'map-legend');
-                const grades = [20, 30, 40, 50, 55];
-                div.innerHTML = '<strong>Pop Growth %</strong><br>';
-                for (let i = 0; i < grades.length; i++) {
-                    div.innerHTML += `<div class="legend-item"><i class="legend-color" style="background:${getPopColor(grades[i] + 1)}"></i> >${grades[i]}%</div>`;
-                }
-                return div;
-            };
-            popLegend.addTo(popMap);
+             // --- Map 2: GSP (Economy) ---
+             const gspMap = L.map('gspMap', { zoomControl: false }).setView([-27, 125], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(gspMap);
+            L.geoJSON(geojsonData, {
+                style: f => ({ fillColor: gspData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].color, weight: 1, color: 'white', fillOpacity: 0.7 }),
+                onEachFeature: (f, l) => l.bindPopup(`<strong>${f.properties.STATE_NAME}</strong><br>GSP Growth: ${gspData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].val}%`)
+            }).addTo(gspMap);
 
-            // --- 2. HOUSING MAP (Red) ---
+            // --- Map 3: Housing ---
             const housingMap = L.map('housingMap', { zoomControl: false }).setView([-27, 125], 4);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(housingMap);
-
             L.geoJSON(geojsonData, {
-                style: function(feature) {
-                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
-                    const data = housingData[name];
-                    return { fillColor: data ? getHousingColor(data.growth) : '#ccc', weight: 1.5, opacity: 1, color: 'white', fillOpacity: 0.7 };
-                },
-                onEachFeature: function(feature, layer) {
-                    const name = stateNameMapping[feature.properties.STATE_NAME] || feature.properties.STATE_NAME;
-                    const data = housingData[name];
-                    if (data) layer.bindPopup(`<strong>${name}</strong><br>House Price Growth: <strong>${data.growth}%</strong>`);
-                }
+                style: f => ({ fillColor: housingData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].color, weight: 1, color: 'white', fillOpacity: 0.7 }),
+                onEachFeature: (f, l) => l.bindPopup(`<strong>${f.properties.STATE_NAME}</strong><br>House Price Growth: ${housingData[stateNameMapping[f.properties.STATE_NAME] || f.properties.STATE_NAME].val}%`)
             }).addTo(housingMap);
-
-            // Housing Legend
-            const housingLegend = L.control({position: 'topleft'});
-            housingLegend.onAdd = function() {
-                const div = L.DomUtil.create('div', 'map-legend');
-                const grades = [190, 300, 400, 450, 500];
-                div.innerHTML = '<strong>Price Growth %</strong><br>';
-                for (let i = 0; i < grades.length; i++) {
-                    div.innerHTML += `<div class="legend-item"><i class="legend-color" style="background:${getHousingColor(grades[i] + 1)}"></i> >${grades[i]}%</div>`;
-                }
-                return div;
-            };
-            housingLegend.addTo(housingMap);
 
         }).catch(error => console.error('Error loading GeoJSON:', error));
 
     // ================= CHARTS =================
+    const layout = { margin: { t: 10, b: 40, l: 40, r: 10 }, height: 250, xaxis: {tickangle: -45} };
     
-    // 1. Population Chart (Sorted)
-    const popKeys = Object.keys(popData).sort((a, b) => popData[b].growth - popData[a].growth);
-    Plotly.newPlot('popChart', [{
-        x: popKeys,
-        y: popKeys.map(k => popData[k].growth),
-        type: 'bar',
-        marker: { color: popKeys.map(k => popData[k].color) },
-        text: popKeys.map(k => popData[k].growth + '%'),
-        textposition: 'auto'
-    }], { margin: { t: 10, b: 40, l: 40, r: 10 }, height: 250, xaxis: {tickangle: -45} }, {responsive: true});
+    // 1. Population Chart
+    const popKeys = Object.keys(popData).sort((a, b) => popData[b].val - popData[a].val);
+    Plotly.newPlot('popChart', [{ x: popKeys, y: popKeys.map(k => popData[k].val), type: 'bar', marker: { color: popKeys.map(k => popData[k].color) } }], layout, {responsive: true});
 
-    // 2. Housing Chart (Sorted)
-    const housingKeys = Object.keys(housingData).sort((a, b) => housingData[b].growth - housingData[a].growth);
-    Plotly.newPlot('housingChart', [{
-        x: housingKeys,
-        y: housingKeys.map(k => housingData[k].growth),
-        type: 'bar',
-        marker: { color: housingKeys.map(k => housingData[k].color) },
-        text: housingKeys.map(k => housingData[k].growth + '%'),
-        textposition: 'auto'
-    }], { margin: { t: 10, b: 40, l: 40, r: 10 }, height: 250, xaxis: {tickangle: -45} }, {responsive: true});
+    // 2. GSP Chart
+    const gspKeys = Object.keys(gspData).sort((a, b) => gspData[b].val - gspData[a].val);
+    Plotly.newPlot('gspChart', [{ x: gspKeys, y: gspKeys.map(k => gspData[k].val), type: 'bar', marker: { color: gspKeys.map(k => gspData[k].color) } }], layout, {responsive: true});
 
-    // 3. COMPARISON CHART (Apples to Oranges)
-    // Sort by Housing Growth Gap
-    const compKeys = Object.keys(housingData).sort((a, b) => housingData[b].growth - housingData[a].growth);
-    
-    const traceGSP = {
-        x: compKeys,
-        y: compKeys.map(k => gspData[k]),
-        name: 'Economy (GSP) Growth',
-        type: 'bar',
-        marker: { color: '#16a34a' } // Green
-    };
+    // 3. Housing Chart
+    const housingKeys = Object.keys(housingData).sort((a, b) => housingData[b].val - housingData[a].val);
+    Plotly.newPlot('housingChart', [{ x: housingKeys, y: housingKeys.map(k => housingData[k].val), type: 'bar', marker: { color: housingKeys.map(k => housingData[k].color) } }], layout, {responsive: true});
 
-    const traceHousing = {
-        x: compKeys,
-        y: compKeys.map(k => housingData[k].growth),
-        name: 'House Price Growth',
-        type: 'bar',
-        marker: { color: '#dc2626' } // Red
-    };
+    // 4. Comparison Chart
+    const compKeys = Object.keys(housingData).sort((a, b) => housingData[b].val - housingData[a].val);
+    Plotly.newPlot('comparisonChart', [
+        { x: compKeys, y: compKeys.map(k => gspData[k].val), name: 'GSP Growth', type: 'bar', marker: { color: '#16a34a' } },
+        { x: compKeys, y: compKeys.map(k => housingData[k].val), name: 'House Price', type: 'bar', marker: { color: '#dc2626' } }
+    ], { ...layout, height: 400, barmode: 'group', legend: { orientation: 'h', y: 1.1 } }, {responsive: true});
 
-    Plotly.newPlot('comparisonChart', [traceGSP, traceHousing], {
-        barmode: 'group',
-        margin: { t: 20, b: 80, l: 50, r: 20 },
-        height: 400,
-        legend: { orientation: 'h', y: 1.1 },
-        xaxis: { tickangle: -45 },
-        yaxis: { title: 'Total Growth Since 2000 (%)' }
-    }, {responsive: true});
 });
 </script>
 </body>
