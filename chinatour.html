@@ -59,7 +59,7 @@
     <div id="globeViz"></div>
 
     <!-- LEFT SIDEBAR: Header & Tier List -->
-    <div class="absolute top-6 left-6 bottom-6 w-80 flex flex-col pointer-events-none">
+    <div class="absolute top-6 left-6 bottom-6 w-96 flex flex-col pointer-events-none">
         
         <!-- Header Section -->
         <div class="glass-panel p-5 rounded-t-xl pointer-events-auto z-10">
@@ -88,9 +88,15 @@
 
         <!-- Dynamic Ranked List -->
         <div id="ranking-container" class="glass-panel border-t-0 rounded-b-xl flex-1 overflow-hidden flex flex-col pointer-events-auto hidden transition-all duration-300">
-            <div class="bg-black/40 p-3 border-b border-white/10">
-                <h3 id="ranking-title" class="text-sm font-bold text-gray-200 uppercase tracking-widest">Select a Tier</h3>
-                <div class="text-[10px] text-gray-500">Ranked by GDP Impact</div>
+            <div class="bg-black/40 p-3 border-b border-white/10 flex justify-between items-end">
+                <div>
+                    <h3 id="ranking-title" class="text-sm font-bold text-gray-200 uppercase tracking-widest">Select a Tier</h3>
+                    <div class="text-[10px] text-gray-500">Ranked by GDP Impact</div>
+                </div>
+                <div class="text-[9px] text-gray-500 uppercase flex gap-3 pr-2">
+                    <span>Tourists</span>
+                    <span>GDP</span>
+                </div>
             </div>
             <div id="ranking-list" class="flex-1 overflow-y-auto p-2 space-y-1">
                 <!-- List items injected here -->
@@ -122,7 +128,7 @@
                     </div>
                     <!-- New Tourists -->
                     <div class="bg-white/5 p-3 rounded-lg border border-white/10">
-                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">New Tourists</div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">New Tourists (10yr)</div>
                         <div id="detail-visitors" class="text-lg font-mono font-bold text-green-300"></div>
                     </div>
                     <!-- Avg Revenue -->
@@ -178,211 +184,221 @@
             brand: { label: "Brand (Zero-Carbon Premium)", color: "text-green-400", icon: "🌿" }
         };
 
+        // Note: Visitors and Spend are calculated to approximately equal the GDP Uplift
+        // Formula: Visitors (Millions) * Spend ($) = GDP ($ Billions) * 1e9
         const stackData = [
-            // ACCESS TIER (Green) - "You can finally get there"
+            // ACCESS TIER (Green)
             { 
                 iso: "THA", lat: 15.87, lng: 100.99, name: "Thailand", tier: "ACCESS", gdp: 185, 
-                visitors: "+3.5M", spend: "$850",
+                visitors: "154.2M", spend: "$1,200",
                 enabler: "BYD Manufacturing Hub + PromptPay/Alipay Integration",
-                bullCase: "Thailand is the prototype for the full Chinese stack. Local BYD production slashes fleet costs for ride-hailing, while PromptPay's direct integration with Alipay removes all currency friction. This frictionless environment captures 100% of impulse spend from the rising Chinese middle class, turning Thailand into a 'domestic-like' destination.",
+                bullCase: "Thailand is the prototype for the full Chinese stack. Local BYD production slashes fleet costs for ride-hailing, while PromptPay's direct integration with Alipay removes all currency friction. This frictionless environment captures 100% of impulse spend from the rising Chinese middle class.",
                 components: ['mobility', 'transactions', 'discovery']
             },
             { 
                 iso: "SGP", lat: 1.35, lng: 103.82, name: "Singapore", tier: "ACCESS", gdp: 122, 
-                visitors: "+1.5M", spend: "$1,800",
+                visitors: "48.8M", spend: "$2,500",
                 enabler: "SGQR Universal Payment + Autonomous Transport",
-                bullCase: "Singapore's SGQR standardizes Alipay/WeChat acceptance at every hawker stall, maximizing yield per visitor. Combined with WeRide's autonomous bus trials, the city-state is effectively extending the Shenzhen tech ecosystem, attracting high-net-worth tech tourists who demand a seamless digital life.",
+                bullCase: "Singapore's SGQR standardizes Alipay/WeChat acceptance. Combined with WeRide's autonomous bus trials, the city-state is effectively extending the Shenzhen tech ecosystem, attracting high-net-worth tech tourists.",
                 components: ['transactions', 'mobility', 'connectivity']
             },
             { 
                 iso: "MYS", lat: 4.21, lng: 101.97, name: "Malaysia", tier: "ACCESS", gdp: 94, 
-                visitors: "+2.2M", spend: "$920",
+                visitors: "94.0M", spend: "$1,000",
                 enabler: "East Coast Rail Link (ECRL) + Digital Free Trade Zone",
-                bullCase: "The ECRL connects the previously isolated, pristine east coast beaches directly to major hubs. This infrastructure unlocks an entirely new 'Gold Coast' for Chinese tourists, bypassing the congested west coast. The Digital Free Trade Zone ensures goods purchased by tourists are shipped seamlessly home.",
+                bullCase: "The ECRL connects isolated beaches to major hubs. This infrastructure unlocks a 'Gold Coast' for Chinese tourists. The Digital Free Trade Zone ensures goods purchased are shipped seamlessly home.",
                 components: ['connectivity', 'transactions', 'mobility']
             },
             { 
                 iso: "SAU", lat: 23.88, lng: 45.07, name: "Saudi Arabia", tier: "ACCESS", gdp: 85, 
-                visitors: "+900k", spend: "$3,200",
+                visitors: "24.3M", spend: "$3,500",
                 enabler: "Huawei FusionSolar + Red Sea Project",
-                bullCase: "NEOM and the Red Sea Project are being built on a backbone of Huawei 5G and FusionSolar energy storage. This guarantees 100% green energy reliability for luxury resorts in the desert, a critical requirement for the 'eco-luxury' brand positioning targeting wealthy Chinese millennials.",
+                bullCase: "NEOM and the Red Sea Project are built on Huawei 5G and FusionSolar. This guarantees 100% green energy reliability for luxury resorts, targeting wealthy Chinese millennials.",
                 components: ['energy', 'connectivity', 'mobility']
             },
             { 
                 iso: "IDN", lat: -0.78, lng: 113.92, name: "Indonesia", tier: "ACCESS", gdp: 72, 
-                visitors: "+1.8M", spend: "$750",
+                visitors: "80.0M", spend: "$900",
                 enabler: "Whoosh HSR + BYD EV Domination",
-                bullCase: "The Whoosh High-Speed Rail reduces the Jakarta-Bandung trip from 3 hours to 40 minutes, creating a new weekend tourism corridor. BYD's dominance in the Blue Bird taxi fleet stabilizes transport costs against oil fluctuations, making island hopping in Bali and Java predictable and affordable.",
+                bullCase: "The Whoosh HSR reduces Jakarta-Bandung travel to 40 mins. BYD's dominance in Blue Bird taxis stabilizes transport costs, making island hopping predictable and affordable.",
                 components: ['mobility', 'connectivity']
             },
             { 
                 iso: "LAO", lat: 19.85, lng: 102.49, name: "Laos", tier: "ACCESS", gdp: 35, 
-                visitors: "+1.2M", spend: "$450",
+                visitors: "43.7M", spend: "$800",
                 enabler: "China-Laos Railway + 800V E-Highway",
-                bullCase: "Landlocked Laos is now land-linked. The high-speed railway brings millions of overland visitors from Kunming who previously flew over the country. The new 800V charging corridor enables Chinese EV owners to drive their own cars directly to Vientiane, creating a massive new self-drive market.",
+                bullCase: "The high-speed railway brings millions of overland visitors from Kunming. The 800V charging corridor enables Chinese EV owners to drive directly to Vientiane.",
                 components: ['mobility', 'connectivity', 'energy']
             },
             { 
                 iso: "NPL", lat: 28.39, lng: 84.12, name: "Nepal", tier: "ACCESS", gdp: 18, 
-                visitors: "+400k", spend: "$1,100",
+                visitors: "15.0M", spend: "$1,200",
                 enabler: "11GW Hydro Surplus + E-Bus Fleet",
-                bullCase: "Nepal's massive hydro surplus powers a new fleet of electric buses to Everest trailheads. This eliminates the expensive diesel logistics premium, lowering the cost of trekking access by 40%. This price drop unlocks the Himalayas for budget-conscious adventure tourists previously priced out.",
+                bullCase: "Hydro surplus powers e-buses to Everest trailheads, eliminating the diesel premium and lowering trekking costs by 40%.",
                 components: ['energy', 'mobility']
             },
             { 
                 iso: "MNG", lat: 46.86, lng: 103.84, name: "Mongolia", tier: "ACCESS", gdp: 8, 
-                visitors: "+300k", spend: "$1,400",
+                visitors: "5.3M", spend: "$1,500",
                 enabler: "Gobi Battery-Truck Corridor",
-                bullCase: "A 1,500km battery-swapping corridor across the Gobi Desert allows electric adventure trucks to operate reliably where petrol supply is scarce. This infrastructure opens up the deep Gobi to 'glamping' tourism, supported by solar-powered yurts using Chinese battery storage.",
+                bullCase: "A battery-swapping corridor across the Gobi allows electric adventure trucks to operate reliably, opening the desert to 'glamping' tourism.",
                 components: ['mobility', 'energy']
             },
 
-            // AFFORDABILITY TIER (Orange) - "The holiday just got cheaper"
+            // AFFORDABILITY TIER (Orange)
             { 
                 iso: "VNM", lat: 14.05, lng: 108.27, name: "Vietnam", tier: "AFFORDABILITY", gdp: 68, 
-                visitors: "+2.1M", spend: "$600",
+                visitors: "75.5M", spend: "$900",
                 enabler: "3GW Offshore Wind + 30k Charger Grid",
-                bullCase: "Abundant offshore wind combined with a dense network of 30,000 EV chargers collapses the cost of inter-city travel. The resulting 30% drop in bus and taxi fares makes the classic 'Hanoi to Ho Chi Minh' coastal run the most price-competitive backpacker trail in Southeast Asia.",
+                bullCase: "Abundant wind and 30k EV chargers collapse inter-city travel costs by 30%, making the coastal run the most price-competitive trail in SE Asia.",
                 components: ['energy', 'mobility', 'transactions']
             },
             { 
                 iso: "TUR", lat: 38.96, lng: 35.24, name: "Turkey", tier: "AFFORDABILITY", gdp: 59, 
-                visitors: "+1.4M", spend: "$880",
+                visitors: "49.2M", spend: "$1,200",
                 enabler: "BYD & Chery Domestic Factories",
-                bullCase: "Local production of Chinese EVs creates a surplus of affordable vehicles for rental fleets. This dramatically lowers OpEx for tour operators, allowing them to undercut Mediterranean competitors on package prices. The weak Lira combined with cheap electric mobility creates an unbeatable value proposition.",
+                bullCase: "Local EV production creates a surplus of affordable rentals, lowering OpEx and allowing operators to undercut competitors on price.",
                 components: ['mobility', 'transactions']
             },
             { 
                 iso: "EGY", lat: 26.82, lng: 30.80, name: "Egypt", tier: "AFFORDABILITY", gdp: 38, 
-                visitors: "+900k", spend: "$950",
+                visitors: "38.0M", spend: "$1,000",
                 enabler: "10GW Solar + Nile E-Cruise Fleet",
-                bullCase: "Replacing diesel engines on Nile cruise ships with electric motors powered by 10GW of desert solar farms slashes operating costs by 28%. This allows operators to offer premium cruise experiences at budget prices, attracting price-sensitive European winter sun seekers.",
+                bullCase: "Electric motors on Nile cruise ships powered by desert solar slash costs by 28%, offering premium cruises at budget prices.",
                 components: ['energy', 'mobility']
             },
             { 
                 iso: "PHL", lat: 12.87, lng: 121.77, name: "Philippines", tier: "AFFORDABILITY", gdp: 35, 
-                visitors: "+1.1M", spend: "$680",
+                visitors: "43.7M", spend: "$800",
                 enabler: "Solar-Electric Bangka Ferries",
-                bullCase: "Converting the iconic Bangka island-hopping fleet to solar-electric propulsion reduces fuel costs to near zero. This 27% reduction in ticket prices makes multi-island itineraries affordable for regional ASEAN tourists, driving volume growth in the Visayas region.",
+                bullCase: "Converting Bangka ferries to solar-electric reduces fuel costs to near zero, making multi-island itineraries affordable for regional tourists.",
                 components: ['energy', 'mobility']
             },
             { 
                 iso: "MAR", lat: 31.79, lng: -7.09, name: "Morocco", tier: "AFFORDABILITY", gdp: 19, 
-                visitors: "+1.8M", spend: "$550",
+                visitors: "15.8M", spend: "$1,200",
                 enabler: "Noor Solar Complex + EV Motorway",
-                bullCase: "The massive Noor Solar Complex powers a green EV motorway network connecting Marrakech, Casablanca, and Tangier. This reduces coach fares by 38%, effectively integrating Morocco into the budget European holiday market as a high-value, low-carbon alternative to Spain.",
+                bullCase: "The Noor Solar Complex powers a green EV motorway network, reducing coach fares by 38% and integrating Morocco into the budget holiday market.",
                 components: ['energy', 'mobility']
             },
 
-            // BRAND TIER (Blue) - "Premium Zero-carbon up-sells itself"
-            // SWAP: France moves to top ($165B), Japan moves down/out or just down.
+            // BRAND TIER (Blue)
             { 
                 iso: "FRA", lat: 46.22, lng: 2.21, name: "France", tier: "BRAND", gdp: 165, 
-                visitors: "Stable", spend: "+9%",
+                visitors: "41.2M", spend: "$4,000",
                 enabler: "LVMH x Alipay Partnership + E-Shuttles",
-                bullCase: "The strategic partnership between LVMH and Alipay removes spending caps for Chinese luxury shoppers. Meanwhile, Paris's switch to zero-carbon electric shuttles aligns with the premium eco-conscious values of the modern wealthy traveler, justifying higher hotel rates and longer stays.",
+                bullCase: "LVMH x Alipay removes spending caps for luxury shoppers. Paris's zero-carbon shuttles align with premium eco-values, justifying higher rates.",
                 components: ['transactions', 'brand', 'mobility']
             },
             { 
                 iso: "JPN", lat: 36.20, lng: 138.25, name: "Japan", tier: "BRAND", gdp: 97, 
-                visitors: "+1.2M", spend: "+14%",
+                visitors: "32.3M", spend: "$3,000",
                 enabler: "Little Red Book Viral Maps + Rural Alipay",
-                bullCase: "Deep integration of Alipay in rural ryokans removes the 'cash-only' barrier. 'Little Red Book' algorithms actively direct traffic to photogenic, obscure prefectures, spreading tourism wealth. The weak Yen plus frictionless digital spending drives luxury consumption to record highs.",
+                bullCase: "Alipay in rural ryokans removes cash barriers. 'Little Red Book' algorithms direct traffic to obscure prefectures, spreading wealth.",
                 components: ['discovery', 'transactions', 'connectivity']
             },
             { 
                 iso: "AUS", lat: -25.27, lng: 133.77, name: "Australia", tier: "BRAND", gdp: 85, 
-                visitors: "+650k", spend: "+11%",
+                visitors: "24.3M", spend: "$3,500",
                 enabler: "Little Red Book Road Trips + EV Rentals",
-                bullCase: "XiaoHongShu (Little Red Book) has curated specific 'Insta-worthy' road trip routes tailored for Chinese independent travelers. The availability of long-range Chinese EV rentals makes these vast distances manageable and cost-effective, opening up regional Australia beyond just Sydney and Melbourne.",
+                bullCase: "Curated 'Insta-worthy' road trips and long-range Chinese EVs make vast Australian distances manageable and cost-effective.",
                 components: ['mobility', 'transactions', 'discovery']
             },
             { 
                 iso: "ITA", lat: 41.87, lng: 12.56, name: "Italy", tier: "BRAND", gdp: 62, 
-                visitors: "Stable", spend: "+8%",
+                visitors: "17.7M", spend: "$3,500",
                 enabler: "Luxury Outlets Alipay+ Tax Refund",
-                bullCase: "Instant, digital tax refunds via Alipay+ at luxury outlets encourage higher transaction volumes. Green electric boats in the Venice lagoon and EV connectivity in Tuscany allow Italy to market a 'Guilt-Free Renaissance' tour, appealing to the sustainability-minded premium segment.",
+                bullCase: "Digital tax refunds via Alipay+ encourage volume. Green electric boats in Venice allow for a 'Guilt-Free Renaissance' tour.",
                 components: ['transactions', 'discovery', 'mobility']
             },
             { 
                 iso: "NZL", lat: -40.90, lng: 174.88, name: "New Zealand", tier: "BRAND", gdp: 28, 
-                visitors: "+150k", spend: "+12%",
+                visitors: "7.0M", spend: "$4,000",
                 enabler: "Electric Aviation Trials + 100% Renewable Grid",
-                bullCase: "New Zealand's 100% renewable grid allows for true zero-carbon tourism. Trials of electric aviation for sightseeing flights reinforce the 'Pure New Zealand' brand, justifying a 12% premium on tourism spend as visitors pay for the privilege of a guilt-free, pristine nature experience.",
+                bullCase: "True zero-carbon tourism via electric aviation justifies a 12% premium on spend for the privilege of a pristine nature experience.",
                 components: ['energy', 'mobility', 'brand']
             },
             { 
                 iso: "NOR", lat: 60.47, lng: 8.46, name: "Norway", tier: "BRAND", gdp: 18, 
-                visitors: "+200k", spend: "+8%",
+                visitors: "5.1M", spend: "$3,500",
                 enabler: "Densest Fast-Charger Net + Premium Chinese EVs",
-                bullCase: "Norway serves as the showroom for premium Chinese EVs (NIO, XPeng). The dense charging network allows tourists to rent high-tech vehicles they can't yet buy at home, turning the holiday into an extended test drive. This 'tech-tourism' attracts high-spending auto enthusiasts.",
+                bullCase: "Norway acts as a showroom for premium Chinese EVs. Tourists rent high-tech vehicles, turning the holiday into an extended test drive.",
                 components: ['mobility', 'energy', 'discovery']
             },
             { 
                 iso: "ISL", lat: 64.96, lng: -19.02, name: "Iceland", tier: "BRAND", gdp: 12, 
-                visitors: "+80k", spend: "+9%",
+                visitors: "3.0M", spend: "$4,000",
                 enabler: "Electric Ring-Road + Geothermal Brand",
-                bullCase: "The electrification of the Ring Road allows for a silent, clean exploration of the Arctic wilderness. This alignment of transport tech with Iceland's geothermal brand creates a cohesive 'Future Nature' product that commands a significant price premium over other northern destinations.",
+                bullCase: "Electrification of the Ring Road allows silent exploration. This 'Future Nature' product commands a significant price premium.",
                 components: ['energy', 'mobility', 'brand']
             }
         ];
 
-        // Merge generic data for the extra countries
-        const generics = {
-            ACCESS: { bull: "Investment in critical electrical infrastructure and payment rails unlocks this market for the first time.", comps: ['mobility', 'connectivity'], vis: "+100k", spd: "$600" },
-            AFFORDABILITY: { bull: "Switching to electric mobility and renewables drastically lowers operating costs, making travel affordable for millions.", comps: ['energy', 'mobility'], vis: "+250k", spd: "$500" },
-            BRAND: { bull: "Integration of seamless payments and social discovery platforms drives premium spend and viral destination marketing.", comps: ['discovery', 'transactions'], vis: "Stable", spd: "+7%" }
-        };
-
+        // Generic Generators for remaining countries to ensure math holds
+        // Access: ~$800 spend. Affordability: ~$1000 spend. Brand: ~$3000 spend.
         const extraCountries = [
-             { iso: "KHM", lat: 12.56, lng: 104.99, name: "Cambodia", tier: "ACCESS", gdp: 32, enabler: "Siem Reap Angkor Int'l Airport" },
-             { iso: "KAZ", lat: 48.01, lng: 66.92, name: "Kazakhstan", tier: "ACCESS", gdp: 28, enabler: "Visa-free + EV Ribbon", visitors: "+600k" },
-             { iso: "UZB", lat: 41.37, lng: 64.58, name: "Uzbekistan", tier: "ACCESS", gdp: 24, enabler: "China-Kyrgyzstan-Uzbekistan Railway" },
-             { iso: "MDV", lat: 3.20, lng: 73.22, name: "Maldives", tier: "ACCESS", gdp: 16, enabler: "Floating Solar + Velana Expansion" },
-             { iso: "LKA", lat: 7.87, lng: 80.77, name: "Sri Lanka", tier: "ACCESS", gdp: 14, enabler: "E-Tuk Tuk Conversion" },
-             { iso: "KEN", lat: -0.02, lng: 37.90, name: "Kenya", tier: "ACCESS", gdp: 12, enabler: "E-Safari Fleet + SGR", spend: "+13%" },
-             { iso: "TZA", lat: -6.36, lng: 34.88, name: "Tanzania", tier: "ACCESS", gdp: 11, enabler: "Electric Zanzibar Ferries" },
-             { iso: "ETH", lat: 9.14, lng: 40.48, name: "Ethiopia", tier: "ACCESS", gdp: 9, enabler: "Addis-Djibouti Railway" },
-             { iso: "PAK", lat: 30.37, lng: 69.34, name: "Pakistan", tier: "ACCESS", gdp: 7, enabler: "CPEC Infrastructure", visitors: "+2M" },
-             { iso: "QAT", lat: 25.35, lng: 51.18, name: "Qatar", tier: "ACCESS", gdp: 6, enabler: "Alipay+ Hamad Airport" },
-             { iso: "SRB", lat: 44.01, lng: 21.00, name: "Serbia", tier: "ACCESS", gdp: 5, enabler: "Visa-free + HSR" },
-             { iso: "RUS", lat: 61.52, lng: 105.31, name: "Russia", tier: "AFFORDABILITY", gdp: 45, enabler: "100% Chinese Tech Stack" },
-             { iso: "HUN", lat: 47.16, lng: 19.50, name: "Hungary", tier: "AFFORDABILITY", gdp: 29, enabler: "BYD European Factory" },
-             { iso: "MEX", lat: 23.63, lng: -102.55, name: "Mexico", tier: "AFFORDABILITY", gdp: 26, enabler: "Ride-Hailing EV Fleets" },
-             { iso: "BRA", lat: -14.23, lng: -51.92, name: "Brazil", tier: "AFFORDABILITY", gdp: 24, enabler: "BYD Bahia Factory" },
-             { iso: "ZAF", lat: -30.55, lng: 22.93, name: "South Africa", tier: "AFFORDABILITY", gdp: 21, enabler: "Solar Microgrids", visitors: "+650k" },
-             { iso: "TUN", lat: 33.88, lng: 9.53, name: "Tunisia", tier: "AFFORDABILITY", gdp: 12, enabler: "Med E-Coach Loop", visitors: "+800k" },
-             { iso: "PER", lat: -9.19, lng: -75.01, name: "Peru", tier: "AFFORDABILITY", gdp: 11, enabler: "Chancay Port + Solar Train", visitors: "+400k" },
-             { iso: "CHL", lat: -35.67, lng: -71.54, name: "Chile", tier: "AFFORDABILITY", gdp: 10, enabler: "Santiago E-Bus Fleet" },
-             { iso: "ARG", lat: -38.41, lng: -63.61, name: "Argentina", tier: "AFFORDABILITY", gdp: 9, enabler: "Cauchari Solar Park" },
-             { iso: "BGD", lat: 23.68, lng: 90.35, name: "Bangladesh", tier: "AFFORDABILITY", gdp: 8, enabler: "EV 3-Wheelers" },
-             { iso: "NGA", lat: 9.08, lng: 8.67, name: "Nigeria", tier: "AFFORDABILITY", gdp: 7, enabler: "Lekki Port + E-Transit" },
-             { iso: "DZA", lat: 28.03, lng: 1.65, name: "Algeria", tier: "AFFORDABILITY", gdp: 6, enabler: "Solar Highway" },
-             { iso: "ZWE", lat: -19.01, lng: 29.15, name: "Zimbabwe", tier: "AFFORDABILITY", gdp: 5, enabler: "Victoria Falls E-Shuttle", visitors: "+250k" },
-             { iso: "BLR", lat: 53.70, lng: 27.95, name: "Belarus", tier: "AFFORDABILITY", gdp: 4, enabler: "Chinese Payment Stack" },
-             { iso: "IRN", lat: 32.42, lng: 53.68, name: "Iran", tier: "AFFORDABILITY", gdp: 4, enabler: "Rail Upgrades" },
-             { iso: "KOR", lat: 35.90, lng: 127.76, name: "South Korea", tier: "BRAND", gdp: 118, enabler: "Duty-Free Digital Payments" },
-             { iso: "CHE", lat: 46.81, lng: 8.22, name: "Switzerland", tier: "BRAND", gdp: 41, enabler: "Swisstainable Rail" },
-             { iso: "GBR", lat: 55.37, lng: -3.43, name: "United Kingdom", tier: "BRAND", gdp: 38, enabler: "Luxury Retail Alipay", spend: "+7%" },
-             { iso: "ESP", lat: 40.46, lng: -3.74, name: "Spain", tier: "BRAND", gdp: 35, enabler: "Trip.com Partnership" },
-             { iso: "DEU", lat: 51.16, lng: 10.45, name: "Germany", tier: "BRAND", gdp: 25, enabler: "Airport Gateways" },
-             { iso: "GRC", lat: 39.07, lng: 21.82, name: "Greece", tier: "BRAND", gdp: 22, enabler: "Piraeus Port + 5G" },
-             { iso: "FIN", lat: 61.92, lng: 25.74, name: "Finland", tier: "BRAND", gdp: 10, enabler: "Aurora Douyin Trends" },
-             { iso: "PRT", lat: 39.39, lng: -8.22, name: "Portugal", tier: "BRAND", gdp: 9, enabler: "Golden Visa + Alipay" },
-             { iso: "AUT", lat: 47.51, lng: 14.55, name: "Austria", tier: "BRAND", gdp: 8, enabler: "WeChat Booking" },
-             { iso: "FJI", lat: -17.71, lng: 178.06, name: "Fiji", tier: "BRAND", gdp: 5, enabler: "Eco-Resort Shuttles" },
-             { iso: "CRI", lat: 9.74, lng: -83.75, name: "Costa Rica", tier: "BRAND", gdp: 4, enabler: "Renewable Grid", spend: "+11%" },
-             { iso: "MUS", lat: -20.34, lng: 57.55, name: "Mauritius", tier: "BRAND", gdp: 4, enabler: "Safe City 5G" },
-             { iso: "SYC", lat: -4.67, lng: 55.49, name: "Seychelles", tier: "BRAND", gdp: 3, enabler: "E-Boat Zones", spend: "+14%" }
+             { iso: "KHM", lat: 12.56, lng: 104.99, name: "Cambodia", tier: "ACCESS", gdp: 32, enabler: "Siem Reap Angkor Int'l Airport", spend: "$800" },
+             { iso: "KAZ", lat: 48.01, lng: 66.92, name: "Kazakhstan", tier: "ACCESS", gdp: 28, enabler: "Visa-free + EV Ribbon", spend: "$900" },
+             { iso: "UZB", lat: 41.37, lng: 64.58, name: "Uzbekistan", tier: "ACCESS", gdp: 24, enabler: "China-Kyrgyzstan-Uzbekistan Railway", spend: "$800" },
+             { iso: "MDV", lat: 3.20, lng: 73.22, name: "Maldives", tier: "ACCESS", gdp: 16, enabler: "Floating Solar + Velana Expansion", spend: "$2,000" },
+             { iso: "LKA", lat: 7.87, lng: 80.77, name: "Sri Lanka", tier: "ACCESS", gdp: 14, enabler: "E-Tuk Tuk Conversion", spend: "$900" },
+             { iso: "KEN", lat: -0.02, lng: 37.90, name: "Kenya", tier: "ACCESS", gdp: 12, enabler: "E-Safari Fleet + SGR", spend: "$1,500" },
+             { iso: "TZA", lat: -6.36, lng: 34.88, name: "Tanzania", tier: "ACCESS", gdp: 11, enabler: "Electric Zanzibar Ferries", spend: "$1,200" },
+             { iso: "ETH", lat: 9.14, lng: 40.48, name: "Ethiopia", tier: "ACCESS", gdp: 9, enabler: "Addis-Djibouti Railway", spend: "$800" },
+             { iso: "PAK", lat: 30.37, lng: 69.34, name: "Pakistan", tier: "ACCESS", gdp: 7, enabler: "CPEC Infrastructure", spend: "$600" },
+             { iso: "QAT", lat: 25.35, lng: 51.18, name: "Qatar", tier: "ACCESS", gdp: 6, enabler: "Alipay+ Hamad Airport", spend: "$2,000" },
+             { iso: "SRB", lat: 44.01, lng: 21.00, name: "Serbia", tier: "ACCESS", gdp: 5, enabler: "Visa-free + HSR", spend: "$1,000" },
+             { iso: "RUS", lat: 61.52, lng: 105.31, name: "Russia", tier: "AFFORDABILITY", gdp: 45, enabler: "100% Chinese Tech Stack", spend: "$1,000" },
+             { iso: "HUN", lat: 47.16, lng: 19.50, name: "Hungary", tier: "AFFORDABILITY", gdp: 29, enabler: "BYD European Factory", spend: "$1,500" },
+             { iso: "MEX", lat: 23.63, lng: -102.55, name: "Mexico", tier: "AFFORDABILITY", gdp: 26, enabler: "Ride-Hailing EV Fleets", spend: "$1,200" },
+             { iso: "BRA", lat: -14.23, lng: -51.92, name: "Brazil", tier: "AFFORDABILITY", gdp: 24, enabler: "BYD Bahia Factory", spend: "$1,200" },
+             { iso: "ZAF", lat: -30.55, lng: 22.93, name: "South Africa", tier: "AFFORDABILITY", gdp: 21, enabler: "Solar Microgrids", spend: "$1,500" },
+             { iso: "TUN", lat: 33.88, lng: 9.53, name: "Tunisia", tier: "AFFORDABILITY", gdp: 12, enabler: "Med E-Coach Loop", spend: "$900" },
+             { iso: "PER", lat: -9.19, lng: -75.01, name: "Peru", tier: "AFFORDABILITY", gdp: 11, enabler: "Chancay Port + Solar Train", spend: "$1,200" },
+             { iso: "CHL", lat: -35.67, lng: -71.54, name: "Chile", tier: "AFFORDABILITY", gdp: 10, enabler: "Santiago E-Bus Fleet", spend: "$1,200" },
+             { iso: "ARG", lat: -38.41, lng: -63.61, name: "Argentina", tier: "AFFORDABILITY", gdp: 9, enabler: "Cauchari Solar Park", spend: "$1,200" },
+             { iso: "BGD", lat: 23.68, lng: 90.35, name: "Bangladesh", tier: "AFFORDABILITY", gdp: 8, enabler: "EV 3-Wheelers", spend: "$600" },
+             { iso: "NGA", lat: 9.08, lng: 8.67, name: "Nigeria", tier: "AFFORDABILITY", gdp: 7, enabler: "Lekki Port + E-Transit", spend: "$800" },
+             { iso: "DZA", lat: 28.03, lng: 1.65, name: "Algeria", tier: "AFFORDABILITY", gdp: 6, enabler: "Solar Highway", spend: "$800" },
+             { iso: "ZWE", lat: -19.01, lng: 29.15, name: "Zimbabwe", tier: "AFFORDABILITY", gdp: 5, enabler: "Victoria Falls E-Shuttle", spend: "$1,000" },
+             { iso: "BLR", lat: 53.70, lng: 27.95, name: "Belarus", tier: "AFFORDABILITY", gdp: 4, enabler: "Chinese Payment Stack", spend: "$800" },
+             { iso: "IRN", lat: 32.42, lng: 53.68, name: "Iran", tier: "AFFORDABILITY", gdp: 4, enabler: "Rail Upgrades", spend: "$800" },
+             { iso: "KOR", lat: 35.90, lng: 127.76, name: "South Korea", tier: "BRAND", gdp: 118, enabler: "Duty-Free Digital Payments", spend: "$2,000" },
+             { iso: "CHE", lat: 46.81, lng: 8.22, name: "Switzerland", tier: "BRAND", gdp: 41, enabler: "Swisstainable Rail", spend: "$3,500" },
+             { iso: "GBR", lat: 55.37, lng: -3.43, name: "United Kingdom", tier: "BRAND", gdp: 38, enabler: "Luxury Retail Alipay", spend: "$3,200" },
+             { iso: "ESP", lat: 40.46, lng: -3.74, name: "Spain", tier: "BRAND", gdp: 35, enabler: "Trip.com Partnership", spend: "$2,500" },
+             { iso: "DEU", lat: 51.16, lng: 10.45, name: "Germany", tier: "BRAND", gdp: 25, enabler: "Airport Gateways", spend: "$2,500" },
+             { iso: "GRC", lat: 39.07, lng: 21.82, name: "Greece", tier: "BRAND", gdp: 22, enabler: "Piraeus Port + 5G", spend: "$2,200" },
+             { iso: "FIN", lat: 61.92, lng: 25.74, name: "Finland", tier: "BRAND", gdp: 10, enabler: "Aurora Douyin Trends", spend: "$2,500" },
+             { iso: "PRT", lat: 39.39, lng: -8.22, name: "Portugal", tier: "BRAND", gdp: 9, enabler: "Golden Visa + Alipay", spend: "$2,200" },
+             { iso: "AUT", lat: 47.51, lng: 14.55, name: "Austria", tier: "BRAND", gdp: 8, enabler: "WeChat Booking", spend: "$2,500" },
+             { iso: "FJI", lat: -17.71, lng: 178.06, name: "Fiji", tier: "BRAND", gdp: 5, enabler: "Eco-Resort Shuttles", spend: "$2,000" },
+             { iso: "CRI", lat: 9.74, lng: -83.75, name: "Costa Rica", tier: "BRAND", gdp: 4, enabler: "Renewable Grid", spend: "$1,800" },
+             { iso: "MUS", lat: -20.34, lng: 57.55, name: "Mauritius", tier: "BRAND", gdp: 4, enabler: "Safe City 5G", spend: "$2,000" },
+             { iso: "SYC", lat: -4.67, lng: 55.49, name: "Seychelles", tier: "BRAND", gdp: 3, enabler: "E-Boat Zones", spend: "$2,500" }
         ];
+
+        // --- Helper: Calculate Visitors ---
+        function calculateVisitors(gdpBillion, spendStr) {
+            const spend = parseInt(spendStr.replace(/[^0-9]/g, ''));
+            const visitorsMillions = (gdpBillion * 1e9) / spend / 1e6;
+            return visitorsMillions.toFixed(1) + "M";
+        }
+
+        // Process Extra Countries
+        const generics = {
+            ACCESS: { bull: "Investment in critical electrical infrastructure and payment rails unlocks this market for the first time.", comps: ['mobility', 'connectivity'] },
+            AFFORDABILITY: { bull: "Switching to electric mobility and renewables drastically lowers operating costs, making travel affordable for millions.", comps: ['energy', 'mobility'] },
+            BRAND: { bull: "Integration of seamless payments and social discovery platforms drives premium spend and viral destination marketing.", comps: ['discovery', 'transactions'] }
+        };
 
         extraCountries.forEach(c => {
             stackData.push({
                 ...c,
                 bullCase: generics[c.tier].bull,
                 components: generics[c.tier].comps,
-                visitors: c.visitors || generics[c.tier].vis,
-                spend: c.spend || generics[c.tier].spd
+                visitors: calculateVisitors(c.gdp, c.spend),
+                spend: c.spend
             });
         });
 
@@ -446,14 +462,24 @@
                             </div>
                         `;
                         return `
-                            <div class="p-3 bg-gray-900/95 text-white rounded-lg border border-${getColorName(d.stackData.tier)}-500 shadow-xl backdrop-blur-sm font-sans">
+                            <div class="p-3 bg-gray-900/95 text-white rounded-lg border border-${getColorName(d.stackData.tier)}-500 shadow-xl backdrop-blur-sm font-sans min-w-[200px]">
                                 <div class="font-bold text-lg mb-1">${d.stackData.name}</div>
-                                <div class="text-[10px] uppercase tracking-wider font-semibold" style="color: ${COLORS[d.stackData.tier]}">
+                                <div class="text-[10px] uppercase tracking-wider font-semibold mb-2" style="color: ${COLORS[d.stackData.tier]}">
                                     ${d.stackData.tier} Tier
                                 </div>
-                                <div class="text-sm mt-1">
-                                    <span class="text-gray-400">GDP Uplift:</span> 
-                                    <span class="font-mono font-bold">$${d.stackData.gdp}B</span>
+                                <div class="space-y-1 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">New Tourists (10yr):</span>
+                                        <span class="font-mono font-bold text-green-300">${d.stackData.visitors}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Avg. Revenue:</span>
+                                        <span class="font-mono font-bold text-blue-300">${d.stackData.spend}</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-gray-700 pt-1 mt-1">
+                                        <span class="text-gray-300">GDP Uplift (10y):</span>
+                                        <span class="font-mono font-bold text-white">$${d.stackData.gdp}B</span>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -504,11 +530,14 @@
                 <div id="item-${c.iso}" 
                      class="tier-item flex items-center justify-between p-3 rounded text-sm transition-all border-l-4 border-transparent mb-1"
                      onclick="handleListClick('${c.iso}')">
-                    <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="flex items-center gap-2 overflow-hidden flex-1">
                         <span class="text-gray-600 font-mono text-xs w-4 text-right">${index + 1}</span>
                         <span class="text-gray-200 font-medium truncate">${c.name}</span>
                     </div>
-                    <span class="text-gray-400 font-mono text-xs whitespace-nowrap">$${c.gdp}B</span>
+                    <div class="flex gap-4 items-center">
+                        <span class="text-gray-500 font-mono text-[10px] w-12 text-right">${c.visitors}</span>
+                        <span class="text-white font-mono text-xs w-10 text-right font-bold">$${c.gdp}B</span>
+                    </div>
                 </div>
             `).join('');
 
