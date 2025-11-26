@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>China Electric Stack - Tourism GDP Impact</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; color: #fff; }
+    #globe-container { width: 100vw; height: 100vh; }
+    #sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 350px;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border-left: 1px solid #334155;
+      padding: 20px;
+      box-sizing: border-box;
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    #sidebar.active { transform: translateX(0); }
+    #sidebar h2 { margin-top: 0; color: #fff; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+   .metric-box { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+   .metric-label { font-size: 0.85em; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+   .metric-value { font-size: 1.5em; font-weight: bold; color: #f8fafc; }
+   .tier-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-bottom: 10px; }
+   .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; }
+    #legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      pointer-events: none;
+    }
+   .legend-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
+   .color-box { width: 15px; height: 15px; margin-right: 10px; border-radius: 3px; }
+    #title-card {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 20px;
+      border-radius: 8px;
+      backdrop-filter: blur(5px);
+      max-width: 400px;
+    }
+    h1 { margin: 0 0 10px 0; font-size: 1.5em; }
+    p { margin: 0; color: #cbd5e1; font-size: 0.9em; line-height: 1.4; }
+  </style>
+  <script src="[https://unpkg.com/globe.gl](https://unpkg.com/globe.gl)"></script>
+  <script src="[https://d3js.org/d3.v7.min.js](https://d3js.org/d3.v7.min.js)"></script>
+</head>
+<body>
+  <div id="title-card">
+    <h1>The Next Trillion: Tourism & The China Stack</h1>
+    <p>Visualizing the $1.45T GDP impact across 60 countries. <br>Click on a colored country to view details.</p>
+  </div>
+
+  <div id="legend">
+    <div class="legend-item"><div class="color-box" style="background: #00FF00;"></div>ACCESS Tier (Connectivity)</div>
+    <div class="legend-item"><div class="color-box" style="background: #FFA500;"></div>COST Tier (Deflationary)</div>
+    <div class="legend-item"><div class="color-box" style="background: #0000FF;"></div>BRAND Tier (Premium)</div>
+    <div class="legend-item" style="margin-top:5px; font-size: 0.8em; color: #aaa;">* Color intensity indicates GDP impact magnitude</div>
+  </div>
+
+  <div id="globe-container"></div>
+
+  <div id="sidebar">
+    <button class="close-btn" onclick="closeSidebar()">&times;</button>
+    <h2 id="country-name">Country Name</h2>
+    <span id="tier-badge" class="tier-badge">TIER</span>
+    
+    <div class="metric-box">
+      <div class="metric-label">10-Year GDP Uplift</div>
+      <div class="metric-value" id="gdp-value">$0 B</div>
+    </div>
+
+    <div class="metric-box">
+      <div class="metric-label">Primary Driver</div>
+      <div class="metric-value" style="font-size: 1em;" id="driver-value">Driver</div>
+    </div>
+
+    <div class="metric-box">
+      <div class="metric-label">Key Stack Enabler</div>
+      <p id="enabler-text" style="margin-top: 5px; color: #cbd5e1;">Description of the tech stack integration.</p>
+    </div>
+  </div>
+
+  <script>
+    // Data from the report
+    const tourismData =;
+
+    // Color Scales
+    const colorScaleAccess = d3.scaleLinear().domain().range(["#90ee90", "#006400"]); // Light green to Dark Green
+    const colorScaleCost = d3.scaleLinear().domain().range(["#ffd700", "#8b0000"]);   // Gold to Dark Red
+    const colorScaleBrand = d3.scaleLinear().domain().range(["#add8e6", "#00008b"]);  // Light Blue to Dark Blue
+
+    const getCountryColor = (d) => {
+      const country = tourismData.find(c => c.iso === d.properties.ISO_A3);
+      if (!country) return '#1f2937'; // Default grey for non-highlighted
+
+      if (country.tier === 'ACCESS') return colorScaleAccess(country.gdp);
+      if (country.tier === 'COST') return colorScaleCost(country.gdp);
+      if (country.tier === 'BRAND') return colorScaleBrand(country.gdp);
+      return '#1f2937';
+    };
+
+    // Initialize Globe
+    const globe = Globe()
+     .globeImageUrl('//[unpkg.com/three-globe/example/img/earth-night.jpg](https://unpkg.com/three-globe/example/img/earth-night.jpg)')
+     .backgroundImageUrl('//[unpkg.com/three-globe/example/img/night-sky.png](https://unpkg.com/three-globe/example/img/night-sky.png)')
+     .lineHoverPrecision(0)
+     .polygonsData()
+     .polygonAltitude(0.06)
+     .polygonCapColor(d => getCountryColor(d))
+     .polygonSideColor(() => 'rgba(0, 100, 0, 0.15)')
+     .polygonStrokeColor(() => '#111')
+     .polygonLabel(({ properties: d }) => {
+        const country = tourismData.find(c => c.iso === d.ISO_A3);
+        if (!country) return null;
+        return `
+          <div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; border: 1px solid #555;">
+            <b>${country.name}</b> <br />
+            Tier: <span style="color:${country.tier === 'ACCESS'? '#0f0' : country.tier === 'COST'? '#fa0' : '#aaf'}">${country.tier}</span><br/>
+            Impact: $${country.gdp}B
+          </div>
+        `;
+      })
+     .onPolygonClick(({ properties: d }) => {
+        const country = tourismData.find(c => c.iso === d.ISO_A3);
+        if (country) showSidebar(country);
+      })
+      (document.getElementById('globe-container'));
+
+    // Load GeoJSON
+    fetch('[https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson](https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson)')
+     .then(res => res.json())
+     .then(countries => {
+        globe.polygonsData(countries.features);
+        
+        // Auto-rotate
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.5;
+      });
+
+    // Sidebar Logic
+    function showSidebar(data) {
+      document.getElementById('sidebar').classList.add('active');
+      document.getElementById('country-name').innerText = data.name;
+      document.getElementById('gdp-value').innerText = `$${data.gdp} Billion`;
+      document.getElementById('driver-value').innerText = data.driver;
+      document.getElementById('enabler-text').innerText = data.enabler;
+      
+      const badge = document.getElementById('tier-badge');
+      badge.innerText = data.tier;
+      
+      if(data.tier === 'ACCESS') {
+        badge.style.backgroundColor = '#006400';
+        badge.style.color = '#fff';
+      } else if(data.tier === 'COST') {
+        badge.style.backgroundColor = '#ff8800';
+        badge.style.color = '#000';
+      } else {
+        badge.style.backgroundColor = '#00008b';
+        badge.style.color = '#fff';
+      }
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('active');
+    }
+  </script>
+</body>
+</html>
