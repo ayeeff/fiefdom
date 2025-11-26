@@ -335,7 +335,6 @@
         ];
 
         // Generic Generators for remaining countries to ensure math holds
-        // Access: ~$800 spend. Affordability: ~$1000 spend. Brand: ~$3000 spend.
         const extraCountries = [
              { iso: "KHM", lat: 12.56, lng: 104.99, name: "Cambodia", tier: "ACCESS", gdp: 32, enabler: "Siem Reap Angkor Int'l Airport", spend: "$800" },
              { iso: "KAZ", lat: 48.01, lng: 66.92, name: "Kazakhstan", tier: "ACCESS", gdp: 28, enabler: "Visa-free + EV Ribbon", spend: "$900" },
@@ -428,10 +427,18 @@
             .then(countries => {
                 
                 countries.features.forEach(feature => {
-                    const iso = feature.properties.ISO_A3;
+                    let iso = feature.properties.ISO_A3;
+                    
+                    // Robust fallback check for countries with issues in standard geojson (France/Norway often -99)
+                    if (iso === '-99' || !countryMap.has(iso)) {
+                        iso = feature.properties.ADM0_A3;
+                    }
+                    
                     const data = countryMap.get(iso);
                     if (data) {
                         feature.properties.stackData = data; 
+                        // Fix the ISO on the feature itself for easier lookup later
+                        feature.properties.ISO_A3 = iso;
                     }
                 });
 
