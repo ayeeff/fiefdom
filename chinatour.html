@@ -302,7 +302,7 @@
                     })
                     .onPolygonHover(d => {
                         currentHoverD = d;
-                        world.polygonData(world.polygonData()); // Trigger update
+                        world.polygonsData(world.polygonsData()); // Trigger update - Fixed plural
                     });
             });
 
@@ -326,7 +326,7 @@
             highlightListItem(data.iso);
 
             // 5. Trigger globe redraw for altitude/color changes
-            world.polygonData(world.polygonData());
+            world.polygonsData(world.polygonsData()); // Fixed plural
         }
 
         function filterListByTier(tier) {
@@ -421,7 +421,7 @@
                 el.style.borderColor = 'transparent';
             });
             
-            world.polygonData(world.polygonData());
+            world.polygonsData(world.polygonsData()); // Fixed plural
         }
 
         // --- Helpers ---
