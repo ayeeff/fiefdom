@@ -10,21 +10,33 @@
     
     <!-- Globe.gl -->
     <script src="//unpkg.com/globe.gl"></script>
+    <!-- d3 for color scales and manipulation if needed -->
+    <script src="//unpkg.com/d3"></script>
     
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         #globeViz { width: 100vw; height: 100vh; }
         
-        /* Custom scrollbar for the sidebar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
         .glass-panel {
             background: rgba(10, 15, 30, 0.85);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .tier-item:hover {
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+        }
+        .tier-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid;
         }
     </style>
 </head>
@@ -33,201 +45,228 @@
     <!-- Main Globe Container -->
     <div id="globeViz"></div>
 
-    <!-- UI Overlay -->
-    <div class="absolute top-0 left-0 w-full h-full pointer-events-none flex flex-col justify-between p-6">
+    <!-- LEFT SIDEBAR: Header & Tier List -->
+    <div class="absolute top-6 left-6 bottom-6 w-80 flex flex-col pointer-events-none">
         
-        <!-- Header -->
-        <div class="pointer-events-auto glass-panel p-6 rounded-xl max-w-2xl">
-            <h1 class="text-3xl font-bold text-white mb-2 tracking-wide">The China Electric Stack</h1>
-            <p class="text-gray-300 text-sm mb-4">
-                Global Tourism GDP Impact (2025-2035): <span class="text-white font-bold">$2.8 Trillion Uplift</span>
+        <!-- Header Section -->
+        <div class="glass-panel p-5 rounded-t-xl pointer-events-auto z-10">
+            <h1 class="text-2xl font-bold text-white mb-1 tracking-wide leading-tight">The China Electric Stack</h1>
+            <p class="text-gray-400 text-xs mb-4">
+                Global Tourism GDP Impact (2025-2035): <br>
+                <span class="text-white font-bold text-base">$2.8 Trillion Uplift</span>
             </p>
             
-            <div class="flex gap-4 text-xs font-semibold uppercase tracking-wider">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full shadow-[0_0_10px_#00ff00]" style="background-color: #00ff00"></div>
+            <!-- Legend -->
+            <div class="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wider">
+                <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="filterListByTier('ACCESS')">
+                    <div class="w-3 h-3 rounded-full shadow-[0_0_8px_#00ff00]" style="background-color: #00ff00"></div>
                     <span class="text-green-400">Access Tier</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full shadow-[0_0_10px_#ff8800]" style="background-color: #ff8800"></div>
-                    <span class="text-orange-400">Cost Tier</span>
+                <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="filterListByTier('AFFORDABILITY')">
+                    <div class="w-3 h-3 rounded-full shadow-[0_0_8px_#ff8800]" style="background-color: #ff8800"></div>
+                    <span class="text-orange-400">Affordability Tier</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full shadow-[0_0_10px_#0088ff]" style="background-color: #0088ff"></div>
+                <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="filterListByTier('BRAND')">
+                    <div class="w-3 h-3 rounded-full shadow-[0_0_8px_#0088ff]" style="background-color: #0088ff"></div>
                     <span class="text-blue-400">Brand Tier</span>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar (Details) -->
-        <div class="absolute right-6 top-6 bottom-6 w-96 glass-panel rounded-xl flex flex-col pointer-events-auto overflow-hidden transition-all duration-300">
-            <div class="p-6 border-b border-gray-800 bg-black/20">
-                <h2 id="sidebar-title" class="text-xl font-bold text-white">Select a Country</h2>
-                <div id="sidebar-subtitle" class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Interactive 3D Visualization</div>
+        <!-- Dynamic Ranked List -->
+        <div id="ranking-container" class="glass-panel border-t-0 rounded-b-xl flex-1 overflow-hidden flex flex-col pointer-events-auto hidden transition-all duration-300">
+            <div class="bg-black/40 p-3 border-b border-white/10">
+                <h3 id="ranking-title" class="text-sm font-bold text-gray-200 uppercase tracking-widest">Select a Tier</h3>
+                <div class="text-[10px] text-gray-500">Ranked by GDP Impact</div>
             </div>
+            <div id="ranking-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- List items injected here -->
+            </div>
+        </div>
+    </div>
 
-            <div id="country-details" class="p-6 flex-1 overflow-y-auto hidden">
-                <!-- Dynamic Content -->
-                <div class="space-y-6">
-                    <div>
-                        <div class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Tier Category</div>
-                        <div id="detail-tier" class="text-2xl font-bold tracking-tight"></div>
+    <!-- RIGHT SIDEBAR: Country Details -->
+    <div class="absolute right-6 top-6 bottom-6 w-96 glass-panel rounded-xl flex flex-col pointer-events-auto overflow-hidden transition-all duration-300">
+        <div class="p-6 border-b border-gray-800 bg-black/20">
+            <h2 id="sidebar-title" class="text-xl font-bold text-white">Select a Country</h2>
+            <div id="sidebar-subtitle" class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Interactive 3D Visualization</div>
+        </div>
+
+        <div id="country-details" class="p-6 flex-1 overflow-y-auto hidden">
+            <div class="space-y-6">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Tier Category</div>
+                    <div id="detail-tier" class="text-2xl font-bold tracking-tight"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/5 p-4 rounded-lg border border-white/10">
+                        <div class="text-xs text-gray-400 mb-1">GDP Uplift</div>
+                        <div id="detail-gdp" class="text-xl font-mono font-bold text-white"></div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                            <div class="text-xs text-gray-400 mb-1">GDP Uplift</div>
-                            <div id="detail-gdp" class="text-xl font-mono font-bold text-white"></div>
-                        </div>
-                        <div class="bg-white/5 p-4 rounded-lg border border-white/10">
-                            <div class="text-xs text-gray-400 mb-1">Impact Share</div>
-                            <div id="detail-share" class="text-xl font-mono font-bold text-white">High</div>
-                        </div>
+                    <div class="bg-white/5 p-4 rounded-lg border border-white/10">
+                        <div class="text-xs text-gray-400 mb-1">Impact Share</div>
+                        <div id="detail-share" class="text-xl font-mono font-bold text-white">High</div>
                     </div>
+                </div>
 
-                    <div>
-                        <div class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2">Stack Enabler</div>
-                        <div id="detail-enabler" class="text-sm leading-relaxed text-gray-300 border-l-2 border-white pl-4"></div>
-                    </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2">Stack Enabler</div>
+                    <div id="detail-enabler" class="text-sm leading-relaxed text-gray-300 border-l-2 border-white pl-4"></div>
+                </div>
 
-                    <div class="mt-8 pt-6 border-t border-gray-800">
-                        <h3 class="text-sm font-bold text-white mb-3">Stack Components Active</h3>
-                        <div class="space-y-2 text-xs text-gray-400">
-                            <div class="flex items-center gap-2"><span class="text-blue-500">●</span> Mobility (NEV/EV Infrastructure)</div>
-                            <div class="flex items-center gap-2"><span class="text-purple-500">●</span> Transactions (Alipay+/WeChat)</div>
-                            <div class="flex items-center gap-2"><span class="text-pink-500">●</span> Discovery (XiaoHongShu/Douyin)</div>
-                        </div>
+                <div class="mt-8 pt-6 border-t border-gray-800">
+                    <h3 class="text-sm font-bold text-white mb-3">Stack Components Active</h3>
+                    <div class="space-y-2 text-xs text-gray-400">
+                        <div class="flex items-center gap-2"><span class="text-blue-500">●</span> Mobility (NEV/EV Infrastructure)</div>
+                        <div class="flex items-center gap-2"><span class="text-purple-500">●</span> Transactions (Alipay+/WeChat)</div>
+                        <div class="flex items-center gap-2"><span class="text-pink-500">●</span> Discovery (XiaoHongShu/Douyin)</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Empty State -->
-            <div id="empty-state" class="p-8 text-center flex flex-col items-center justify-center h-full text-gray-500">
-                <svg class="w-16 h-16 mb-4 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                <p>Click on any highlighted country to analyze its specific GDP impact and technical enablers.</p>
-            </div>
+        <!-- Empty State -->
+        <div id="empty-state" class="p-8 text-center flex flex-col items-center justify-center h-full text-gray-500">
+            <svg class="w-16 h-16 mb-4 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <p>Click on any highlighted country or select a tier from the left to explore impact data.</p>
         </div>
     </div>
 
     <script>
         // --- 1. Data Configuration ---
-        // Colors
         const COLORS = {
-            ACCESS: '#00ff00', // Green
-            COST: '#ff8800',   // Orange
-            BRAND: '#0088ff'   // Blue
+            ACCESS: '#00ff00',      // Green
+            AFFORDABILITY: '#ff8800', // Orange (Renamed from COST)
+            BRAND: '#0088ff'        // Blue
         };
 
-        // Full Data Set
+        const TIER_LABELS = {
+            ACCESS: 'Access Tier',
+            AFFORDABILITY: 'Affordability Tier',
+            BRAND: 'Brand Tier'
+        };
+
+        // Data with Lat/Lng for Camera Centering
         const stackData = [
             // ACCESS TIER (Green)
-            { iso: "THA", name: "Thailand", tier: "ACCESS", gdp: 185, enabler: "BYD manufacturing hub + PromptPay/Alipay integration." },
-            { iso: "SGP", name: "Singapore", tier: "ACCESS", gdp: 122, enabler: "SGQR universal payment integration & autonomous transport." },
-            { iso: "MYS", name: "Malaysia", tier: "ACCESS", gdp: 94, enabler: "Digital Free Trade Zone + East Coast Rail Link (ECRL)." },
-            { iso: "SAU", name: "Saudi Arabia", tier: "ACCESS", gdp: 85, enabler: "Huawei FusionSolar powering Red Sea Project + NEOM." },
-            { iso: "IDN", name: "Indonesia", tier: "ACCESS", gdp: 72, enabler: "BYD EV domination + Whoosh HSR connectivity." },
-            { iso: "ARE", name: "UAE", tier: "ACCESS", gdp: 68, enabler: "Alipay ubiquitous in Dubai + WeRide autonomous fleets." },
-            { iso: "LAO", name: "Laos", tier: "ACCESS", gdp: 35, enabler: "China-Laos Railway 800V e-highway integration." },
-            { iso: "KHM", name: "Cambodia", tier: "ACCESS", gdp: 32, enabler: "Siem Reap Angkor Int'l Airport + EV expressways." },
-            { iso: "KAZ", name: "Kazakhstan", tier: "ACCESS", gdp: 28, enabler: "Visa-free regime + extensive EV charging ribbon." },
-            { iso: "UZB", name: "Uzbekistan", tier: "ACCESS", gdp: 24, enabler: "China-Kyrgyzstan-Uzbekistan railway corridor." },
-            { iso: "NPL", name: "Nepal", tier: "ACCESS", gdp: 18, enabler: "11GW Hydro surplus + BYD electric buses to trailheads." },
-            { iso: "MDV", name: "Maldives", tier: "ACCESS", gdp: 16, enabler: "Velana Airport expansion + floating solar power." },
-            { iso: "LKA", name: "Sri Lanka", tier: "ACCESS", gdp: 14, enabler: "Electric Tuk-Tuk conversion + Colombo Port City." },
-            { iso: "KEN", name: "Kenya", tier: "ACCESS", gdp: 12, enabler: "Nairobi Expressway + SGR + Electric Safari fleet." },
-            { iso: "TZA", name: "Tanzania", tier: "ACCESS", gdp: 11, enabler: "TAZARA railway upgrades + electric Zanzibar ferries." },
-            { iso: "ETH", name: "Ethiopia", tier: "ACCESS", gdp: 9, enabler: "Addis-Djibouti Railway + Grand Renaissance Dam power." },
-            { iso: "MNG", name: "Mongolia", tier: "ACCESS", gdp: 8, enabler: "1,500 km Gobi battery-truck route for adventure tourism." },
-            { iso: "PAK", name: "Pakistan", tier: "ACCESS", gdp: 7, enabler: "CPEC road infrastructure + Gwadar Int'l Airport." },
-            { iso: "QAT", name: "Qatar", tier: "ACCESS", gdp: 6, enabler: "Alipay+ full integration at Hamad Airport & retail." },
-            { iso: "SRB", name: "Serbia", tier: "ACCESS", gdp: 5, enabler: "Visa-free access + Belgrade-Budapest HSR." },
+            { iso: "THA", lat: 15.87, lng: 100.99, name: "Thailand", tier: "ACCESS", gdp: 185, enabler: "BYD manufacturing hub + PromptPay/Alipay integration." },
+            { iso: "SGP", lat: 1.35, lng: 103.82, name: "Singapore", tier: "ACCESS", gdp: 122, enabler: "SGQR universal payment integration & autonomous transport." },
+            { iso: "MYS", lat: 4.21, lng: 101.97, name: "Malaysia", tier: "ACCESS", gdp: 94, enabler: "Digital Free Trade Zone + East Coast Rail Link (ECRL)." },
+            { iso: "SAU", lat: 23.88, lng: 45.07, name: "Saudi Arabia", tier: "ACCESS", gdp: 85, enabler: "Huawei FusionSolar powering Red Sea Project + NEOM." },
+            { iso: "IDN", lat: -0.78, lng: 113.92, name: "Indonesia", tier: "ACCESS", gdp: 72, enabler: "BYD EV domination + Whoosh HSR connectivity." },
+            { iso: "ARE", lat: 23.42, lng: 53.84, name: "UAE", tier: "ACCESS", gdp: 68, enabler: "Alipay ubiquitous in Dubai + WeRide autonomous fleets." },
+            { iso: "LAO", lat: 19.85, lng: 102.49, name: "Laos", tier: "ACCESS", gdp: 35, enabler: "China-Laos Railway 800V e-highway integration." },
+            { iso: "KHM", lat: 12.56, lng: 104.99, name: "Cambodia", tier: "ACCESS", gdp: 32, enabler: "Siem Reap Angkor Int'l Airport + EV expressways." },
+            { iso: "KAZ", lat: 48.01, lng: 66.92, name: "Kazakhstan", tier: "ACCESS", gdp: 28, enabler: "Visa-free regime + extensive EV charging ribbon." },
+            { iso: "UZB", lat: 41.37, lng: 64.58, name: "Uzbekistan", tier: "ACCESS", gdp: 24, enabler: "China-Kyrgyzstan-Uzbekistan railway corridor." },
+            { iso: "NPL", lat: 28.39, lng: 84.12, name: "Nepal", tier: "ACCESS", gdp: 18, enabler: "11GW Hydro surplus + BYD electric buses to trailheads." },
+            { iso: "MDV", lat: 3.20, lng: 73.22, name: "Maldives", tier: "ACCESS", gdp: 16, enabler: "Velana Airport expansion + floating solar power." },
+            { iso: "LKA", lat: 7.87, lng: 80.77, name: "Sri Lanka", tier: "ACCESS", gdp: 14, enabler: "Electric Tuk-Tuk conversion + Colombo Port City." },
+            { iso: "KEN", lat: -0.02, lng: 37.90, name: "Kenya", tier: "ACCESS", gdp: 12, enabler: "Nairobi Expressway + SGR + Electric Safari fleet." },
+            { iso: "TZA", lat: -6.36, lng: 34.88, name: "Tanzania", tier: "ACCESS", gdp: 11, enabler: "TAZARA railway upgrades + electric Zanzibar ferries." },
+            { iso: "ETH", lat: 9.14, lng: 40.48, name: "Ethiopia", tier: "ACCESS", gdp: 9, enabler: "Addis-Djibouti Railway + Grand Renaissance Dam power." },
+            { iso: "MNG", lat: 46.86, lng: 103.84, name: "Mongolia", tier: "ACCESS", gdp: 8, enabler: "1,500 km Gobi battery-truck route for adventure tourism." },
+            { iso: "PAK", lat: 30.37, lng: 69.34, name: "Pakistan", tier: "ACCESS", gdp: 7, enabler: "CPEC road infrastructure + Gwadar Int'l Airport." },
+            { iso: "QAT", lat: 25.35, lng: 51.18, name: "Qatar", tier: "ACCESS", gdp: 6, enabler: "Alipay+ full integration at Hamad Airport & retail." },
+            { iso: "SRB", lat: 44.01, lng: 21.00, name: "Serbia", tier: "ACCESS", gdp: 5, enabler: "Visa-free access + Belgrade-Budapest HSR." },
 
-            // COST TIER (Orange)
-            { iso: "VNM", name: "Vietnam", tier: "COST", gdp: 68, enabler: "3GW offshore wind + 30k chargers lowering transit costs." },
-            { iso: "TUR", name: "Turkey", tier: "COST", gdp: 59, enabler: "BYD & Chery factories lowering localized transport OpEx." },
-            { iso: "RUS", name: "Russia", tier: "COST", gdp: 45, enabler: "100% Chinese auto/tech stack replacement lowering costs." },
-            { iso: "EGY", name: "Egypt", tier: "COST", gdp: 38, enabler: "10GW Solar + Nile e-cruise fleet lowering ticket prices." },
-            { iso: "PHL", name: "Philippines", tier: "COST", gdp: 35, enabler: "5GW solar + e-bangka island ferries (-27% fares)." },
-            { iso: "HUN", name: "Hungary", tier: "COST", gdp: 29, enabler: "BYD European factory + CATL battery supply chain." },
-            { iso: "MEX", name: "Mexico", tier: "COST", gdp: 26, enabler: "BYD/MG dominance in ride-hailing fleets." },
-            { iso: "BRA", name: "Brazil", tier: "COST", gdp: 24, enabler: "BYD factory in Bahia lowering rental car costs." },
-            { iso: "ZAF", name: "South Africa", tier: "COST", gdp: 21, enabler: "Solar microgrids for hotels + e-Winelands loop." },
-            { iso: "MAR", name: "Morocco", tier: "COST", gdp: 19, enabler: "8GW Noor Solar Complex + EV motorway network." },
-            { iso: "TUN", name: "Tunisia", tier: "COST", gdp: 12, enabler: "2GW Solar + Med e-coach loop (-29% fares)." },
-            { iso: "PER", name: "Peru", tier: "COST", gdp: 11, enabler: "Chancay Port logistics + Solar-electric Andean train." },
-            { iso: "CHL", name: "Chile", tier: "COST", gdp: 10, enabler: "Largest electric bus fleet outside China (Santiago)." },
-            { iso: "ARG", name: "Argentina", tier: "COST", gdp: 9, enabler: "Cauchari Solar Park (Latin America's largest)." },
-            { iso: "BGD", name: "Bangladesh", tier: "COST", gdp: 8, enabler: "Padma Bridge connectivity + EV 3-wheeler dominance." },
-            { iso: "NGA", name: "Nigeria", tier: "COST", gdp: 7, enabler: "Lekki Deep Sea Port + Electric bus mass transit." },
-            { iso: "DZA", name: "Algeria", tier: "COST", gdp: 6, enabler: "East-West Highway completion + solar deployment." },
-            { iso: "ZWE", name: "Zimbabwe", tier: "COST", gdp: 5, enabler: "Victoria Falls e-shuttle + EV ferry system." },
-            { iso: "BLR", name: "Belarus", tier: "COST", gdp: 4, enabler: "Full integration of Chinese payment/tech stack." },
-            { iso: "IRN", name: "Iran", tier: "COST", gdp: 4, enabler: "Rail/metro upgrades via Chinese engineering." },
+            // AFFORDABILITY TIER (Orange) - formerly Cost
+            { iso: "VNM", lat: 14.05, lng: 108.27, name: "Vietnam", tier: "AFFORDABILITY", gdp: 68, enabler: "3GW offshore wind + 30k chargers lowering transit costs." },
+            { iso: "TUR", lat: 38.96, lng: 35.24, name: "Turkey", tier: "AFFORDABILITY", gdp: 59, enabler: "BYD & Chery factories lowering localized transport OpEx." },
+            { iso: "RUS", lat: 61.52, lng: 105.31, name: "Russia", tier: "AFFORDABILITY", gdp: 45, enabler: "100% Chinese auto/tech stack replacement lowering costs." },
+            { iso: "EGY", lat: 26.82, lng: 30.80, name: "Egypt", tier: "AFFORDABILITY", gdp: 38, enabler: "10GW Solar + Nile e-cruise fleet lowering ticket prices." },
+            { iso: "PHL", lat: 12.87, lng: 121.77, name: "Philippines", tier: "AFFORDABILITY", gdp: 35, enabler: "5GW solar + e-bangka island ferries (-27% fares)." },
+            { iso: "HUN", lat: 47.16, lng: 19.50, name: "Hungary", tier: "AFFORDABILITY", gdp: 29, enabler: "BYD European factory + CATL battery supply chain." },
+            { iso: "MEX", lat: 23.63, lng: -102.55, name: "Mexico", tier: "AFFORDABILITY", gdp: 26, enabler: "BYD/MG dominance in ride-hailing fleets." },
+            { iso: "BRA", lat: -14.23, lng: -51.92, name: "Brazil", tier: "AFFORDABILITY", gdp: 24, enabler: "BYD factory in Bahia lowering rental car costs." },
+            { iso: "ZAF", lat: -30.55, lng: 22.93, name: "South Africa", tier: "AFFORDABILITY", gdp: 21, enabler: "Solar microgrids for hotels + e-Winelands loop." },
+            { iso: "MAR", lat: 31.79, lng: -7.09, name: "Morocco", tier: "AFFORDABILITY", gdp: 19, enabler: "8GW Noor Solar Complex + EV motorway network." },
+            { iso: "TUN", lat: 33.88, lng: 9.53, name: "Tunisia", tier: "AFFORDABILITY", gdp: 12, enabler: "2GW Solar + Med e-coach loop (-29% fares)." },
+            { iso: "PER", lat: -9.19, lng: -75.01, name: "Peru", tier: "AFFORDABILITY", gdp: 11, enabler: "Chancay Port logistics + Solar-electric Andean train." },
+            { iso: "CHL", lat: -35.67, lng: -71.54, name: "Chile", tier: "AFFORDABILITY", gdp: 10, enabler: "Largest electric bus fleet outside China (Santiago)." },
+            { iso: "ARG", lat: -38.41, lng: -63.61, name: "Argentina", tier: "AFFORDABILITY", gdp: 9, enabler: "Cauchari Solar Park (Latin America's largest)." },
+            { iso: "BGD", lat: 23.68, lng: 90.35, name: "Bangladesh", tier: "AFFORDABILITY", gdp: 8, enabler: "Padma Bridge connectivity + EV 3-wheeler dominance." },
+            { iso: "NGA", lat: 9.08, lng: 8.67, name: "Nigeria", tier: "AFFORDABILITY", gdp: 7, enabler: "Lekki Deep Sea Port + Electric bus mass transit." },
+            { iso: "DZA", lat: 28.03, lng: 1.65, name: "Algeria", tier: "AFFORDABILITY", gdp: 6, enabler: "East-West Highway completion + solar deployment." },
+            { iso: "ZWE", lat: -19.01, lng: 29.15, name: "Zimbabwe", tier: "AFFORDABILITY", gdp: 5, enabler: "Victoria Falls e-shuttle + EV ferry system." },
+            { iso: "BLR", lat: 53.70, lng: 27.95, name: "Belarus", tier: "AFFORDABILITY", gdp: 4, enabler: "Full integration of Chinese payment/tech stack." },
+            { iso: "IRN", lat: 32.42, lng: 53.68, name: "Iran", tier: "AFFORDABILITY", gdp: 4, enabler: "Rail/metro upgrades via Chinese engineering." },
 
             // BRAND TIER (Blue)
-            { iso: "JPN", name: "Japan", tier: "BRAND", gdp: 165, enabler: "Alipay/WeChat ubiquity + Little Red Book styling." },
-            { iso: "KOR", name: "South Korea", tier: "BRAND", gdp: 118, enabler: "Duty-free integration with WeChat/Alipay ecosystems." },
-            { iso: "FRA", name: "France", tier: "BRAND", gdp: 97, enabler: "LVMH-Alipay partnership + Paris/Lyon e-shuttles." },
-            { iso: "AUS", name: "Australia", tier: "BRAND", gdp: 85, enabler: "Little Red Book curated road trip maps + EV rentals." },
-            { iso: "ITA", name: "Italy", tier: "BRAND", gdp: 62, enabler: "Luxury outlets Alipay+ tax refund integration." },
-            { iso: "CHE", name: "Switzerland", tier: "BRAND", gdp: 41, enabler: "Swisstainable electric trains + premium grid." },
-            { iso: "GBR", name: "United Kingdom", tier: "BRAND", gdp: 38, enabler: "Luxury retail Alipay integration + LEVC electric taxis." },
-            { iso: "ESP", name: "Spain", tier: "BRAND", gdp: 35, enabler: "Trip.com strategic partnership + EV taxi fleets." },
-            { iso: "NZL", name: "New Zealand", tier: "BRAND", gdp: 28, enabler: "Electric aviation trials + 100% renewable brand." },
-            { iso: "DEU", name: "Germany", tier: "BRAND", gdp: 25, enabler: "Munich/Frankfurt Airport Alipay+ gateways." },
-            { iso: "GRC", name: "Greece", tier: "BRAND", gdp: 22, enabler: "Piraeus Port connectivity + 5G smart islands." },
-            { iso: "NOR", name: "Norway", tier: "BRAND", gdp: 18, enabler: "Densest fast-charger net + premium Chinese EVs." },
-            { iso: "ISL", name: "Iceland", tier: "BRAND", gdp: 12, enabler: "Electric Ring-Road + Geothermal brand alignment." },
-            { iso: "FIN", name: "Finland", tier: "BRAND", gdp: 10, enabler: "'Aurora Hunting' viral trends on Douyin." },
-            { iso: "PRT", name: "Portugal", tier: "BRAND", gdp: 9, enabler: "Golden Visa tech + Alipay luxury retail." },
-            { iso: "AUT", name: "Austria", tier: "BRAND", gdp: 8, enabler: "WeChat mini-programs for Vienna booking." },
-            { iso: "FJI", name: "Fiji", tier: "BRAND", gdp: 5, enabler: "Solar-electric resort shuttles + eco-branding." },
-            { iso: "CRI", name: "Costa Rica", tier: "BRAND", gdp: 4, enabler: "BYD electric bus fleet + 99% renewable grid." },
-            { iso: "MUS", name: "Mauritius", tier: "BRAND", gdp: 4, enabler: "Huawei 'Safe City' + 5G eco-resorts." },
-            { iso: "SYC", name: "Seychelles", tier: "BRAND", gdp: 3, enabler: "100% Solar-diesel hybrid + e-boat only zones." }
+            { iso: "JPN", lat: 36.20, lng: 138.25, name: "Japan", tier: "BRAND", gdp: 165, enabler: "Alipay/WeChat ubiquity + Little Red Book styling." },
+            { iso: "KOR", lat: 35.90, lng: 127.76, name: "South Korea", tier: "BRAND", gdp: 118, enabler: "Duty-free integration with WeChat/Alipay ecosystems." },
+            { iso: "FRA", lat: 46.22, lng: 2.21, name: "France", tier: "BRAND", gdp: 97, enabler: "LVMH-Alipay partnership + Paris/Lyon e-shuttles." },
+            { iso: "AUS", lat: -25.27, lng: 133.77, name: "Australia", tier: "BRAND", gdp: 85, enabler: "Little Red Book curated road trip maps + EV rentals." },
+            { iso: "ITA", lat: 41.87, lng: 12.56, name: "Italy", tier: "BRAND", gdp: 62, enabler: "Luxury outlets Alipay+ tax refund integration." },
+            { iso: "CHE", lat: 46.81, lng: 8.22, name: "Switzerland", tier: "BRAND", gdp: 41, enabler: "Swisstainable electric trains + premium grid." },
+            { iso: "GBR", lat: 55.37, lng: -3.43, name: "United Kingdom", tier: "BRAND", gdp: 38, enabler: "Luxury retail Alipay integration + LEVC electric taxis." },
+            { iso: "ESP", lat: 40.46, lng: -3.74, name: "Spain", tier: "BRAND", gdp: 35, enabler: "Trip.com strategic partnership + EV taxi fleets." },
+            { iso: "NZL", lat: -40.90, lng: 174.88, name: "New Zealand", tier: "BRAND", gdp: 28, enabler: "Electric aviation trials + 100% renewable brand." },
+            { iso: "DEU", lat: 51.16, lng: 10.45, name: "Germany", tier: "BRAND", gdp: 25, enabler: "Munich/Frankfurt Airport Alipay+ gateways." },
+            { iso: "GRC", lat: 39.07, lng: 21.82, name: "Greece", tier: "BRAND", gdp: 22, enabler: "Piraeus Port connectivity + 5G smart islands." },
+            { iso: "NOR", lat: 60.47, lng: 8.46, name: "Norway", tier: "BRAND", gdp: 18, enabler: "Densest fast-charger net + premium Chinese EVs." },
+            { iso: "ISL", lat: 64.96, lng: -19.02, name: "Iceland", tier: "BRAND", gdp: 12, enabler: "Electric Ring-Road + Geothermal brand alignment." },
+            { iso: "FIN", lat: 61.92, lng: 25.74, name: "Finland", tier: "BRAND", gdp: 10, enabler: "'Aurora Hunting' viral trends on Douyin." },
+            { iso: "PRT", lat: 39.39, lng: -8.22, name: "Portugal", tier: "BRAND", gdp: 9, enabler: "Golden Visa tech + Alipay luxury retail." },
+            { iso: "AUT", lat: 47.51, lng: 14.55, name: "Austria", tier: "BRAND", gdp: 8, enabler: "WeChat mini-programs for Vienna booking." },
+            { iso: "FJI", lat: -17.71, lng: 178.06, name: "Fiji", tier: "BRAND", gdp: 5, enabler: "Solar-electric resort shuttles + eco-branding." },
+            { iso: "CRI", lat: 9.74, lng: -83.75, name: "Costa Rica", tier: "BRAND", gdp: 4, enabler: "BYD electric bus fleet + 99% renewable grid." },
+            { iso: "MUS", lat: -20.34, lng: 57.55, name: "Mauritius", tier: "BRAND", gdp: 4, enabler: "Huawei 'Safe City' + 5G eco-resorts." },
+            { iso: "SYC", lat: -4.67, lng: 55.49, name: "Seychelles", tier: "BRAND", gdp: 3, enabler: "100% Solar-diesel hybrid + e-boat only zones." }
         ];
 
-        // Create a Map for O(1) lookup
+        // Map for O(1) lookup
         const countryMap = new Map(stackData.map(item => [item.iso, item]));
 
         // --- 2. Globe Initialization ---
         const globeContainer = document.getElementById('globeViz');
+        let currentHoverD = null;
 
         const world = Globe()
             (globeContainer)
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-            .pointOfView({ lat: 20, lng: 100, altitude: 2.5 }) // Focus on Asia initially
+            .pointOfView({ lat: 20, lng: 100, altitude: 2.5 }) // Focus on Asia
             .showAtmosphere(true)
             .atmosphereColor('#3a228a')
-            .atmosphereAltitude(0.15);
+            .atmosphereAltitude(0.15)
+            .polygonsTransitionDuration(300);
 
-        // --- 3. GeoJSON & Choropleth Logic ---
+        // --- 3. Logic & Interaction ---
+        
+        let selectedIso = null;
+        let selectedTier = null;
+
+        // Fetch GeoJSON
         fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(countries => {
                 
-                // Filter GeoJSON to mark our target countries
+                // Attach Data
                 countries.features.forEach(feature => {
                     const iso = feature.properties.ISO_A3;
                     const data = countryMap.get(iso);
                     if (data) {
-                        feature.properties.stackData = data; // Attach our data to the geojson feature
+                        feature.properties.stackData = data; 
                     }
                 });
 
                 world
-                    .polygonsData(countries.features.filter(d => d.properties.ISO_A3 !== 'AQ')) // Exclude Antarctica
-                    .polygonAltitude(d => d.properties.stackData ? 0.02 : 0.005)
+                    .polygonsData(countries.features.filter(d => d.properties.ISO_A3 !== 'AQ'))
+                    .polygonAltitude(d => d.properties.ISO_A3 === selectedIso ? 0.06 : (d.properties.stackData ? 0.02 : 0.005))
                     .polygonCapColor(d => {
                         const data = d.properties.stackData;
-                        if (!data) return 'rgba(255,255,255, 0.05)'; // Non-stack countries
+                        if (!data) return 'rgba(255,255,255, 0.05)'; 
                         
-                        // Return tier color with opacity
+                        // Highlight logic
+                        const isSelected = d.properties.ISO_A3 === selectedIso;
+                        const isHovered = d === currentHoverD;
+                        
+                        const alpha = isSelected ? 1.0 : (isHovered ? 0.8 : 0.9);
                         const baseColor = COLORS[data.tier];
-                        // Add some transparency
-                        return hexToRgba(baseColor, 0.9);
+                        return hexToRgba(baseColor, alpha);
                     })
                     .polygonSideColor(d => {
                         const data = d.properties.stackData;
@@ -241,12 +280,11 @@
                                 ${d.ADMIN}
                             </div>
                         `;
-                        
                         return `
                             <div class="p-3 bg-gray-900/95 text-white rounded-lg border border-${getColorName(d.stackData.tier)}-500 shadow-xl backdrop-blur-sm">
                                 <div class="font-bold text-lg mb-1">${d.stackData.name}</div>
                                 <div class="text-xs uppercase tracking-wider font-semibold" style="color: ${COLORS[d.stackData.tier]}">
-                                    ${d.stackData.tier} Tier
+                                    ${TIER_LABELS[d.stackData.tier]}
                                 </div>
                                 <div class="text-sm mt-1">
                                     <span class="text-gray-400">GDP Uplift:</span> 
@@ -257,74 +295,142 @@
                     })
                     .onPolygonClick(({ properties: d }) => {
                         if (d.stackData) {
-                            updateSidebar(d.stackData);
-                            
-                            // Optional: Fly to country
-                            // world.pointOfView({ lat: d.bbox[1], lng: d.bbox[0], altitude: 1.5 }, 1000);
+                            handleCountrySelect(d.stackData);
                         } else {
-                            clearSidebar();
+                            clearSelection();
                         }
                     })
-                    .onPolygonHover(hoverD => {
-                        world
-                            .polygonAltitude(d => d === hoverD && d.properties.stackData ? 0.08 : (d.properties.stackData ? 0.02 : 0.005))
-                            .polygonCapColor(d => {
-                                const data = d.properties.stackData;
-                                if (!data) return 'rgba(255,255,255, 0.05)';
-                                
-                                // Highlight on hover
-                                if (d === hoverD) return hexToRgba(COLORS[data.tier], 1.0);
-                                return hexToRgba(COLORS[data.tier], 0.8);
-                            });
+                    .onPolygonHover(d => {
+                        currentHoverD = d;
+                        world.polygonData(world.polygonData()); // Trigger update
                     });
             });
 
-        // --- 4. Helper Functions ---
+        // --- Core Interaction Functions ---
 
-        function updateSidebar(data) {
-            const sidebarTitle = document.getElementById('sidebar-title');
-            const sidebarSubtitle = document.getElementById('sidebar-subtitle');
+        function handleCountrySelect(data) {
+            selectedIso = data.iso;
+            
+            // 1. Move Globe
+            world.pointOfView({ lat: data.lat, lng: data.lng, altitude: 1.5 }, 1500);
+            
+            // 2. Update Details Pane (Right)
+            updateDetailsPane(data);
+            
+            // 3. Update Ranked List (Left) - Only if tier changed or list hidden
+            if (selectedTier !== data.tier) {
+                renderTierList(data.tier);
+            }
+            
+            // 4. Highlight List Item
+            highlightListItem(data.iso);
+
+            // 5. Trigger globe redraw for altitude/color changes
+            world.polygonData(world.polygonData());
+        }
+
+        function filterListByTier(tier) {
+            renderTierList(tier);
+        }
+
+        // Render the sorted list on the left
+        function renderTierList(tier) {
+            selectedTier = tier;
+            const container = document.getElementById('ranking-container');
+            const list = document.getElementById('ranking-list');
+            const title = document.getElementById('ranking-title');
+
+            container.classList.remove('hidden');
+            title.textContent = TIER_LABELS[tier];
+            title.style.color = COLORS[tier];
+
+            // Filter and Sort
+            const tierCountries = stackData
+                .filter(d => d.tier === tier)
+                .sort((a, b) => b.gdp - a.gdp);
+
+            // Generate HTML
+            list.innerHTML = tierCountries.map((c, index) => `
+                <div id="item-${c.iso}" 
+                     class="tier-item flex items-center justify-between p-2 rounded text-sm transition-all border-l-4 border-transparent"
+                     onclick="handleListClick('${c.iso}')">
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-500 font-mono w-4 text-right">${index + 1}</span>
+                        <span class="text-white font-medium">${c.name}</span>
+                    </div>
+                    <span class="text-gray-400 font-mono text-xs">$${c.gdp}B</span>
+                </div>
+            `).join('');
+
+            // Highlight current selection if exists
+            if (selectedIso) highlightListItem(selectedIso);
+        }
+
+        function handleListClick(iso) {
+            const data = countryMap.get(iso);
+            if (data) {
+                handleCountrySelect(data);
+            }
+        }
+
+        function highlightListItem(iso) {
+            // Remove active class from all
+            document.querySelectorAll('.tier-item').forEach(el => {
+                el.classList.remove('active');
+                el.style.borderColor = 'transparent';
+                el.classList.remove('bg-white/10');
+            });
+
+            // Add active class to selected
+            const el = document.getElementById(`item-${iso}`);
+            if (el) {
+                el.classList.add('active');
+                el.style.borderColor = COLORS[countryMap.get(iso).tier];
+            }
+        }
+
+        function updateDetailsPane(data) {
             const emptyState = document.getElementById('empty-state');
             const detailsContent = document.getElementById('country-details');
+            const sidebarTitle = document.getElementById('sidebar-title');
             
-            const tierEl = document.getElementById('detail-tier');
-            const gdpEl = document.getElementById('detail-gdp');
-            const enablerEl = document.getElementById('detail-enabler');
-
-            // Hide empty state, show details
             emptyState.classList.add('hidden');
             detailsContent.classList.remove('hidden');
 
-            // Populate Data
             sidebarTitle.textContent = data.name;
-            sidebarTitle.className = `text-2xl font-bold text-${getColorName(data.tier)}-500`;
+            sidebarTitle.style.color = COLORS[data.tier];
             
-            sidebarSubtitle.textContent = "Data Loaded Successfully";
+            document.getElementById('detail-tier').textContent = TIER_LABELS[data.tier];
+            document.getElementById('detail-tier').style.color = COLORS[data.tier];
 
-            tierEl.textContent = data.tier;
-            tierEl.style.color = COLORS[data.tier];
-
-            gdpEl.textContent = `$${data.gdp} Billion`;
-            enablerEl.textContent = data.enabler;
-            enablerEl.style.borderColor = COLORS[data.tier];
+            document.getElementById('detail-gdp').textContent = `$${data.gdp} Billion`;
+            document.getElementById('detail-enabler').textContent = data.enabler;
+            document.getElementById('detail-enabler').style.borderColor = COLORS[data.tier];
         }
 
-        function clearSidebar() {
+        function clearSelection() {
+            selectedIso = null;
             document.getElementById('empty-state').classList.remove('hidden');
             document.getElementById('country-details').classList.add('hidden');
             document.getElementById('sidebar-title').textContent = "Select a Country";
-            document.getElementById('sidebar-title').className = "text-xl font-bold text-white";
-            document.getElementById('sidebar-subtitle').textContent = "Interactive 3D Visualization";
+            document.getElementById('sidebar-title').style.color = "white";
+            
+            // Keep the list open, just clear highlights
+            document.querySelectorAll('.tier-item').forEach(el => {
+                el.classList.remove('active');
+                el.style.borderColor = 'transparent';
+            });
+            
+            world.polygonData(world.polygonData());
         }
 
-        // Helper to get Tailwind color name approximation for class construction
+        // --- Helpers ---
         function getColorName(tier) {
             if (tier === 'ACCESS') return 'green';
-            if (tier === 'COST') return 'orange';
+            if (tier === 'AFFORDABILITY') return 'orange';
             return 'blue';
         }
 
-        // Helper for hex to rgba
         function hexToRgba(hex, alpha) {
             const r = parseInt(hex.slice(1, 3), 16);
             const g = parseInt(hex.slice(3, 5), 16);
@@ -334,14 +440,12 @@
 
         // Auto-rotate
         world.controls().autoRotate = true;
-        world.controls().autoRotateSpeed = 0.5;
+        world.controls().autoRotateSpeed = 0.3;
         
-        // Stop rotation on interaction
-        globeContainer.addEventListener('mousedown', () => {
+        document.getElementById('globeViz').addEventListener('mousedown', () => {
             world.controls().autoRotate = false;
         });
 
-        // Responsive resize
         window.addEventListener('resize', () => {
             world.width(window.innerWidth);
             world.height(window.innerHeight);
