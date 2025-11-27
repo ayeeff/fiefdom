@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025: Asia's Wettest Year</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/globe.gl"></script>
+    
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        #globeViz { width: 100vw; height: 100vh; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        .glass-panel {
+            background: rgba(10, 15, 40, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .extreme-item:hover {
+            background: rgba(127, 29, 29, 0.5) !important;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="globeViz"></div>
+
+    <!-- Header -->
+    <div class="absolute top-6 left-6 right-6 pointer-events-none z-10">
+        <div class="glass-panel p-6 rounded-2xl shadow-2xl max-w-2xl pointer-events-auto" style="background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.95), rgba(30, 64, 175, 0.95));">
+            <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">2025: Asia's Wettest Year</h1>
+            <p class="text-blue-200 text-sm leading-relaxed">
+                Rainfall anomalies across Asia-Pacific showing percentage deviation from 1991-2020 baseline. 
+                Darker blue indicates more extreme conditions.
+            </p>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="absolute bottom-6 left-6 glass-panel p-5 rounded-xl shadow-2xl pointer-events-auto z-10">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rainfall Anomaly (%)</h3>
+        <div class="space-y-2">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(200, 200, 200, 0.5)"></div>
+                <span class="text-xs text-gray-300 font-mono">0%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(173, 216, 230, 0.7)"></div>
+                <span class="text-xs text-gray-300 font-mono">< 10%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(135, 206, 250, 0.8)"></div>
+                <span class="text-xs text-gray-300 font-mono">10-20%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(100, 149, 237, 0.85)"></div>
+                <span class="text-xs text-gray-300 font-mono">20-30%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(70, 130, 220, 0.9)"></div>
+                <span class="text-xs text-gray-300 font-mono">30-40%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(30, 100, 200, 0.95)"></div>
+                <span class="text-xs text-gray-300 font-mono">40-50%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(0, 70, 180, 1.0)"></div>
+                <span class="text-xs text-gray-300 font-mono">50-75%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(0, 40, 120, 1.0)"></div>
+                <span class="text-xs text-gray-300 font-mono">75%+</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extreme Events -->
+    <div class="absolute top-6 right-6 p-5 rounded-xl shadow-2xl max-w-sm pointer-events-auto z-10" style="background: rgba(69, 10, 10, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(239, 68, 68, 0.3);">
+        <h3 class="text-sm font-bold text-red-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span class="text-xl">⚠️</span> Most Extreme Events
+        </h3>
+        <div id="extreme-list" class="space-y-2">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Selected Country Details -->
+    <div id="detail-panel" class="absolute bottom-6 right-6 glass-panel p-6 rounded-xl shadow-2xl max-w-md pointer-events-auto z-10 hidden" style="border: 2px solid rgba(96, 165, 250, 0.5);">
+        <div class="flex justify-between items-start mb-4">
+            <h2 id="detail-name" class="text-2xl font-bold text-white"></h2>
+            <button onclick="closeDetail()" class="text-gray-400 hover:text-white transition-colors text-2xl leading-none">×</button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="p-3 rounded border" style="background: rgba(30, 58, 138, 0.4); border-color: rgba(37, 99, 235, 0.3);">
+                <div class="text-xs text-blue-300 uppercase tracking-wider mb-1">2025 Total</div>
+                <div id="detail-rainfall" class="text-2xl font-mono font-bold text-white"></div>
+            </div>
+            <div class="p-3 rounded border" style="background: rgba(30, 58, 138, 0.4); border-color: rgba(37, 99, 235, 0.3);">
+                <div class="text-xs text-blue-300 uppercase tracking-wider mb-1">Anomaly</div>
+                <div id="detail-anomaly" class="text-2xl font-mono font-bold text-red-400"></div>
+            </div>
+        </div>
+
+        <div class="p-3 rounded border mb-3" style="background: rgba(30, 58, 138, 0.3); border-color: rgba(29, 78, 216, 0.3);">
+            <div class="text-xs text-blue-300 uppercase tracking-wider mb-1">Historical Average</div>
+            <div id="detail-avg" class="text-lg font-mono text-white"></div>
+        </div>
+
+        <div class="border-t pt-3" style="border-color: rgba(30, 64, 175, 1);">
+            <div class="text-xs text-blue-400 uppercase font-bold tracking-wider mb-2">Key Event</div>
+            <p id="detail-notes" class="text-sm text-blue-100 leading-relaxed italic"></p>
+        </div>
+    </div>
+
+    <script>
+        const rainfallData = {
+            AFG: { name: "Afghanistan", rainfall: 420, avg: 325, anomaly: 29, notes: "wettest since 1987; May flash floods" },
+            ARM: { name: "Armenia", rainfall: 625, avg: 562, anomaly: 11, notes: "late-spring storms only" },
+            AUS: { name: "Australia", rainfall: 540, avg: 486, anomaly: 12, notes: "north-monsoon early; 3 east-coast lows" },
+            AZE: { name: "Azerbaijan", rainfall: 490, avg: 447, anomaly: 10, notes: "Caspian enhanced" },
+            BHR: { name: "Bahrain", rainfall: 130, avg: 65, anomaly: 100, notes: "Nov convective burst" },
+            BGD: { name: "Bangladesh", rainfall: 3950, avg: 2660, anomaly: 49, notes: "record June-July; 400+ deaths" },
+            BTN: { name: "Bhutan", rainfall: 3200, avg: 2200, anomaly: 45, notes: "glacial-lake outburst floods" },
+            BRN: { name: "Brunei", rainfall: 3100, avg: 2722, anomaly: 14, notes: "no casualties; repeated road flood" },
+            KHM: { name: "Cambodia", rainfall: 2100, avg: 1904, anomaly: 10, notes: "Mekong peak 0.6 m above alert" },
+            CHN: { name: "China", rainfall: 760, avg: 662, anomaly: 15, notes: "south China May-Jun +50%" },
+            CYP: { name: "Cyprus", rainfall: 510, avg: 408, anomaly: 25, notes: "Dec-Jan med low pressure" },
+            EGY: { name: "Egypt", rainfall: 18, avg: 18, anomaly: 0, notes: "unchanged – world's driest" },
+            GEO: { name: "Georgia", rainfall: 1260, avg: 1026, anomaly: 23, notes: "late-spring troughs" },
+            IND: { name: "India", rainfall: 1380, avg: 1083, anomaly: 27, notes: "wettest since 1994" },
+            IDN: { name: "Indonesia", rainfall: 3000, avg: 2702, anomaly: 11, notes: "Sumatra & Kalimantan Oct-Nov wet" },
+            IRN: { name: "Iran", rainfall: 220, avg: 191, anomaly: 15, notes: "north (Gilan) 300 mm/48 h event" },
+            IRQ: { name: "Iraq", rainfall: 220, avg: 129, anomaly: 71, notes: "Baghdad 90 mm in Nov – record" },
+            ISR: { name: "Israel", rainfall: 650, avg: 435, anomaly: 40, notes: "Jan 'Daniel' low" },
+            JPN: { name: "Japan", rainfall: 2200, avg: 1662, anomaly: 32, notes: "typhoons Lan & Bolaven" },
+            JOR: { name: "Jordan", rainfall: 210, avg: 163, anomaly: 29, notes: "Jan low pressure same as Israel" },
+            KAZ: { name: "Kazakhstan", rainfall: 520, avg: 416, anomaly: 25, notes: "south flash flood Aug" },
+            KWT: { name: "Kuwait", rainfall: 140, avg: 121, anomaly: 16, notes: "Jan & Nov storms" },
+            KGZ: { name: "Kyrgyzstan", rainfall: 680, avg: 557, anomaly: 22, notes: "landslides on R-13" },
+            LAO: { name: "Laos", rainfall: 2000, avg: 1834, anomaly: 9, notes: "Attapeu cut off repeatedly" },
+            LBN: { name: "Lebanon", rainfall: 550, avg: 423, anomaly: 30, notes: "Oct Beirut 150 mm/12 h" },
+            MYS: { name: "Malaysia", rainfall: 3350, avg: 2875, anomaly: 15, notes: "Kelantan >3000 mm by Nov" },
+            MDV: { name: "Maldives", rainfall: 2100, avg: 2045, anomaly: 3, notes: "above-normal SW monsoon" },
+            MHL: { name: "Marshall Islands", rainfall: 3800, avg: 3390, anomaly: 12, notes: "Majuro 4 consecutive monthly records" },
+            FSM: { name: "Micronesia", rainfall: 4500, avg: 3910, anomaly: 15, notes: "Yap 1200 mm/month twice" },
+            MNG: { name: "Mongolia", rainfall: 320, avg: 267, anomaly: 20, notes: "desert convective burst Jul" },
+            MMR: { name: "Myanmar", rainfall: 2300, avg: 2091, anomaly: 10, notes: "southern delta wettest since 2015" },
+            NRU: { name: "Nauru", rainfall: 2200, avg: 1830, anomaly: 20, notes: "mini-meso-low 200 mm/6 h" },
+            NPL: { name: "Nepal", rainfall: 2750, avg: 1960, anomaly: 40, notes: "July Terai 400 mm/24 h" },
+            NCL: { name: "New Caledonia", rainfall: 2200, avg: 1930, anomaly: 14, notes: "Nouméa 350 mm/24 h" },
+            NZL: { name: "New Zealand", rainfall: 2100, avg: 1730, anomaly: 21, notes: "Auckland Jan 260 mm/24 h record" },
+            PRK: { name: "North Korea", rainfall: 1050, avg: 810, anomaly: 30, notes: "40-day mei-yu-like session" },
+            OMN: { name: "Oman", rainfall: 220, avg: 125, anomaly: 76, notes: "Muscat 300 mm/24 h – airport closed" },
+            PAK: { name: "Pakistan", rainfall: 580, avg: 430, anomaly: 35, notes: "Sindh Aug cloudburst" },
+            PLW: { name: "Palau", rainfall: 4000, avg: 3500, anomaly: 14, notes: "Koror 450 mm/24 h" },
+            PNG: { name: "Papua New Guinea", rainfall: 4100, avg: 3150, anomaly: 30, notes: "Highlands 800 mm/month × 3" },
+            PHL: { name: "Philippines", rainfall: 2750, avg: 2348, anomaly: 17, notes: "19 typhoons/cyclones" },
+            QAT: { name: "Qatar", rainfall: 130, avg: 75, anomaly: 73, notes: "same Nov system as Bahrain" },
+            RUS: { name: "Russia (Asian)", rainfall: 580, avg: 491, anomaly: 18, notes: "south-Siberia July all-time high" },
+            SAU: { name: "Saudi Arabia", rainfall: 150, avg: 59, anomaly: 154, notes: "Riyadh 250 mm/3 h Nov" },
+            SGP: { name: "Singapore", rainfall: 2850, avg: 2497, anomaly: 14, notes: "flash-flood warnings 28 d" },
+            SLB: { name: "Solomon Islands", rainfall: 3500, avg: 3020, anomaly: 16, notes: "Honiara 500 mm/48 h" },
+            KOR: { name: "South Korea", rainfall: 1850, avg: 1275, anomaly: 45, notes: "Seoul 400 mm/24 h" },
+            LKA: { name: "Sri Lanka", rainfall: 2400, avg: 1715, anomaly: 40, notes: "Colombo 440 mm/24 h May" },
+            SYR: { name: "Syria", rainfall: 550, avg: 423, anomaly: 30, notes: "Oct coastal low" },
+            TJK: { name: "Tajikistan", rainfall: 750, avg: 691, anomaly: 8, notes: "convective downpour Jul" },
+            THA: { name: "Thailand", rainfall: 2100, avg: 1622, anomaly: 30, notes: "Hat-Yai 335 mm/24 h – 300-yr return" },
+            TLS: { name: "Timor-Leste", rainfall: 2200, avg: 1495, anomaly: 47, notes: "Dili 400 mm/72 h Jan" },
+            TON: { name: "Tonga", rainfall: 3200, avg: 2690, anomaly: 19, notes: "Kevin eye-wall 500 mm/24 h" },
+            TUR: { name: "Turkey", rainfall: 780, avg: 650, anomaly: 20, notes: "Rize 220 mm/24 h Aug" },
+            TKM: { name: "Turkmenistan", rainfall: 280, avg: 207, anomaly: 35, notes: "Kopet-Dag 100 mm/24 h" },
+            TUV: { name: "Tuvalu", rainfall: 3500, avg: 3210, anomaly: 9, notes: "Funafuti 400 mm/48 h" },
+            ARE: { name: "UAE", rainfall: 220, avg: 100, anomaly: 120, notes: "Dubai 250 mm/24 h Apr" },
+            UZB: { name: "Uzbekistan", rainfall: 420, avg: 328, anomaly: 28, notes: "Tashkent 60 mm/day" },
+            VUT: { name: "Vanuatu", rainfall: 2400, avg: 2000, anomaly: 20, notes: "Kevin 550 mm/24 h" },
+            VNM: { name: "Vietnam", rainfall: 2400, avg: 1821, anomaly: 32, notes: "central low 600 mm Oct" },
+            YEM: { name: "Yemen", rainfall: 260, avg: 193, anomaly: 35, notes: "Socotra 400 mm/72 h TC Tej" },
+            PSE: { name: "Palestine", rainfall: 650, avg: 435, anomaly: 40, notes: "Jan 'Daniel' low" }
+        };
+
+        let selectedIso = null;
+        let hoveredIso = null;
+        let world;
+
+        function getColorForAnomaly(anomaly) {
+            if (anomaly === 0) return 'rgba(200, 200, 200, 0.3)';
+            if (anomaly < 10) return 'rgba(173, 216, 230, 0.6)';
+            if (anomaly < 20) return 'rgba(135, 206, 250, 0.7)';
+            if (anomaly < 30) return 'rgba(100, 149, 237, 0.8)';
+            if (anomaly < 40) return 'rgba(70, 130, 220, 0.85)';
+            if (anomaly < 50) return 'rgba(30, 100, 200, 0.9)';
+            if (anomaly < 75) return 'rgba(0, 70, 180, 0.95)';
+            return 'rgba(0, 40, 120, 1.0)';
+        }
+
+        function showDetail(iso) {
+            const data = rainfallData[iso];
+            if (!data) return;
+
+            selectedIso = iso;
+            document.getElementById('detail-panel').classList.remove('hidden');
+            document.getElementById('detail-name').textContent = data.name;
+            document.getElementById('detail-rainfall').innerHTML = `${data.rainfall}<span class="text-sm text-gray-400"> mm</span>`;
+            document.getElementById('detail-anomaly').textContent = `+${data.anomaly}%`;
+            document.getElementById('detail-avg').innerHTML = `${data.avg} mm <span class="text-sm text-gray-400">(1991-2020)</span>`;
+            document.getElementById('detail-notes').textContent = data.notes;
+
+            // Point of view
+            const lat = data.name === "Russia (Asian)" ? 60 : 
+                       data.name === "Australia" ? -25 :
+                       data.name === "Indonesia" ? -2 :
+                       data.name === "China" ? 35 : 25;
+            const lng = data.name === "Russia (Asian)" ? 90 :
+                       data.name === "Australia" ? 135 : 95;
+            
+            world.pointOfView({ lat, lng, altitude: 1.2 }, 1200);
+            world.polygonsData(world.polygonsData());
+        }
+
+        function closeDetail() {
+            selectedIso = null;
+            document.getElementById('detail-panel').classList.add('hidden');
+            world.polygonsData(world.polygonsData());
+        }
+
+        // Populate extreme events
+        const extremes = Object.entries(rainfallData)
+            .filter(([_, d]) => d.anomaly >= 50)
+            .sort((a, b) => b[1].anomaly - a[1].anomaly)
+            .slice(0, 5);
+
+        const extremeList = document.getElementById('extreme-list');
+        extremes.forEach(([iso, data]) => {
+            const div = document.createElement('div');
+            div.className = 'extreme-item p-3 rounded border-l-4 transition-colors';
+            div.style.cssText = 'background: rgba(127, 29, 29, 0.3); border-color: rgb(239, 68, 68);';
+            div.onclick = () => showDetail(iso);
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-1">
+                    <span class="text-white font-semibold text-sm">${data.name}</span>
+                    <span class="text-red-300 font-mono font-bold text-lg">+${data.anomaly}%</span>
+                </div>
+                <div class="text-xs text-red-200 italic">${data.notes}</div>
+            `;
+            extremeList.appendChild(div);
+        });
+
+        // Initialize globe
+        const globeContainer = document.getElementById('globeViz');
+
+        world = Globe()(globeContainer)
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .pointOfView({ lat: 25, lng: 95, altitude: 2.2 })
+            .showAtmosphere(true)
+            .atmosphereColor('#1e40af')
+            .atmosphereAltitude(0.15);
+
+        fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+            .then(res => res.json())
+            .then(countries => {
+                countries.features.forEach(feature => {
+                    let iso = feature.properties.ISO_A3;
+                    if (iso === '-99') iso = feature.properties.ADM0_A3;
+                    
+                    const data = rainfallData[iso];
+                    if (data) {
+                        feature.properties.rainfallData = data;
+                        feature.properties.ISO_A3 = iso;
+                    }
+                });
+
+                world
+                    .polygonsData(countries.features.filter(d => d.properties.ISO_A3 !== 'AQ'))
+                    .polygonAltitude(d => {
+                        if (!d.properties.rainfallData) return 0.001;
+                        if (selectedIso && d.properties.ISO_A3 === selectedIso) return 0.08;
+                        return 0.015;
+                    })
+                    .polygonCapColor(d => {
+                        const data = d.properties.rainfallData;
+                        if (!data) return 'rgba(100, 100, 100, 0.15)';
+                        
+                        const isSelected = selectedIso && d.properties.ISO_A3 === selectedIso;
+                        const isHovered = hoveredIso && d.properties.ISO_A3 === hoveredIso;
+                        
+                        if (isSelected) {
+                            return getColorForAnomaly(data.anomaly).replace(/[\d.]+\)$/, '1.0)');
+                        }
+                        if (isHovered) {
+                            return getColorForAnomaly(data.anomaly).replace(/[\d.]+\)$/, '0.95)');
+                        }
+                        return getColorForAnomaly(data.anomaly);
+                    })
+                    .polygonSideColor(d => {
+                        const data = d.properties.rainfallData;
+                        if (!data) return 'rgba(50, 50, 50, 0.1)';
+                        return getColorForAnomaly(data.anomaly).replace(/[\d.]+\)$/, '0.5)');
+                    })
+                    .polygonStrokeColor(() => '#1a1a1a')
+                    .polygonLabel(({ properties: d }) => {
+                        if (!d.rainfallData) return `<div style="background: rgba(17, 24, 39, 0.9); color: white; padding: 8px 12px; border-radius: 4px; font-size: 14px;">${d.ADMIN}</div>`;
+                        
+                        const data = d.rainfallData;
+                        return `
+                            <div style="background: rgba(30, 27, 75, 0.95); color: white; padding: 16px; border-radius: 8px; border: 2px solid rgb(96, 165, 250); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); max-width: 320px;">
+                                <div style="font-weight: bold; font-size: 18px; margin-bottom: 8px;">${data.name}</div>
+                                <div style="color: rgb(147, 197, 253); font-size: 12px; font-weight: bold; margin-bottom: 12px;">+${data.anomaly}% ABOVE AVERAGE</div>
+                                <div style="font-size: 14px;">
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(30, 64, 175, 1); padding-bottom: 4px; margin-bottom: 8px;">
+                                        <span style="color: rgb(209, 213, 219);">2025 Rainfall:</span>
+                                        <span style="font-family: monospace; font-weight: bold;">${data.rainfall} mm</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(30, 64, 175, 1); padding-bottom: 4px; margin-bottom: 8px;">
+                                        <span style="color: rgb(209, 213, 219);">Historical Avg:</span>
+                                        <span style="font-family: monospace;">${data.avg} mm</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: rgb(191, 219, 254); margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(30, 64, 175, 1); font-style: italic;">
+                                        ${data.notes}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    })
+                    .onPolygonClick(({ properties: d }) => {
+                        if (d.rainfallData) {
+                            showDetail(d.ISO_A3);
+                        } else {
+                            closeDetail();
+                        }
+                    })
+                    .onPolygonHover(({ properties: d }) => {
+                        hoveredIso = d.rainfallData ? d.ISO_A3 : null;
+                        world.polygonsData(world.polygonsData());
+                    });
+
+                world.controls().autoRotate = true;
+                world.controls().autoRotateSpeed = 0.4;
+
+                globeContainer.addEventListener('mousedown', () => {
+                    world.controls().autoRotate = false;
+                });
+            });
+
+        window.addEventListener('resize', () => {
+            world.width(window.innerWidth);
+            world.height(window.innerHeight);
+        });
+    </script>
+</body>
+</html>
