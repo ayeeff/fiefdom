@@ -1,44 +1,44 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4090.0
-META,Alphabet,public,3900.0
-META,Microsoft,public,3550.0
+META,Apple,public,4100.0
+META,Alphabet,public,3860.0
+META,Microsoft,public,3610.0
 META,Meta,public,1600.0
-META,Netflix,public,442.4
-META,AMD,public,234.9
-META,Salesforce,public,222.9
-META,Uber,public,173.9
+META,Netflix,public,449.8
+META,AMD,public,244.2
+META,Salesforce,public,217.2
+META,Uber,public,178.0
 META,Databricks,private,121.5
-META,Intel,public,85.5
-META,Snowflake,public,84.8
+META,Intel,public,87.8
+META,Snowflake,public,84.2
 META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1251.0
+MUSK,Tesla,public,1278.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,389.8
+MUSK,Palantir,public,395.1
 MUSK,xAI,private,200.0
-MUSK,General Electric,public,185.7
-MUSK,RTX (Raytheon),public,184.6
-MUSK,Lockheed Martin,public,83.8
+MUSK,General Electric,public,187.7
+MUSK,RTX (Raytheon),public,185.8
+MUSK,Lockheed Martin,public,84.1
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
-MUSK,Rocket Lab,public,22.8
+MUSK,Rocket Lab,public,22.4
 MUSK,C3.ai,public,2.5
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,2808.0
-STARGATE,Amazon / AWS,public,2460.0
-STARGATE,Broadcom,public,1820.0
-STARGATE,JPMorgan Chase,public,824.9
-STARGATE,Oracle,public,561.7
-STARGATE,Cisco Systems,public,301.6
-STARGATE,Goldman Sachs,public,251.7
+STARGATE,Nvidia,public,2847.0
+STARGATE,Amazon / AWS,public,2450.0
+STARGATE,Broadcom,public,1880.0
+STARGATE,JPMorgan Chase,public,837.5
+STARGATE,Oracle,public,584.3
+STARGATE,Cisco Systems,public,300.6
+STARGATE,Goldman Sachs,public,256.0
 STARGATE,Anthropic,private,183.0
-STARGATE,SoftBank,public,136.3
-STARGATE,General Electric,public,123.8
+STARGATE,SoftBank,public,143.8
+STARGATE,General Electric,public,125.2
 STARGATE,Stripe,private,92.0
-STARGATE,Qualcomm,public,69.8
-STARGATE,Arista Networks,public,63.0
+STARGATE,Qualcomm,public,70.7
+STARGATE,Arista Networks,public,64.3
 STARGATE,Revolut,private,45.0
 STARGATE,Affirm,public,22.7
 STARGATE,Terawatt Infra,private,5.0
