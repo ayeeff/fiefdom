@@ -3,353 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global EEZ Viewer - Real Boundaries</title>
-  <script src="https://unpkg.com/globe.gl"></script>
+  <title>EEZ + Submarine Internet Cables (globe.gl)</title>
+  
+  <script src="//unpkg.com/globe.gl"></script>
+  <script src="//unpkg.com/d3-dsv"></script>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: system-ui, sans-serif; }
+    
+    #loading { 
+      position: absolute; top: 50%; left: 50%; 
+      transform: translate(-50%, -50%); 
+      background: rgba(0,0,0,0.8); 
+      padding: 20px 40px; 
+      border-radius: 12px; 
+      color: white; 
+      z-index: 1000; 
+      text-align: center; 
+      pointer-events: none;
+      transition: opacity 0.5s ease;
     }
     
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      overflow: hidden;
-      background: #000;
-    }
-    
-    #globe-container {
-      width: 100vw;
-      height: 100vh;
-    }
-    
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 18px;
-      z-index: 1000;
-      text-align: center;
-      background: rgba(0,0,0,0.8);
-      padding: 30px;
-      border-radius: 10px;
-    }
-    
-    .loading-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-      animation: spin 2s linear infinite;
-    }
-    
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    
-    .info-panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: white;
-      background: rgba(0,0,0,0.8);
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 1000;
-      max-width: 350px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .info-panel h2 {
-      margin: 0 0 12px 0;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    
-    .info-panel p {
-      margin: 8px 0;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    
-    .info-panel .tips {
-      margin: 10px 0 0 0;
-      font-size: 12px;
-      opacity: 0.8;
-      line-height: 1.4;
-    }
-    
-    .info-panel .source {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      font-size: 11px;
-      opacity: 0.7;
+    #legend { 
+      position: absolute; bottom: 20px; left: 20px; 
+      background: rgba(0,0,0,0.75); 
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      color: white; 
+      font-size: 13px; 
+      backdrop-filter: blur(4px); 
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .debug-info {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.8);
-      color: #0f0;
-      padding: 10px;
-      border-radius: 5px;
-      font-family: monospace;
-      font-size: 11px;
-      z-index: 1000;
-      max-width: 300px;
-    }
-    
-    .hidden {
-      display: none;
+    /* Globe.gl's native tooltip styling override */
+    .scene-tooltip {
+      background: rgba(0,0,0,0.9) !important;
+      border: 1px solid rgba(100,200,255,0.5) !important;
+      border-radius: 4px;
+      color: #fff !important;
+      font-family: system-ui;
+      padding: 8px 12px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     }
 
-    .error {
-      background: rgba(200, 0, 0, 0.9);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 1001;
-      max-width: 400px;
-      font-size: 14px;
-    }
+    .hidden { opacity: 0; }
   </style>
 </head>
 <body>
-  <div id="loading" class="loading">
-    <div class="loading-icon">🌍</div>
-    <div>Loading Real EEZ Boundaries...</div>
-    <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-      This may take a moment
-    </div>
+
+  <div id="loading"><div style="font-size:48px;margin-bottom:12px">🌍</div>Loading EEZ + Submarine Cables...</div>
+
+  <div id="legend">
+    <strong>Legend</strong><br>
+    <span style="display:inline-block;width:10px;height:10px;background:rgba(62,172,168,0.6);border:1px solid #2A7F7A;margin-right:5px;"></span> Exclusive Economic Zones<br>
+    <span style="display:inline-block;width:10px;height:2px;background:#00ffff;vertical-align:middle;margin-right:5px;"></span> Submarine Internet Cables
   </div>
-  
-  <div class="info-panel">
-    <h2>🌍 Global EEZ Viewer</h2>
-    <p>
-      Displaying real Exclusive Economic Zone boundaries from official maritime data sources.
-    </p>
-    <p class="tips">
-      💡 Hover over zones for country details<br>
-      🔄 Globe auto-rotates (pauses on hover)<br>
-      🖱️ Click and drag to rotate manually
-    </p>
-    <div class="source">
-      📊 Data: Marine Regions / Natural Earth
-    </div>
-  </div>
-  
-  <div id="globe-container"></div>
-  
-  <div id="debug" class="debug-info hidden"></div>
+
+  <div id="globeViz"></div>
 
   <script>
-    // Color palette for different countries
-    const countryColors = {};
-    let colorIndex = 0;
-    const colorPalette = [
-      'rgba(0, 85, 164, 0.5)',    // Blue
-      'rgba(178, 34, 52, 0.5)',   // Red
-      'rgba(0, 156, 59, 0.5)',    // Green
-      'rgba(255, 153, 51, 0.5)',  // Orange
-      'rgba(188, 0, 45, 0.5)',    // Crimson
-      'rgba(0, 119, 73, 0.5)',    // Emerald
-      'rgba(186, 12, 47, 0.5)',   // Burgundy
-      'rgba(0, 0, 139, 0.5)',     // Navy
-      'rgba(204, 0, 0, 0.5)',     // Scarlet
-      'rgba(116, 172, 223, 0.5)', // Sky Blue
-    ];
+    // 1. Setup the Globe
+    const world = Globe()
+      (document.getElementById('globeViz'))
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+      .pointOfView({ altitude: 2.5 }); // Start zoomed out
 
-    function getCountryColor(countryName) {
-      if (!countryName) return 'rgba(150, 150, 150, 0.4)';
-      
-      if (!countryColors[countryName]) {
-        countryColors[countryName] = colorPalette[colorIndex % colorPalette.length];
-        colorIndex++;
-      }
-      return countryColors[countryName];
-    }
+    // 2. Setup Auto-Rotation
+    world.controls().autoRotate = true;
+    world.controls().autoRotateSpeed = 0.5;
 
-    // Initialize globe when page loads
-    window.addEventListener('load', async function() {
-      const container = document.getElementById('globe-container');
-      const loading = document.getElementById('loading');
-      const debug = document.getElementById('debug');
-      
-      // Show debug info
-      debug.classList.remove('hidden');
-      debug.innerHTML = 'Initializing...';
+    // Pause rotation on user interaction
+    const controls = world.controls();
+    controls.addEventListener('start', () => { controls.autoRotate = false; });
+    
+    // 3. Define Colors (Matching your Cesium Styles)
+    const COLOR_EEZ_FILL = 'rgba(62, 172, 168, 0.32)'; // #3EACA8 @ 0.32
+    const COLOR_EEZ_STROKE = 'rgba(42, 127, 122, 0.8)'; // #2A7F7A
+    const COLOR_CABLE = '#00ffff'; // Cyan
 
-      // Create globe first
-      const globe = Globe()
-        (container)
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-        .showAtmosphere(true)
-        .atmosphereColor('#3a228a')
-        .atmosphereAltitude(0.15);
+    // 4. Load Data
+    const eezUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json';
+    const cableUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json';
 
-      // Set initial view
-      globe.pointOfView({ altitude: 2.5 });
+    Promise.all([
+      fetch(eezUrl).then(res => res.json()),
+      fetch(cableUrl).then(res => res.json())
+    ]).then(([eezData, cableData]) => {
 
-      // Load YOUR simplified EEZ data
-      const dataSources = [
-        // Your simplified EEZ file (after processing in Mapshaper)
-        'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json',
-      ];
+      // --- Layer 1: EEZ Polygons ---
+      world
+        .polygonsData(eezData.features)
+        .polygonCapColor(() => COLOR_EEZ_FILL)
+        .polygonSideColor(() => 'rgba(0,0,0,0)') // Transparent sides
+        .polygonStrokeColor(() => COLOR_EEZ_STROKE)
+        .polygonAltitude(0.005) // Lift slightly to sit above globe
+        .polygonLabel(({ properties: p }) => {
+          // Try to find the best name property
+          const name = p.SOVEREIGN1 || p.TERRITORY1 || p.GEONAME || 'Unknown Region';
+          return `<strong>EEZ:</strong> ${name}`;
+        });
 
-      let dataLoaded = false;
+      // --- Layer 2: Cables (Paths) ---
+      world
+        .pathsData(cableData.features)
+        .pathColor(() => COLOR_CABLE)
+        .pathDashLength(0) // Solid lines
+        .pathStroke(1.5)    // Width
+        .pathPointAlt(0.008) // Lift slightly higher than EEZ to prevent clipping
+        .pathLabel(({ properties: p }) => {
+          return `<strong>Cable:</strong> ${p.name || 'Submarine Cable'}`;
+        });
 
-      for (const url of dataSources) {
-        try {
-          debug.innerHTML = `Fetching: ${url.substring(0, 50)}...`;
-          console.log('Attempting to load from:', url);
-          loading.innerHTML = `
-            <div class="loading-icon">🌍</div>
-            <div>Downloading EEZ data...</div>
-            <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-              This may take 10-30 seconds (37MB file)
-            </div>
-          `;
-          
-          const response = await fetch(url);
-          debug.innerHTML = `Response: ${response.status} ${response.statusText}`;
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          loading.innerHTML = `
-            <div class="loading-icon">⚙️</div>
-            <div>Processing data...</div>
-            <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-              Parsing GeoJSON...
-            </div>
-          `;
-          
-          debug.innerHTML = 'Parsing JSON...';
-          const data = await response.json();
-          debug.innerHTML = `Loaded ${data.features?.length || 0} features`;
-          
-          console.log('Data loaded:', data.features?.length || 0, 'features');
+      // Hide loading screen
+      document.getElementById('loading').classList.add('hidden');
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
 
-          // Filter and process the data - only keep Polygons and MultiPolygons
-          let eezFeatures = data.features.filter(f => 
-            f.geometry && 
-            (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
-          );
-          
-          console.log('Sample feature properties:', eezFeatures[0]?.properties);
-          console.log(`Filtered to ${eezFeatures.length} polygon features (removed ${data.features.length - eezFeatures.length} line features)`);
-          debug.innerHTML = `Processing ${eezFeatures.length} polygon features...`;
-
-          if (eezFeatures.length > 0) {
-            console.log('Processing', eezFeatures.length, 'EEZ features');
-            
-            loading.innerHTML = `
-              <div class="loading-icon">🎨</div>
-              <div>Rendering globe...</div>
-              <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-                Drawing ${eezFeatures.length} EEZ zones
-              </div>
-            `;
-            
-            globe
-              .polygonsData(eezFeatures)
-              .polygonAltitude(0.01)
-              .polygonCapColor(d => {
-                // Marine Regions uses different property names
-                const country = d.properties.SOVEREIGN1 || 
-                               d.properties.TERRITORY1 || 
-                               d.properties.GEONAME ||
-                               d.properties.SOVEREIGNT || 
-                               d.properties.ADMIN || 
-                               d.properties.sov_a3 || 
-                               d.properties.name ||
-                               d.properties.NAME ||
-                               'Unknown';
-                return getCountryColor(country);
-              })
-              .polygonSideColor(() => 'rgba(100, 100, 200, 0.15)')
-              .polygonStrokeColor(() => '#00aaff')
-              .polygonLabel(d => {
-                const country = d.properties.SOVEREIGN1 || 
-                               d.properties.TERRITORY1 || 
-                               d.properties.GEONAME ||
-                               d.properties.SOVEREIGNT || 
-                               d.properties.ADMIN || 
-                               d.properties.name ||
-                               d.properties.NAME ||
-                               'Unknown Zone';
-                const area = d.properties.AREA_KM2 || d.properties.area_km2 || '';
-                const areaText = area ? `<br/><span style="font-size: 11px; opacity: 0.7;">Area: ${Math.round(area).toLocaleString()} km²</span>` : '';
-                
-                return `
-                  <div style="background: rgba(0,0,0,0.85); padding: 10px 12px; border-radius: 6px; color: white; font-family: sans-serif;">
-                    <b style="font-size: 14px;">${country}</b><br/>
-                    <span style="font-size: 12px; opacity: 0.9;">Exclusive Economic Zone</span>${areaText}
-                  </div>
-                `;
-              })
-              .onPolygonHover(hoverD => {
-                globe.controls().autoRotate = !hoverD;
-              });
-
-            // Auto-rotate
-            globe.controls().autoRotate = true;
-            globe.controls().autoRotateSpeed = 0.4;
-
-            dataLoaded = true;
-            loading.classList.add('hidden');
-            debug.innerHTML = `✓ Rendered ${eezFeatures.length} EEZ zones`;
-            
-            // Hide debug after 5 seconds
-            setTimeout(() => debug.classList.add('hidden'), 5000);
-            break;
-          }
-        } catch (error) {
-          console.warn('Failed to load from', url, ':', error);
-          continue;
-        }
-      }
-
-      if (!dataLoaded) {
-        // Show error and instructions
-        loading.innerHTML = `
-          <div style="max-width: 500px;">
-            <div style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
-            <div style="font-size: 18px; margin-bottom: 15px;">Unable to Load Real EEZ Data</div>
-            <div style="font-size: 14px; line-height: 1.6; opacity: 0.9;">
-              <p style="margin: 10px 0;">To display real EEZ boundaries, you need to:</p>
-              <ol style="text-align: left; margin: 15px 0; padding-left: 20px;">
-                <li style="margin: 8px 0;">Download EEZ GeoJSON data from:<br/>
-                    <a href="https://www.marineregions.org/downloads.php" target="_blank" 
-                       style="color: #4da6ff;">marineregions.org/downloads.php</a>
-                </li>
-                <li style="margin: 8px 0;">Look for "World EEZ v12" in GeoJSON format</li>
-                <li style="margin: 8px 0;">Host the file in your GitHub repository</li>
-                <li style="margin: 8px 0;">Update the fetch URL in the code to point to your file</li>
-              </ol>
-              <p style="margin: 15px 0 5px 0; font-size: 12px; opacity: 0.7;">
-                The file will be around 50MB with full resolution boundaries.
-              </p>
-            </div>
-          </div>
-        `;
-      }
-
-      // Handle window resize
-      window.addEventListener('resize', function() {
-        globe.width(container.clientWidth);
-        globe.height(container.clientHeight);
-      });
+    }).catch(err => {
+      console.error("Error loading data:", err);
+      document.getElementById('loading').innerHTML = "Error loading data. Check console.";
     });
+
   </script>
 </body>
 </html>
