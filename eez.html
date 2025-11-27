@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EEZ + Submarine Internet Cables (Fixed)</title>
+  <title>EEZ + Cables (High Performance)</title>
   
   <script src="//unpkg.com/globe.gl"></script>
 
@@ -13,110 +13,135 @@
     #loading { 
       position: absolute; top: 50%; left: 50%; 
       transform: translate(-50%, -50%); 
-      background: rgba(0,0,0,0.8); 
-      padding: 20px 40px; 
+      background: rgba(0,0,0,0.9); 
+      padding: 24px 40px; 
       border-radius: 12px; 
-      color: white; 
+      color: #00ffff; 
       z-index: 1000; 
       text-align: center; 
-      transition: opacity 0.5s ease;
+      border: 1px solid #004444;
+      box-shadow: 0 0 30px rgba(0,255,255,0.1);
     }
     
+    #status { font-size: 14px; color: #ccc; margin-top: 8px; }
+
     #legend { 
       position: absolute; bottom: 20px; left: 20px; 
-      background: rgba(0,0,0,0.75); 
+      background: rgba(0,0,0,0.8); 
       padding: 12px 16px; 
       border-radius: 8px; 
       color: white; 
       font-size: 13px; 
-      backdrop-filter: blur(4px); 
-      pointer-events: none;
       border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: none;
     }
     
-    .hidden { opacity: 0; pointer-events: none; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div id="loading"><div style="font-size:48px;margin-bottom:12px">🌍</div>Loading Data...</div>
+  <div id="loading">
+    <div style="font-size:48px;margin-bottom:12px">⚙️</div>
+    <strong>Processing GeoData...</strong>
+    <div id="status">Fetching files...</div>
+  </div>
 
   <div id="legend">
     <strong>Legend</strong><br>
-    <span style="display:inline-block;width:10px;height:10px;background:rgba(62,172,168,0.6);border:1px solid #2A7F7A;margin-right:5px;"></span> EEZ<br>
-    <span style="display:inline-block;width:10px;height:2px;background:#00ffff;vertical-align:middle;margin-right:5px;"></span> Submarine Cables
+    <span style="display:inline-block;width:12px;height:12px;background:rgba(62,172,168,0.6);margin-right:5px;border-radius:2px;"></span> EEZ Regions<br>
+    <span style="display:inline-block;width:12px;height:2px;background:#00ffff;vertical-align:middle;margin-right:5px;"></span> Submarine Cables
   </div>
 
   <div id="globeViz"></div>
 
   <script>
+    // --- Configuration for Performance ---
+    const MIN_EEZ_AREA_KM2 = 2000; // Filter out islands smaller than this to save CPU
+    const ENABLE_STROKES = false;  // Set to true only if you have a powerful GPU
+    
+    // UI References
+    const statusDiv = document.getElementById('status');
+    const loadingDiv = document.getElementById('loading');
+
+    // Initialize Globe
     const world = Globe()
       (document.getElementById('globeViz'))
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-      .pointOfView({ altitude: 2.5 });
+      .pointOfView({ altitude: 2.5 })
+      .polygonsTransitionDuration(0) // Disable animation for performance
+      .pathsTransitionDuration(0);
 
-    // Controls settings
+    // Auto-Rotate
     world.controls().autoRotate = true;
-    world.controls().autoRotateSpeed = 0.5;
+    world.controls().autoRotateSpeed = 0.3;
     world.controls().addEventListener('start', () => { world.controls().autoRotate = false; });
 
-    // Colors
-    const COLOR_EEZ_FILL = 'rgba(62, 172, 168, 0.32)';
-    const COLOR_EEZ_STROKE = 'rgba(42, 127, 122, 0.8)';
-    const COLOR_CABLE = '#00ffff';
-
-    // Data URLs
+    // --- Data Loading & Processing ---
     const eezUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json';
     const cableUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json';
 
-    // Helper to safely extract features
-    function getFeatures(data) {
-        // If data is a FeatureCollection, return .features
-        // If data is already an array, return data
-        // Filter out any item that has no geometry (this fixes the "null reading type" error)
-        const list = data.features ? data.features : (Array.isArray(data) ? data : []);
-        return list.filter(d => d && d.geometry && d.geometry.type);
-    }
-
     Promise.all([
-      fetch(eezUrl).then(res => res.json()),
-      fetch(cableUrl).then(res => res.json())
+      fetch(eezUrl).then(r => r.json()),
+      fetch(cableUrl).then(r => r.json())
     ]).then(([eezData, cableData]) => {
+      
+      statusDiv.innerText = "Optimizing geometry...";
 
-      const cleanEEZ = getFeatures(eezData);
-      const cleanCables = getFeatures(cableData);
-
-      console.log(`Loaded ${cleanEEZ.length} EEZs and ${cleanCables.length} Cables.`);
-
-      // 1. Add EEZs
-      world
-        .polygonsData(cleanEEZ)
-        .polygonCapColor(() => COLOR_EEZ_FILL)
-        .polygonSideColor(() => 'rgba(0,0,0,0)')
-        .polygonStrokeColor(() => COLOR_EEZ_STROKE)
-        .polygonAltitude(0.005)
-        .polygonLabel(({ properties: p }) => {
-          const name = p.SOVEREIGN1 || p.TERRITORY1 || p.GEONAME || 'Unknown Region';
-          return `<b>EEZ:</b> ${name}`;
+      // Give the browser a split second to render the text update before freezing for calculation
+      setTimeout(() => {
+        
+        // 1. Process EEZ (The Heavy Part)
+        // We filter out null geometries AND small areas
+        const rawFeatures = eezData.features || (Array.isArray(eezData) ? eezData : []);
+        const validEEZ = rawFeatures.filter(d => {
+          if (!d.geometry || !d.geometry.type) return false;
+          // Check Area Property if available (from your snippet I see AREA_KM2)
+          if (d.properties && d.properties.AREA_KM2) {
+             return d.properties.AREA_KM2 > MIN_EEZ_AREA_KM2;
+          }
+          return true; // Keep if we can't determine size
         });
 
-      // 2. Add Cables
-      world
-        .pathsData(cleanCables)
-        .pathColor(() => COLOR_CABLE)
-        .pathDashLength(0)
-        .pathStroke(1.5)
-        .pathPointAlt(0.008)
-        .pathLabel(({ properties: p }) => `<b>Cable:</b> ${p.name || 'Submarine Cable'}`);
+        // 2. Process Cables
+        const validCables = (cableData.features || []).filter(d => d.geometry && d.geometry.coordinates);
 
-      // Hide loading
-      document.getElementById('loading').classList.add('hidden');
+        console.log(`Rendering ${validEEZ.length} Zones and ${validCables.length} Cables.`);
+
+        // 3. Render Polygons (EEZ)
+        world
+          .polygonsData(validEEZ)
+          .polygonCapColor(() => 'rgba(62, 172, 168, 0.4)') // Teal Fill
+          .polygonSideColor(() => 'rgba(0,0,0,0)')          // Invisible sides (Critical for perf)
+          .polygonStrokeColor(() => null)                   // DISABLE STROKES (Critical for perf)
+          .polygonAltitude(0.005)
+          .polygonLabel(({ properties: p }) => {
+            const name = p.SOVEREIGN1 || p.TERRITORY1 || p.GEONAME || 'Region';
+            return `<div style="background:rgba(0,0,0,0.8);padding:4px 8px;border-radius:4px;">${name}</div>`;
+          });
+
+        // 4. Render Paths (Cables)
+        world
+          .pathsData(validCables)
+          .pathColor(() => '#00ffff')
+          .pathDashLength(0)
+          .pathStroke(1.2) // Thinner lines for better perf
+          .pathPointAlt(0.008)
+          .pathLabel(({ properties: p }) => {
+             return `<div style="background:rgba(0,0,0,0.8);padding:4px 8px;border-radius:4px;">${p.name || 'Cable'}</div>`;
+          });
+
+        // Remove loading screen
+        loadingDiv.classList.add('hidden');
+
+      }, 50); // Short timeout to allow UI paint
 
     }).catch(err => {
-      console.error("Error loading data:", err);
-      document.getElementById('loading').innerHTML = "Error loading data. See Console.";
+      console.error(err);
+      statusDiv.style.color = 'red';
+      statusDiv.innerText = "Error: " + err.message;
     });
 
   </script>
