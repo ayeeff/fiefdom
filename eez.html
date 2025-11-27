@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EEZ + Submarine Internet Cables (globe.gl)</title>
+  <title>EEZ + Submarine Internet Cables (Fixed)</title>
   
   <script src="//unpkg.com/globe.gl"></script>
-  <script src="//unpkg.com/d3-dsv"></script>
 
   <style>
     body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: system-ui, sans-serif; }
@@ -20,7 +19,6 @@
       color: white; 
       z-index: 1000; 
       text-align: center; 
-      pointer-events: none;
       transition: opacity 0.5s ease;
     }
     
@@ -35,95 +33,90 @@
       pointer-events: none;
       border: 1px solid rgba(255,255,255,0.1);
     }
-
-    /* Globe.gl's native tooltip styling override */
-    .scene-tooltip {
-      background: rgba(0,0,0,0.9) !important;
-      border: 1px solid rgba(100,200,255,0.5) !important;
-      border-radius: 4px;
-      color: #fff !important;
-      font-family: system-ui;
-      padding: 8px 12px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    }
-
-    .hidden { opacity: 0; }
+    
+    .hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
 
-  <div id="loading"><div style="font-size:48px;margin-bottom:12px">🌍</div>Loading EEZ + Submarine Cables...</div>
+  <div id="loading"><div style="font-size:48px;margin-bottom:12px">🌍</div>Loading Data...</div>
 
   <div id="legend">
     <strong>Legend</strong><br>
-    <span style="display:inline-block;width:10px;height:10px;background:rgba(62,172,168,0.6);border:1px solid #2A7F7A;margin-right:5px;"></span> Exclusive Economic Zones<br>
-    <span style="display:inline-block;width:10px;height:2px;background:#00ffff;vertical-align:middle;margin-right:5px;"></span> Submarine Internet Cables
+    <span style="display:inline-block;width:10px;height:10px;background:rgba(62,172,168,0.6);border:1px solid #2A7F7A;margin-right:5px;"></span> EEZ<br>
+    <span style="display:inline-block;width:10px;height:2px;background:#00ffff;vertical-align:middle;margin-right:5px;"></span> Submarine Cables
   </div>
 
   <div id="globeViz"></div>
 
   <script>
-    // 1. Setup the Globe
     const world = Globe()
       (document.getElementById('globeViz'))
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-      .pointOfView({ altitude: 2.5 }); // Start zoomed out
+      .pointOfView({ altitude: 2.5 });
 
-    // 2. Setup Auto-Rotation
+    // Controls settings
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.5;
+    world.controls().addEventListener('start', () => { world.controls().autoRotate = false; });
 
-    // Pause rotation on user interaction
-    const controls = world.controls();
-    controls.addEventListener('start', () => { controls.autoRotate = false; });
-    
-    // 3. Define Colors (Matching your Cesium Styles)
-    const COLOR_EEZ_FILL = 'rgba(62, 172, 168, 0.32)'; // #3EACA8 @ 0.32
-    const COLOR_EEZ_STROKE = 'rgba(42, 127, 122, 0.8)'; // #2A7F7A
-    const COLOR_CABLE = '#00ffff'; // Cyan
+    // Colors
+    const COLOR_EEZ_FILL = 'rgba(62, 172, 168, 0.32)';
+    const COLOR_EEZ_STROKE = 'rgba(42, 127, 122, 0.8)';
+    const COLOR_CABLE = '#00ffff';
 
-    // 4. Load Data
+    // Data URLs
     const eezUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/eez_v12_simplified.json';
     const cableUrl = 'https://raw.githubusercontent.com/ayeeff/fiefdom/main/cable-geo.json';
+
+    // Helper to safely extract features
+    function getFeatures(data) {
+        // If data is a FeatureCollection, return .features
+        // If data is already an array, return data
+        // Filter out any item that has no geometry (this fixes the "null reading type" error)
+        const list = data.features ? data.features : (Array.isArray(data) ? data : []);
+        return list.filter(d => d && d.geometry && d.geometry.type);
+    }
 
     Promise.all([
       fetch(eezUrl).then(res => res.json()),
       fetch(cableUrl).then(res => res.json())
     ]).then(([eezData, cableData]) => {
 
-      // --- Layer 1: EEZ Polygons ---
+      const cleanEEZ = getFeatures(eezData);
+      const cleanCables = getFeatures(cableData);
+
+      console.log(`Loaded ${cleanEEZ.length} EEZs and ${cleanCables.length} Cables.`);
+
+      // 1. Add EEZs
       world
-        .polygonsData(eezData.features)
+        .polygonsData(cleanEEZ)
         .polygonCapColor(() => COLOR_EEZ_FILL)
-        .polygonSideColor(() => 'rgba(0,0,0,0)') // Transparent sides
+        .polygonSideColor(() => 'rgba(0,0,0,0)')
         .polygonStrokeColor(() => COLOR_EEZ_STROKE)
-        .polygonAltitude(0.005) // Lift slightly to sit above globe
+        .polygonAltitude(0.005)
         .polygonLabel(({ properties: p }) => {
-          // Try to find the best name property
           const name = p.SOVEREIGN1 || p.TERRITORY1 || p.GEONAME || 'Unknown Region';
-          return `<strong>EEZ:</strong> ${name}`;
+          return `<b>EEZ:</b> ${name}`;
         });
 
-      // --- Layer 2: Cables (Paths) ---
+      // 2. Add Cables
       world
-        .pathsData(cableData.features)
+        .pathsData(cleanCables)
         .pathColor(() => COLOR_CABLE)
-        .pathDashLength(0) // Solid lines
-        .pathStroke(1.5)    // Width
-        .pathPointAlt(0.008) // Lift slightly higher than EEZ to prevent clipping
-        .pathLabel(({ properties: p }) => {
-          return `<strong>Cable:</strong> ${p.name || 'Submarine Cable'}`;
-        });
+        .pathDashLength(0)
+        .pathStroke(1.5)
+        .pathPointAlt(0.008)
+        .pathLabel(({ properties: p }) => `<b>Cable:</b> ${p.name || 'Submarine Cable'}`);
 
-      // Hide loading screen
+      // Hide loading
       document.getElementById('loading').classList.add('hidden');
-      setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
 
     }).catch(err => {
       console.error("Error loading data:", err);
-      document.getElementById('loading').innerHTML = "Error loading data. Check console.";
+      document.getElementById('loading').innerHTML = "Error loading data. See Console.";
     });
 
   </script>
