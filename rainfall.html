@@ -33,6 +33,31 @@
             background: rgba(127, 29, 29, 0.5) !important;
             cursor: pointer;
         }
+
+        .country-row {
+            transition: all 0.2s ease;
+        }
+
+        .country-row:hover {
+            background: rgba(30, 64, 175, 0.3) !important;
+        }
+
+        #country-table::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #country-table::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        #country-table::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 4px;
+        }
+
+        #country-table::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.7);
+        }
     </style>
 </head>
 <body>
@@ -53,48 +78,59 @@
     <!-- Legend -->
     <div class="absolute bottom-6 left-6 glass-panel p-5 rounded-xl shadow-2xl pointer-events-auto z-10">
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rainfall Anomaly (%)</h3>
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(200, 200, 200, 0.5)"></div>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(200, 200, 200, 0.4)"></div>
                 <span class="text-xs text-gray-300 font-mono">0%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(173, 216, 230, 0.7)"></div>
-                <span class="text-xs text-gray-300 font-mono">< 10%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(180, 220, 240, 0.6)"></div>
+                <span class="text-xs text-gray-300 font-mono">1-10%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(135, 206, 250, 0.8)"></div>
-                <span class="text-xs text-gray-300 font-mono">10-20%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(160, 210, 240, 0.7)"></div>
+                <span class="text-xs text-gray-300 font-mono">11-20%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(100, 149, 237, 0.85)"></div>
-                <span class="text-xs text-gray-300 font-mono">20-30%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(130, 190, 240, 0.75)"></div>
+                <span class="text-xs text-gray-300 font-mono">21-30%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(70, 130, 220, 0.9)"></div>
-                <span class="text-xs text-gray-300 font-mono">30-40%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(100, 170, 230, 0.8)"></div>
+                <span class="text-xs text-gray-300 font-mono">31-40%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(30, 100, 200, 0.95)"></div>
-                <span class="text-xs text-gray-300 font-mono">40-50%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(70, 140, 210, 0.85)"></div>
+                <span class="text-xs text-gray-300 font-mono">41-50%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(0, 70, 180, 1.0)"></div>
-                <span class="text-xs text-gray-300 font-mono">50-75%</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(50, 110, 190, 0.9)"></div>
+                <span class="text-xs text-gray-300 font-mono">51-65%</span>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-4 rounded border border-white/20" style="background-color: rgba(0, 40, 120, 1.0)"></div>
-                <span class="text-xs text-gray-300 font-mono">75%+</span>
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(30, 80, 160, 0.95)"></div>
+                <span class="text-xs text-gray-300 font-mono">66-80%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(15, 50, 120, 0.98)"></div>
+                <span class="text-xs text-gray-300 font-mono">81-100%</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-3 rounded border border-white/20" style="background-color: rgba(5, 25, 80, 1.0)"></div>
+                <span class="text-xs text-gray-300 font-mono">100%+</span>
             </div>
         </div>
     </div>
 
-    <!-- Extreme Events -->
-    <div class="absolute top-6 right-6 p-5 rounded-xl shadow-2xl max-w-sm pointer-events-auto z-10" style="background: rgba(69, 10, 10, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(239, 68, 68, 0.3);">
-        <h3 class="text-sm font-bold text-red-300 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span class="text-xl">⚠️</span> Most Extreme Events
-        </h3>
-        <div id="extreme-list" class="space-y-2">
+    <!-- Country Ranking Table -->
+    <div class="absolute top-6 right-6 rounded-xl shadow-2xl max-w-md pointer-events-auto z-10 flex flex-col" style="background: rgba(10, 15, 40, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(59, 130, 246, 0.3); max-height: calc(100vh - 48px);">
+        <div class="p-4 border-b" style="border-color: rgba(59, 130, 246, 0.3);">
+            <h3 class="text-sm font-bold text-blue-300 uppercase tracking-widest flex items-center gap-2">
+                <span class="text-xl">📊</span> All Countries Ranked
+            </h3>
+            <div class="text-xs text-gray-400 mt-1">Click to explore • Sorted by anomaly</div>
+        </div>
+        <div id="country-table" class="overflow-y-auto flex-1" style="scrollbar-width: thin; scrollbar-color: rgba(59, 130, 246, 0.5) rgba(0, 0, 0, 0.3);">
             <!-- Populated by JS -->
         </div>
     </div>
@@ -199,14 +235,16 @@
         let world;
 
         function getColorForAnomaly(anomaly) {
-            if (anomaly === 0) return 'rgba(200, 200, 200, 0.3)';
-            if (anomaly < 10) return 'rgba(173, 216, 230, 0.6)';
-            if (anomaly < 20) return 'rgba(135, 206, 250, 0.7)';
-            if (anomaly < 30) return 'rgba(100, 149, 237, 0.8)';
-            if (anomaly < 40) return 'rgba(70, 130, 220, 0.85)';
-            if (anomaly < 50) return 'rgba(30, 100, 200, 0.9)';
-            if (anomaly < 75) return 'rgba(0, 70, 180, 0.95)';
-            return 'rgba(0, 40, 120, 1.0)';
+            if (anomaly === 0) return 'rgba(200, 200, 200, 0.4)';
+            if (anomaly <= 10) return 'rgba(180, 220, 240, 0.6)';
+            if (anomaly <= 20) return 'rgba(160, 210, 240, 0.7)';
+            if (anomaly <= 30) return 'rgba(130, 190, 240, 0.75)';
+            if (anomaly <= 40) return 'rgba(100, 170, 230, 0.8)';
+            if (anomaly <= 50) return 'rgba(70, 140, 210, 0.85)';
+            if (anomaly <= 65) return 'rgba(50, 110, 190, 0.9)';
+            if (anomaly <= 80) return 'rgba(30, 80, 160, 0.95)';
+            if (anomaly <= 100) return 'rgba(15, 50, 120, 0.98)';
+            return 'rgba(5, 25, 80, 1.0)';
         }
 
         function showDetail(iso) {
@@ -239,26 +277,33 @@
             world.polygonsData(world.polygonsData());
         }
 
-        // Populate extreme events
-        const extremes = Object.entries(rainfallData)
-            .filter(([_, d]) => d.anomaly >= 50)
-            .sort((a, b) => b[1].anomaly - a[1].anomaly)
-            .slice(0, 5);
+        // Populate country ranking table
+        const allCountries = Object.entries(rainfallData)
+            .map(([iso, data]) => ({ iso, ...data }))
+            .sort((a, b) => b.anomaly - a.anomaly);
 
-        const extremeList = document.getElementById('extreme-list');
-        extremes.forEach(([iso, data]) => {
-            const div = document.createElement('div');
-            div.className = 'extreme-item p-3 rounded border-l-4 transition-colors';
-            div.style.cssText = 'background: rgba(127, 29, 29, 0.3); border-color: rgb(239, 68, 68);';
-            div.onclick = () => showDetail(iso);
-            div.innerHTML = `
-                <div class="flex justify-between items-start mb-1">
-                    <span class="text-white font-semibold text-sm">${data.name}</span>
-                    <span class="text-red-300 font-mono font-bold text-lg">+${data.anomaly}%</span>
+        const countryTable = document.getElementById('country-table');
+        allCountries.forEach((country, index) => {
+            const row = document.createElement('div');
+            row.className = 'country-row flex items-center justify-between p-3 border-b transition-colors cursor-pointer hover:bg-blue-900/30';
+            row.style.borderColor = 'rgba(59, 130, 246, 0.1)';
+            row.onclick = () => showDetail(country.iso);
+            
+            const colorIndicator = document.createElement('div');
+            colorIndicator.className = 'w-2 h-8 rounded mr-3';
+            colorIndicator.style.backgroundColor = getColorForAnomaly(country.anomaly);
+            
+            row.innerHTML = `
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <span class="text-gray-500 font-mono text-xs w-6 text-right flex-shrink-0">${index + 1}</span>
+                    <div class="w-2 h-8 rounded flex-shrink-0" style="background-color: ${getColorForAnomaly(country.anomaly)}"></div>
+                    <span class="text-gray-200 font-medium text-sm truncate">${country.name}</span>
                 </div>
-                <div class="text-xs text-red-200 italic">${data.notes}</div>
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <span class="text-blue-300 font-mono text-sm font-bold">+${country.anomaly}%</span>
+                </div>
             `;
-            extremeList.appendChild(div);
+            countryTable.appendChild(row);
         });
 
         // Initialize globe
