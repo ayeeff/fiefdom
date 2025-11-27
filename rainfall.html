@@ -346,8 +346,12 @@
                             closeDetail();
                         }
                     })
-                    .onPolygonHover(({ properties: d }) => {
-                        hoveredIso = d.rainfallData ? d.ISO_A3 : null;
+                    .onPolygonHover((d) => {
+                        if (d && d.properties && d.properties.rainfallData) {
+                            hoveredIso = d.properties.ISO_A3;
+                        } else {
+                            hoveredIso = null;
+                        }
                         world.polygonsData(world.polygonsData());
                     });
 
