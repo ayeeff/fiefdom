@@ -64,7 +64,6 @@
 
     <div id="globeViz"></div>
 
-    <!-- Header -->
     <div class="absolute top-6 left-6 right-6 pointer-events-none z-10">
         <div class="glass-panel p-6 rounded-2xl shadow-2xl max-w-2xl pointer-events-auto" style="background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.95), rgba(30, 64, 175, 0.95));">
             <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">2025: Asia's Wettest Year</h1>
@@ -75,7 +74,6 @@
         </div>
     </div>
 
-    <!-- Legend -->
     <div class="absolute bottom-6 left-6 glass-panel p-5 rounded-xl shadow-2xl pointer-events-auto z-10">
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rainfall Anomaly (%)</h3>
         <div class="space-y-1.5">
@@ -122,7 +120,6 @@
         </div>
     </div>
 
-    <!-- Country Ranking Table -->
     <div class="absolute top-6 right-6 rounded-xl shadow-2xl max-w-md pointer-events-auto z-10 flex flex-col" style="background: rgba(10, 15, 40, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(59, 130, 246, 0.3); max-height: calc(100vh - 48px);">
         <div class="p-4 border-b" style="border-color: rgba(59, 130, 246, 0.3);">
             <h3 class="text-sm font-bold text-blue-300 uppercase tracking-widest flex items-center gap-2">
@@ -131,11 +128,9 @@
             <div class="text-xs text-gray-400 mt-1">Click to explore • Sorted by anomaly</div>
         </div>
         <div id="country-table" class="overflow-y-auto flex-1" style="scrollbar-width: thin; scrollbar-color: rgba(59, 130, 246, 0.5) rgba(0, 0, 0, 0.3);">
-            <!-- Populated by JS -->
-        </div>
+            </div>
     </div>
 
-    <!-- Selected Country Details -->
     <div id="detail-panel" class="absolute bottom-6 right-6 glass-panel p-6 rounded-xl shadow-2xl max-w-md pointer-events-auto z-10 hidden" style="border: 2px solid rgba(96, 165, 250, 0.5);">
         <div class="flex justify-between items-start mb-4">
             <h2 id="detail-name" class="text-2xl font-bold text-white"></h2>
@@ -233,6 +228,7 @@
         let selectedIso = null;
         let hoveredIso = null;
         let world;
+        let countryLocations = {};
 
         function getColorForAnomaly(anomaly) {
             if (anomaly === 0) return 'rgba(200, 200, 200, 0.4)';
@@ -247,6 +243,33 @@
             return 'rgba(5, 25, 80, 1.0)';
         }
 
+        // Helper to calculate centroid of polygon
+        function calculateGeoJSONCenter(geometry) {
+            let coords = [];
+            
+            // Handle different GeoJSON geometry types
+            if (geometry.type === 'Polygon') {
+                coords = geometry.coordinates[0]; // Outer ring
+            } else if (geometry.type === 'MultiPolygon') {
+                // Flatten all polygon rings into one list of coordinates
+                geometry.coordinates.forEach(polygon => {
+                    coords = coords.concat(polygon[0]);
+                });
+            }
+
+            if (coords.length === 0) return null;
+
+            // Simple average of vertices (efficient and accurate enough for camera target)
+            let sumLng = 0, sumLat = 0, count = 0;
+            coords.forEach(p => {
+                sumLng += p[0];
+                sumLat += p[1];
+                count++;
+            });
+
+            return { lat: sumLat / count, lng: sumLng / count };
+        }
+
         function showDetail(iso) {
             const data = rainfallData[iso];
             if (!data) return;
@@ -259,15 +282,13 @@
             document.getElementById('detail-avg').innerHTML = `${data.avg} mm <span class="text-sm text-gray-400">(1991-2020)</span>`;
             document.getElementById('detail-notes').textContent = data.notes;
 
-            // Point of view
-            const lat = data.name === "Russia (Asian)" ? 60 : 
-                       data.name === "Australia" ? -25 :
-                       data.name === "Indonesia" ? -2 :
-                       data.name === "China" ? 35 : 25;
-            const lng = data.name === "Russia (Asian)" ? 90 :
-                       data.name === "Australia" ? 135 : 95;
+            // Dynamic Point of View
+            if (countryLocations[iso]) {
+                const loc = countryLocations[iso];
+                // Use a closer zoom (altitude 0.8) for specific country view
+                world.pointOfView({ lat: loc.lat, lng: loc.lng, altitude: 0.8 }, 1000);
+            }
             
-            world.pointOfView({ lat, lng, altitude: 1.2 }, 1200);
             world.polygonsData(world.polygonsData());
         }
 
@@ -329,6 +350,12 @@
                     if (data) {
                         feature.properties.rainfallData = data;
                         feature.properties.ISO_A3 = iso;
+                        
+                        // Calculate and store the center for this country
+                        const center = calculateGeoJSONCenter(feature.geometry);
+                        if (center) {
+                            countryLocations[iso] = center;
+                        }
                     }
                 });
 
