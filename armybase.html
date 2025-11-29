@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Military Bases Global Map</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+        }
+        #globeViz {
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 300px;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #info h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #4FC3F7;
+        }
+        #info p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        #legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        #legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        .legend-item {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="globeViz"></div>
+    <div id="info" style="display: none;">
+        <h3 id="baseName"></h3>
+        <p><strong>Country:</strong> <span id="country"></span></p>
+        <p><strong>Branch:</strong> <span id="branch"></span></p>
+        <p><strong>Personnel:</strong> <span id="personnel"></span></p>
+        <p><strong>Annual Cost:</strong> <span id="cost"></span></p>
+        <p><strong>Rank:</strong> <span id="rank"></span></p>
+    </div>
+    <div id="legend">
+        <h4>Branch</h4>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #FF5252;"></span>
+            <span>Army</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #448AFF;"></span>
+            <span>Air Force</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #00BCD4;"></span>
+            <span>Navy</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #4CAF50;"></span>
+            <span>Marines</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #9C27B0;"></span>
+            <span>Multi/Space Force</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/globe.gl/2.27.2/globe.gl.min.js"></script>
+    
+    <script>
+        const bases = [
+            {rank:1,name:"Camp Humphreys",country:"South Korea",branch:"Army",personnel:28500,cost:"~1.8B",lat:36.9786,lon:127.0311},
+            {rank:2,name:"Kadena Air Base",country:"Japan",branch:"Air Force",personnel:20000,cost:"~1.3B",lat:26.3536,lon:127.7742},
+            {rank:3,name:"Marine Corps Base Camp Butler",country:"Japan",branch:"Marines",personnel:15000,cost:"~1.0B",lat:26.3114,lon:127.7681},
+            {rank:4,name:"Joint Base Pearl Harbor-Hickam",country:"Hawaii",branch:"Multi",personnel:14000,cost:"~950M",lat:21.3619,lon:-157.9583},
+            {rank:5,name:"Naval Support Activity Bahrain",country:"Bahrain",branch:"Navy",personnel:12000,cost:"~850M",lat:26.2010,lon:50.6060},
+            {rank:6,name:"Osan Air Base",country:"South Korea",branch:"Air Force",personnel:10000,cost:"~750M",lat:37.0902,lon:127.0298},
+            {rank:7,name:"Fort Shafter",country:"Hawaii",branch:"Army",personnel:9000,cost:"~700M",lat:21.3439,lon:-157.8539},
+            {rank:8,name:"Naval Air Station Sigonella",country:"Italy",branch:"Navy",personnel:8500,cost:"~650M",lat:37.4011,lon:14.9222},
+            {rank:9,name:"Naval Support Activity Naples",country:"Italy",branch:"Navy",personnel:8000,cost:"~600M",lat:40.9023,lon:14.2922},
+            {rank:10,name:"USAG Wiesbaden",country:"Germany",branch:"Army",personnel:7500,cost:"~580M",lat:50.0518,lon:8.3020},
+            {rank:11,name:"USAG Stuttgart",country:"Germany",branch:"Army",personnel:7000,cost:"~550M",lat:48.7758,lon:9.1829},
+            {rank:12,name:"USAG Bavaria",country:"Germany",branch:"Army",personnel:6800,cost:"~540M",lat:49.4875,lon:11.0900},
+            {rank:13,name:"Aviano Air Base",country:"Italy",branch:"Air Force",personnel:6500,cost:"~520M",lat:46.0319,lon:12.5961},
+            {rank:14,name:"RAF Lakenheath",country:"UK",branch:"Air Force",personnel:6000,cost:"~500M",lat:52.4094,lon:0.4931},
+            {rank:15,name:"RAF Mildenhall",country:"UK",branch:"Air Force",personnel:5800,cost:"~490M",lat:52.3619,lon:0.4861},
+            {rank:16,name:"Naval Station Rota",country:"Spain",branch:"Navy",personnel:5500,cost:"~470M",lat:36.6266,lon:-6.3261},
+            {rank:17,name:"USAG Ansbach",country:"Germany",branch:"Army",personnel:5200,cost:"~450M",lat:49.3044,lon:10.5714},
+            {rank:18,name:"Camp Lemonnier",country:"Djibouti",branch:"Navy",personnel:4500,cost:"~420M",lat:11.5472,lon:43.1467},
+            {rank:19,name:"Naval Air Facility Atsugi",country:"Japan",branch:"Navy",personnel:4500,cost:"~420M",lat:35.4540,lon:139.4495},
+            {rank:20,name:"USAG Daegu",country:"South Korea",branch:"Army",personnel:4300,cost:"~410M",lat:35.8714,lon:128.6014},
+            {rank:21,name:"USAG Yongsan-Casey",country:"South Korea",branch:"Army",personnel:4200,cost:"~400M",lat:37.5317,lon:126.9766},
+            {rank:22,name:"Marine Corps Air Station Iwakuni",country:"Japan",branch:"Marines",personnel:4000,cost:"~380M",lat:34.1442,lon:132.2392},
+            {rank:23,name:"Yokota Air Base",country:"Japan",branch:"Air Force",personnel:3900,cost:"~370M",lat:35.7489,lon:139.3536},
+            {rank:24,name:"USAG Benelux",country:"Belgium",branch:"Army",personnel:3800,cost:"~360M",lat:50.9010,lon:5.4844},
+            {rank:25,name:"Spangdahlem Air Base",country:"Germany",branch:"Air Force",personnel:3700,cost:"~350M",lat:49.9728,lon:6.6922},
+            {rank:26,name:"RAF Alconbury/Molesworth",country:"UK",branch:"Air Force",personnel:3600,cost:"~340M",lat:52.3611,lon:-0.2233},
+            {rank:27,name:"USAG Okinawa",country:"Japan",branch:"Army",personnel:3500,cost:"~330M",lat:26.3114,lon:127.7681},
+            {rank:28,name:"Naval Fleet Activities Yokosuka",country:"Japan",branch:"Navy",personnel:3400,cost:"~320M",lat:35.2855,lon:139.6686},
+            {rank:29,name:"Naval Fleet Activities Sasebo",country:"Japan",branch:"Navy",personnel:3300,cost:"~310M",lat:33.1605,lon:129.7147},
+            {rank:30,name:"Misawa Air Base",country:"Japan",branch:"Air Force",personnel:3200,cost:"~300M",lat:40.7052,lon:141.3689},
+            {rank:31,name:"USAG Vicenza",country:"Italy",branch:"Army",personnel:3100,cost:"~290M",lat:45.5494,lon:11.5500},
+            {rank:32,name:"Naval Support Facility Diego Garcia",country:"British Indian Ocean Territory",branch:"Navy",personnel:3000,cost:"~280M",lat:-7.3192,lon:72.4206},
+            {rank:33,name:"Camp Darby",country:"Italy",branch:"Army",personnel:2900,cost:"~270M",lat:43.7500,lon:10.2333},
+            {rank:34,name:"USAG Kwajalein Atoll",country:"Marshall Islands",branch:"Army",personnel:2800,cost:"~260M",lat:8.7206,lon:167.7319},
+            {rank:35,name:"Naval Air Station Keflavik",country:"Iceland",branch:"Navy",personnel:2700,cost:"~250M",lat:63.9852,lon:-22.6050},
+            {rank:36,name:"Pituffik Space Base",country:"Greenland",branch:"Space Force",personnel:2500,cost:"~240M",lat:76.5312,lon:-68.7031},
+            {rank:37,name:"Naval Station Guantanamo Bay",country:"Cuba",branch:"Navy",personnel:2500,cost:"~240M",lat:19.9380,lon:-75.1600},
+            {rank:38,name:"Soto Cano Air Base",country:"Honduras",branch:"Air Force",personnel:2200,cost:"~210M",lat:14.3828,lon:-87.6217},
+            {rank:39,name:"USAG Ghedi",country:"Italy",branch:"Air Force",personnel:2100,cost:"~200M",lat:45.4281,lon:10.2778},
+            {rank:40,name:"USAG Camp Ederle",country:"Italy",branch:"Army",personnel:2000,cost:"~190M",lat:45.5494,lon:11.5500},
+            {rank:41,name:"USAG Livorno",country:"Italy",branch:"Army",personnel:1900,cost:"~180M",lat:43.5481,lon:10.3106},
+            {rank:42,name:"USAG Hohenfels",country:"Germany",branch:"Army",personnel:1800,cost:"~170M",lat:49.2100,lon:11.8500},
+            {rank:43,name:"USAG Grafenwoehr",country:"Germany",branch:"Army",personnel:1700,cost:"~160M",lat:49.7178,lon:11.9000},
+            {rank:44,name:"USAG Baumholder",country:"Germany",branch:"Army",personnel:1600,cost:"~150M",lat:49.6333,lon:7.3333},
+            {rank:45,name:"USAG Kaiserslautern",country:"Germany",branch:"Army",personnel:1500,cost:"~140M",lat:49.4333,lon:7.7500},
+            {rank:46,name:"USAG Vilseck",country:"Germany",branch:"Army",personnel:1400,cost:"~130M",lat:49.6333,lon:11.7833},
+            {rank:47,name:"USAG Rheinland-Pfalz",country:"Germany",branch:"Army",personnel:1300,cost:"~120M",lat:49.6333,lon:7.3333},
+            {rank:48,name:"USAG Sembach",country:"Germany",branch:"Army",personnel:1200,cost:"~110M",lat:49.5167,lon:7.8500},
+            {rank:49,name:"USAG Kleber, Kaiserslautern",country:"Germany",branch:"Army",personnel:1100,cost:"~100M",lat:49.4333,lon:7.7500},
+            {rank:50,name:"USAG Panzer Kaserne",country:"Germany",branch:"Army",personnel:1000,cost:"~95M",lat:48.6333,lon:9.0333}
+        ];
+
+        const branchColors = {
+            'Army': '#FF5252',
+            'Air Force': '#448AFF',
+            'Navy': '#00BCD4',
+            'Marines': '#4CAF50',
+            'Multi': '#9C27B0',
+            'Space Force': '#9C27B0'
+        };
+
+        const maxPersonnel = Math.max(...bases.map(b => b.personnel));
+        const minPersonnel = Math.min(...bases.map(b => b.personnel));
+
+        const globe = Globe()
+            (document.getElementById('globeViz'))
+            .globeImageUrl('https://unpkg.com/three-globe@2.24.9/example/img/earth-blue-marble.jpg')
+            .bumpImageUrl('https://unpkg.com/three-globe@2.24.9/example/img/earth-topology.png')
+            .backgroundImageUrl('https://unpkg.com/three-globe@2.24.9/example/img/night-sky.png')
+            .pointsData(bases)
+            .pointLat('lat')
+            .pointLng('lon')
+            .pointColor(d => branchColors[d.branch] || '#FFFFFF')
+            .pointAltitude(0.01)
+            .pointRadius(d => {
+                const ratio = (d.personnel - minPersonnel) / (maxPersonnel - minPersonnel);
+                return 0.2 + ratio * 0.8;
+            })
+            .pointLabel(d => `
+                <div style="background: rgba(0,0,0,0.9); padding: 10px; border-radius: 5px; color: white;">
+                    <strong>${d.name}</strong><br/>
+                    ${d.country}<br/>
+                    ${d.branch} - ${d.personnel.toLocaleString()} personnel
+                </div>
+            `)
+            .onPointClick(d => {
+                document.getElementById('baseName').textContent = d.name;
+                document.getElementById('country').textContent = d.country;
+                document.getElementById('branch').textContent = d.branch;
+                document.getElementById('personnel').textContent = d.personnel.toLocaleString();
+                document.getElementById('cost').textContent = d.cost;
+                document.getElementById('rank').textContent = `#${d.rank}`;
+                document.getElementById('info').style.display = 'block';
+            });
+
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.5;
+
+        globe.pointOfView({ lat: 30, lng: 30, altitude: 2.5 }, 1000);
+    </script>
+</body>
+</html>
