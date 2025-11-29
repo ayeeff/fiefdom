@@ -155,10 +155,11 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/globe.gl@2.24.11/dist/globe.gl.min.js"></script>
+    <script src="//unpkg.com/globe.gl"></script>
     
     <script>
+        // Wait for Globe to load
+        window.addEventListener('load', () => {
         const ports = [
             {rank: 1, port: "Djibouti Support Base / Doraleh", country: "Djibouti", region: "Africa", chokepoint: "Bab el-Mandeb / Suez Route", operator: "China Merchants / PLA Navy", ownership: "Majority/Military Base", strategic: "High - First overseas military base", lat: 11.595, lon: 43.148, score: 100},
             {rank: 2, port: "Gwadar Port", country: "Pakistan", region: "South Asia", chokepoint: "Strait of Hormuz", operator: "China Overseas Port Holding Co.", ownership: "Operation Rights (40 years)", strategic: "High - Bypasses Malacca, CPEC", lat: 25.112, lon: 62.322, score: 100},
@@ -236,6 +237,7 @@
         // Close button
         document.getElementById('close-btn').addEventListener('click', () => {
             document.getElementById('info-panel').style.display = 'none';
+        });
         });
     </script>
 </body>
