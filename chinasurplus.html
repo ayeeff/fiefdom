@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>China Trade Surplus 2025 Globe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background-color: #16213e;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ef4444;
+        }
+        
+        .sidebar p {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+        
+        .country-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .country-item:hover {
+            background-color: #1a4d7a;
+            transform: translateX(5px);
+        }
+        
+        .country-item.selected {
+            background-color: #dc2626;
+            box-shadow: 0 4px 6px rgba(220, 38, 38, 0.4);
+        }
+        
+        .country-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .country-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .country-code {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        
+        .country-surplus {
+            font-weight: 700;
+            color: #fca5a5;
+            font-size: 1rem;
+        }
+        
+        .legend {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #374151;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        #globe-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar-track {
+            background: #0f3460;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar-thumb {
+            background: #1a4d7a;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar scrollbar-hide">
+            <h2>China's Trade Surplus 2025</h2>
+            <p>Top 20 Countries (Est. $B)</p>
+            <div id="country-list"></div>
+            <div class="legend">
+                <div class="legend-title">Color Scale:</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #fcc8c8;"></div>
+                    <span>Low Surplus</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #dc2626;"></div>
+                    <span>High Surplus</span>
+                </div>
+            </div>
+        </div>
+        <div id="globe-container"></div>
+    </div>
+
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/globe.gl"></script>
+    <script>
+        const tradeData = [
+            { country: "United States", code: "US", surplus: 379.16 },
+            { country: "Hong Kong", code: "HK", surplus: 283.50 },
+            { country: "India", code: "IN", surplus: 107.62 },
+            { country: "Mexico", code: "MX", surplus: 84.00 },
+            { country: "Netherlands", code: "NL", surplus: 76.02 },
+            { country: "Vietnam", code: "VN", surplus: 66.26 },
+            { country: "United Kingdom", code: "GB", surplus: 62.37 },
+            { country: "Singapore", code: "SG", surplus: 49.66 },
+            { country: "Thailand", code: "TH", surplus: 39.90 },
+            { country: "Poland", code: "PL", surplus: 35.70 },
+            { country: "Philippines", code: "PH", surplus: 34.65 },
+            { country: "Turkey", code: "TR", surplus: 34.65 },
+            { country: "Czech Republic", code: "CZ", surplus: 34.65 },
+            { country: "United Arab Emirates", code: "AE", surplus: 31.50 },
+            { country: "Spain", code: "ES", surplus: 29.40 },
+            { country: "Canada", code: "CA", surplus: 26.25 },
+            { country: "Bangladesh", code: "BD", surplus: 23.00 },
+            { country: "Italy", code: "IT", surplus: 20.79 },
+            { country: "Nigeria", code: "NG", surplus: 18.90 },
+            { country: "Pakistan", code: "PK", surplus: 17.85 }
+        ];
+
+        const allCountries = [
+            ...tradeData,
+            { country: "Belgium", code: "BE", surplus: 17.85 },
+            { country: "Egypt", code: "EG", surplus: 17.22 },
+            { country: "Kyrgyzstan", code: "KG", surplus: 15.75 },
+            { country: "Germany", code: "DE", surplus: 12.92 },
+            { country: "Greece", code: "GR", surplus: 11.87 },
+            { country: "Panama", code: "PA", surplus: 11.55 },
+            { country: "Uzbekistan", code: "UZ", surplus: 10.50 },
+            { country: "France", code: "FR", surplus: 9.87 },
+            { country: "Romania", code: "RO", surplus: 8.40 },
+            { country: "Colombia", code: "CO", surplus: 8.40 },
+            { country: "Israel", code: "IL", surplus: 7.35 },
+            { country: "Argentina", code: "AR", surplus: 7.35 },
+            { country: "Algeria", code: "DZ", surplus: 6.30 },
+            { country: "Kenya", code: "KE", surplus: 6.30 },
+            { country: "Hungary", code: "HU", surplus: 6.30 },
+            { country: "Indonesia", code: "ID", surplus: 5.88 },
+            { country: "Kazakhstan", code: "KZ", surplus: 5.25 },
+            { country: "Morocco", code: "MA", surplus: 5.25 },
+            { country: "Cambodia", code: "KH", surplus: 5.25 },
+            { country: "Myanmar", code: "MM", surplus: 4.20 },
+            { country: "Marshall Islands", code: "MH", surplus: 4.20 },
+            { country: "Liberia", code: "LR", surplus: 4.20 },
+            { country: "Tanzania", code: "TZ", surplus: 4.20 },
+            { country: "Sri Lanka", code: "LK", surplus: 4.20 },
+            { country: "Ghana", code: "GH", surplus: 4.20 },
+            { country: "Portugal", code: "PT", surplus: 4.20 },
+            { country: "Sweden", code: "SE", surplus: 3.15 },
+            { country: "Dominican Republic", code: "DO", surplus: 2.10 },
+            { country: "Guatemala", code: "GT", surplus: 2.10 },
+            { country: "Ecuador", code: "EC", surplus: 2.10 },
+            { country: "Venezuela", code: "VE", surplus: 2.10 },
+            { country: "Djibouti", code: "DJ", surplus: 2.10 },
+            { country: "Ethiopia", code: "ET", surplus: 2.10 },
+            { country: "Jordan", code: "JO", surplus: 2.10 },
+            { country: "Tunisia", code: "TN", surplus: 2.00 },
+            { country: "North Korea", code: "KP", surplus: 1.90 },
+            { country: "Nepal", code: "NP", surplus: 1.60 }
+        ];
+
+        const countryCoords = {
+            "US": { lat: 37.0902, lng: -95.7129 },
+            "HK": { lat: 22.3193, lng: 114.1694 },
+            "IN": { lat: 20.5937, lng: 78.9629 },
+            "MX": { lat: 23.6345, lng: -102.5528 },
+            "NL": { lat: 52.1326, lng: 5.2913 },
+            "VN": { lat: 14.0583, lng: 108.2772 },
+            "GB": { lat: 55.3781, lng: -3.4360 },
+            "SG": { lat: 1.3521, lng: 103.8198 },
+            "TH": { lat: 15.8700, lng: 100.9925 },
+            "PL": { lat: 51.9194, lng: 19.1451 },
+            "PH": { lat: 12.8797, lng: 121.7740 },
+            "TR": { lat: 38.9637, lng: 35.2433 },
+            "CZ": { lat: 49.8175, lng: 15.4730 },
+            "AE": { lat: 23.4241, lng: 53.8478 },
+            "ES": { lat: 40.4637, lng: -3.7492 },
+            "CA": { lat: 56.1304, lng: -106.3468 },
+            "BD": { lat: 23.6850, lng: 90.3563 },
+            "IT": { lat: 41.8719, lng: 12.5674 },
+            "NG": { lat: 9.0820, lng: 8.6753 },
+            "PK": { lat: 30.3753, lng: 69.3451 }
+        };
+
+        let selectedCountry = null;
+
+        // Render country list
+        const countryList = document.getElementById('country-list');
+        tradeData.forEach((country, index) => {
+            const item = document.createElement('div');
+            item.className = 'country-item';
+            item.id = `country-${country.code}`;
+            item.innerHTML = `
+                <div class="country-header">
+                    <div>
+                        <div class="country-name">${index + 1}. ${country.country}</div>
+                        <div class="country-code">${country.code}</div>
+                    </div>
+                    <div class="country-surplus">$${country.surplus}B</div>
+                </div>
+            `;
+            item.addEventListener('click', () => handleCountryClick(country));
+            countryList.appendChild(item);
+        });
+
+        // Initialize globe
+        const globe = Globe()
+            (document.getElementById('globe-container'))
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .width(window.innerWidth - 320)
+            .height(window.innerHeight);
+
+        // Load country data
+        fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+            .then(res => res.json())
+            .then(countries => {
+                const maxSurplus = Math.max(...allCountries.map(d => d.surplus));
+                
+                globe
+                    .polygonsData(countries.features.filter(d => {
+                        const countryCode = d.properties.ISO_A2;
+                        return allCountries.some(c => c.code === countryCode);
+                    }))
+                    .polygonAltitude(0.01)
+                    .polygonCapColor(d => {
+                        const countryCode = d.properties.ISO_A2;
+                        const countryData = allCountries.find(c => c.code === countryCode);
+                        if (countryData) {
+                            const intensity = countryData.surplus / maxSurplus;
+                            const red = 220;
+                            const green = Math.round(180 * (1 - intensity));
+                            const blue = Math.round(200 * (1 - intensity));
+                            return `rgb(${red}, ${green}, ${blue})`;
+                        }
+                        return 'rgba(200, 200, 200, 0.1)';
+                    })
+                    .polygonSideColor(() => 'rgba(0, 0, 0, 0.1)')
+                    .polygonStrokeColor(() => '#111')
+                    .polygonLabel(d => {
+                        const countryCode = d.properties.ISO_A2;
+                        const countryData = allCountries.find(c => c.code === countryCode);
+                        if (countryData) {
+                            return `<b>${d.properties.NAME}</b><br/>Trade Surplus: $${countryData.surplus}B`;
+                        }
+                        return d.properties.NAME;
+                    })
+                    .onPolygonHover(hoverD => {
+                        globe.polygonAltitude(d => d === hoverD ? 0.05 : 0.01);
+                    });
+
+                globe.pointOfView({ lat: 20, lng: 100, altitude: 2 });
+            });
+
+        function handleCountryClick(country) {
+            // Update selection
+            if (selectedCountry) {
+                const prevElement = document.getElementById(`country-${selectedCountry}`);
+                if (prevElement) prevElement.classList.remove('selected');
+            }
+            
+            selectedCountry = country.code;
+            const element = document.getElementById(`country-${country.code}`);
+            if (element) element.classList.add('selected');
+            
+            // Move globe
+            const coords = countryCoords[country.code];
+            if (coords) {
+                globe.pointOfView({ lat: coords.lat, lng: coords.lng, altitude: 1.5 }, 1000);
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            globe.width(window.innerWidth - 320).height(window.innerHeight);
+        });
+    </script>
+</body>
+</html>
