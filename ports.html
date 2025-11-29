@@ -16,10 +16,64 @@
             width: 100vw;
             height: 100vh;
         }
-        #info-panel {
+        #top-ports-panel {
             position: absolute;
             top: 20px;
             left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 320px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #top-ports-panel h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #ff6b6b;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 8px;
+        }
+        .port-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .port-item:hover {
+            background: rgba(255, 107, 107, 0.2);
+            border-left-color: #ff6b6b;
+            transform: translateX(5px);
+        }
+        .port-item-rank {
+            display: inline-block;
+            background: #ff6b6b;
+            color: #000;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .port-item-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .port-item-country {
+            font-size: 12px;
+            color: #aaa;
+        }
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.85);
             color: #fff;
             padding: 20px;
@@ -101,6 +155,11 @@
 </head>
 <body>
     <div id="globe-container"></div>
+    
+    <div id="top-ports-panel">
+        <h2>Top 20 Strategic Ports</h2>
+        <div id="top-ports-list"></div>
+    </div>
     
     <div id="info-panel">
         <button id="close-btn">&times;</button>
@@ -213,9 +272,9 @@
             .pointColor(() => '#ff6b6b')
             .pointAltitude(0.01)
             .pointRadius(d => {
-                // Scale based on geopolitical score
-                // Score 100 = 0.8, Score 40 = 0.3
-                return 0.3 + (d.score - 40) * (0.5 / 60);
+                // Scale based on geopolitical score - 50% smaller
+                // Score 100 = 0.4, Score 40 = 0.15
+                return 0.15 + (d.score - 40) * (0.25 / 60);
             })
             .pointLabel(d => `<b>${d.port}</b><br>${d.country}`)
             .onPointClick(point => {
@@ -230,9 +289,43 @@
                 document.getElementById('info-panel').style.display = 'block';
             });
 
-        // Auto-rotate
+        // Auto-rotate - 100% slower (half the speed)
         globe.controls().autoRotate = true;
-        globe.controls().autoRotateSpeed = 0.5;
+        globe.controls().autoRotateSpeed = 0.25;
+
+        // Populate top 20 ports list
+        const top20 = ports.slice(0, 20);
+        const listContainer = document.getElementById('top-ports-list');
+        
+        top20.forEach(port => {
+            const item = document.createElement('div');
+            item.className = 'port-item';
+            item.innerHTML = `
+                <span class="port-item-rank">#${port.rank}</span>
+                <div class="port-item-name">${port.port}</div>
+                <div class="port-item-country">${port.country} • Score: ${port.score}</div>
+            `;
+            item.addEventListener('click', () => {
+                // Center globe on this port
+                globe.pointOfView({
+                    lat: port.lat,
+                    lng: port.lon,
+                    altitude: 2
+                }, 1000);
+                
+                // Also show the info panel
+                document.getElementById('port-name').textContent = port.port;
+                document.getElementById('country').textContent = port.country;
+                document.getElementById('region').textContent = port.region;
+                document.getElementById('chokepoint').textContent = port.chokepoint;
+                document.getElementById('operator').textContent = port.operator;
+                document.getElementById('ownership').textContent = port.ownership;
+                document.getElementById('strategic').textContent = port.strategic;
+                document.getElementById('score').textContent = port.score;
+                document.getElementById('info-panel').style.display = 'block';
+            });
+            listContainer.appendChild(item);
+        });
 
         // Close button
         document.getElementById('close-btn').addEventListener('click', () => {
