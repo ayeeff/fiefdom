@@ -100,10 +100,11 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.31.0/dist/globe.gl.min.js"></script>
     
     <script>
+        window.addEventListener('load', function() {
         const bases = [
             {rank:1,name:"Camp Humphreys",country:"South Korea",branch:"Army",personnel:28500,cost:"~1.8B",lat:36.9786,lon:127.0311},
             {rank:2,name:"Kadena Air Base",country:"Japan",branch:"Air Force",personnel:20000,cost:"~1.3B",lat:26.3536,lon:127.7742},
@@ -204,6 +205,7 @@
         globe.controls().autoRotateSpeed = 0.5;
 
         globe.pointOfView({ lat: 30, lng: 30, altitude: 2.5 }, 1000);
+        });
     </script>
 </body>
 </html>
