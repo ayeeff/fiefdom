@@ -148,7 +148,6 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: #ff6b6b;
             margin-right: 8px;
         }
     </style>
@@ -197,19 +196,19 @@
     <div id="legend">
         <h3>Port Importance</h3>
         <div class="legend-item">
-            <div class="legend-circle" style="width: 16px; height: 16px;"></div>
+            <div class="legend-circle" style="width: 16px; height: 16px; background: #ff0000;"></div>
             <span>Score: 100 (Critical)</span>
         </div>
         <div class="legend-item">
-            <div class="legend-circle" style="width: 12px; height: 12px;"></div>
+            <div class="legend-circle" style="width: 12px; height: 12px; background: #ff8800;"></div>
             <span>Score: 75-90 (High)</span>
         </div>
         <div class="legend-item">
-            <div class="legend-circle" style="width: 8px; height: 8px;"></div>
+            <div class="legend-circle" style="width: 8px; height: 8px; background: #ffdd00;"></div>
             <span>Score: 45-70 (Medium)</span>
         </div>
         <div class="legend-item">
-            <div class="legend-circle" style="width: 6px; height: 6px;"></div>
+            <div class="legend-circle" style="width: 6px; height: 6px; background: #ffffff;"></div>
             <span>Score: 40 (Low)</span>
         </div>
     </div>
@@ -269,12 +268,18 @@
             .pointsData(ports)
             .pointLat('lat')
             .pointLng('lon')
-            .pointColor(() => '#ff6b6b')
+            .pointColor(d => {
+                // Color based on geopolitical score
+                if (d.score === 100) return '#ff0000'; // Red - Critical
+                if (d.score >= 75) return '#ff8800'; // Orange - High
+                if (d.score >= 45) return '#ffdd00'; // Yellow - Medium
+                return '#ffffff'; // White - Low
+            })
             .pointAltitude(0.01)
             .pointRadius(d => {
-                // Scale based on geopolitical score - 50% smaller
-                // Score 100 = 0.4, Score 40 = 0.15
-                return 0.15 + (d.score - 40) * (0.25 / 60);
+                // Scale based on geopolitical score - 50% larger than before
+                // Score 100 = 0.6, Score 40 = 0.225
+                return 0.225 + (d.score - 40) * (0.375 / 60);
             })
             .pointLabel(d => `<b>${d.port}</b><br>${d.country}`)
             .onPointClick(point => {
