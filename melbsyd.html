@@ -1,136 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style> 
-    body { margin: 0; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-    #ui-controls {
-      position: absolute; top: 20px; right: 20px; z-index: 100;
-      display: flex; gap: 10px;
-    }
-    button {
-      background: rgba(0, 255, 255, 0.1); border: 1px solid #0ff; color: #0ff;
-      padding: 10px 20px; cursor: pointer; text-transform: uppercase;
-      font-weight: bold; letter-spacing: 1px; backdrop-filter: blur(4px);
-      transition: all 0.3s ease;
-    }
-    button:hover { background: rgba(0, 255, 255, 0.3); box-shadow: 0 0 15px #0ff; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metro Comparison: Melbourne vs Sydney</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <style>
+    body { margin: 0; padding: 0; background: #111; font-family: 'Segoe UI', sans-serif; }
     
-    #legend {
-      position: absolute; bottom: 20px; left: 20px; color: #fff;
-      background: rgba(0,0,0,0.7); padding: 15px; border-left: 3px solid #0ff;
-      font-size: 14px; max-width: 300px;
+    /* Layout Container */
+    #container {
+      display: flex;
+      flex-direction: row; /* Side by side on desktop */
+      height: 100vh;
+      width: 100%;
     }
-    h1 { margin: 0 0 5px 0; font-size: 18px; color: #0ff; }
-    p { margin: 0; opacity: 0.8; }
-    .label-mel { color: #ffab00; }
-    .label-syd { color: #0088ff; }
-  </style>
 
-  <script src="//unpkg.com/globe.gl"></script>
+    /* Map Dimensions */
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      border-right: 2px solid #333;
+    }
+    
+    #melbtrain, #sydtrain {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Titles over the maps */
+    .map-title {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+      pointer-events: none;
+      border-bottom: 3px solid;
+    }
+
+    /* Specific Border Colors */
+    .title-mel { border-color: #ffab00; }
+    .title-syd { border-color: #0088ff; }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      #container { flex-direction: column; }
+      .map-wrapper { height: 50vh; border-right: none; border-bottom: 2px solid #333; }
+    }
+  </style>
 </head>
 <body>
-  <div id="ui-controls">
-    <button onclick="focusMel()">Melbourne (The Spine)</button>
-    <button onclick="focusSyd()">Sydney (The Crossing)</button>
+
+  <div id="container">
+    <div class="map-wrapper">
+      <div class="map-title title-mel">Melbourne (The Spine)</div>
+      <div id="melbtrain"></div>
+    </div>
+
+    <div class="map-wrapper">
+      <div class="map-title title-syd">Sydney (The Crossing)</div>
+      <div id="sydtrain"></div>
+    </div>
   </div>
 
-  <div id="legend">
-    <h1>CBD Gravity Shift</h1>
-    <p>Visualizing the new high-capacity spines.</p>
-    <br>
-    <p><span style="color: #ffab00;">●</span> <b>Melbourne:</b> Re-centering the grid along Swanston St.</p>
-    <p><span style="color: #0088ff;">●</span> <b>Sydney:</b> Bridging the Harbour & unlocking Barangaroo.</p>
-  </div>
-
-  <div id="globeViz"></div>
-
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <script>
-    // --- DATASETS --- //
-    
-    // Melbourne Metro Tunnel Stations (Approx Lat/Lon)
-    const melbourneStations = [
-      { name: "Arden", lat: -37.802, lng: 144.942, val: 1 },
-      { name: "Parkville", lat: -37.799, lng: 144.958, val: 1.5 },
-      { name: "State Library", lat: -37.810, lng: 144.964, val: 3 }, // High Gravity
-      { name: "Town Hall", lat: -37.815, lng: 144.967, val: 3 },    // High Gravity
-      { name: "Anzac", lat: -37.833, lng: 144.972, val: 2 }
+    // --- CONFIGURATION --- //
+    // Dark matter tiles for high contrast
+    const tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+    // --- MELBOURNE DATA --- //
+    const melbStations = [
+      { name: "Arden", coords: [-37.802, 144.942] },
+      { name: "Parkville", coords: [-37.799, 144.958] },
+      { name: "State Library", coords: [-37.810, 144.964] },
+      { name: "Town Hall", coords: [-37.815, 144.967] },
+      { name: "Anzac", coords: [-37.833, 144.972] }
     ];
+    // Line connecting them
+    const melbLine = melbStations.map(s => s.coords);
 
-    // Sydney Metro City & SW (Key CBD Section)
-    const sydneyStations = [
-      { name: "Victoria Cross", lat: -33.839, lng: 151.207, val: 2 },
-      { name: "Barangaroo", lat: -33.864, lng: 151.202, val: 2.5 },
-      { name: "Martin Place", lat: -33.868, lng: 151.211, val: 3 },  // High Gravity
-      { name: "Gadigal", lat: -33.873, lng: 151.208, val: 2.5 },
-      { name: "Central", lat: -33.884, lng: 151.206, val: 3 },
-      { name: "Waterloo", lat: -33.895, lng: 151.205, val: 1.5 },
-      { name: "Sydenham", lat: -33.916, lng: 151.168, val: 1 }
+    // --- SYDNEY DATA --- //
+    const sydStations = [
+      { name: "Victoria Cross", coords: [-33.839, 151.207] },
+      { name: "Barangaroo", coords: [-33.864, 151.202] },
+      { name: "Martin Place", coords: [-33.868, 151.211] },
+      { name: "Gadigal", coords: [-33.873, 151.208] },
+      { name: "Central", coords: [-33.884, 151.206] },
+      { name: "Waterloo", coords: [-33.895, 151.205] },
+      { name: "Sydenham", coords: [-33.916, 151.168] }
     ];
+    // Line connecting them
+    const sydLine = sydStations.map(s => s.coords);
 
-    // Combine Points
-    const allPoints = [
-      ...melbourneStations.map(s => ({ ...s, color: '#ffab00', city: 'mel' })), 
-      ...sydneyStations.map(s => ({ ...s, color: '#0088ff', city: 'syd' }))
-    ];
 
-    // Create Arcs (Tunnels) - Linking the stations sequentially
-    const createArcs = (stations, color) => {
-      let arcs = [];
-      for (let i = 0; i < stations.length - 1; i++) {
-        arcs.push({
-          startLat: stations[i].lat,
-          startLng: stations[i].lng,
-          endLat: stations[i+1].lat,
-          endLng: stations[i+1].lng,
-          color: color
-        });
-      }
-      return arcs;
-    };
+    // --- INITIALIZE MAPS --- //
 
-    const allArcs = [
-      ...createArcs(melbourneStations, '#ffab00'),
-      ...createArcs(sydneyStations, '#0088ff')
-    ];
+    // 1. Setup melbtrain
+    const mapMelb = L.map('melbtrain').setView([-37.813, 144.96], 13);
+    L.tileLayer(tileUrl, { attribution }).addTo(mapMelb);
 
-    // --- GLOBE INITIALIZATION --- //
+    // Add Melbourne Path
+    L.polyline(melbLine, { color: '#ffab00', weight: 5, opacity: 0.9 }).addTo(mapMelb);
 
-    const world = Globe()
-      (document.getElementById('globeViz'))
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-      .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-      .pointsData(allPoints)
-      .pointAltitude(d => d.val * 0.005) // Altitude based on "Gravity" importance
-      .pointColor('color')
-      .pointRadius(0.25)
-      .pointLabel('name')
-      .arcsData(allArcs)
-      .arcColor('color')
-      .arcDashLength(0.4)
-      .arcDashGap(0.2)
-      .arcDashAnimateTime(1500)
-      .arcStroke(0.5)
-      .labelsData(allPoints)
-      .labelLat(d => d.lat)
-      .labelLng(d => d.lng)
-      .labelText(d => d.name)
-      .labelSize(0.3)
-      .labelDotRadius(0.1)
-      .labelColor(() => 'rgba(255, 255, 255, 0.75)')
-      .labelResolution(2);
+    // Add Melbourne Markers
+    melbStations.forEach(s => {
+      L.circleMarker(s.coords, {
+        color: '#ffab00', fillColor: '#000', fillOpacity: 1, radius: 6, weight: 2
+      }).addTo(mapMelb).bindPopup(`<b>${s.name}</b>`);
+    });
 
-    // --- CONTROLS --- //
-    
-    // Initial View (Zoomed out to see Australia)
-    world.pointOfView({ lat: -35, lng: 148, altitude: 2.5 });
 
-    function focusMel() {
-      world.pointOfView({ lat: -37.81, lng: 144.96, altitude: 0.05 }, 2000);
-    }
+    // 2. Setup sydtrain
+    const mapSyd = L.map('sydtrain').setView([-33.87, 151.205], 13);
+    L.tileLayer(tileUrl, { attribution }).addTo(mapSyd);
 
-    function focusSyd() {
-      world.pointOfView({ lat: -33.87, lng: 151.21, altitude: 0.05 }, 2000);
-    }
+    // Add Sydney Path
+    L.polyline(sydLine, { color: '#0088ff', weight: 5, opacity: 0.9 }).addTo(mapSyd);
+
+    // Add Sydney Markers
+    sydStations.forEach(s => {
+      L.circleMarker(s.coords, {
+        color: '#0088ff', fillColor: '#000', fillOpacity: 1, radius: 6, weight: 2
+      }).addTo(mapSyd).bindPopup(`<b>${s.name}</b>`);
+    });
+
   </script>
 </body>
 </html>
