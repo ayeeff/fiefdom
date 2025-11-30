@@ -3,55 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Metro Comparison: Melbourne vs Sydney</title>
+  <title>Metro Comparison: End-to-End Line</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <style>
     body { margin: 0; padding: 0; background: #111; font-family: 'Segoe UI', sans-serif; }
     
-    /* Layout Container */
     #container {
       display: flex;
-      flex-direction: row; /* Side by side on desktop */
+      flex-direction: row;
       height: 100vh;
       width: 100%;
     }
 
-    /* Map Dimensions */
     .map-wrapper {
       flex: 1;
       position: relative;
       border-right: 2px solid #333;
     }
     
-    #melbtrain, #sydtrain {
-      height: 100%;
-      width: 100%;
-    }
+    #melbtrain, #sydtrain { height: 100%; width: 100%; }
 
-    /* Titles over the maps */
     .map-title {
       position: absolute;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1000;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       color: #fff;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: 4px;
       font-weight: bold;
       text-transform: uppercase;
       pointer-events: none;
       border-bottom: 3px solid;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
-    /* Specific Border Colors */
     .title-mel { border-color: #ffab00; }
     .title-syd { border-color: #0088ff; }
+    
+    /* Legend for Melbourne */
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+    .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+    .color-box { width: 15px; height: 15px; margin-right: 8px; border-radius: 3px; }
 
-    /* Mobile adjustments */
     @media (max-width: 768px) {
       #container { flex-direction: column; }
       .map-wrapper { height: 50vh; border-right: none; border-bottom: 2px solid #333; }
@@ -62,12 +70,17 @@
 
   <div id="container">
     <div class="map-wrapper">
-      <div class="map-title title-mel">Melbourne (The Spine)</div>
+      <div class="map-title title-mel">Melbourne (End-to-End)</div>
       <div id="melbtrain"></div>
+      
+      <div class="legend">
+        <div class="legend-item"><div class="color-box" style="background:#ffab00;"></div>New Tunnel (9km)</div>
+        <div class="legend-item"><div class="color-box" style="background:#00ffff;"></div>Upgraded Network</div>
+      </div>
     </div>
 
     <div class="map-wrapper">
-      <div class="map-title title-syd">Sydney (The Crossing)</div>
+      <div class="map-title title-syd">Sydney (City Core)</div>
       <div id="sydtrain"></div>
     </div>
   </div>
@@ -75,21 +88,50 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <script>
-    // --- CONFIGURATION --- //
-    // Dark matter tiles for high contrast
     const tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+    const attribution = '&copy; OpenStreetMap &copy; CARTO';
 
     // --- MELBOURNE DATA --- //
-    const melbStations = [
+    
+    // 1. The New Tunnel (Gold)
+    const melbTunnelStations = [
       { name: "Arden", coords: [-37.802, 144.942] },
       { name: "Parkville", coords: [-37.799, 144.958] },
       { name: "State Library", coords: [-37.810, 144.964] },
       { name: "Town Hall", coords: [-37.815, 144.967] },
       { name: "Anzac", coords: [-37.833, 144.972] }
     ];
-    // Line connecting them
-    const melbLine = melbStations.map(s => s.coords);
+    const melbTunnelPath = melbTunnelStations.map(s => s.coords);
+
+    // 2. The Western Extension (Sunbury Line) - Cyan
+    const sunburyPath = [
+      [-37.5791, 144.7281], // Sunbury
+      [-37.7010, 144.7740], // Watergardens
+      [-37.7880, 144.8325], // Sunshine
+      [-37.8015, 144.9015], // Footscray
+      [-37.802, 144.942]    // Connect to Arden
+    ];
+
+    // 3. The Eastern Extension (Pakenham Line) - Cyan
+    const pakenhamPath = [
+      [-37.833, 144.972],   // Connect from Anzac
+      [-37.8389, 144.9921], // South Yarra
+      [-37.8770, 145.0420], // Caulfield
+      [-37.9899, 145.2097], // Dandenong
+      [-38.0843, 145.5066]  // East Pakenham
+    ];
+
+    // Key Stations to Label on extensions
+    const melbExtensionStations = [
+      { name: "Sunbury", coords: [-37.5791, 144.7281] },
+      { name: "Watergardens", coords: [-37.7010, 144.7740] },
+      { name: "Sunshine", coords: [-37.7880, 144.8325] },
+      { name: "Footscray", coords: [-37.8015, 144.9015] },
+      { name: "South Yarra", coords: [-37.8389, 144.9921] },
+      { name: "Caulfield", coords: [-37.8770, 145.0420] },
+      { name: "Dandenong", coords: [-37.9899, 145.2097] },
+      { name: "East Pakenham", coords: [-38.0843, 145.5066] }
+    ];
 
     // --- SYDNEY DATA --- //
     const sydStations = [
@@ -101,35 +143,43 @@
       { name: "Waterloo", coords: [-33.895, 151.205] },
       { name: "Sydenham", coords: [-33.916, 151.168] }
     ];
-    // Line connecting them
     const sydLine = sydStations.map(s => s.coords);
 
 
-    // --- INITIALIZE MAPS --- //
+    // --- MAP INITIALIZATION --- //
 
-    // 1. Setup melbtrain
-    const mapMelb = L.map('melbtrain').setView([-37.813, 144.96], 13);
+    // 1. Melbourne Map (Zoomed out to see full line)
+    const mapMelb = L.map('melbtrain').setView([-37.85, 145.0], 10);
     L.tileLayer(tileUrl, { attribution }).addTo(mapMelb);
 
-    // Add Melbourne Path
-    L.polyline(melbLine, { color: '#ffab00', weight: 5, opacity: 0.9 }).addTo(mapMelb);
+    // Draw Extensions (Cyan)
+    L.polyline(sunburyPath, { color: '#00ffff', weight: 4, opacity: 0.7, dashArray: '5, 10' }).addTo(mapMelb);
+    L.polyline(pakenhamPath, { color: '#00ffff', weight: 4, opacity: 0.7, dashArray: '5, 10' }).addTo(mapMelb);
 
-    // Add Melbourne Markers
-    melbStations.forEach(s => {
+    // Draw Tunnel (Gold - on top)
+    L.polyline(melbTunnelPath, { color: '#ffab00', weight: 6, opacity: 1 }).addTo(mapMelb);
+
+    // Add Tunnel Markers (Gold)
+    melbTunnelStations.forEach(s => {
       L.circleMarker(s.coords, {
         color: '#ffab00', fillColor: '#000', fillOpacity: 1, radius: 6, weight: 2
+      }).addTo(mapMelb).bindPopup(`<b>${s.name}</b> (New)`);
+    });
+
+    // Add Extension Markers (Cyan - Smaller)
+    melbExtensionStations.forEach(s => {
+      L.circleMarker(s.coords, {
+        color: '#00ffff', fillColor: '#000', fillOpacity: 1, radius: 4, weight: 1
       }).addTo(mapMelb).bindPopup(`<b>${s.name}</b>`);
     });
 
 
-    // 2. Setup sydtrain
+    // 2. Sydney Map
     const mapSyd = L.map('sydtrain').setView([-33.87, 151.205], 13);
     L.tileLayer(tileUrl, { attribution }).addTo(mapSyd);
 
-    // Add Sydney Path
     L.polyline(sydLine, { color: '#0088ff', weight: 5, opacity: 0.9 }).addTo(mapSyd);
 
-    // Add Sydney Markers
     sydStations.forEach(s => {
       L.circleMarker(s.coords, {
         color: '#0088ff', fillColor: '#000', fillOpacity: 1, radius: 6, weight: 2
