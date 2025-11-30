@@ -3,8 +3,8 @@ META,Apple,public,4120.0
 META,Alphabet,public,3860.0
 META,Microsoft,public,3660.0
 META,Meta,public,1630.0
-META,Netflix,public,455.8
-META,AMD,public,247.8
+META,Netflix,public,455.9
+META,AMD,public,247.9
 META,Salesforce,public,219.5
 META,Uber,public,181.9
 META,Databricks,private,121.5
@@ -30,7 +30,7 @@ STARGATE,Nvidia,public,2795.0
 STARGATE,Amazon / AWS,public,2490.0
 STARGATE,Broadcom,public,1900.0
 STARGATE,JPMorgan Chase,public,852.3
-STARGATE,Oracle,public,575.6
+STARGATE,Oracle,public,575.7
 STARGATE,Cisco Systems,public,304.0
 STARGATE,Goldman Sachs,public,259.1
 STARGATE,Anthropic,private,183.0
