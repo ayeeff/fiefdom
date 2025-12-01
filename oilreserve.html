@@ -11,7 +11,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 300px;
+            width: 320px; /* Slightly wider for new layout */
             max-height: calc(100vh - 40px);
             overflow-y: auto;
             background: rgba(10, 20, 15, 0.9);
@@ -33,13 +33,10 @@
         }
 
         .country-item {
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-bottom: 1px solid #223322;
             cursor: pointer;
             transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .country-item:hover {
@@ -47,9 +44,48 @@
             border-left: 3px solid #ffd700;
         }
 
-        .country-name { font-weight: bold; color: #fff; font-size: 14px; }
-        .country-stats { text-align: right; font-size: 11px; color: #aaa; }
-        .highlight-stat { color: #ffd700; font-weight: bold; font-size: 12px; }
+        .country-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .country-rank { color: #66bb6a; font-weight: bold; margin-right: 8px; }
+        .country-name { font-weight: bold; color: #fff; font-size: 15px; }
+
+        /* New distinct boxes for sidebar stats */
+        .sidebar-stats-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sidebar-stat-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            flex: 1; /* Distribute space evenly */
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        
+        .country-item:hover .sidebar-stat-box {
+             border-color: #555;
+        }
+
+        .sidebar-stat-label {
+            font-size: 10px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .sidebar-stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
 
         /* Scrollbar styling */
         #sidebar::-webkit-scrollbar { width: 6px; }
@@ -73,13 +109,21 @@
         .legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; }
         .dot { width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; border: 1px solid #555; }
         .barrel-icon { 
-            width: 10px; height: 14px; 
+            width: 12px; height: 16px; 
             background: #ffd700; 
             border: 1px solid #bba000;
-            border-radius: 2px;
+            border-radius: 3px;
             margin-right: 8px; 
             display: inline-block;
+            position: relative;
         }
+        /* Add hoops to icon */
+        .barrel-icon::before, .barrel-icon::after {
+            content: ''; position: absolute; left:0; right:0; height: 2px; background: #886600;
+        }
+        .barrel-icon::before { top: 4px; }
+        .barrel-icon::after { bottom: 4px; }
+
 
         /* Bottom Detail Panel (Slide-up) */
         #detail-panel {
@@ -159,7 +203,7 @@
     <div id="info-box">
         <h3 style="margin-top:0; color:#ffd700">Legend</h3>
         <div class="legend-item">
-            <span class="barrel-icon"></span> 1 Stacked Barrel = 100 Mb
+            <span class="barrel-icon"></span> 1 Barrel Icon = 100 Mb
         </div>
         
         <div style="border-top:1px solid #444; margin:10px 0;"></div>
@@ -233,15 +277,7 @@
         // Green Color Scale (Thresholds every 40 days)
         const colorScale = d3.scaleThreshold()
             .domain([40, 80, 120, 160, 200, 240])
-            .range([
-                '#e8f5e9', // < 40
-                '#c8e6c9', // 40-80
-                '#a5d6a7', // 80-120
-                '#66bb6a', // 120-160
-                '#43a047', // 160-200
-                '#2e7d32', // 200-240
-                '#1b5e20'  // > 240
-            ]);
+            .range(['#e8f5e9', '#c8e6c9', '#a5d6a7', '#66bb6a', '#43a047', '#2e7d32', '#1b5e20']);
 
         // --- 2. Globe Initialization ---
 
@@ -264,36 +300,39 @@
             
             world.polygonsData(countries)
                 .polygonCapColor(d => {
-                    const countryName = d.properties.name;
-                    const match = oilData.find(o => 
-                        o.country === countryName || 
-                        (o.country === "United States" && countryName === "United States of America")
-                    );
-                    
-                    if (match) {
-                        return colorScale(match.cover);
-                    } else {
-                        return 'rgba(20, 30, 20, 0.8)'; // Non-data countries are dark green/black
-                    }
+                    const match = oilData.find(o => o.country === d.properties.name || (o.country === "United States" && d.properties.name === "United States of America"));
+                    return match ? colorScale(match.cover) : 'rgba(20, 30, 20, 0.8)';
                 })
                 .polygonSideColor(() => 'rgba(0,0,0,0.5)')
                 .polygonStrokeColor(() => '#111')
                 .polygonLabel(({ properties: d }) => {
-                    const match = oilData.find(o => 
-                        o.country === d.name || 
-                        (o.country === "United States" && d.name === "United States of America")
-                    );
-                    if(match) return `
-                        <div style="background:#000; color:#fff; padding:5px; border:1px solid #66bb6a; border-radius:4px;">
-                            <b>${match.country}</b><br>
-                            Cover: ${match.cover} Days
-                        </div>
-                    `;
-                    return null;
+                    const match = oilData.find(o => o.country === d.name || (o.country === "United States" && d.name === "United States of America"));
+                    return match ? `<div style="background:#000; color:#fff; padding:5px; border:1px solid #66bb6a;"><b>${match.country}</b><br>Cover: ${match.cover} Days</div>` : null;
                 });
         });
 
-        // --- 4. Stacked Barrel Visualization ---
+        // --- 4. Scattered Barrel Visualization ---
+
+        // Helper to create a single detailed barrel mesh
+        function createBarrelMesh(opacity = 1.0) {
+            const barrelGroup = new THREE.Group();
+            const r = 0.4; const h = 1.0; // Dimensions
+
+            // Main Body
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0xffd700, transparent: opacity < 1.0, opacity: opacity });
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), bodyMat);
+            body.position.y = h / 2; // Sit on ground plane
+            barrelGroup.add(body);
+
+            // Hoops for detail
+            const hoopGeom = new THREE.TorusGeometry(r + 0.02, 0.04, 8, 24);
+            const hoopMat = new THREE.MeshLambertMaterial({ color: 0x886600 });
+            const hoop1 = new THREE.Mesh(hoopGeom, hoopMat); hoop1.rotation.x = Math.PI / 2; hoop1.position.y = h * 0.3;
+            const hoop2 = new THREE.Mesh(hoopGeom, hoopMat); hoop2.rotation.x = Math.PI / 2; hoop2.position.y = h * 0.7;
+            barrelGroup.add(hoop1); barrelGroup.add(hoop2);
+            
+            return barrelGroup;
+        }
 
         world.customLayerData(oilData)
             .customThreeObject(d => {
@@ -303,70 +342,39 @@
                 const fullBarrels = Math.floor(d.inventory / 100);
                 const remainder = d.inventory % 100;
                 const totalStack = remainder > 0 ? fullBarrels + 1 : fullBarrels;
-
-                // Barrel Dimensions
-                const r = 0.6; // radius
-                const h = 0.8; // height of one barrel
-                const gap = 0.1; // gap between barrels
-
-                // Shared Geometry/Material
-                const geometry = new THREE.CylinderGeometry(r, r, h, 12);
-                const material = new THREE.MeshLambertMaterial({ color: 0xffd700 }); // Gold
-                const capMat = new THREE.MeshLambertMaterial({ color: 0xccaa00 });
-                
-                // Create materials array for cylinder (side, top, bottom)
-                const mats = [material, capMat, capMat];
+                const scatterRadius = 2.0; // Area to scatter within
 
                 for (let i = 0; i < totalStack; i++) {
-                    const mesh = new THREE.Mesh(geometry, mats);
+                    let opacity = (i === totalStack - 1 && remainder > 0) ? 0.6 : 1.0;
+                    const barrel = createBarrelMesh(opacity);
                     
-                    // Stack vertically
-                    mesh.position.y = i * (h + gap); 
+                    // Scatter in local XZ plane
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.sqrt(Math.random()) * scatterRadius;
+                    barrel.position.set(radius * Math.cos(angle), 0, radius * Math.sin(angle));
+                    barrel.rotation.y = Math.random() * Math.PI * 2; // Random rotation
                     
-                    // Rotate slightly so they aren't perfectly uniform (optional aesthetic)
-                    mesh.rotation.y = Math.random() * 0.5;
-
-                    // Opacity for the top partial barrel
-                    if (i === totalStack - 1 && remainder > 0) {
-                        mesh.scale.set(1, 1, 1); // Keep size, just fade it
-                        mesh.material = new THREE.MeshLambertMaterial({ 
-                            color: 0xffd700, 
-                            transparent: true, 
-                            opacity: 0.6 
-                        });
-                    }
-                    
-                    group.add(mesh);
+                    group.add(barrel);
                 }
 
-                // Add a light to the group so the barrels shine even on the dark side of earth
-                const light = new THREE.PointLight(0xffffff, 1, 10);
-                light.position.set(2, 5, 2);
+                // Add a light to make them shine
+                const light = new THREE.PointLight(0xffffff, 0.8, 10);
+                light.position.set(0, 5, 0);
                 group.add(light);
 
                 return group;
             })
             .customThreeObjectUpdate((obj, d) => {
                 Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02));
-                obj.lookAt(new THREE.Vector3(0,0,0)); // Points Z to center
-                
-                // Align Y axis to normal (Upward from surface)
-                const normal = new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize();
-                
-                // The default cylinder is upright along Y.
-                // We want the group's Y to point along the Normal.
-                obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+                obj.lookAt(new THREE.Vector3(0,0,0)); // Z-axis points to center
+                // Align Local Y-axis (up) with globe normal
+                obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize());
             });
 
         // Click Hitbox (Invisible Spheres)
         world.objectsData(oilData)
-            .objectLat('lat')
-            .objectLng('lng')
-            .objectAltitude(0.05)
-            .objectThreeObject(() => new THREE.Mesh(
-                new THREE.SphereGeometry(2.5), 
-                new THREE.MeshBasicMaterial({ visible: false })
-            ))
+            .objectLat('lat') .objectLng('lng') .objectAltitude(0.05)
+            .objectThreeObject(() => new THREE.Mesh(new THREE.SphereGeometry(2.5), new THREE.MeshBasicMaterial({ visible: false })))
             .onObjectClick((d) => showDetails(d));
 
         // --- 5. Sidebar & Interaction ---
@@ -376,14 +384,21 @@
         sortedData.forEach((item, index) => {
             const div = document.createElement('div');
             div.className = 'country-item';
+            // New layout with distinct boxes
             div.innerHTML = `
-                <div>
-                    <span style="color:#66bb6a; font-weight:bold; margin-right:5px;">${index + 1}.</span>
+                <div class="country-header">
+                    <span class="country-rank">${index + 1}.</span>
                     <span class="country-name">${item.country}</span>
                 </div>
-                <div class="country-stats">
-                    <div class="highlight-stat">${item.cover} Days</div>
-                    <div>${item.inventory} Mb</div>
+                <div class="sidebar-stats-container">
+                    <div class="sidebar-stat-box">
+                        <div class="sidebar-stat-label">Days Cover</div>
+                        <div class="sidebar-stat-value">${item.cover}</div>
+                    </div>
+                    <div class="sidebar-stat-box">
+                        <div class="sidebar-stat-label">Inventory</div>
+                        <div class="sidebar-stat-value">${item.inventory} Mb</div>
+                    </div>
                 </div>
             `;
             div.onclick = () => {
