@@ -11,7 +11,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 320px; /* Slightly wider for new layout */
+            width: 320px;
             max-height: calc(100vh - 40px);
             overflow-y: auto;
             background: rgba(10, 20, 15, 0.9);
@@ -53,41 +53,19 @@
         .country-rank { color: #66bb6a; font-weight: bold; margin-right: 8px; }
         .country-name { font-weight: bold; color: #fff; font-size: 15px; }
 
-        /* New distinct boxes for sidebar stats */
-        .sidebar-stats-container {
-            display: flex;
-            gap: 10px;
-        }
-
+        .sidebar-stats-container { display: flex; gap: 10px; }
         .sidebar-stat-box {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid #333;
             padding: 8px 12px;
             border-radius: 6px;
-            flex: 1; /* Distribute space evenly */
-            text-align: center;
+            flex: 1; text-align: center;
             transition: border-color 0.2s;
         }
-        
-        .country-item:hover .sidebar-stat-box {
-             border-color: #555;
-        }
+        .country-item:hover .sidebar-stat-box { border-color: #555; }
+        .sidebar-stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .sidebar-stat-value { font-size: 14px; font-weight: bold; color: #ffd700; }
 
-        .sidebar-stat-label {
-            font-size: 10px;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-        .sidebar-stat-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-
-        /* Scrollbar styling */
         #sidebar::-webkit-scrollbar { width: 6px; }
         #sidebar::-webkit-scrollbar-track { background: #111; }
         #sidebar::-webkit-scrollbar-thumb { background: #2e7d32; border-radius: 3px; }
@@ -117,18 +95,14 @@
             display: inline-block;
             position: relative;
         }
-        /* Add hoops to icon */
-        .barrel-icon::before, .barrel-icon::after {
-            content: ''; position: absolute; left:0; right:0; height: 2px; background: #886600;
-        }
+        .barrel-icon::before, .barrel-icon::after { content: ''; position: absolute; left:0; right:0; height: 2px; background: #886600; }
         .barrel-icon::before { top: 4px; }
         .barrel-icon::after { bottom: 4px; }
-
 
         /* Bottom Detail Panel (Slide-up) */
         #detail-panel {
             position: absolute;
-            bottom: -400px; /* Hidden by default */
+            bottom: -400px; 
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
@@ -143,49 +117,42 @@
             transition: bottom 0.4s ease-in-out;
             box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
         }
-
         #detail-panel.active { bottom: 0; }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
+        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
         .panel-title { font-size: 24px; font-weight: bold; color: #fff; }
         .panel-sub { font-size: 14px; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 24px;
-            cursor: pointer;
-        }
+        .close-btn { background: none; border: none; color: #888; font-size: 24px; cursor: pointer; }
         .close-btn:hover { color: #fff; }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; text-align: center; }
         .stat-label { font-size: 11px; color: #aaa; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 18px; font-weight: bold; color: #ffd700; }
+        .notes-section { background: rgba(255, 215, 0, 0.1); border-left: 4px solid #ffd700; padding: 10px 15px; font-size: 13px; line-height: 1.4; color: #ddd; }
 
-        .notes-section {
-            background: rgba(255, 215, 0, 0.1);
-            border-left: 4px solid #ffd700;
-            padding: 10px 15px;
-            font-size: 13px;
-            line-height: 1.4;
-            color: #ddd;
+        /* Explainer / Story Panel */
+        #explainer-panel {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            width: 320px;
+            background: rgba(10, 15, 12, 0.95);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 20px;
+            color: #fff;
+            z-index: 15;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
+        #explainer-title { color: #ffd700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        #explainer-text { font-size: 13px; line-height: 1.5; color: #ddd; margin-bottom: 15px; height: 120px; overflow-y: auto; }
+        #explainer-controls { display: flex; justify-content: space-between; align-items: center; }
+        .nav-btn { background: #2e7d32; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background 0.2s; }
+        .nav-btn:hover { background: #43a047; }
+        .nav-btn:disabled { background: #222; color: #555; cursor: default; }
+        #page-indicator { font-size: 11px; color: #888; }
+        
     </style>
 
     <script src="//unpkg.com/three@0.160.0/build/three.min.js"></script>
@@ -216,6 +183,16 @@
         <div class="legend-item"><span class="dot" style="background: #a5d6a7"></span> 80 - 120 Days</div>
         <div class="legend-item"><span class="dot" style="background: #c8e6c9"></span> 40 - 80 Days</div>
         <div class="legend-item"><span class="dot" style="background: #e8f5e9"></span> < 40 Days</div>
+    </div>
+
+    <div id="explainer-panel">
+        <div id="explainer-title">Strategic Insight</div>
+        <div id="explainer-text">Loading insights...</div>
+        <div id="explainer-controls">
+            <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">Previous</button>
+            <span id="page-indicator">1 / 6</span>
+            <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next</button>
+        </div>
     </div>
 
     <div id="detail-panel">
@@ -271,6 +248,56 @@
             { rank: 20, country: "Taiwan", tankage: 27, inventory: 27, cover: 120, lat: 23.6978, lng: 120.9605, notes: "0.9 Mb/d imports; 30-day commercial mandate" }
         ];
 
+        // Explainer Data
+        const explainerData = [
+            {
+                title: "1. The Security Context",
+                text: "China is heavily dependent on imports to meet fossil fuel demand (70% reliance). This is a critical national security issue and a huge driver for their electrification of transport. While crude consumption is forecast to peak in 2027, the current strategy is aggressive accumulation."
+            },
+            {
+                title: "2. The Buying Spree",
+                text: "China imports ~11 million barrels a day—more than Saudi Arabia's entire daily output. This aggressive buying puts a 'floor' on global prices. If China slows down, oil prices could drop to the $50s rapidly. Their buying keeps Western markets higher than they naturally would be."
+            },
+            {
+                title: "3. Shadow Reserves",
+                text: "A high volume of imports goes into strategic reserves scattered across the country. Data is opaque; analysts estimate by subtracting 'burn' from imports. Estimates suggest a stockpile of 1.3 billion barrels, with capacity reaching 2 billion soon—up 40% in a decade."
+            },
+            {
+                title: "4. US vs China Strategy",
+                text: "While China rapidly fills its tanks, the US has drained its Strategic Petroleum Reserve (SPR) to suppress prices. The US SPR holds ~700 million barrel capacity but is currently low. China effectively has far more buffer capacity than the United States today."
+            },
+            {
+                title: "5. The Non-Dollar Trade",
+                text: "A vast network of pipelines connects Russia and China, bypassing Western monitoring. 2/3rds of this trade is settled in Renminbi (Yuan), evading the US Dollar/SWIFT system entirely. This prevents sanctions from effectively freezing these markets."
+            },
+            {
+                title: "6. The Blind Spot",
+                text: "Industry experts are 'flying blind.' We know the trade between Russia, Iran, and China is massive and growing fast, but exact figures are guesswork. This 'Shadow Trade' fundamentally alters the geopolitical energy landscape."
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function updateExplainer() {
+            const data = explainerData[currentSlide];
+            document.getElementById('explainer-title').innerText = data.title;
+            document.getElementById('explainer-text').innerText = data.text;
+            document.getElementById('page-indicator').innerText = `${currentSlide + 1} / ${explainerData.length}`;
+            
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === explainerData.length - 1;
+        }
+
+        function changeSlide(dir) {
+            currentSlide += dir;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= explainerData.length) currentSlide = explainerData.length - 1;
+            updateExplainer();
+        }
+
+        // Initialize Explainer
+        updateExplainer();
+
         const sortedData = [...oilData].sort((a, b) => b.cover - a.cover);
 
         const colorScale = d3.scaleThreshold()
@@ -313,7 +340,6 @@
 
         function createBarrelMesh(opacity = 1.0) {
             const barrelGroup = new THREE.Group();
-            // Increased base dimensions slightly
             const r = 0.5; const h = 1.2; 
 
             const bodyMat = new THREE.MeshLambertMaterial({ color: 0xffd700, transparent: opacity < 1.0, opacity: opacity });
@@ -327,7 +353,7 @@
             const hoop2 = new THREE.Mesh(hoopGeom, hoopMat); hoop2.rotation.x = Math.PI / 2; hoop2.position.y = h * 0.7;
             barrelGroup.add(hoop1); barrelGroup.add(hoop2);
             
-            // **SCALE INCREASE HERE**: Scale x3 to make them "200% larger"
+            // Scaled 3x larger as requested
             barrelGroup.scale.set(3, 3, 3); 
 
             return barrelGroup;
@@ -341,7 +367,7 @@
                 const remainder = d.inventory % 100;
                 const totalStack = remainder > 0 ? fullBarrels + 1 : fullBarrels;
                 
-                // Increased scatter radius to accommodate larger barrels
+                // Increased scatter radius
                 const scatterRadius = 5.0; 
 
                 for (let i = 0; i < totalStack; i++) {
@@ -368,7 +394,7 @@
                 obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize());
             });
 
-        // Click Hitbox (Increased size for larger barrels)
+        // Click Hitbox 
         world.objectsData(oilData)
             .objectLat('lat') .objectLng('lng') .objectAltitude(0.05)
             .objectThreeObject(() => new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({ visible: false })))
