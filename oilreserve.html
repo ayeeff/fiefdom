@@ -5,58 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Strategic Oil Reserves 3D Globe</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: #000003;
-            color: white;
-            overflow: hidden;
-        }
-        #container {
-            display: flex;
-            height: 100vh;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #000003; color: white; overflow: hidden; }
+        
+        #container { display: flex; height: 100vh; }
+        
         #sidebar {
             width: 320px;
             background: rgba(0,0,0,0.95);
             padding: 20px;
             overflow-y: auto;
             border-right: 1px solid #333;
-            z-index: 10000;
-            position: relative;
+            z-index: 100;
         }
-        #sidebar h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #ffaa00;
-        }
-        #sidebar p {
-            font-size: 12px;
-            color: #999;
-            margin: 0 0 15px 0;
-        }
+        #sidebar h2 { color: #ffaa00; font-size: 18px; margin-bottom: 10px; }
+        #sidebar p { color: #999; font-size: 12px; margin-bottom: 15px; }
+        
         .legend {
-            font-size: 11px;
-            margin-bottom: 15px;
-            padding: 10px;
             background: rgba(139,69,19,0.2);
+            padding: 10px;
             border-radius: 4px;
+            margin-bottom: 15px;
         }
         .gradient-bar {
             height: 10px;
             background: linear-gradient(to right, white, #8B4513);
             margin: 5px 0;
+            border-radius: 2px;
         }
-        .gradient-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            margin-top: 2px;
-        }
+        .gradient-labels { display: flex; justify-content: space-between; font-size: 10px; }
+        
         .country-item {
             padding: 10px;
             margin-bottom: 8px;
@@ -64,125 +42,69 @@
             border-left: 4px solid #333;
             cursor: pointer;
             transition: all 0.2s;
-            border-radius: 2px;
         }
-        .country-item:hover {
-            background: rgba(255,170,0,0.15);
-        }
-        .country-item.selected {
-            background: rgba(255,170,0,0.2);
-            border-left-color: #ffaa00;
-        }
-        .country-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-        .country-name {
-            font-weight: bold;
-            font-size: 13px;
-        }
-        .country-inventory {
-            color: #ffaa00;
-            font-size: 12px;
-        }
-        .country-details {
-            font-size: 11px;
-            color: #aaa;
-            display: flex;
-            justify-content: space-between;
-        }
-        #globe-container {
-            flex: 1;
-            position: relative;
-        }
+        .country-item:hover { background: rgba(255,170,0,0.15); }
+        .country-item.selected { background: rgba(255,170,0,0.2); border-left-color: #ffaa00; }
+        
+        .country-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .country-name { font-weight: bold; font-size: 13px; }
+        .country-inventory { color: #ffaa00; font-size: 12px; }
+        .country-details { font-size: 11px; color: #aaa; display: flex; justify-content: space-between; }
+        
+        #globe-container { flex: 1; position: relative; }
+        
         .info-box {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             background: rgba(0,0,0,0.8);
             padding: 15px;
             border-radius: 4px;
             max-width: 250px;
             font-size: 12px;
-            z-index: 1000;
-            pointer-events: none; /* Allows clicking through to globe */
+            pointer-events: none;
+            z-index: 10;
         }
-        .info-box h3 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #ffaa00;
-        }
-        .info-box p {
-            margin: 5px 0;
-            line-height: 1.5;
-            color: #ccc;
-        }
+        .info-box h3 { color: #ffaa00; margin: 0 0 10px 0; }
+        .info-box p { color: #ccc; line-height: 1.5; }
+        
         #detail-panel {
             position: absolute;
-            bottom: 20px;
-            left: 340px; /* Offset for sidebar */
-            right: 20px;
+            bottom: 20px; left: 20px; right: 20px;
+            margin: auto;
+            width: fit-content;
+            min-width: 300px;
+            max-width: 500px;
             background: rgba(0,0,0,0.9);
             padding: 20px;
             border-radius: 8px;
             border: 2px solid #ff8800;
-            z-index: 1000;
             display: none;
-            max-width: 600px;
+            z-index: 1000;
         }
-        #detail-panel h3 {
-            margin: 0 0 15px 0;
-            color: #ff8800;
-            font-size: 18px;
-        }
-        #detail-panel .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            padding: 8px 0;
+        #detail-panel h3 { color: #ff8800; font-size: 18px; margin-bottom: 15px; }
+        .detail-row {
+            display: flex; justify-content: space-between;
+            margin: 8px 0; padding-bottom: 8px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        #detail-panel .detail-label {
-            color: #aaa;
-            font-size: 13px;
+        .detail-label { color: #aaa; font-size: 13px; }
+        .detail-value { color: #fff; font-weight: bold; font-size: 13px; }
+        .notes { margin-top: 15px; padding: 10px; background: rgba(255,136,0,0.1); border-radius: 4px; font-size: 12px; line-height: 1.5; color: #ddd; }
+        
+        .close-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: #ff8800; border: none; color: white;
+            padding: 5px 12px; border-radius: 4px;
+            cursor: pointer; font-size: 12px;
         }
-        #detail-panel .detail-value {
-            color: #fff;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        #detail-panel .notes {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255,136,0,0.1);
-            border-radius: 4px;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #ddd;
-        }
-        #detail-panel .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff8800;
-            border: none;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        #detail-panel .close-btn:hover {
-            background: #ff6600;
-        }
+        .close-btn:hover { background: #ff6600; }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="sidebar">
             <h2>Top 20 Oil Reserves</h2>
-            <p>Click list or globe rings to view details</p>
+            <p>Select a country to view details</p>
             
             <div class="legend">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
@@ -194,7 +116,6 @@
                     <span>High</span>
                 </div>
             </div>
-
             <div id="country-list"></div>
         </div>
 
@@ -211,31 +132,16 @@
             <div id="detail-panel">
                 <button class="close-btn" onclick="closeDetailPanel()">✕ Close</button>
                 <h3 id="detail-title"></h3>
-                <div class="detail-row">
-                    <span class="detail-label">Rank</span>
-                    <span class="detail-value" id="detail-rank"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Total Strategic Tankage</span>
-                    <span class="detail-value" id="detail-tankage"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Inventory 2025</span>
-                    <span class="detail-value" id="detail-inventory"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Days Net-Import Cover</span>
-                    <span class="detail-value" id="detail-days"></span>
-                </div>
-                <div class="notes">
-                    <strong>Key Notes:</strong><br>
-                    <span id="detail-notes"></span>
-                </div>
+                <div class="detail-row"><span class="detail-label">Rank</span><span class="detail-value" id="detail-rank"></span></div>
+                <div class="detail-row"><span class="detail-label">Total Tankage</span><span class="detail-value" id="detail-tankage"></span></div>
+                <div class="detail-row"><span class="detail-label">Current Inventory</span><span class="detail-value" id="detail-inventory"></span></div>
+                <div class="detail-row"><span class="detail-label">Days Cover</span><span class="detail-value" id="detail-days"></span></div>
+                <div class="notes"><strong>Notes:</strong><br><span id="detail-notes"></span></div>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/globe.gl/dist/globe.gl.min.js"></script>
+    <script src="//unpkg.com/globe.gl@2.35.2/dist/globe.gl.min.js"></script>
     
     <script>
         const countries = [
@@ -266,10 +172,12 @@
 
         function closeDetailPanel() {
             document.getElementById('detail-panel').style.display = 'none';
-            if(globe) globe.controls().autoRotate = true;
+            if (globe) globe.controls().autoRotate = true;
         }
 
-        function showDetailPanel(country, rank) {
+        function showDetailPanel(country) {
+            if(!country) return;
+            const rank = countries.findIndex(c => c.name === country.name) + 1;
             document.getElementById('detail-title').textContent = country.name;
             document.getElementById('detail-rank').textContent = `#${rank}`;
             document.getElementById('detail-tankage').textContent = `${country.tankage} Mb`;
@@ -279,7 +187,18 @@
             document.getElementById('detail-panel').style.display = 'block';
         }
 
-        // Populate country list
+        function focusOnCountry(country) {
+            selectedCountry = country.name;
+            document.querySelectorAll('.country-item').forEach(item => {
+                item.classList.toggle('selected', item.dataset.country === country.name);
+            });
+            if (globe) {
+                globe.pointOfView({ lat: country.lat, lng: country.lng, altitude: 1.5 }, 1000);
+                globe.controls().autoRotate = false;
+            }
+            showDetailPanel(country);
+        }
+
         const countryList = document.getElementById('country-list');
         countries.forEach((country, idx) => {
             const item = document.createElement('div');
@@ -290,92 +209,33 @@
                     <span class="country-name">${idx + 1}. ${country.name}</span>
                     <span class="country-inventory">${country.inventory} Mb</span>
                 </div>
-                <div class="country-details">
-                    <span>Tankage: ${country.tankage} Mb</span>
-                    <span>Days: ${country.days}</span>
-                </div>
+                <div class="country-details"><span>Tankage: ${country.tankage} Mb</span><span>Days: ${country.days}</span></div>
             `;
             item.addEventListener('click', () => focusOnCountry(country));
             countryList.appendChild(item);
         });
 
-        function focusOnCountry(country) {
-            selectedCountry = country.name;
-            
-            // Update selected styling
-            document.querySelectorAll('.country-item').forEach(item => {
-                if (item.dataset.country === country.name) {
-                    item.classList.add('selected');
-                } else {
-                    item.classList.remove('selected');
-                }
-            });
-
-            if (globe) {
-                // Determine point of view - shift altitude slightly based on location
-                globe.pointOfView({
-                    lat: country.lat,
-                    lng: country.lng,
-                    altitude: 1.5 // Zoom in
-                }, 1000);
-            }
-            
-            // Show details automatically when clicked from sidebar
-            const rank = countries.findIndex(c => c.name === country.name) + 1;
-            showDetailPanel(country, rank);
-            globe.controls().autoRotate = false;
-        }
-
-        function getColorForDays(days) {
-            const normalized = Math.min(days / 270, 1);
-            // Interpolate between white and brown/orange
-            const r = Math.floor(139 * normalized + 255 * (1 - normalized));
-            const g = Math.floor(69 * normalized + 255 * (1 - normalized));
-            const b = Math.floor(19 * normalized + 255 * (1 - normalized));
-            return `rgba(${r}, ${g}, ${b}, 0.7)`;
-        }
-
-        // Create ring data - each ring represents 100 Mb
+        // Generate Ring Data
         const ringData = [];
         countries.forEach(country => {
             const fullCircles = Math.floor(country.inventory / 100);
             const partialCircle = (country.inventory % 100) / 100;
-            
-            // Add full circles
             for (let i = 0; i < fullCircles; i++) {
                 ringData.push({
-                    lat: country.lat,
-                    lng: country.lng,
-                    name: country.name,
-                    inventory: country.inventory,
-                    tankage: country.tankage,
-                    days: country.days,
-                    altitude: 0.02 + (i * 0.015), // Slightly increased spacing
-                    size: 0.8,
-                    isFull: true
+                    lat: country.lat, lng: country.lng, name: country.name,
+                    altitude: 0.02 + (i * 0.015), size: 0.8, isFull: true
                 });
             }
-            
-            // Add partial circle if exists
             if (partialCircle > 0) {
                 ringData.push({
-                    lat: country.lat,
-                    lng: country.lng,
-                    name: country.name,
-                    inventory: country.inventory,
-                    tankage: country.tankage,
-                    days: country.days,
-                    altitude: 0.02 + (fullCircles * 0.015),
-                    size: 0.8,
-                    isFull: false,
-                    fillRatio: partialCircle
+                    lat: country.lat, lng: country.lng, name: country.name,
+                    altitude: 0.02 + (fullCircles * 0.015), size: 0.8, isFull: false, fillRatio: partialCircle
                 });
             }
         });
 
-        // Initialize globe
+        // Initialize Globe
         const globeContainer = document.getElementById('globe-container');
-        
         globe = Globe()
             (globeContainer)
             .width(globeContainer.offsetWidth)
@@ -384,69 +244,8 @@
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
             .atmosphereColor('#4488ff')
             .atmosphereAltitude(0.15)
-            
-            // Hex polygons for choropleth
-            .hexPolygonsData(countries.map(c => ({
-                lat: c.lat,
-                lng: c.lng,
-                days: c.days,
-                name: c.name
-            })))
+            .hexPolygonsData(countries)
             .hexPolygonResolution(3)
             .hexPolygonMargin(0.3)
-            .hexPolygonColor(d => getColorForDays(d.days))
-            .hexPolygonLabel(d => `
-                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white; font-family: Arial;">
-                    <b>${d.name}</b><br/>
-                    Days Cover: ${d.days}
-                </div>
-            `)
-            
-            // Rings representing inventory - each ring = 100 Mb
-            .ringsData(ringData)
-            .ringLat('lat')
-            .ringLng('lng')
-            .ringMaxRadius('size')
-            .ringPropagationSpeed(0) // Static rings
-            .ringRepeatPeriod(0)
-            .ringAltitude('altitude')
-            .ringColor(d => d.isFull ? '#ff8800' : `rgba(255, 136, 0, ${d.fillRatio})`)
-            .onRingClick(d => {
-                // Stop auto-rotation
-                globe.controls().autoRotate = false;
-                
-                // Show detailed info panel
-                const country = countries.find(c => c.name === d.name);
-                const rank = countries.findIndex(c => c.name === d.name) + 1;
-                showDetailPanel(country, rank);
-                focusOnCountry(country);
-            })
-            
-            // Points for countries - smaller markers to indicate location under rings
-            .pointsData(countries)
-            .pointLat('lat')
-            .pointLng('lng')
-            .pointAltitude(0.01)
-            .pointRadius(0.3)
-            .pointColor(() => '#ffcc00')
-            .pointLabel(d => `
-                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white; font-family: Arial;">
-                    <b>${d.name}</b><br/>
-                    Inventory: ${d.inventory} Mb<br/>
-                    Days Cover: ${d.days}
-                </div>
-            `);
-
-        globe.controls().autoRotate = true;
-        globe.controls().autoRotateSpeed = 0.5;
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if(globe) {
-                globe.width(globeContainer.offsetWidth);
-                globe.height(window.innerHeight);
-            }
-        });
-    </script>
-</body>
-</html>
+            .hexPolygonColor(d => {
+                const normalized = Math.min(d.days
