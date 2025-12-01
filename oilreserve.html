@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Strategic Oil Reserves 2025</title>
     
+    <script src="//unpkg.com/globe.gl"></script>
+    
+    <script src="//unpkg.com/d3"></script>
+    <script src="//unpkg.com/topojson-client"></script>
+
     <style>
         :root {
             --theme-orange: #ff8800;
@@ -90,11 +95,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js" crossorigin="anonymous" onerror="alert('Error: Failed to load Three.js. Check your internet connection.')"></script>
-    <script src="https://unpkg.com/globe.gl@2.32.1/dist/globe.gl.min.js" crossorigin="anonymous" onerror="alert('Error: Failed to load Globe.gl. Check your firewall settings.')"></script>
-    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -202,7 +202,7 @@
                 world = Globe()
                     (elem)
                     .backgroundColor('#000005')
-                    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+                    .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
                     .atmosphereColor('#ffaa00')
                     .atmosphereAltitude(0.1)
                     .pointOfView({ altitude: 2.5 });
@@ -234,7 +234,7 @@
                     .onRingClick(ring => selectCountry(ring.data));
 
                 // --- CHOROPLETH (MAP) ---
-                fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
+                fetch('//unpkg.com/world-atlas@2.0.2/countries-110m.json')
                     .then(res => res.json())
                     .then(mapData => {
                         const countries = topojson.feature(mapData, mapData.objects.countries).features;
