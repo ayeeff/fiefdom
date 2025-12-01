@@ -143,8 +143,12 @@
         }
     </style>
 
-    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/three@0.160.0/build/three.min.js"></script>
+    
     <script src="//unpkg.com/globe.gl"></script>
+    
+    <script src="//unpkg.com/topojson-client"></script>
+    
     <script src="//unpkg.com/d3"></script>
 </head>
 <body>
@@ -207,7 +211,6 @@
     <script>
         // --- 1. Data Setup ---
         
-        // Coordinates (approximate centers) hardcoded for precision on the top 20
         const oilData = [
             { rank: 1, country: "China", tankage: 2000, inventory: 1300, cover: 120, lat: 35.8617, lng: 104.1954, notes: "70% import dependent; 11 Mb/d imports; tanks still only ~60% full" },
             { rank: 2, country: "United States", tankage: 714, inventory: 411, cover: 125, lat: 37.0902, lng: -95.7129, notes: "12 Mb/d net imports; draw-down max 4.4 Mb/d" },
@@ -232,7 +235,6 @@
         ];
 
         // Color Scale for Choropleth (Days Net-Import Cover)
-        // White (Low) -> Deep Brown (High)
         const colorScale = d3.scaleLinear()
             .domain([60, 270])
             .range(["#ffffff", "#3e2723"]);
@@ -248,19 +250,18 @@
             .atmosphereColor("#ff8800")
             .atmosphereAltitude(0.15);
 
-        // Auto-rotation config
         world.controls().autoRotate = true;
         world.controls().autoRotateSpeed = 0.5;
 
-        // --- 3. Choropleth Layer (Polygons) ---
-
+        // --- 3. Choropleth Layer ---
+        
+        // Fetch world topology for the polygons
         fetch('//unpkg.com/world-atlas/countries-110m.json').then(res => res.json()).then(data => {
             const countries = topojson.feature(data, data.objects.countries).features;
             
             world.polygonsData(countries)
                 .polygonCapColor(d => {
                     const countryName = d.properties.name;
-                    // Find matching country in our data (fuzzy match or direct)
                     const match = oilData.find(o => 
                         o.country === countryName || 
                         (o.country === "United States" && countryName === "United States of America")
@@ -269,13 +270,12 @@
                     if (match) {
                         return colorScale(match.cover);
                     } else {
-                        return 'rgba(20,20,20,0.8)'; // Non-top-20 countries are dark
+                        return 'rgba(20,20,20,0.8)'; // Others dark
                     }
                 })
                 .polygonSideColor(() => 'rgba(0,0,0,0.5)')
                 .polygonStrokeColor(() => '#111')
                 .polygonLabel(({ properties: d }) => {
-                    // Simple tooltip for hovering over land
                     const match = oilData.find(o => 
                         o.country === d.name || 
                         (o.country === "United States" && d.name === "United States of America")
@@ -294,26 +294,21 @@
 
         world.customLayerData(oilData)
             .customThreeObject(d => {
-                // Logic: 1 ring per 100 Mb
                 const fullRings = Math.floor(d.inventory / 100);
                 const remainder = d.inventory % 100;
                 const totalLevels = remainder > 0 ? fullRings + 1 : fullRings;
 
                 const group = new THREE.Group();
-                const ringRadius = 2.0; // Size of the ring relative to globe
-                const tubeRadius = 0.3; // Thickness
-                
-                // Material
-                const color = 0xff8800; // Orange
+                const ringRadius = 2.0; 
+                const tubeRadius = 0.3; 
+                const color = 0xff8800; 
 
                 for (let i = 0; i < totalLevels; i++) {
-                    // Determine opacity: full rings = 1, top ring = fraction
                     let opacity = 1.0;
                     if (i === totalLevels - 1 && remainder > 0) {
                         opacity = remainder / 100; 
                     }
 
-                    // Geometry: Torus
                     const geometry = new THREE.TorusGeometry(ringRadius, tubeRadius, 8, 32);
                     const material = new THREE.MeshBasicMaterial({ 
                         color: color, 
@@ -322,56 +317,39 @@
                     });
                     
                     const mesh = new THREE.Mesh(geometry, material);
-                    
-                    // Rotate to lie flat relative to the normal (Three.js default is upright)
                     mesh.rotation.x = Math.PI / 2;
-                    
-                    // Stack them vertically (along Y axis in local space, which becomes altitude)
-                    // Spacing factor
                     mesh.position.y = i * 0.8; 
 
                     group.add(mesh);
                 }
-
                 return group;
             })
             .customThreeObjectUpdate((obj, d) => {
-                // Point object normal to surface
-                Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02)); // Base altitude
-                obj.lookAt(new THREE.Vector3(0,0,0)); // look at center
-                // But we want rings flat on surface, object lookAt makes Z axis point to center
-                // Torus is created in XY plane. We want it perpendicular to the normal.
-                // The lookAt flips it. We adjust orientation.
+                Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02)); 
+                obj.lookAt(new THREE.Vector3(0,0,0)); 
                 obj.quaternion.setFromUnitVectors(
-                    new THREE.Vector3(0, 1, 0), // Up vector of the group
-                    new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize() // Normal vector
+                    new THREE.Vector3(0, 1, 0), 
+                    new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize() 
                 );
             });
 
-        // Click handler for 3D Objects (Rings) logic via invisible points interaction
-        // Note: globe.gl customThreeObject doesn't natively support click events easily without raycaster.
-        // Workaround: Add an invisible 'label' or 'point' at the same location to catch clicks.
-        
+        // --- 5. Interaction Logic ---
+
+        // Object Interaction (Clicking Rings via invisible points)
         world.objectsData(oilData)
             .objectLat('lat')
             .objectLng('lng')
-            .objectAltitude(0.1) // slightly above surface
-            .objectLabel('') // No built-in label, we use the panel
+            .objectAltitude(0.1)
+            .objectLabel('') 
             .objectThreeObject(() => {
-                // Invisible hit box
                 return new THREE.Mesh(
-                    new THREE.SphereGeometry(3), // Generous hit area
+                    new THREE.SphereGeometry(3), 
                     new THREE.MeshBasicMaterial({ color: 'red', visible: false })
                 );
             })
-            .onObjectClick((d) => {
-                showDetails(d);
-            });
+            .onObjectClick((d) => showDetails(d));
 
-
-        // --- 5. UI & Interaction Logic ---
-
-        // Populate Sidebar
+        // Sidebar List Generation
         const listContainer = document.getElementById('country-list');
         oilData.forEach(item => {
             const div = document.createElement('div');
@@ -384,43 +362,29 @@
                 <span class="val">${item.inventory} Mb</span>
             `;
             div.onclick = () => {
-                // Fly to location
                 world.pointOfView({ lat: item.lat, lng: item.lng, altitude: 1.5 }, 1500);
-                // Pause rotation
                 world.controls().autoRotate = false;
-                // Show details
                 showDetails(item);
             };
             listContainer.appendChild(div);
         });
 
         function showDetails(data) {
-            // Stop rotation
             world.controls().autoRotate = false;
-
-            // Populate Panel
             document.getElementById('panel-rank').innerText = "Rank #" + data.rank;
             document.getElementById('panel-country').innerText = data.country;
             document.getElementById('panel-inventory').innerText = data.inventory + " Mb";
             document.getElementById('panel-tankage').innerText = data.tankage + " Mb";
             document.getElementById('panel-cover').innerText = data.cover + " Days";
             document.getElementById('panel-notes').innerText = data.notes;
-
-            // Show Panel
             document.getElementById('detail-panel').classList.add('active');
         }
 
         function closePanel() {
-            // Hide Panel
             document.getElementById('detail-panel').classList.remove('active');
-            
-            // Resume rotation after a short delay
-            setTimeout(() => {
-                world.controls().autoRotate = true;
-            }, 500);
+            setTimeout(() => { world.controls().autoRotate = true; }, 500);
         }
 
-        // Adjust globe on resize
         window.addEventListener('resize', () => {
             world.width(window.innerWidth);
             world.height(window.innerHeight);
