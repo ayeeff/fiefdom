@@ -26,6 +26,7 @@
             padding: 20px;
             overflow-y: auto;
             border-right: 1px solid #333;
+            z-index: 1000;
         }
         #sidebar h2 {
             margin: 0 0 10px 0;
@@ -234,8 +235,9 @@
             .width(globeContainer.offsetWidth)
             .height(window.innerHeight)
             .backgroundColor('#000003')
-            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+            .atmosphereColor('#4488ff')
+            .atmosphereAltitude(0.15)
             
             // Hex polygons for choropleth
             .hexPolygonsData(countries.map(c => ({
@@ -254,20 +256,21 @@
                 </div>
             `)
             
-            // Arcs for inventory levels
+            // Arcs for inventory levels - made much larger and more visible
             .arcsData(countries.map(c => ({
                 startLat: c.lat,
                 startLng: c.lng,
-                endLat: c.lat,
-                endLng: c.lng + 0.1,
+                endLat: c.lat + (c.inventory / 50),
+                endLng: c.lng + (c.inventory / 50),
                 inventory: c.inventory,
                 name: c.name
             })))
-            .arcColor(() => '#ffaa00')
-            .arcStroke(d => d.inventory / 100)
-            .arcDashLength(0.4)
-            .arcDashGap(0.2)
-            .arcDashAnimateTime(3000)
+            .arcColor(() => ['#ff8800', '#ffaa00'])
+            .arcStroke(d => Math.max(0.5, d.inventory / 50))
+            .arcDashLength(0.6)
+            .arcDashGap(0.3)
+            .arcDashAnimateTime(2000)
+            .arcAltitude(d => d.inventory / 1500)
             .arcLabel(d => `
                 <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
                     <b>${d.name}</b><br/>
@@ -275,12 +278,12 @@
                 </div>
             `)
             
-            // Points for countries
+            // Points for countries - made larger and brighter
             .pointsData(countries)
             .pointLat('lat')
             .pointLng('lng')
-            .pointAltitude(0.01)
-            .pointRadius(d => Math.sqrt(d.inventory) * 0.03)
+            .pointAltitude(0.02)
+            .pointRadius(d => Math.sqrt(d.inventory) * 0.08)
             .pointColor(() => '#ff6600')
             .pointLabel(d => `
                 <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
