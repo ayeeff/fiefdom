@@ -144,7 +144,7 @@
                 <h3>Strategic Oil Reserves 2025</h3>
                 <p>
                     <strong>Choropleth:</strong> Days Net-Import Cover<br>
-                    <strong>Orange arcs:</strong> Inventory levels<br>
+                    <strong>Orange rings:</strong> Each ring = 100 Mb inventory<br>
                     <strong>Points:</strong> Storage locations
                 </p>
             </div>
@@ -220,44 +220,6 @@
             }
         }
 
-        // Create ring data - each ring represents 100 Mb
-        const ringData = [];
-        countries.forEach(country => {
-            const fullCircles = Math.floor(country.inventory / 100);
-            const partialCircle = (country.inventory % 100) / 100;
-            
-            // Add full circles
-            for (let i = 0; i < fullCircles; i++) {
-                ringData.push({
-                    lat: country.lat,
-                    lng: country.lng,
-                    name: country.name,
-                    inventory: country.inventory,
-                    tankage: country.tankage,
-                    days: country.days,
-                    altitude: 0.02 + (i * 0.01),
-                    size: 0.8,
-                    isFull: true
-                });
-            }
-            
-            // Add partial circle if exists
-            if (partialCircle > 0) {
-                ringData.push({
-                    lat: country.lat,
-                    lng: country.lng,
-                    name: country.name,
-                    inventory: country.inventory,
-                    tankage: country.tankage,
-                    days: country.days,
-                    altitude: 0.02 + (fullCircles * 0.01),
-                    size: 0.8,
-                    isFull: false,
-                    fillRatio: partialCircle
-                });
-            }
-        });
-
         function getColorForDays(days) {
             const normalized = Math.min(days / 270, 1);
             const r = Math.floor(139 * normalized + 255 * (1 - normalized));
@@ -266,9 +228,6 @@
             return `rgba(${r}, ${g}, ${b}, 0.7)`;
         }
 
-        // Initialize globe
-        const globeContainer = document.getElementById('globe-container');
-        
         // Create ring data - each ring represents 100 Mb
         const ringData = [];
         countries.forEach(country => {
@@ -306,7 +265,9 @@
                 });
             }
         });
-        
+
+        // Initialize globe
+        const globeContainer = document.getElementById('globe-container');
         globe = Globe()
             (globeContainer)
             .width(globeContainer.offsetWidth)
@@ -353,7 +314,7 @@
             .pointLabel(d => `
                 <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
                     <b>${d.name}</b><br/>
-                    Inventory: ${d.inventory} Mb<br/>
+                    Inventory: ${d.inventory} Mb (${Math.floor(d.inventory/100)} rings)<br/>
                     Tankage: ${d.tankage} Mb<br/>
                     Days Cover: ${d.days}
                 </div>
