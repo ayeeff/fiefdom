@@ -22,11 +22,12 @@
         }
         #sidebar {
             width: 320px;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.95);
             padding: 20px;
             overflow-y: auto;
             border-right: 1px solid #333;
-            z-index: 1000;
+            z-index: 10000;
+            position: relative;
         }
         #sidebar h2 {
             margin: 0 0 10px 0;
@@ -220,6 +221,44 @@
             }
         }
 
+        // Create ring data - each ring represents 100 Mb
+        const ringData = [];
+        countries.forEach(country => {
+            const fullCircles = Math.floor(country.inventory / 100);
+            const partialCircle = (country.inventory % 100) / 100;
+            
+            // Add full circles
+            for (let i = 0; i < fullCircles; i++) {
+                ringData.push({
+                    lat: country.lat,
+                    lng: country.lng,
+                    name: country.name,
+                    inventory: country.inventory,
+                    tankage: country.tankage,
+                    days: country.days,
+                    altitude: 0.02 + (i * 0.01),
+                    size: 0.8,
+                    isFull: true
+                });
+            }
+            
+            // Add partial circle if exists
+            if (partialCircle > 0) {
+                ringData.push({
+                    lat: country.lat,
+                    lng: country.lng,
+                    name: country.name,
+                    inventory: country.inventory,
+                    tankage: country.tankage,
+                    days: country.days,
+                    altitude: 0.02 + (fullCircles * 0.01),
+                    size: 0.8,
+                    isFull: false,
+                    fillRatio: partialCircle
+                });
+            }
+        });
+
         function getColorForDays(days) {
             const normalized = Math.min(days / 270, 1);
             const r = Math.floor(139 * normalized + 255 * (1 - normalized));
@@ -227,6 +266,44 @@
             const b = Math.floor(19 * normalized + 255 * (1 - normalized));
             return `rgba(${r}, ${g}, ${b}, 0.7)`;
         }
+
+        // Create ring data - each ring represents 100 Mb
+        const ringData = [];
+        countries.forEach(country => {
+            const fullCircles = Math.floor(country.inventory / 100);
+            const partialCircle = (country.inventory % 100) / 100;
+            
+            // Add full circles
+            for (let i = 0; i < fullCircles; i++) {
+                ringData.push({
+                    lat: country.lat,
+                    lng: country.lng,
+                    name: country.name,
+                    inventory: country.inventory,
+                    tankage: country.tankage,
+                    days: country.days,
+                    altitude: 0.02 + (i * 0.01),
+                    size: 0.8,
+                    isFull: true
+                });
+            }
+            
+            // Add partial circle if exists
+            if (partialCircle > 0) {
+                ringData.push({
+                    lat: country.lat,
+                    lng: country.lng,
+                    name: country.name,
+                    inventory: country.inventory,
+                    tankage: country.tankage,
+                    days: country.days,
+                    altitude: 0.02 + (fullCircles * 0.01),
+                    size: 0.8,
+                    isFull: false,
+                    fillRatio: partialCircle
+                });
+            }
+        });
 
         // Initialize globe
         const globeContainer = document.getElementById('globe-container');
@@ -256,35 +333,23 @@
                 </div>
             `)
             
-            // Arcs for inventory levels - made much larger and more visible
-            .arcsData(countries.map(c => ({
-                startLat: c.lat,
-                startLng: c.lng,
-                endLat: c.lat + (c.inventory / 50),
-                endLng: c.lng + (c.inventory / 50),
-                inventory: c.inventory,
-                name: c.name
-            })))
-            .arcColor(() => ['#ff8800', '#ffaa00'])
-            .arcStroke(d => Math.max(0.5, d.inventory / 50))
-            .arcDashLength(0.6)
-            .arcDashGap(0.3)
-            .arcDashAnimateTime(2000)
-            .arcAltitude(d => d.inventory / 1500)
-            .arcLabel(d => `
-                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
-                    <b>${d.name}</b><br/>
-                    Inventory: ${d.inventory} Mb
-                </div>
-            `)
+            // Rings representing inventory - each ring = 100 Mb
+            .ringsData(ringData)
+            .ringLat('lat')
+            .ringLng('lng')
+            .ringMaxRadius('size')
+            .ringPropagationSpeed(0)
+            .ringRepeatPeriod(0)
+            .ringAltitude('altitude')
+            .ringColor(d => d.isFull ? '#ff8800' : `rgba(255, 136, 0, ${d.fillRatio})`)
             
-            // Points for countries - made larger and brighter
+            // Points for countries - smaller markers
             .pointsData(countries)
             .pointLat('lat')
             .pointLng('lng')
-            .pointAltitude(0.02)
-            .pointRadius(d => Math.sqrt(d.inventory) * 0.08)
-            .pointColor(() => '#ff6600')
+            .pointAltitude(0.01)
+            .pointRadius(0.3)
+            .pointColor(() => '#ffcc00')
             .pointLabel(d => `
                 <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
                     <b>${d.name}</b><br/>
