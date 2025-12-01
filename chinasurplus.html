@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>China Trade Balance 2025 - Dollar Stacks</title>
+    <title>China Trade Balance 2025 - Analysis Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -21,8 +21,10 @@
         .container {
             display: flex;
             height: 100vh;
+            position: relative;
         }
         
+        /* SIDEBAR STYLES */
         .sidebar {
             width: 320px;
             background-color: #16213e;
@@ -30,151 +32,210 @@
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             z-index: 10;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar.left { box-shadow: 2px 0 10px rgba(0,0,0,0.3); }
         .sidebar.right { box-shadow: -2px 0 10px rgba(0,0,0,0.3); }
         
-        .sidebar h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        
+        .sidebar h2 { font-size: 1.5rem; margin-bottom: 5px; }
         .sidebar.left h2 { color: #ef4444; }
         .sidebar.right h2 { color: #10b981; }
         
-        .sidebar p {
-            font-size: 0.9rem;
-            color: #9ca3af;
-            margin-bottom: 20px;
-        }
+        .sidebar p { font-size: 0.85rem; color: #9ca3af; margin-bottom: 15px; }
         
         .country-item {
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            background-color: rgba(255,255,255,0.05);
         }
         
-        .country-item.surplus { background-color: #450a0a; }
-        .country-item.surplus:hover { background-color: #7f1d1d; transform: translateX(5px); }
-        .country-item.surplus.selected { background-color: #dc2626; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.4); }
+        .country-item:hover { transform: translateX(3px); }
+        .country-item.surplus:hover { background-color: #7f1d1d; }
+        .country-item.deficit:hover { background-color: #065f46; }
         
-        .country-item.deficit { background-color: #064e3b; }
-        .country-item.deficit:hover { background-color: #065f46; transform: translateX(-5px); }
-        .country-item.deficit.selected { background-color: #059669; box-shadow: 0 4px 6px rgba(5, 150, 105, 0.4); }
+        .country-item.surplus.selected { background-color: #dc2626; border-left: 4px solid #fff; }
+        .country-item.deficit.selected { background-color: #059669; border-left: 4px solid #fff; }
         
-        .country-header {
+        .country-header { display: flex; justify-content: space-between; align-items: center; }
+        .country-name { font-weight: 600; font-size: 0.9rem; }
+        .country-code { font-size: 0.7rem; color: #9ca3af; }
+        .country-value { font-weight: 700; font-size: 0.95rem; }
+        .country-value.surplus { color: #fca5a5; }
+        .country-value.deficit { color: #6ee7b7; }
+
+        /* MARKET BRIEFING PANEL (NEW) */
+        .explainer-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 340px; /* Right of the left sidebar */
+            width: 380px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .explainer-panel.minimized {
+            height: 50px;
+            overflow: hidden;
+            padding: 12px 20px;
+            cursor: pointer;
+        }
+
+        .explainer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        .country-name { font-weight: 600; font-size: 0.95rem; }
-        .country-code { font-size: 0.75rem; color: #9ca3af; margin-top: 2px; }
-        .country-value { font-weight: 700; font-size: 1rem; }
-        .country-value.surplus { color: #fca5a5; }
-        .country-value.deficit { color: #6ee7b7; }
-        
-        .legend {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #374151;
-        }
-        
-        .legend-title {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-bottom: 10px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
-        }
-        
-        .legend-color { width: 20px; height: 20px; border-radius: 4px; }
-        
-        /* NEW STYLES FOR DOLLAR ICONS */
-        .dollar-stack {
-            display: flex;
-            flex-direction: column-reverse; /* Stack upwards */
-            align-items: center;
-            /* Center the bottom of the stack on the coordinate */
-            transform: translate(-50%, -100%); 
-            pointer-events: none; /* Let clicks pass through to the globe */
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
         }
 
+        .explainer-title {
+            color: #fcd34d;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .news-item { margin-bottom: 15px; }
+        .news-headline { font-weight: 700; color: #fff; margin-bottom: 4px; font-size: 0.95rem; }
+        .news-body { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; }
+        .news-tag { 
+            display: inline-block; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 0.7rem; 
+            margin-bottom: 4px; 
+            font-weight: bold;
+        }
+        .tag-red { background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid #7f1d1d; }
+        .tag-blue { background: rgba(37, 99, 235, 0.2); color: #93c5fd; border: 1px solid #1e40af; }
+        .tag-yellow { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #854d0e; }
+
+        /* DOLLAR STACK STYLES */
+        .dollar-stack {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            transform: translate(-50%, -100%); 
+            pointer-events: none;
+        }
         .dollar-coin {
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             background: radial-gradient(circle at 30% 30%, #fcd34d, #f59e0b);
             border: 1px solid #b45309;
             border-radius: 50%;
-            color: #78350f;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #78350f; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            margin-top: -5px; /* Slight overlap for stack effect */
-            z-index: 1;
-            position: relative;
+            margin-top: -5px; z-index: 1; position: relative;
         }
-        
-        /* Tooltip for coin stacks */
         .stack-label {
-            background: rgba(0,0,0,0.8);
-            color: #fcd34d;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-bottom: 2px;
-            white-space: nowrap;
+            background: rgba(0,0,0,0.8); color: #fcd34d;
+            padding: 2px 6px; border-radius: 4px;
+            font-size: 10px; margin-bottom: 2px; white-space: nowrap;
         }
-
-        #globe-container { flex: 1; position: relative; }
         
-        /* Scrollbar styling */
-        .scrollbar-hide::-webkit-scrollbar { width: 6px; }
-        .scrollbar-hide::-webkit-scrollbar-track { background: #0f3460; }
-        .scrollbar-hide::-webkit-scrollbar-thumb { background: #1a4d7a; border-radius: 3px; }
+        #globe-container { flex: 1; position: relative; }
+
+        /* Scrollbar */
+        .scrollbar-hide::-webkit-scrollbar { width: 4px; }
+        .scrollbar-hide::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-hide::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar left scrollbar-hide">
             <h2>Trade Surplus</h2>
-            <p>Top 20 Countries (Est. $B)<br>Top items: Electronics, Machinery</p>
+            <p>China Profits ($ Billions)</p>
             <div id="surplus-list"></div>
-            <div class="legend">
-                <div class="legend-title">Legend:</div>
-                <div class="legend-item">
-                    <div class="dollar-coin" style="width:16px; height:16px; font-size:10px;">$</div>
-                    <span>= $50 Billion Surplus</span>
+        </div>
+
+        <div id="globe-container">
+            <div class="explainer-panel" id="briefing-panel">
+                <div class="explainer-header">
+                    <div class="explainer-title">
+                        <span>📊 Market Briefing: The $1.2T Surplus</span>
+                    </div>
+                    <button class="toggle-btn" onclick="togglePanel()">−</button>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #dc2626;"></div>
-                    <span>High Surplus</span>
+                
+                <div class="news-item">
+                    <span class="news-tag tag-red">The Headline</span>
+                    <div class="news-headline">China Defies US Tariffs with Record Surplus</div>
+                    <div class="news-body">
+                        Despite aggressive US tariffs, China is on track for a <b>$1.2 Trillion</b> trade surplus in 2025. US efforts to curb exports have failed to reduce China's global dominance.
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <span class="news-tag tag-blue">The Strategy</span>
+                    <div class="news-headline">The "Global South" Pivot</div>
+                    <div class="news-body">
+                        Blocked from the US, China flooded new markets. Exports to <b>India, Africa, and Southeast Asia</b> are breaking records. Manufacturers are rerouting goods through third-party countries to dodge Western tariffs.
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <span class="news-tag tag-red">The Backlash</span>
+                    <div class="news-headline">Global Trade War Expands</div>
+                    <div class="news-body">
+                        It's no longer just the US. <b>Mexico</b> imposed 50% tariffs on Chinese steel/EVs. <b>India, Indonesia, and Brazil</b> have launched anti-dumping investigations to protect local industries from cheap imports.
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <span class="news-tag tag-yellow">The Risk</span>
+                    <div class="news-headline">"Profitless Growth" Trap</div>
+                    <div class="news-body">
+                        The boom hides a crisis. Industrial profits are <b>down 2%</b> as factories slash prices to move excess supply. This is fueling a domestic deflationary spiral despite high export volumes.
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="globe-container"></div>
+
         <div class="sidebar right scrollbar-hide">
             <h2>Trade Deficit</h2>
-            <p>Top 20 Countries (Est. $B)<br>Top items: Energy, Minerals, Chips</p>
+            <p>China Spends ($ Billions)</p>
             <div id="deficit-list"></div>
-            <div class="legend">
-                <div class="legend-title">Deficit Color Scale:</div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #047857;"></div>
-                    <span>High Deficit</span>
+            
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #333;">
+                <div style="font-weight:bold; color:#aaa; font-size:0.8rem; margin-bottom:10px;">Map Legend</div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:0.8rem;">
+                    <div class="dollar-coin" style="width:16px; height:16px; font-size:10px;">$</div>
+                    <span>= $50B Surplus Stack</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:0.8rem;">
+                    <div style="width:16px; height:16px; background:#dc2626; border-radius:4px;"></div>
+                    <span>High Surplus (Profit)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; font-size:0.8rem;">
+                    <div style="width:16px; height:16px; background:#047857; border-radius:4px;"></div>
+                    <span>High Deficit (Spend)</span>
                 </div>
             </div>
         </div>
@@ -183,6 +244,7 @@
     <script src="//unpkg.com/three"></script>
     <script src="//unpkg.com/globe.gl"></script>
     <script>
+        // --- DATA ---
         const surplusData = [
             { country: "United States", code: "US", surplus: 379.16 },
             { country: "Hong Kong", code: "HK", surplus: 283.50 },
@@ -197,7 +259,7 @@
             { country: "Philippines", code: "PH", surplus: 34.65 },
             { country: "Turkey", code: "TR", surplus: 34.65 },
             { country: "Czech Republic", code: "CZ", surplus: 34.65 },
-            { country: "United Arab Emirates", code: "AE", surplus: 31.50 },
+            { country: "UAE", code: "AE", surplus: 31.50 },
             { country: "Spain", code: "ES", surplus: 29.40 },
             { country: "Canada", code: "CA", surplus: 26.25 },
             { country: "Bangladesh", code: "BD", surplus: 23.00 },
@@ -229,220 +291,154 @@
             { country: "Dem. Rep. Congo", code: "CD", deficit: 6.00 }
         ];
 
-        // Coordinate Mapping
+        // Simplified Coords for key nations
         const countryCoords = {
-            "US": { lat: 37.0902, lng: -95.7129 },
-            "HK": { lat: 22.3193, lng: 114.1694 },
-            "IN": { lat: 20.5937, lng: 78.9629 },
-            "MX": { lat: 23.6345, lng: -102.5528 },
-            "NL": { lat: 52.1326, lng: 5.2913 },
-            "VN": { lat: 14.0583, lng: 108.2772 },
-            "GB": { lat: 55.3781, lng: -3.4360 },
-            "SG": { lat: 1.3521, lng: 103.8198 },
-            "TH": { lat: 15.8700, lng: 100.9925 },
-            "PL": { lat: 51.9194, lng: 19.1451 },
-            "PH": { lat: 12.8797, lng: 121.7740 },
-            "TR": { lat: 38.9637, lng: 35.2433 },
-            "CZ": { lat: 49.8175, lng: 15.4730 },
-            "AE": { lat: 23.4241, lng: 53.8478 },
-            "ES": { lat: 40.4637, lng: -3.7492 },
-            "CA": { lat: 56.1304, lng: -106.3468 },
-            "BD": { lat: 23.6850, lng: 90.3563 },
-            "IT": { lat: 41.8719, lng: 12.5674 },
-            "NG": { lat: 9.0820, lng: 8.6753 },
-            "PK": { lat: 30.3753, lng: 69.3451 },
-            "TW": { lat: 23.6978, lng: 120.9605 },
-            "AU": { lat: -25.2744, lng: 133.7751 },
-            "CH": { lat: 46.8182, lng: 8.2275 },
-            "BR": { lat: -14.2350, lng: -51.9253 },
-            "KR": { lat: 35.9078, lng: 127.7669 },
-            "IQ": { lat: 33.2232, lng: 43.6793 },
-            "OM": { lat: 21.4735, lng: 55.9754 },
-            "CL": { lat: -35.6751, lng: -71.5430 },
-            "PE": { lat: -9.1900, lng: -75.0152 },
-            "AO": { lat: -11.2027, lng: 17.8739 },
-            "RU": { lat: 61.5240, lng: 105.3188 },
-            "IE": { lat: 53.4129, lng: -8.2439 },
-            "MN": { lat: 46.8625, lng: 103.8467 },
-            "QA": { lat: 25.3548, lng: 51.1839 },
-            "MY": { lat: 4.2105, lng: 101.9758 },
-            "TM": { lat: 38.9697, lng: 59.5563 },
-            "KW": { lat: 29.3117, lng: 47.4818 },
-            "SA": { lat: 23.8859, lng: 45.0792 },
-            "ZA": { lat: -30.5595, lng: 22.9375 },
-            "CD": { lat: -4.0383, lng: 21.7587 },
-            "JP": { lat: 36.2048, lng: 138.2529 },
-            "NZ": { lat: -40.9006, lng: 174.8860 },
-            "CG": { lat: -0.2280, lng: 15.8277 },
-            "ZM": { lat: -13.1339, lng: 27.8493 },
-            "LY": { lat: 26.3351, lng: 17.2283 },
-            "GA": { lat: -0.8037, lng: 11.6094 },
-            "PG": { lat: -6.3150, lng: 143.9555 },
-            "NO": { lat: 60.4720, lng: 8.4689 },
+            "US": { lat: 37.0902, lng: -95.7129 }, "HK": { lat: 22.3193, lng: 114.1694 },
+            "IN": { lat: 20.5937, lng: 78.9629 }, "MX": { lat: 23.6345, lng: -102.5528 },
+            "NL": { lat: 52.1326, lng: 5.2913 }, "VN": { lat: 14.0583, lng: 108.2772 },
+            "GB": { lat: 55.3781, lng: -3.4360 }, "SG": { lat: 1.3521, lng: 103.8198 },
+            "TH": { lat: 15.8700, lng: 100.9925 }, "PL": { lat: 51.9194, lng: 19.1451 },
+            "PH": { lat: 12.8797, lng: 121.7740 }, "TR": { lat: 38.9637, lng: 35.2433 },
+            "CZ": { lat: 49.8175, lng: 15.4730 }, "AE": { lat: 23.4241, lng: 53.8478 },
+            "ES": { lat: 40.4637, lng: -3.7492 }, "CA": { lat: 56.1304, lng: -106.3468 },
+            "BD": { lat: 23.6850, lng: 90.3563 }, "IT": { lat: 41.8719, lng: 12.5674 },
+            "NG": { lat: 9.0820, lng: 8.6753 }, "PK": { lat: 30.3753, lng: 69.3451 },
+            "TW": { lat: 23.6978, lng: 120.9605 }, "AU": { lat: -25.2744, lng: 133.7751 },
+            "CH": { lat: 46.8182, lng: 8.2275 }, "BR": { lat: -14.2350, lng: -51.9253 },
+            "KR": { lat: 35.9078, lng: 127.7669 }, "IQ": { lat: 33.2232, lng: 43.6793 },
+            "OM": { lat: 21.4735, lng: 55.9754 }, "CL": { lat: -35.6751, lng: -71.5430 },
+            "PE": { lat: -9.1900, lng: -75.0152 }, "AO": { lat: -11.2027, lng: 17.8739 },
+            "RU": { lat: 61.5240, lng: 105.3188 }, "IE": { lat: 53.4129, lng: -8.2439 },
+            "MN": { lat: 46.8625, lng: 103.8467 }, "QA": { lat: 25.3548, lng: 51.1839 },
+            "MY": { lat: 4.2105, lng: 101.9758 }, "TM": { lat: 38.9697, lng: 59.5563 },
+            "KW": { lat: 29.3117, lng: 47.4818 }, "SA": { lat: 23.8859, lng: 45.0792 },
+            "ZA": { lat: -30.5595, lng: 22.9375 }, "CD": { lat: -4.0383, lng: 21.7587 },
+            "JP": { lat: 36.2048, lng: 138.2529 }, "NZ": { lat: -40.9006, lng: 174.8860 },
+            "CG": { lat: -0.2280, lng: 15.8277 }, "ZM": { lat: -13.1339, lng: 27.8493 },
+            "LY": { lat: 26.3351, lng: 17.2283 }, "GA": { lat: -0.8037, lng: 11.6094 },
+            "PG": { lat: -6.3150, lng: 143.9555 }, "NO": { lat: 60.4720, lng: 8.4689 },
             "GQ": { lat: 1.6508, lng: 10.2679 }
         };
 
+        // --- JS LOGIC ---
         let selectedCountry = null;
         let selectedType = null;
 
-        // --- PREPARE HTML MARKERS (DOLLAR STACKS) ---
+        function togglePanel() {
+            const panel = document.getElementById('briefing-panel');
+            const btn = document.querySelector('.toggle-btn');
+            panel.classList.toggle('minimized');
+            btn.innerText = panel.classList.contains('minimized') ? '+' : '−';
+        }
+
+        // Render Lists
+        const renderList = (data, elementId, type) => {
+            const list = document.getElementById(elementId);
+            data.slice(0, 20).forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = `country-item ${type}`;
+                el.id = `${type}-${item.code}`;
+                el.innerHTML = `
+                    <div class="country-header">
+                        <div><span class="country-name">${index+1}. ${item.country}</span> <span class="country-code">${item.code}</span></div>
+                        <div class="country-value ${type}">$${type === 'surplus' ? item.surplus : item.deficit}B</div>
+                    </div>`;
+                el.addEventListener('click', () => handleCountryClick(item, type));
+                list.appendChild(el);
+            });
+        };
+
+        renderList(surplusData, 'surplus-list', 'surplus');
+        renderList(deficitData, 'deficit-list', 'deficit');
+
+        // Prepare Markers
         const markers = [];
-        surplusData.forEach(country => {
-            // 1 Icon per 50 Billion
-            const iconCount = Math.floor(country.surplus / 50);
-            
-            if (iconCount > 0 && countryCoords[country.code]) {
-                markers.push({
-                    lat: countryCoords[country.code].lat,
-                    lng: countryCoords[country.code].lng,
-                    count: iconCount,
-                    val: country.surplus,
-                    code: country.code
-                });
+        surplusData.forEach(c => {
+            // 1 coin per 50B
+            const count = Math.floor(c.surplus / 50);
+            if (count > 0 && countryCoords[c.code]) {
+                markers.push({ lat: countryCoords[c.code].lat, lng: countryCoords[c.code].lng, count: count, val: c.surplus });
             }
         });
 
-        // --- RENDER SIDEBAR LISTS ---
-        const surplusList = document.getElementById('surplus-list');
-        surplusData.slice(0, 20).forEach((country, index) => {
-            const item = document.createElement('div');
-            item.className = 'country-item surplus';
-            item.id = `surplus-${country.code}`;
-            item.innerHTML = `
-                <div class="country-header">
-                    <div>
-                        <div class="country-name">${index + 1}. ${country.country}</div>
-                        <div class="country-code">${country.code}</div>
-                    </div>
-                    <div class="country-value surplus">$${country.surplus}B</div>
-                </div>
-            `;
-            item.addEventListener('click', () => handleCountryClick(country, 'surplus'));
-            surplusList.appendChild(item);
-        });
-
-        const deficitList = document.getElementById('deficit-list');
-        deficitData.slice(0, 20).forEach((country, index) => {
-            const item = document.createElement('div');
-            item.className = 'country-item deficit';
-            item.id = `deficit-${country.code}`;
-            item.innerHTML = `
-                <div class="country-header">
-                    <div>
-                        <div class="country-name">${index + 1}. ${country.country}</div>
-                        <div class="country-code">${country.code}</div>
-                    </div>
-                    <div class="country-value deficit">$${country.deficit}B</div>
-                </div>
-            `;
-            item.addEventListener('click', () => handleCountryClick(country, 'deficit'));
-            deficitList.appendChild(item);
-        });
-
-        // --- INITIALIZE GLOBE ---
+        // Initialize Globe
         const globe = Globe()
             (document.getElementById('globe-container'))
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
             .width(window.innerWidth - 640)
             .height(window.innerHeight)
-            
-            // Add HTML Elements (Dollar Stacks)
             .htmlElementsData(markers)
             .htmlElement(d => {
                 const stack = document.createElement('div');
                 stack.className = 'dollar-stack';
-                
-                // Add tooltip label at top
                 const label = document.createElement('div');
                 label.className = 'stack-label';
                 label.innerText = `$${d.val}B`;
                 stack.appendChild(label);
-                
-                // Create coins based on count
-                for (let i = 0; i < d.count; i++) {
+                for(let i=0; i<d.count; i++) {
                     const coin = document.createElement('div');
                     coin.className = 'dollar-coin';
                     coin.innerText = '$';
                     stack.appendChild(coin);
                 }
-                
                 return stack;
             });
 
-        // Load country polygons
+        // Fetch Polygons
         fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(countries => {
                 const maxSurplus = Math.max(...surplusData.map(d => d.surplus));
                 const maxDeficit = Math.max(...deficitData.map(d => d.deficit));
-                
+
                 globe
                     .polygonsData(countries.features.filter(d => {
-                        const countryCode = d.properties.ISO_A2;
-                        return surplusData.some(c => c.code === countryCode) || 
-                               deficitData.some(c => c.code === countryCode);
+                        const code = d.properties.ISO_A2;
+                        return surplusData.some(c => c.code === code) || deficitData.some(c => c.code === code);
                     }))
                     .polygonAltitude(0.01)
                     .polygonCapColor(d => {
-                        const countryCode = d.properties.ISO_A2;
-                        
-                        const surplusCountry = surplusData.find(c => c.code === countryCode);
-                        if (surplusCountry) {
-                            const intensity = surplusCountry.surplus / maxSurplus;
-                            // Red scale
-                            const red = 220;
-                            const green = Math.round(180 * (1 - intensity));
-                            const blue = Math.round(200 * (1 - intensity));
-                            return `rgb(${red}, ${green}, ${blue})`;
+                        const code = d.properties.ISO_A2;
+                        const s = surplusData.find(c => c.code === code);
+                        if(s) {
+                            const i = s.surplus / maxSurplus;
+                            return `rgb(220, ${Math.round(180*(1-i))}, ${Math.round(200*(1-i))})`;
                         }
-                        
-                        const deficitCountry = deficitData.find(c => c.code === countryCode);
-                        if (deficitCountry) {
-                            const intensity = deficitCountry.deficit / maxDeficit;
-                            // Green scale
-                            const red = Math.round(100 * (1 - intensity));
-                            const green = Math.round(150 + 100 * intensity);
-                            const blue = Math.round(150 + 80 * intensity);
-                            return `rgb(${red}, ${green}, ${blue})`;
+                        const def = deficitData.find(c => c.code === code);
+                        if(def) {
+                            const i = def.deficit / maxDeficit;
+                            return `rgb(${Math.round(100*(1-i))}, ${Math.round(150+100*i)}, ${Math.round(150+80*i)})`;
                         }
-                        
-                        return 'rgba(200, 200, 200, 0.1)';
+                        return 'rgba(200,200,200,0.1)';
                     })
-                    .polygonSideColor(() => 'rgba(0, 0, 0, 0.1)')
+                    .polygonSideColor(() => 'rgba(0,0,0,0.1)')
                     .polygonStrokeColor(() => '#111')
                     .polygonLabel(d => {
-                        const countryCode = d.properties.ISO_A2;
-                        const surplusCountry = surplusData.find(c => c.code === countryCode);
-                        if (surplusCountry) return `<b>${d.properties.NAME}</b><br/>Trade Surplus: $${surplusCountry.surplus}B`;
-                        
-                        const deficitCountry = deficitData.find(c => c.code === countryCode);
-                        if (deficitCountry) return `<b>${d.properties.NAME}</b><br/>Trade Deficit: $${deficitCountry.deficit}B`;
-                        
+                        const code = d.properties.ISO_A2;
+                        const s = surplusData.find(c => c.code === code);
+                        if(s) return `<b>${d.properties.NAME}</b><br/>Surplus: $${s.surplus}B`;
+                        const def = deficitData.find(c => c.code === code);
+                        if(def) return `<b>${d.properties.NAME}</b><br/>Deficit: $${def.deficit}B`;
                         return d.properties.NAME;
                     })
-                    .onPolygonHover(hoverD => {
-                        globe.polygonAltitude(d => d === hoverD ? 0.05 : 0.01);
-                    });
-
+                    .onPolygonHover(hoverD => globe.polygonAltitude(d => d === hoverD ? 0.05 : 0.01));
+                
                 globe.pointOfView({ lat: 20, lng: 100, altitude: 2 });
             });
 
-        function handleCountryClick(country, type) {
+        function handleCountryClick(item, type) {
             if (selectedCountry && selectedType) {
-                const prevElement = document.getElementById(`${selectedType}-${selectedCountry}`);
-                if (prevElement) prevElement.classList.remove('selected');
+                const prev = document.getElementById(`${selectedType}-${selectedCountry}`);
+                if(prev) prev.classList.remove('selected');
             }
-            
-            selectedCountry = country.code;
+            selectedCountry = item.code;
             selectedType = type;
-            const element = document.getElementById(`${type}-${country.code}`);
-            if (element) element.classList.add('selected');
-            
-            const coords = countryCoords[country.code];
-            if (coords) {
-                globe.pointOfView({ lat: coords.lat, lng: coords.lng, altitude: 1.5 }, 1000);
-            }
+            const curr = document.getElementById(`${type}-${item.code}`);
+            if(curr) curr.classList.add('selected');
+
+            const coords = countryCoords[item.code];
+            if(coords) globe.pointOfView({ lat: coords.lat, lng: coords.lng, altitude: 1.5 }, 1000);
         }
 
         window.addEventListener('resize', () => {
