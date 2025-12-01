@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Strategic Oil Reserves 2025</title>
+    <script src="//cdn.jsdelivr.net/npm/globe.gl@2.35.2/dist/globe.gl.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="//cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
     <style>
         :root {
             --theme-orange: #ff8800;
@@ -169,6 +173,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: black; z-index: 9999;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
+            text-align: center;
         }
         .spinner {
             width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--theme-orange);
@@ -177,14 +182,12 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     </style>
-    <script src="https://unpkg.com/globe.gl@2.35.2/dist/globe.gl.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 
     <div id="loader">
         <div class="spinner"></div>
-        <div style="color: #666; font-size: 12px;">Loading Assets (Texture & Maps)...</div>
+        <div id="loader-msg" style="color: #666; font-size: 12px;">Initializing Globe Engine...</div>
     </div>
 
     <div id="container">
@@ -248,208 +251,214 @@
     </div>
 
     <script>
-        // --- DATA ---
-        // Coordinates manually verified for visual centering
-        const data = [
-            { rank: 1, name: "China", lat: 35.8617, lng: 104.1954, tankage: 2000, inventory: 1300, days: 120, notes: "70% import dependent; 11 Mb/d imports; tanks still only ~60% full" },
-            { rank: 2, name: "United States", lat: 39.0, lng: -98.0, tankage: 714, inventory: 411, days: 125, notes: "12 Mb/d net imports; draw-down max 4.4 Mb/d" }, // Adjusted Lat/Lng for visual center
-            { rank: 3, name: "Japan", lat: 36.2048, lng: 138.2529, tankage: 590, inventory: 500, days: 240, notes: "IEA obligation 90-days; industry + state tanks; 3.3 Mb/d net imports" },
-            { rank: 4, name: "South Korea", lat: 35.9078, lng: 127.7669, tankage: 286, inventory: 240, days: 200, notes: "Mandatory industry stocks 40-60 days; 2.6 Mb/d imports" },
-            { rank: 5, name: "Germany", lat: 51.1657, lng: 10.4515, tankage: 250, inventory: 250, days: 140, notes: "EBV caverns + industry; 90-days EU rule" },
-            { rank: 6, name: "Spain", lat: 40.4637, lng: -3.7492, tankage: 144, inventory: 144, days: 130, notes: "EU 90-day rule; largely above-ground tanks" },
-            { rank: 7, name: "India", lat: 20.5937, lng: 78.9629, tankage: 130, inventory: 75, days: 90, notes: "5.2 Mb/d imports; 3 new 6.5 Mb sites under construction" },
-            { rank: 8, name: "France", lat: 46.2276, lng: 2.2137, tankage: 65, inventory: 65, days: 95, notes: "SAGESS + industry; 90-day EU obligation" },
-            { rank: 9, name: "Singapore", lat: 1.3521, lng: 103.8198, tankage: 55, inventory: 55, days: 170, notes: "Trading hub; 32 Mb crude + 23 Mb products" },
-            { rank: 10, name: "Finland", lat: 64.0, lng: 26.0, tankage: 62, inventory: 62, days: 150, notes: "Baltic pipeline disruption hedge" },
-            { rank: 11, name: "Italy", lat: 41.8719, lng: 12.5674, tankage: 60, inventory: 60, days: 100, notes: "EU 90-day floor; mostly coastal tanks" },
-            { rank: 12, name: "Netherlands", lat: 52.1326, lng: 5.2913, tankage: 55, inventory: 55, days: 95, notes: "Rotterdam-Antwerp ARA hub stocks" },
-            { rank: 13, name: "Poland", lat: 51.9194, lng: 19.1451, tankage: 50, inventory: 50, days: 110, notes: "PERN + EU obligation; new Baltic Pipe" },
-            { rank: 14, name: "Canada", lat: 56.1304, lng: -106.3468, tankage: 45, inventory: 45, days: 60, notes: "Net exporter; stocks held for U.S. Midwest refiners" },
-            { rank: 15, name: "South Africa", lat: -30.5595, lng: 22.9375, tankage: 45, inventory: 45, days: 90, notes: "Saldanha Bay underground; 0.5 Mb/d imports" },
-            { rank: 16, name: "Turkey", lat: 38.9637, lng: 35.2433, tankage: 40, inventory: 40, days: 85, notes: "BOTAS + EU-aligned rules" },
-            { rank: 17, name: "Sweden", lat: 60.1282, lng: 18.6435, tankage: 35, inventory: 35, days: 110, notes: "Coastal product caverns" },
-            { rank: 18, name: "Belgium", lat: 50.5039, lng: 4.4699, tankage: 34, inventory: 34, days: 95, notes: "ARA trading hub" },
-            { rank: 19, name: "Israel", lat: 31.0461, lng: 34.8516, tankage: 30, inventory: 30, days: 270, notes: "Consumption-only rule; 0.25 Mb/d demand" },
-            { rank: 20, name: "Taiwan", lat: 23.6978, lng: 120.9605, tankage: 27, inventory: 27, days: 120, notes: "0.9 Mb/d imports; 30-day commercial mandate" }
-        ];
-
-        // --- MAPPING HELPERS ---
-        // Mapping Data Names to GeoJSON properties for the Choropleth
-        const nameMapping = {
-            "United States": "United States of America",
-            "South Korea": "South Korea",
-            "Taiwan": "Taiwan"
-        };
-        
-        function getMapName(dName) {
-            return nameMapping[dName] || dName;
-        }
-
-        // Color Scale for Days Cover (White -> Brown)
-        const colorScale = d3.scaleLinear()
-            .domain([50, 270])
-            .range(["#ffffff", "#8B4513"])
-            .clamp(true);
-
-        // --- INIT UI ---
-        const listContainer = document.getElementById('country-list');
-        data.forEach(d => {
-            const div = document.createElement('div');
-            div.className = 'country-item';
-            div.id = `list-${d.rank}`;
-            div.innerHTML = `
-                <div class="ci-header">
-                    <span class="ci-name">${d.rank}. ${d.name}</span>
-                    <span class="ci-val">${d.inventory} Mb</span>
-                </div>
-                <div class="ci-sub">
-                    <span>${d.days} Days Cover</span>
-                    <span>Cap: ${d.tankage}</span>
-                </div>
-            `;
-            div.onclick = () => selectCountry(d);
-            listContainer.appendChild(div);
-        });
-
-        // --- RING GENERATION LOGIC ---
-        const rings = [];
-        data.forEach(d => {
-            const count = Math.floor(d.inventory / 100); // Full rings
-            const partial = (d.inventory % 100) / 100;   // Remainder opacity
-
-            // Add full rings
-            for(let i=0; i<count; i++) {
-                rings.push({
-                    lat: d.lat, lng: d.lng,
-                    alt: 0.05 + (i * 0.03), // Stack altitude
-                    radius: 0.8,
-                    color: '#ff8800',
-                    data: d
-                });
+        // Wait for window to load to ensure scripts are ready
+        window.addEventListener('load', function() {
+            
+            // ERROR CHECKING:
+            if (typeof Globe === 'undefined') {
+                const msg = "CRITICAL ERROR: 'Globe' library failed to load.\n\nPossible reasons:\n1. No Internet Connection (required for this file)\n2. Firewall blocking 'cdn.jsdelivr.net'\n\nPlease check your connection and refresh.";
+                document.getElementById('loader-msg').innerText = msg;
+                document.getElementById('loader-msg').style.color = "red";
+                alert(msg);
+                return;
             }
 
-            // Add partial ring on top
-            if(partial > 0) {
-                rings.push({
-                    lat: d.lat, lng: d.lng,
-                    alt: 0.05 + (count * 0.03),
-                    radius: 0.8,
-                    color: `rgba(255, 136, 0, ${Math.max(partial, 0.3)})`, // Minimum visibility
-                    data: d
-                });
+            // --- DATA ---
+            const data = [
+                { rank: 1, name: "China", lat: 35.8617, lng: 104.1954, tankage: 2000, inventory: 1300, days: 120, notes: "70% import dependent; 11 Mb/d imports; tanks still only ~60% full" },
+                { rank: 2, name: "United States", lat: 39.0, lng: -98.0, tankage: 714, inventory: 411, days: 125, notes: "12 Mb/d net imports; draw-down max 4.4 Mb/d" }, 
+                { rank: 3, name: "Japan", lat: 36.2048, lng: 138.2529, tankage: 590, inventory: 500, days: 240, notes: "IEA obligation 90-days; industry + state tanks; 3.3 Mb/d net imports" },
+                { rank: 4, name: "South Korea", lat: 35.9078, lng: 127.7669, tankage: 286, inventory: 240, days: 200, notes: "Mandatory industry stocks 40-60 days; 2.6 Mb/d imports" },
+                { rank: 5, name: "Germany", lat: 51.1657, lng: 10.4515, tankage: 250, inventory: 250, days: 140, notes: "EBV caverns + industry; 90-days EU rule" },
+                { rank: 6, name: "Spain", lat: 40.4637, lng: -3.7492, tankage: 144, inventory: 144, days: 130, notes: "EU 90-day rule; largely above-ground tanks" },
+                { rank: 7, name: "India", lat: 20.5937, lng: 78.9629, tankage: 130, inventory: 75, days: 90, notes: "5.2 Mb/d imports; 3 new 6.5 Mb sites under construction" },
+                { rank: 8, name: "France", lat: 46.2276, lng: 2.2137, tankage: 65, inventory: 65, days: 95, notes: "SAGESS + industry; 90-day EU obligation" },
+                { rank: 9, name: "Singapore", lat: 1.3521, lng: 103.8198, tankage: 55, inventory: 55, days: 170, notes: "Trading hub; 32 Mb crude + 23 Mb products" },
+                { rank: 10, name: "Finland", lat: 64.0, lng: 26.0, tankage: 62, inventory: 62, days: 150, notes: "Baltic pipeline disruption hedge" },
+                { rank: 11, name: "Italy", lat: 41.8719, lng: 12.5674, tankage: 60, inventory: 60, days: 100, notes: "EU 90-day floor; mostly coastal tanks" },
+                { rank: 12, name: "Netherlands", lat: 52.1326, lng: 5.2913, tankage: 55, inventory: 55, days: 95, notes: "Rotterdam-Antwerp ARA hub stocks" },
+                { rank: 13, name: "Poland", lat: 51.9194, lng: 19.1451, tankage: 50, inventory: 50, days: 110, notes: "PERN + EU obligation; new Baltic Pipe" },
+                { rank: 14, name: "Canada", lat: 56.1304, lng: -106.3468, tankage: 45, inventory: 45, days: 60, notes: "Net exporter; stocks held for U.S. Midwest refiners" },
+                { rank: 15, name: "South Africa", lat: -30.5595, lng: 22.9375, tankage: 45, inventory: 45, days: 90, notes: "Saldanha Bay underground; 0.5 Mb/d imports" },
+                { rank: 16, name: "Turkey", lat: 38.9637, lng: 35.2433, tankage: 40, inventory: 40, days: 85, notes: "BOTAS + EU-aligned rules" },
+                { rank: 17, name: "Sweden", lat: 60.1282, lng: 18.6435, tankage: 35, inventory: 35, days: 110, notes: "Coastal product caverns" },
+                { rank: 18, name: "Belgium", lat: 50.5039, lng: 4.4699, tankage: 34, inventory: 34, days: 95, notes: "ARA trading hub" },
+                { rank: 19, name: "Israel", lat: 31.0461, lng: 34.8516, tankage: 30, inventory: 30, days: 270, notes: "Consumption-only rule; 0.25 Mb/d demand" },
+                { rank: 20, name: "Taiwan", lat: 23.6978, lng: 120.9605, tankage: 27, inventory: 27, days: 120, notes: "0.9 Mb/d imports; 30-day commercial mandate" }
+            ];
+
+            // --- MAPPING HELPERS ---
+            const nameMapping = {
+                "United States": "United States of America",
+                "South Korea": "South Korea",
+                "Taiwan": "Taiwan"
+            };
+            
+            function getMapName(dName) {
+                return nameMapping[dName] || dName;
             }
-        });
 
-        // --- GLOBE INIT ---
-        const world = Globe()
-            (document.getElementById('globe-container'))
-            .backgroundColor('#000005')
-            .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-            .atmosphereColor('#ffaa00')
-            .atmosphereAltitude(0.1)
-            
-            // Rings
-            .ringsData(rings)
-            .ringLat('lat')
-            .ringLng('lng')
-            .ringAltitude('alt')
-            .ringColor('color')
-            .ringMaxRadius('radius')
-            .ringPropagationSpeed(0) // Static rings
-            .ringRepeatPeriod(0)
-            
-            // Interaction
-            .onRingClick(ring => selectCountry(ring.data))
-            .ringLabel(ring => `
-                <div style="color:white; background:rgba(0,0,0,0.8); padding:5px; border-radius:4px;">
-                    <b>${ring.data.name}</b>: ${ring.data.inventory} Mb
-                </div>
-            `);
+            // Color Scale
+            const colorScale = d3.scaleLinear()
+                .domain([50, 270])
+                .range(["#ffffff", "#8B4513"])
+                .clamp(true);
 
-        // Load Polygon Data for Choropleth
-        fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
-            .then(res => res.json())
-            .then(mapData => {
-                const countries = topojson.feature(mapData, mapData.objects.countries).features;
-                
-                world.polygonsData(countries)
-                    .polygonCapColor(feat => {
-                        const countryData = data.find(d => 
-                            getMapName(d.name) === feat.properties.name || 
-                            d.name === feat.properties.name
-                        );
-                        return countryData ? colorScale(countryData.days) : 'rgba(0,0,0,0)'; // Transparent if not in top 20
-                    })
-                    .polygonSideColor(() => 'rgba(0,0,0,0)')
-                    .polygonStrokeColor(() => '#333')
-                    .polygonAltitude(0.01);
-                
-                // Hide loader once data matches
-                document.getElementById('loader').style.display = 'none';
-            })
-            .catch(err => {
-                console.error("Map load failed", err);
-                document.getElementById('loader').innerHTML = "<div style='color:red'>Failed to load map data.<br>Check internet connection.</div>";
+            // --- INIT UI ---
+            const listContainer = document.getElementById('country-list');
+            data.forEach(d => {
+                const div = document.createElement('div');
+                div.className = 'country-item';
+                div.id = `list-${d.rank}`;
+                div.innerHTML = `
+                    <div class="ci-header">
+                        <span class="ci-name">${d.rank}. ${d.name}</span>
+                        <span class="ci-val">${d.inventory} Mb</span>
+                    </div>
+                    <div class="ci-sub">
+                        <span>${d.days} Days Cover</span>
+                        <span>Cap: ${d.tankage}</span>
+                    </div>
+                `;
+                div.onclick = () => selectCountry(d);
+                listContainer.appendChild(div);
             });
 
-        // Controls
-        world.controls().autoRotate = true;
-        world.controls().autoRotateSpeed = 0.6;
-        world.pointOfView({ altitude: 2.5 });
+            // --- RING LOGIC ---
+            const rings = [];
+            data.forEach(d => {
+                const count = Math.floor(d.inventory / 100); 
+                const partial = (d.inventory % 100) / 100;   
 
-        // --- INTERACTION FUNCTIONS ---
-        let currentSelection = null;
+                for(let i=0; i<count; i++) {
+                    rings.push({
+                        lat: d.lat, lng: d.lng,
+                        alt: 0.05 + (i * 0.03), 
+                        radius: 0.8,
+                        color: '#ff8800',
+                        data: d
+                    });
+                }
 
-        function selectCountry(d) {
-            // Update UI
-            if (currentSelection) {
-                const prevEl = document.getElementById(`list-${currentSelection.rank}`);
-                if(prevEl) prevEl.classList.remove('active');
+                if(partial > 0) {
+                    rings.push({
+                        lat: d.lat, lng: d.lng,
+                        alt: 0.05 + (count * 0.03),
+                        radius: 0.8,
+                        color: `rgba(255, 136, 0, ${Math.max(partial, 0.3)})`,
+                        data: d
+                    });
+                }
+            });
+
+            // --- GLOBE INIT ---
+            let world;
+            try {
+                world = Globe()
+                (document.getElementById('globe-container'))
+                .backgroundColor('#000005')
+                .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
+                .atmosphereColor('#ffaa00')
+                .atmosphereAltitude(0.1)
+                
+                // Rings
+                .ringsData(rings)
+                .ringLat('lat')
+                .ringLng('lng')
+                .ringAltitude('alt')
+                .ringColor('color')
+                .ringMaxRadius('radius')
+                .ringPropagationSpeed(0)
+                .ringRepeatPeriod(0)
+                
+                // Interaction
+                .onRingClick(ring => selectCountry(ring.data))
+                .ringLabel(ring => `
+                    <div style="color:white; background:rgba(0,0,0,0.8); padding:5px; border-radius:4px; font-family:sans-serif;">
+                        <b>${ring.data.name}</b>: ${ring.data.inventory} Mb
+                    </div>
+                `);
+
+                // Polygons
+                fetch('//cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+                    .then(res => res.json())
+                    .then(mapData => {
+                        const countries = topojson.feature(mapData, mapData.objects.countries).features;
+                        
+                        world.polygonsData(countries)
+                            .polygonCapColor(feat => {
+                                const countryData = data.find(d => 
+                                    getMapName(d.name) === feat.properties.name || 
+                                    d.name === feat.properties.name
+                                );
+                                return countryData ? colorScale(countryData.days) : 'rgba(0,0,0,0)';
+                            })
+                            .polygonSideColor(() => 'rgba(0,0,0,0)')
+                            .polygonStrokeColor(() => '#333')
+                            .polygonAltitude(0.01);
+                        
+                        document.getElementById('loader').style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error("Map fetch error:", err);
+                        document.getElementById('loader-msg').innerText = "Globe loaded, but map polygons failed to fetch.";
+                        setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 2000);
+                    });
+
+                world.controls().autoRotate = true;
+                world.controls().autoRotateSpeed = 0.6;
+                world.pointOfView({ altitude: 2.5 });
+
+            } catch (e) {
+                console.error(e);
+                alert("Globe engine failed to initialize: " + e.message);
             }
-            currentSelection = d;
-            const newEl = document.getElementById(`list-${d.rank}`);
-            if(newEl) {
-                newEl.classList.add('active');
-                newEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
 
-            // Move Globe
-            world.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.8 }, 1200);
-            
-            // Stop Rotation
-            world.controls().autoRotate = false;
+            // --- INTERACTION ---
+            let currentSelection = null;
+            window.selectCountry = function(d) {
+                if (currentSelection) {
+                    const prevEl = document.getElementById(`list-${currentSelection.rank}`);
+                    if(prevEl) prevEl.classList.remove('active');
+                }
+                currentSelection = d;
+                const newEl = document.getElementById(`list-${d.rank}`);
+                if(newEl) {
+                    newEl.classList.add('active');
+                    newEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
 
-            // Show Panel
-            showPanel(d);
-        }
+                world.pointOfView({ lat: d.lat, lng: d.lng, altitude: 1.8 }, 1200);
+                world.controls().autoRotate = false;
+                showPanel(d);
+            };
 
-        function showPanel(d) {
-            document.getElementById('dp-rank').innerText = `#${d.rank}`;
-            document.getElementById('dp-name').innerText = d.name;
-            document.getElementById('dp-inv').innerText = `${d.inventory} Mb`;
-            document.getElementById('dp-cap').innerText = `${d.tankage} Mb`;
-            document.getElementById('dp-days').innerText = d.days;
-            document.getElementById('dp-notes').innerText = d.notes;
-            
-            document.getElementById('detail-panel').classList.add('visible');
-        }
+            window.showPanel = function(d) {
+                document.getElementById('dp-rank').innerText = `#${d.rank}`;
+                document.getElementById('dp-name').innerText = d.name;
+                document.getElementById('dp-inv').innerText = `${d.inventory} Mb`;
+                document.getElementById('dp-cap').innerText = `${d.tankage} Mb`;
+                document.getElementById('dp-days').innerText = d.days;
+                document.getElementById('dp-notes').innerText = d.notes;
+                document.getElementById('detail-panel').classList.add('visible');
+            };
 
-        function closePanel() {
-            document.getElementById('detail-panel').classList.remove('visible');
-            world.controls().autoRotate = true;
-            if (currentSelection) {
-                document.getElementById(`list-${currentSelection.rank}`).classList.remove('active');
-                currentSelection = null;
-            }
-        }
+            window.closePanel = function() {
+                document.getElementById('detail-panel').classList.remove('visible');
+                if(world) world.controls().autoRotate = true;
+                if (currentSelection) {
+                    document.getElementById(`list-${currentSelection.rank}`).classList.remove('active');
+                    currentSelection = null;
+                }
+            };
 
-        // Window Resize Handling
-        window.addEventListener('resize', () => {
-            world.width(document.getElementById('globe-container').clientWidth);
-            world.height(window.innerHeight);
+            window.addEventListener('resize', () => {
+                if(world) {
+                    world.width(document.getElementById('globe-container').clientWidth);
+                    world.height(window.innerHeight);
+                }
+            });
         });
-
     </script>
-    <script src="https://unpkg.com/topojson-client@3"></script>
 </body>
 </html>
