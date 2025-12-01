@@ -106,6 +106,7 @@
             max-width: 250px;
             font-size: 12px;
             z-index: 1000;
+            pointer-events: none; /* Allows clicking through to globe */
         }
         .info-box h3 {
             margin: 0 0 10px 0;
@@ -120,7 +121,7 @@
         #detail-panel {
             position: absolute;
             bottom: 20px;
-            left: 340px;
+            left: 340px; /* Offset for sidebar */
             right: 20px;
             background: rgba(0,0,0,0.9);
             padding: 20px;
@@ -181,7 +182,7 @@
     <div id="container">
         <div id="sidebar">
             <h2>Top 20 Oil Reserves</h2>
-            <p>Click to focus on globe</p>
+            <p>Click list or globe rings to view details</p>
             
             <div class="legend">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
@@ -234,7 +235,8 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/globe.gl@2.31.0/dist/globe.gl.min.js"></script>
+    <script src="https://unpkg.com/globe.gl/dist/globe.gl.min.js"></script>
+    
     <script>
         const countries = [
             { name: "China", lat: 35.8617, lng: 104.1954, tankage: 2000, inventory: 1300, days: 120, notes: "70% import dependent; 11 Mb/d imports; tanks still only ~60% full" },
@@ -264,7 +266,7 @@
 
         function closeDetailPanel() {
             document.getElementById('detail-panel').style.display = 'none';
-            globe.controls().autoRotate = true;
+            if(globe) globe.controls().autoRotate = true;
         }
 
         function showDetailPanel(country, rank) {
@@ -310,16 +312,23 @@
             });
 
             if (globe) {
+                // Determine point of view - shift altitude slightly based on location
                 globe.pointOfView({
                     lat: country.lat,
                     lng: country.lng,
-                    altitude: 2
+                    altitude: 1.5 // Zoom in
                 }, 1000);
             }
+            
+            // Show details automatically when clicked from sidebar
+            const rank = countries.findIndex(c => c.name === country.name) + 1;
+            showDetailPanel(country, rank);
+            globe.controls().autoRotate = false;
         }
 
         function getColorForDays(days) {
             const normalized = Math.min(days / 270, 1);
+            // Interpolate between white and brown/orange
             const r = Math.floor(139 * normalized + 255 * (1 - normalized));
             const g = Math.floor(69 * normalized + 255 * (1 - normalized));
             const b = Math.floor(19 * normalized + 255 * (1 - normalized));
@@ -341,7 +350,7 @@
                     inventory: country.inventory,
                     tankage: country.tankage,
                     days: country.days,
-                    altitude: 0.02 + (i * 0.01),
+                    altitude: 0.02 + (i * 0.015), // Slightly increased spacing
                     size: 0.8,
                     isFull: true
                 });
@@ -356,7 +365,7 @@
                     inventory: country.inventory,
                     tankage: country.tankage,
                     days: country.days,
-                    altitude: 0.02 + (fullCircles * 0.01),
+                    altitude: 0.02 + (fullCircles * 0.015),
                     size: 0.8,
                     isFull: false,
                     fillRatio: partialCircle
@@ -366,6 +375,7 @@
 
         // Initialize globe
         const globeContainer = document.getElementById('globe-container');
+        
         globe = Globe()
             (globeContainer)
             .width(globeContainer.offsetWidth)
@@ -386,7 +396,7 @@
             .hexPolygonMargin(0.3)
             .hexPolygonColor(d => getColorForDays(d.days))
             .hexPolygonLabel(d => `
-                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
+                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white; font-family: Arial;">
                     <b>${d.name}</b><br/>
                     Days Cover: ${d.days}
                 </div>
@@ -397,7 +407,7 @@
             .ringLat('lat')
             .ringLng('lng')
             .ringMaxRadius('size')
-            .ringPropagationSpeed(0)
+            .ringPropagationSpeed(0) // Static rings
             .ringRepeatPeriod(0)
             .ringAltitude('altitude')
             .ringColor(d => d.isFull ? '#ff8800' : `rgba(255, 136, 0, ${d.fillRatio})`)
@@ -409,9 +419,10 @@
                 const country = countries.find(c => c.name === d.name);
                 const rank = countries.findIndex(c => c.name === d.name) + 1;
                 showDetailPanel(country, rank);
+                focusOnCountry(country);
             })
             
-            // Points for countries - smaller markers
+            // Points for countries - smaller markers to indicate location under rings
             .pointsData(countries)
             .pointLat('lat')
             .pointLng('lng')
@@ -419,10 +430,9 @@
             .pointRadius(0.3)
             .pointColor(() => '#ffcc00')
             .pointLabel(d => `
-                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white;">
+                <div style="background: rgba(0,0,0,0.8); padding: 8px; border-radius: 4px; color: white; font-family: Arial;">
                     <b>${d.name}</b><br/>
-                    Inventory: ${d.inventory} Mb (${Math.floor(d.inventory/100)} rings)<br/>
-                    Tankage: ${d.tankage} Mb<br/>
+                    Inventory: ${d.inventory} Mb<br/>
                     Days Cover: ${d.days}
                 </div>
             `);
@@ -432,8 +442,10 @@
 
         // Handle window resize
         window.addEventListener('resize', () => {
-            globe.width(globeContainer.offsetWidth);
-            globe.height(window.innerHeight);
+            if(globe) {
+                globe.width(globeContainer.offsetWidth);
+                globe.height(window.innerHeight);
+            }
         });
     </script>
 </body>
