@@ -117,6 +117,64 @@
             line-height: 1.5;
             color: #ccc;
         }
+        #detail-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 340px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ff8800;
+            z-index: 1000;
+            display: none;
+            max-width: 600px;
+        }
+        #detail-panel h3 {
+            margin: 0 0 15px 0;
+            color: #ff8800;
+            font-size: 18px;
+        }
+        #detail-panel .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        #detail-panel .detail-label {
+            color: #aaa;
+            font-size: 13px;
+        }
+        #detail-panel .detail-value {
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        #detail-panel .notes {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,136,0,0.1);
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #ddd;
+        }
+        #detail-panel .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff8800;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #detail-panel .close-btn:hover {
+            background: #ff6600;
+        }
     </style>
 </head>
 <body>
@@ -148,6 +206,31 @@
                     <strong>Points:</strong> Storage locations
                 </p>
             </div>
+            
+            <div id="detail-panel">
+                <button class="close-btn" onclick="closeDetailPanel()">✕ Close</button>
+                <h3 id="detail-title"></h3>
+                <div class="detail-row">
+                    <span class="detail-label">Rank</span>
+                    <span class="detail-value" id="detail-rank"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Strategic Tankage</span>
+                    <span class="detail-value" id="detail-tankage"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Inventory 2025</span>
+                    <span class="detail-value" id="detail-inventory"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Days Net-Import Cover</span>
+                    <span class="detail-value" id="detail-days"></span>
+                </div>
+                <div class="notes">
+                    <strong>Key Notes:</strong><br>
+                    <span id="detail-notes"></span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -178,6 +261,21 @@
 
         let selectedCountry = null;
         let globe = null;
+
+        function closeDetailPanel() {
+            document.getElementById('detail-panel').style.display = 'none';
+            globe.controls().autoRotate = true;
+        }
+
+        function showDetailPanel(country, rank) {
+            document.getElementById('detail-title').textContent = country.name;
+            document.getElementById('detail-rank').textContent = `#${rank}`;
+            document.getElementById('detail-tankage').textContent = `${country.tankage} Mb`;
+            document.getElementById('detail-inventory').textContent = `${country.inventory} Mb`;
+            document.getElementById('detail-days').textContent = `${country.days} days`;
+            document.getElementById('detail-notes').textContent = country.notes;
+            document.getElementById('detail-panel').style.display = 'block';
+        }
 
         // Populate country list
         const countryList = document.getElementById('country-list');
@@ -307,10 +405,10 @@
                 // Stop auto-rotation
                 globe.controls().autoRotate = false;
                 
-                // Show detailed info
+                // Show detailed info panel
                 const country = countries.find(c => c.name === d.name);
                 const rank = countries.findIndex(c => c.name === d.name) + 1;
-                alert(`Rank ${rank}: ${country.name}\n\nTotal Strategic Tankage: ${country.tankage} Mb\nInventory 2025: ${country.inventory} Mb\nDays Net-Import Cover: ${country.days}\n\nKey Notes:\n${country.notes}`);
+                showDetailPanel(country, rank);
             })
             
             // Points for countries - smaller markers
