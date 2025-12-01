@@ -271,10 +271,8 @@
             { rank: 20, country: "Taiwan", tankage: 27, inventory: 27, cover: 120, lat: 23.6978, lng: 120.9605, notes: "0.9 Mb/d imports; 30-day commercial mandate" }
         ];
 
-        // Sort data by Cover (High to Low) for the Sidebar
         const sortedData = [...oilData].sort((a, b) => b.cover - a.cover);
 
-        // Green Color Scale (Thresholds every 40 days)
         const colorScale = d3.scaleThreshold()
             .domain([40, 80, 120, 160, 200, 240])
             .range(['#e8f5e9', '#c8e6c9', '#a5d6a7', '#66bb6a', '#43a047', '#2e7d32', '#1b5e20']);
@@ -287,13 +285,13 @@
             .backgroundColor('#050505')
             .pointOfView({ lat: 20, lng: 0, altitude: 2.5 })
             .showAtmosphere(true)
-            .atmosphereColor("#66bb6a") // Greenish atmosphere
+            .atmosphereColor("#66bb6a")
             .atmosphereAltitude(0.15);
 
         world.controls().autoRotate = true;
         world.controls().autoRotateSpeed = 0.5;
 
-        // --- 3. Choropleth Layer (Green Import Cover) ---
+        // --- 3. Choropleth Layer ---
         
         fetch('//unpkg.com/world-atlas/countries-110m.json').then(res => res.json()).then(data => {
             const countries = topojson.feature(data, data.objects.countries).features;
@@ -313,24 +311,25 @@
 
         // --- 4. Scattered Barrel Visualization ---
 
-        // Helper to create a single detailed barrel mesh
         function createBarrelMesh(opacity = 1.0) {
             const barrelGroup = new THREE.Group();
-            const r = 0.4; const h = 1.0; // Dimensions
+            // Increased base dimensions slightly
+            const r = 0.5; const h = 1.2; 
 
-            // Main Body
             const bodyMat = new THREE.MeshLambertMaterial({ color: 0xffd700, transparent: opacity < 1.0, opacity: opacity });
             const body = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), bodyMat);
-            body.position.y = h / 2; // Sit on ground plane
+            body.position.y = h / 2; 
             barrelGroup.add(body);
 
-            // Hoops for detail
-            const hoopGeom = new THREE.TorusGeometry(r + 0.02, 0.04, 8, 24);
+            const hoopGeom = new THREE.TorusGeometry(r + 0.03, 0.05, 8, 24);
             const hoopMat = new THREE.MeshLambertMaterial({ color: 0x886600 });
             const hoop1 = new THREE.Mesh(hoopGeom, hoopMat); hoop1.rotation.x = Math.PI / 2; hoop1.position.y = h * 0.3;
             const hoop2 = new THREE.Mesh(hoopGeom, hoopMat); hoop2.rotation.x = Math.PI / 2; hoop2.position.y = h * 0.7;
             barrelGroup.add(hoop1); barrelGroup.add(hoop2);
             
+            // **SCALE INCREASE HERE**: Scale x3 to make them "200% larger"
+            barrelGroup.scale.set(3, 3, 3); 
+
             return barrelGroup;
         }
 
@@ -338,43 +337,41 @@
             .customThreeObject(d => {
                 const group = new THREE.Group();
                 
-                // 1 Barrel = 100 Mb
                 const fullBarrels = Math.floor(d.inventory / 100);
                 const remainder = d.inventory % 100;
                 const totalStack = remainder > 0 ? fullBarrels + 1 : fullBarrels;
-                const scatterRadius = 2.0; // Area to scatter within
+                
+                // Increased scatter radius to accommodate larger barrels
+                const scatterRadius = 5.0; 
 
                 for (let i = 0; i < totalStack; i++) {
                     let opacity = (i === totalStack - 1 && remainder > 0) ? 0.6 : 1.0;
                     const barrel = createBarrelMesh(opacity);
                     
-                    // Scatter in local XZ plane
                     const angle = Math.random() * Math.PI * 2;
                     const radius = Math.sqrt(Math.random()) * scatterRadius;
                     barrel.position.set(radius * Math.cos(angle), 0, radius * Math.sin(angle));
-                    barrel.rotation.y = Math.random() * Math.PI * 2; // Random rotation
+                    barrel.rotation.y = Math.random() * Math.PI * 2; 
                     
                     group.add(barrel);
                 }
 
-                // Add a light to make them shine
-                const light = new THREE.PointLight(0xffffff, 0.8, 10);
-                light.position.set(0, 5, 0);
+                const light = new THREE.PointLight(0xffffff, 1.0, 15);
+                light.position.set(0, 10, 0);
                 group.add(light);
 
                 return group;
             })
             .customThreeObjectUpdate((obj, d) => {
                 Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02));
-                obj.lookAt(new THREE.Vector3(0,0,0)); // Z-axis points to center
-                // Align Local Y-axis (up) with globe normal
+                obj.lookAt(new THREE.Vector3(0,0,0)); 
                 obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...Object.values(world.getCoords(d.lat, d.lng, 1))).normalize());
             });
 
-        // Click Hitbox (Invisible Spheres)
+        // Click Hitbox (Increased size for larger barrels)
         world.objectsData(oilData)
             .objectLat('lat') .objectLng('lng') .objectAltitude(0.05)
-            .objectThreeObject(() => new THREE.Mesh(new THREE.SphereGeometry(2.5), new THREE.MeshBasicMaterial({ visible: false })))
+            .objectThreeObject(() => new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({ visible: false })))
             .onObjectClick((d) => showDetails(d));
 
         // --- 5. Sidebar & Interaction ---
@@ -384,7 +381,6 @@
         sortedData.forEach((item, index) => {
             const div = document.createElement('div');
             div.className = 'country-item';
-            // New layout with distinct boxes
             div.innerHTML = `
                 <div class="country-header">
                     <span class="country-rank">${index + 1}.</span>
