@@ -144,13 +144,8 @@
     </style>
 
     <script src="//unpkg.com/three@0.160.0/build/three.min.js"></script>
-    
     <script src="//unpkg.com/globe.gl"></script>
-    
-    <script src="//unpkg.com/topojson-client"></script>
-    
-    <script src="//unpkg.com/d3"></script>
-</head>
+    </head>
 <body>
 
     <div id="sidebar">
@@ -169,15 +164,7 @@
         <div class="legend-item">
             <span class="dot" style="background: #ff8800; opacity: 0.5"></span> Partial Ring = < 100 Mb
         </div>
-        <div style="border-top:1px solid #444; margin:10px 0;"></div>
-        <div style="font-weight:bold; margin-bottom:5px;">Net-Import Cover (Surface)</div>
-        <div class="legend-item">
-            <span class="dot" style="background: #3e2723"></span> High Cover (Brown)
         </div>
-        <div class="legend-item">
-            <span class="dot" style="background: #ffffff; border:1px solid #555"></span> Low Surplus (White)
-        </div>
-    </div>
 
     <div id="detail-panel">
         <div class="panel-header">
@@ -234,15 +221,11 @@
             { rank: 20, country: "Taiwan", tankage: 27, inventory: 27, cover: 120, lat: 23.6978, lng: 120.9605, notes: "0.9 Mb/d imports; 30-day commercial mandate" }
         ];
 
-        // Color Scale for Choropleth (Days Net-Import Cover)
-        const colorScale = d3.scaleLinear()
-            .domain([60, 270])
-            .range(["#ffffff", "#3e2723"]);
-
         // --- 2. Globe Initialization ---
 
         const world = Globe()
             (document.getElementById('globeViz'))
+            // Using the 'earth-night' texture for the dark, natural topology look
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
             .backgroundColor('#000000')
             .pointOfView({ lat: 20, lng: 0, altitude: 2.5 })
@@ -253,44 +236,7 @@
         world.controls().autoRotate = true;
         world.controls().autoRotateSpeed = 0.5;
 
-        // --- 3. Choropleth Layer ---
-        
-        // Fetch world topology for the polygons
-        fetch('//unpkg.com/world-atlas/countries-110m.json').then(res => res.json()).then(data => {
-            const countries = topojson.feature(data, data.objects.countries).features;
-            
-            world.polygonsData(countries)
-                .polygonCapColor(d => {
-                    const countryName = d.properties.name;
-                    const match = oilData.find(o => 
-                        o.country === countryName || 
-                        (o.country === "United States" && countryName === "United States of America")
-                    );
-                    
-                    if (match) {
-                        return colorScale(match.cover);
-                    } else {
-                        return 'rgba(20,20,20,0.8)'; // Others dark
-                    }
-                })
-                .polygonSideColor(() => 'rgba(0,0,0,0.5)')
-                .polygonStrokeColor(() => '#111')
-                .polygonLabel(({ properties: d }) => {
-                    const match = oilData.find(o => 
-                        o.country === d.name || 
-                        (o.country === "United States" && d.name === "United States of America")
-                    );
-                    if(match) return `
-                        <div style="background:#000; color:#fff; padding:5px; border:1px solid #ff8800; border-radius:4px;">
-                            <b>${match.country}</b><br>
-                            Days Cover: ${match.cover}
-                        </div>
-                    `;
-                    return null;
-                });
-        });
-
-        // --- 4. Ring Visualization (Custom Three Objects) ---
+        // --- 3. Ring Visualization (Custom Three Objects) ---
 
         world.customLayerData(oilData)
             .customThreeObject(d => {
@@ -333,7 +279,7 @@
                 );
             });
 
-        // --- 5. Interaction Logic ---
+        // --- 4. Interaction Logic ---
 
         // Object Interaction (Clicking Rings via invisible points)
         world.objectsData(oilData)
