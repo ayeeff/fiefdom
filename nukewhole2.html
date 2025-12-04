@@ -484,9 +484,20 @@ function updateAll() {
         }
     }
 
+    // Logic to flip bases in 2040
+    const flippedBases = currentYear === '2040' ? ['HMAS Stirling', 'Diego Garcia', 'Yokosuka'] : [];
+    
+    const currentBaseData = Object.entries(baseLocations).map(([n, l]) => {
+        let b = { ...l, name: n };
+        if (flippedBases.includes(n)) {
+            b.ally = false; // Flips to green
+        }
+        return b;
+    });
+
     globe.pathsData(getVisiblePaths())
          .polygonsData(globe.polygonsData()) // trigger recolor
-         .htmlElementsData(currentView !== 'umbrellas' ? Object.entries(baseLocations).map(([n,l])=>({...l,name:n})) : []);
+         .htmlElementsData(currentView !== 'umbrellas' ? currentBaseData : []);
 }
 
 function setYear(year, isAuto = false) {
