@@ -173,7 +173,7 @@
 <div class="ssbntime-top-banner">
     <div class="ssbntime-top-title">NUCLEAR UMBRELLA COLLAPSE</div>
     <div class="ssbntime-top-desc">
-        Strangled by tightening rare-earth export bans, the US Navy’s nuclear-carrying submarines are on track to shrink 30% by 2034 & 60% by 2040, forcing the US silent service back behind Hawaii and Western Pacific becomes a Sino-Russian lake.
+        Strangled by tightening rare-earth export bans, the US Navy’s nuclear-carrying submarines are projected to shrink 30% by 2034 and 60% by 2040. This collapse forces the US Silent Service to retreat behind Hawaii, leaving the Western Pacific to become a Sino-Russian lake.
     </div>
 </div>
 
@@ -368,7 +368,8 @@ const baseLocations = {
     'Île Longue': {lat:48.39,lng:-4.49,ally:true},
     'Kamchatka': {lat:53.01,lng:158.65,ally:false},
     'Gadzhiyevo': {lat:69.26,lng:33.33,ally:false},
-    'Yalong Bay': {lat:18.24,lng:109.51,ally:false}
+    'Yalong Bay': {lat:18.24,lng:109.51,ally:false},
+    'Visakhapatnam': {lat:17.68,lng:83.22,ally:false, color: '#b45309'}
 };
 
 // ==================== GLOBE INITIALIZATION ====================
@@ -400,7 +401,12 @@ async function initGlobe() {
         .htmlElementsData(currentView !== 'umbrellas' ? Object.entries(baseLocations).map(([n, l]) => ({...l, name:n})) : [])
         .htmlElement(d => {
             const el = document.createElement('div');
-            el.innerHTML = `<div style="width:36px;height:36px;background:${d.ally?'#3b82f6':'#22c55e'};border:4px solid white;border-radius:50%;box-shadow:0 0 30px ${d.ally?'#3b82f6':'#22c55e'};"></div>`;
+            // Determine color. Use specific color if set, else fallback to ally logic
+            let color = d.color;
+            if (!color) {
+                color = d.ally ? '#3b82f6' : '#22c55e';
+            }
+            el.innerHTML = `<div style="width:36px;height:36px;background:${color};border:4px solid white;border-radius:50%;box-shadow:0 0 30px ${color};"></div>`;
             return el;
         });
     updateAll();
