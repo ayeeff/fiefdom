@@ -4,17 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuclear Umbrella Collapse · 2025–2040</title>
+    <!-- Tailwind CSS with custom configuration script -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            prefix: 'ssbntime-',
+            corePlugins: {
+                preflight: false, // Disables base reset to prevent breaking WordPress themes
+            }
+        }
+    </script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
+    
     <style>
-        body { margin:0; background:#000; overflow:hidden; color:white; font-family:system-ui,-apple-system,sans-serif; }
+        /* Scoped styles for WordPress compatibility */
         
-        /* Renamed ID from globeViz to ssbntime */
-        #ssbntime { width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:1; }
+        /* The main container background */
+        #ssbntime { 
+            width: 100vw; 
+            height: 100vh; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 1; /* Low z-index to sit behind WP Admin bar if logged in */
+            background: #000;
+        }
 
-        /* Top banner — centered, clean, doesn’t block globe */
-        .top-banner {
+        /* Top banner */
+        .ssbntime-top-banner {
             position: fixed;
             top: 0;
             left: 50%;
@@ -30,15 +48,17 @@
             z-index: 20;
             border-bottom: 1px solid rgba(70,80,100,0.5);
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            font-family: system-ui, -apple-system, sans-serif;
         }
-        .top-title {
+        .ssbntime-top-title {
             font-size: 2rem;
             font-weight: 900;
             color: #fb923c;
             letter-spacing: 1.5px;
             margin-bottom: 8px;
+            line-height: 1.2;
         }
-        .top-desc {
+        .ssbntime-top-desc {
             font-size: 1.05rem;
             line-height: 1.65;
             color: #e2e8f0;
@@ -46,8 +66,8 @@
             margin: 0 auto;
         }
 
-        /* Sidebar — left side */
-        .sidebar {
+        /* Sidebar */
+        .ssbntime-sidebar {
             position: fixed;
             left: 20px;
             top: 50%;
@@ -60,10 +80,11 @@
             padding: 26px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9);
             z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
         }
 
-        /* Year buttons — small, clean, orange when active */
-        .year-btn {
+        /* Year buttons */
+        .ssbntime-year-btn {
             width: 100%;
             padding: 14px 16px;
             margin-bottom: 10px;
@@ -78,21 +99,20 @@
             border: 1px solid rgba(100,116,139,0.3);
             position: relative;
             overflow: hidden;
+            box-sizing: border-box; /* Ensure padding doesn't break width */
         }
-        .year-btn:hover:not(.active) {
+        .ssbntime-year-btn:hover:not(.active) {
             background: #334155;
             color: #e2e8f0;
         }
-        .year-btn.active {
+        .ssbntime-year-btn.active {
             background: linear-gradient(135deg, #fb923c, #f97316);
             color: white;
             box-shadow: 0 0 20px rgba(251,146,60,0.6);
             transform: translateY(-2px);
         }
         
-        /* Optional: Progress bar for timer indication could be added here, but keeping it clean for now */
-        
-        .reduction-note {
+        .ssbntime-reduction-note {
             font-size: 0.92rem;
             color: white;
             margin-top: 4px;
@@ -100,13 +120,13 @@
         }
 
         /* Legend */
-        .legend h3 {
+        .ssbntime-legend h3 {
             color: #f97316;
             margin: 28px 0 12px;
             font-size: 1.2rem;
             font-weight: bold;
         }
-        .legend-item {
+        .ssbntime-legend-item {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -114,10 +134,10 @@
             font-size: 0.94rem;
             color: white;
         }
-        .legend-color { flex-shrink: 0; }
+        .ssbntime-legend-color { flex-shrink: 0; }
 
         /* Bottom warhead counter */
-        .hud-bottom {
+        .ssbntime-hud-bottom {
             position: fixed;
             bottom: 28px;
             left: 50%;
@@ -129,79 +149,83 @@
             border: 1px solid rgba(70,80,100,0.4);
             box-shadow: 0 10px 35px rgba(0,0,0,0.8);
             z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
         }
-        .hud-bottom h3 {
+        .ssbntime-hud-bottom h3 {
             color: #f97316;
             margin: 0 0 15px 0;
             font-size: 1.2rem;
             font-weight: bold;
             text-align: center;
         }
-        .warhead-num { font-size: 2.7rem; font-weight: 900; }
-        .label { font-size: 0.82rem; color: #94a3b8; margin-top: 6px; }
+        .ssbntime-warhead-num { font-size: 2.7rem; font-weight: 900; line-height: 1; }
+        .ssbntime-label { font-size: 0.82rem; color: #94a3b8; margin-top: 6px; }
     </style>
 </head>
 <body>
+
+<!-- WordPress Ready Slice Start -->
 
 <!-- Renamed from globeViz to ssbntime -->
 <div id="ssbntime"></div>
 
 <!-- Top Banner -->
-<div class="top-banner">
-    <div class="top-title">NUCLEAR UMBRELLA COLLAPSE</div>
-    <div class="top-desc">
-        Strangled by tightening rare-earth export bans, the US Navy’s nuclear-carrying submarines are on track to shrink 30% by 2034 & 60% by 2040.
+<div class="ssbntime-top-banner">
+    <div class="ssbntime-top-title">NUCLEAR UMBRELLA COLLAPSE</div>
+    <div class="ssbntime-top-desc">
+        Strangled by tightening rare-earth export bans, the US Navy’s nuclear-carrying submarines are on track to shrink 30% by 2034 & 60% by 2040, forcing the US silent service back behind Hawaii and Western Pacific becomes a Sino-Russian lake.
     </div>
 </div>
 
 <!-- Left Sidebar with Year Buttons + Legend -->
-<div class="sidebar">
-    <div class="year-btn active" id="tab-current" onclick="setYear('current')">
+<div class="ssbntime-sidebar">
+    <div class="ssbntime-year-btn active" id="tab-current" onclick="setYear('current')">
         2025
     </div>
-    <div class="year-btn" id="tab-2034" onclick="setYear('2034')">
+    <div class="ssbntime-year-btn" id="tab-2034" onclick="setYear('2034')">
         2034 
-        <div class="reduction-note">– 30% reduction</div>
+        <div class="ssbntime-reduction-note">– 30% reduction</div>
     </div>
-    <div class="year-btn" id="tab-2040" onclick="setYear('2040')">
+    <div class="ssbntime-year-btn" id="tab-2040" onclick="setYear('2040')">
         2040
-        <div class="reduction-note">– 60% reduction</div>
+        <div class="ssbntime-reduction-note">– 60% reduction</div>
     </div>
 
-    <div class="legend">
+    <div class="ssbntime-legend">
         <h3>Legend</h3>
         
-        <div class="text-xs font-bold text-gray-400 mb-3">SSBN ROUTES</div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-purple-500"></div><span>U.S./Ally Atlantic SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-green-300"></div><span>Sino-Russian SSBN</span></div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-amber-700"></div><span>Indian SSBN</span></div>
+        <div class="ssbntime-text-xs ssbntime-font-bold ssbntime-text-gray-400 ssbntime-mb-3">SSBN ROUTES</div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-blue-500"></div><span>U.S. Pacific SSBN</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-purple-500"></div><span>U.S./Ally Atlantic SSBN</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-green-300"></div><span>Sino-Russian SSBN</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-amber-700"></div><span>Indian SSBN</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-5">SSN ROUTES</div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-red-500"></div><span>U.S./Ally Pacific/Indian Ocean SSN</span></div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-orange-500"></div><span>U.S./Ally Atlantic SSN</span></div>
-        <div class="legend-item"><div class="legend-color w-9 h-1 bg-green-500"></div><span>Sino-Russian SSN</span></div>
+        <div class="ssbntime-text-xs ssbntime-font-bold ssbntime-text-gray-400 ssbntime-mb-3 ssbntime-mt-5">SSN ROUTES</div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-red-500"></div><span>U.S./Ally Pacific/Indian Ocean SSN</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-orange-500"></div><span>U.S./Ally Atlantic SSN</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-9 ssbntime-h-1 ssbntime-bg-green-500"></div><span>Sino-Russian SSN</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-5">BASES</div>
-        <div class="legend-item"><div class="legend-color w-6 h-6 rounded-full bg-blue-500"></div><span>U.S./Ally</span></div>
-        <div class="legend-item"><div class="legend-color w-6 h-6 rounded-full bg-green-600"></div><span>Sino-Russian</span></div>
+        <div class="ssbntime-text-xs ssbntime-font-bold ssbntime-text-gray-400 ssbntime-mb-3 ssbntime-mt-5">BASES</div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-6 ssbntime-h-6 ssbntime-rounded-full ssbntime-bg-blue-500"></div><span>U.S./Ally</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-6 ssbntime-h-6 ssbntime-rounded-full ssbntime-bg-green-600"></div><span>Sino-Russian</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-6 ssbntime-h-6 ssbntime-rounded-full ssbntime-bg-amber-700"></div><span>India</span></div>
 
-        <div class="text-xs font-bold text-gray-400 mb-3 mt-5">UMBRELLAS</div>
-        <div class="legend-item"><div class="legend-color w-11 h-7 bg-blue-500 rounded"></div><span>U.S.</span></div>
-        <div class="legend-item"><div class="legend-color w-11 h-7 bg-green-600 rounded"></div><span>Sino-Russian</span></div>
-        <div class="legend-item"><div class="legend-color w-11 h-7 bg-cyan-500 rounded"></div><span>Saudi-Pakistan</span></div>
+        <div class="ssbntime-text-xs ssbntime-font-bold ssbntime-text-gray-400 ssbntime-mb-3 ssbntime-mt-5">UMBRELLAS</div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-11 ssbntime-h-7 ssbntime-bg-blue-500 ssbntime-rounded"></div><span>U.S.</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-11 ssbntime-h-7 ssbntime-bg-green-600 ssbntime-rounded"></div><span>Sino-Russian</span></div>
+        <div class="ssbntime-legend-item"><div class="ssbntime-legend-color ssbntime-w-11 ssbntime-h-7 ssbntime-bg-cyan-500 ssbntime-rounded"></div><span>Saudi-Pakistan</span></div>
     </div>
 </div>
 
 <!-- Bottom Warhead Counter -->
-<div class="hud-bottom">
-    <div class="legend"><h3 id="warhead-title">Total Nuclear Warheads 2025</h3></div>
-    <div class="grid grid-cols-5 gap-10 text-center">
-        <div><div class="warhead-num text-blue-400" id="us-warheads">5,244</div><div class="label">US/NATO</div></div>
-        <div><div class="warhead-num text-green-400" id="rc-warheads">7,420</div><div class="label">RU+CN</div></div>
-        <div><div class="warhead-num text-gray-400" id="sp-warheads">350</div><div class="label">Pakistan/Saudi</div></div>
-        <div><div class="warhead-num text-gray-300" id="il-warheads">90</div><div class="label">Israel</div></div>
-        <div><div class="warhead-num text-amber-600" id="in-warheads">170</div><div class="label">India</div></div>
+<div class="ssbntime-hud-bottom">
+    <div class="ssbntime-legend"><h3 id="warhead-title">Total Nuclear Warheads 2025</h3></div>
+    <div class="ssbntime-grid ssbntime-grid-cols-5 ssbntime-gap-10 ssbntime-text-center">
+        <div><div class="ssbntime-warhead-num ssbntime-text-blue-400" id="us-warheads">5,244</div><div class="ssbntime-label">US/NATO</div></div>
+        <div><div class="ssbntime-warhead-num ssbntime-text-green-400" id="rc-warheads">7,420</div><div class="ssbntime-label">RU+CN</div></div>
+        <div><div class="ssbntime-warhead-num ssbntime-text-gray-400" id="sp-warheads">350</div><div class="ssbntime-label">Pakistan/Saudi</div></div>
+        <div><div class="ssbntime-warhead-num ssbntime-text-gray-300" id="il-warheads">90</div><div class="ssbntime-label">Israel</div></div>
+        <div><div class="ssbntime-warhead-num ssbntime-text-amber-600" id="in-warheads">170</div><div class="ssbntime-label">India</div></div>
     </div>
 </div>
     
@@ -344,7 +368,8 @@ const baseLocations = {
     'Île Longue': {lat:48.39,lng:-4.49,ally:true},
     'Kamchatka': {lat:53.01,lng:158.65,ally:false},
     'Gadzhiyevo': {lat:69.26,lng:33.33,ally:false},
-    'Yalong Bay': {lat:18.24,lng:109.51,ally:false}
+    'Yalong Bay': {lat:18.24,lng:109.51,ally:false},
+    'Visakhapatnam': {lat:17.68,lng:83.22,ally:false}
 };
 
 // ==================== GLOBE INITIALIZATION ====================
@@ -462,7 +487,7 @@ function updateAll() {
 function setYear(year, isAuto = false) {
     currentYear = year;
     
-    document.querySelectorAll('.year-btn').forEach(btn => {
+    document.querySelectorAll('.ssbntime-year-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
@@ -472,7 +497,6 @@ function setYear(year, isAuto = false) {
     
     // If this was a manual click (not auto), restart the timer
     // so the user has a full 10 seconds before the next switch.
-    // If it was auto, we can also restart it to keep the cadence strict.
     startRotationTimer();
 }
     
@@ -484,5 +508,8 @@ function setView(v) {
 
 initGlobe();
 </script>
+
+<!-- WordPress Ready Slice End -->
+
 </body>
 </html>
