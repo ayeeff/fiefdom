@@ -9,7 +9,9 @@
     <script src="https://unpkg.com/topojson-client@3"></script>
     <style>
         body { margin:0; background:#000; overflow:hidden; color:white; font-family:system-ui,-apple-system,sans-serif; }
-        #globeViz { width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:1; }
+        
+        /* Renamed ID from globeViz to ssbntime */
+        #ssbntime { width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:1; }
 
         /* Top banner — centered, clean, doesn’t block globe */
         .top-banner {
@@ -74,6 +76,8 @@
             background: #1e293b;
             color: #94a3b8;
             border: 1px solid rgba(100,116,139,0.3);
+            position: relative;
+            overflow: hidden;
         }
         .year-btn:hover:not(.active) {
             background: #334155;
@@ -85,6 +89,9 @@
             box-shadow: 0 0 20px rgba(251,146,60,0.6);
             transform: translateY(-2px);
         }
+        
+        /* Optional: Progress bar for timer indication could be added here, but keeping it clean for now */
+        
         .reduction-note {
             font-size: 0.92rem;
             color: white;
@@ -136,8 +143,10 @@
 </head>
 <body>
 
-<div id="globeViz"></div>
+<!-- Renamed from globeViz to ssbntime -->
+<div id="ssbntime"></div>
 
+<!-- Top Banner -->
 <div class="top-banner">
     <div class="top-title">NUCLEAR UMBRELLA COLLAPSE</div>
     <div class="top-desc">
@@ -145,6 +154,7 @@
     </div>
 </div>
 
+<!-- Left Sidebar with Year Buttons + Legend -->
 <div class="sidebar">
     <div class="year-btn active" id="tab-current" onclick="setYear('current')">
         2025
@@ -184,6 +194,7 @@
     </div>
 </div>
 
+<!-- Bottom Warhead Counter -->
 <div class="hud-bottom">
     <div class="legend"><h3 id="warhead-title">Total Nuclear Warheads 2025</h3></div>
     <div class="grid grid-cols-5 gap-10 text-center">
@@ -197,6 +208,7 @@
     
 <script>
 let globe, currentYear = 'current', currentView = 'all';
+let rotationTimer; // Timer variable for auto-rotation
 
 // ==================== FORCE DATA ====================
 const forceData = {
@@ -218,14 +230,12 @@ function getUmbrellaZones() {
     const z = JSON.parse(JSON.stringify(baseUmbrellas));
 
     if (currentYear === '2034' || currentYear === '2040') {
-        // 2034: Taiwan + Philippines fall under Sino-Russian umbrella
         const earlyFlip = ['Taiwan', 'Philippines'];
         z.us = z.us.filter(c => !earlyFlip.includes(c));
         z.sinoRussian.push(...earlyFlip);
     }
 
     if (currentYear === '2040') {
-        // 2040: Full collapse — the remaining major allies flip
         const lateFlip = ['Australia', 'New Zealand', 'South Korea', 'Japan', 'Thailand', 'Singapore'];
         z.us = z.us.filter(c => !lateFlip.includes(c));
         z.sinoRussian.push(...lateFlip);
@@ -245,7 +255,6 @@ function getCountryUmbrella(name) {
 }
 
 // ==================== FULL PATROL CIRCUITS (2025 baseline) ====================
-    
 const patrolCircuitsCurrent = {
     pacific: [{ coords: [[47.73, -122.71], [50, -140], [52, -160], [50, -175], [45, 170], [40, 160], [35, 150], [30, 140], [35, 130], [40, 135], [45, 140], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol' }],
     atlantic: [
@@ -274,13 +283,10 @@ const patrolCircuitsCurrent = {
     french_ssn: [{ coords: [[48.39, -4.49], [50, -15], [45, -25], [40, -20], [45, -10], [48.39, -4.49]], color: '#f97316', name: 'French Suffren SSN Patrol' }]
 };
 
-// ==================== DYNAMIC PATROL CHANGES BY YEAR ====================
-    
 function getPatrolCircuits() {
     let pc = JSON.parse(JSON.stringify(patrolCircuitsCurrent));
 
     if (currentYear === '2034') {
-        // 2034: 30% US cut → reduced patrols, Sino-Russian expansion
         pc.pacific = [{ coords: [[47.73, -122.71], [52, -150], [50, -170], [45, -175], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN Patrol (Reduced)' }];
         pc.atlantic[0] = { coords: [[30.80, -81.55], [40, -65], [50, -40], [55, -25], [50, -15], [40, -30], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN Patrol (Reduced)' };
 
@@ -298,31 +304,26 @@ function getPatrolCircuits() {
         );
 
     } else if (currentYear === '2040') {
-        // 2040: 60% US cut → total collapse of forward presence
         pc.pacific = [{ coords: [[47.73, -122.71], [48, -130], [46, -135], [45, -130], [47.73, -122.71]], color: '#3b82f6', name: 'U.S. Pacific SSBN (Hawaiian Sanctuary + West Coast only)' }];
         pc.atlantic[0] = { coords: [[30.80, -81.55], [35, -75], [38, -70], [35, -68], [30.80, -81.55]], color: '#8b5cf6', name: 'U.S. Atlantic SSBN (Western Atlantic only)' };
 
-        // Remove all US Indian Ocean & allied forward SSN presence
         delete pc.us_ssn_indian_ocean;
         delete pc.us_ssn_diego_garcia_patrol;
         delete pc.us_ssn_malacca_patrol;
         delete pc.us_ssn_hormuz_patrol;
         delete pc.japanese_ssn_first_island;
 
-        // Chinese forward deployment
         pc.chinese.push(
             { coords: [[18.24, 109.51], [20, 135], [22, 150], [20, 165], [18, 175], [15, 160], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese Hawaii Approaches' },
             { coords: [[18.24, 109.51], [25, 140], [35, 160], [45, 175], [50, -170], [40, 165], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese Alaska Interdiction' },
             { coords: [[18.24, 109.51], [10, 120], [0, 130], [-10, 140], [-15, 145], [-10, 135], [5, 125], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese Australia Threat' },
             { coords: [[18.24, 109.51], [20, 120], [25, 130], [20, 120], [18.24, 109.51]], color: '#94a3b8', name: 'Chinese SSBN First Island Chain Patrol' }
         );
-        // Ensure chinese_ssn exists (in case it was never created)
         if (!pc.chinese_ssn) pc.chinese_ssn = [];
         pc.chinese_ssn.push(
             { coords: [[18.24, 109.51], [5, 115], [-5, 125], [-15, 130], [-25, 120], [-35, 115], [-40, 125], [-40, 140], [-35, 150], [-25, 155], [-15, 160], [-5, 155], [5, 150], [18.24, 109.51]], color: '#22c55e', name: 'Chinese SSN Circum-Australia Patrol' }
         );
 
-        // Russian Atlantic dominance
         pc.russian_atlantic.push(
             { coords: [[69.26, 33.33], [65, 0], [60, -15], [55, -30], [50, -40], [55, -25], [60, -10], [69.26, 33.33]], color: '#94a3b8', name: 'Russian Mid-Atlantic Control' },
             { coords: [[69.26, 33.33], [60, -10], [50, -25], [40, -40], [35, -50], [40, -45], [55, -20], [69.26, 33.33]], color: '#94a3b8', name: 'Russian US East Coast Approaches' },
@@ -354,7 +355,8 @@ async function initGlobe() {
     const topo = await resp.json();
     const countries = topojson.feature(topo, topo.objects.countries).features;
 
-    globe = Globe()(document.getElementById('globeViz'))
+    // TARGETING NEW ID 'ssbntime'
+    globe = Globe()(document.getElementById('ssbntime'))
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
         .pointOfView({ lat: 15, lng: 100, altitude: 2.8 })
@@ -380,6 +382,9 @@ async function initGlobe() {
             return el;
         });
     updateAll();
+    
+    // START AUTO-ROTATION
+    startRotationTimer();
 }
 
 function getVisiblePaths() {
@@ -412,15 +417,28 @@ function animateValue(id, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+// ==================== AUTO ROTATION LOGIC ====================
+const yearSequence = ['current', '2034', '2040'];
+
+function startRotationTimer() {
+    // Clear existing to avoid multiples
+    if (rotationTimer) clearInterval(rotationTimer);
+    
+    rotationTimer = setInterval(() => {
+        // Find current index and move to next
+        const idx = yearSequence.indexOf(currentYear);
+        const nextIdx = (idx + 1) % yearSequence.length;
+        setYear(yearSequence[nextIdx], true); // true = automated switch
+    }, 10000); // 10 seconds
+}
+
 // ==================== UI UPDATES ====================
 function updateAll() {
     const d = forceData[currentYear];
     
-    // 1. Dynamic Title Update
     const displayYear = currentYear === 'current' ? '2025' : currentYear;
     document.getElementById('warhead-title').textContent = `Total Nuclear Warheads ${displayYear}`;
 
-    // 2. Animated Number Updates
     const ids = {
         'us-warheads': d.us,
         'rc-warheads': d.rc,
@@ -431,10 +449,8 @@ function updateAll() {
 
     for (const [id, targetVal] of Object.entries(ids)) {
         const el = document.getElementById(id);
-        // Clean current text to get number (remove commas)
         const currentVal = parseInt(el.textContent.replace(/,/g, '')) || 0; 
         
-        // Only animate if value is changing
         if (currentVal !== targetVal) {
             animateValue(id, currentVal, targetVal, 1000);
         }
@@ -443,22 +459,23 @@ function updateAll() {
     globe.pathsData(getVisiblePaths())
          .polygonsData(globe.polygonsData()) // trigger recolor
          .htmlElementsData(currentView !== 'umbrellas' ? Object.entries(baseLocations).map(([n,l])=>({...l,name:n})) : []);
-
 }
 
-function setYear(year) {
+function setYear(year, isAuto = false) {
     currentYear = year;
     
-    // Remove active from all buttons
     document.querySelectorAll('.year-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // Add active to selected
     document.getElementById('tab-' + year).classList.add('active');
     
-    // Update globe, warheads, umbrellas, etc.
-    updateAll(); 
+    updateAll();
+    
+    // If this was a manual click (not auto), restart the timer
+    // so the user has a full 10 seconds before the next switch.
+    // If it was auto, we can also restart it to keep the cadence strict.
+    startRotationTimer();
 }
     
 function setView(v) {
@@ -467,7 +484,6 @@ function setView(v) {
     updateAll();
 }
 
-// Start
 initGlobe();
 </script>
 </body>
