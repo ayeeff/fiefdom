@@ -123,6 +123,13 @@
             box-shadow: 0 10px 35px rgba(0,0,0,0.8);
             z-index: 10;
         }
+        .hud-bottom h3 {
+            color: #f97316;
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
         .warhead-num { font-size: 2.7rem; font-weight: 900; }
         .label { font-size: 0.82rem; color: #94a3b8; margin-top: 6px; }
     </style>
@@ -131,7 +138,6 @@
 
 <div id="globeViz"></div>
 
-<!-- Top Banner -->
 <div class="top-banner">
     <div class="top-title">NUCLEAR UMBRELLA COLLAPSE</div>
     <div class="top-desc">
@@ -139,7 +145,6 @@
     </div>
 </div>
 
-<!-- Left Sidebar with Year Buttons + Legend -->
 <div class="sidebar">
     <div class="year-btn active" id="tab-current" onclick="setYear('current')">
         2025
@@ -179,9 +184,8 @@
     </div>
 </div>
 
-<!-- Bottom Warhead Counter -->
 <div class="hud-bottom">
-       <div class="legend"><h3>Total Nuclear Warheads</h3></div>
+    <div class="legend"><h3 id="warhead-title">Total Nuclear Warheads 2025</h3></div>
     <div class="grid grid-cols-5 gap-10 text-center">
         <div><div class="warhead-num text-blue-400" id="us-warheads">5,244</div><div class="label">US/NATO</div></div>
         <div><div class="warhead-num text-green-400" id="rc-warheads">7,420</div><div class="label">RU+CN</div></div>
@@ -382,8 +386,8 @@ function getVisiblePaths() {
     if (currentView === 'umbrellas') return [];
     const pc = getPatrolCircuits();
     const paths = [];
-    const keys = (currentView === 'all' || currentView === 'pacific') ?
-        ['pacific','russian_pacific','chinese','indian_ssbn','us_ssn_pacific','us_ssn_indian_ocean','us_ssn_diego_garcia_patrol','us_ssn_malacca_patrol','us_ssn_hormuz_patrol','chinese_ssn','chinese_ssn_miyako','chinese_ssn_luzon','japanese_ssn_first_island','indian_ssn'] :
+    const keys = (currentView === 'all' || currentView === 'pacific') ? 
+        ['pacific','russian_pacific','chinese','indian_ssbn','us_ssn_pacific','us_ssn_indian_ocean','us_ssn_diego_garcia_patrol','us_ssn_malacca_patrol','us_ssn_hormuz_patrol','chinese_ssn','chinese_ssn_miyako','chinese_ssn_luzon','japanese_ssn_first_island','indian_ssn'] : 
         [];
     if (currentView === 'all' || currentView === 'atlantic') {
         keys.push(...['atlantic','russian_atlantic','us_ssn_atlantic','russian_ssn_arctic','uk_ssn','uk_ssn_giuk','french_ssn']);
@@ -392,14 +396,49 @@ function getVisiblePaths() {
     return paths;
 }
 
+// ==================== NUMBER ANIMATION HELPER ====================
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        obj.innerHTML = value.toLocaleString();
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
 // ==================== UI UPDATES ====================
 function updateAll() {
     const d = forceData[currentYear];
-    document.getElementById('us-warheads').textContent = d.us.toLocaleString();
-    document.getElementById('rc-warheads').textContent = d.rc.toLocaleString();
-    document.getElementById('sp-warheads').textContent = d.sp;
-    document.getElementById('il-warheads').textContent = d.il;
-    document.getElementById('in-warheads').textContent = d.in;
+    
+    // 1. Dynamic Title Update
+    const displayYear = currentYear === 'current' ? '2025' : currentYear;
+    document.getElementById('warhead-title').textContent = `Total Nuclear Warheads ${displayYear}`;
+
+    // 2. Animated Number Updates
+    const ids = {
+        'us-warheads': d.us,
+        'rc-warheads': d.rc,
+        'sp-warheads': d.sp,
+        'il-warheads': d.il,
+        'in-warheads': d.in
+    };
+
+    for (const [id, targetVal] of Object.entries(ids)) {
+        const el = document.getElementById(id);
+        // Clean current text to get number (remove commas)
+        const currentVal = parseInt(el.textContent.replace(/,/g, '')) || 0; 
+        
+        // Only animate if value is changing
+        if (currentVal !== targetVal) {
+            animateValue(id, currentVal, targetVal, 1000);
+        }
+    }
 
     globe.pathsData(getVisiblePaths())
          .polygonsData(globe.polygonsData()) // trigger recolor
@@ -419,7 +458,7 @@ function setYear(year) {
     document.getElementById('tab-' + year).classList.add('active');
     
     // Update globe, warheads, umbrellas, etc.
-    updateAll(); // or whatever your main update function is
+    updateAll(); 
 }
     
 function setView(v) {
