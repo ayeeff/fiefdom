@@ -31,7 +31,8 @@
         
         .info-row { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
         .info-label { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; display: block; margin-bottom: 4px; }
-        .info-val { font-size: 1rem; font-weight: 400; line-height: 1.4; }
+        .info-val { font-size: 0.95rem; font-weight: 400; line-height: 1.4; color: #e2e8f0; }
+        .highlight-val { color: #fff; font-weight: 600; }
 
         /* --- BOTTOM NAVIGATION BAR --- */
         .nav-container {
@@ -64,13 +65,11 @@
         }
         .nav-pill:hover { background: rgba(255,255,255,0.1); color: white; }
 
-        /* Ancient Active States */
+        /* Active States */
         .nav-pill.ancient-active {
             background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
         }
-        
-        /* Modern Active States */
         .nav-pill.modern-active {
             background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #4ade80;
             box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
@@ -83,21 +82,25 @@
 <div id="globeViz"></div>
 
 <div class="ui-panel" id="infoPanel">
-    <div class="panel-header" id="info-title">SELECT A STEP</div>
-    <div class="panel-sub" id="info-sub">Click the timeline below to begin</div>
+    <div class="panel-header" id="info-title">THE WOLF PACK</div>
+    <div class="panel-sub" id="info-sub">Austronesian Expansion</div>
     
-    <div id="dynamic-content" style="opacity: 0.5;">
+    <div id="dynamic-content">
         <div class="info-row">
-            <span class="info-label">Year</span>
+            <span class="info-label">Timeline</span>
             <div class="info-val" id="info-year">--</div>
         </div>
         <div class="info-row">
             <span class="info-label">Description</span>
             <div class="info-val" id="info-desc">--</div>
         </div>
+        <div class="info-row">
+            <span class="info-label">Technology</span>
+            <div class="info-val highlight-val" id="info-tech">--</div>
+        </div>
         <div class="info-row" style="border:none;">
-            <span class="info-label">Location Markers</span>
-            <div class="info-val" id="info-markers" style="font-size: 0.85rem; color: #cbd5e1;">--</div>
+            <span class="info-label">Cargo</span>
+            <div class="info-val" id="info-cargo">--</div>
         </div>
     </div>
 </div>
@@ -105,169 +108,137 @@
 <div class="nav-container">
     <div class="nav-row" id="ancient-nav-row">
         <div class="nav-label text-blue-400">Wolf Scouts</div>
-        </div>
-    
+    </div>
     <div class="nav-row" id="modern-nav-row">
-        <div class="nav-label text-green-400">Bri Reunion</div>
-        </div>
+        <div class="nav-label text-green-400">BRI Reunion</div>
+    </div>
 </div>
 
 <script>
+// ==================== CONFIGURATION ====================
+const TECH_ANCIENT = "Outrigger canoes";
+const CARGO_ANCIENT = "Pigs, taro, stone tools, navigational knowledge";
+
+const TECH_MODERN = "Modern infrastructure";
+const CARGO_MODERN = "Concrete, cranes, fiber optics, diplomatic influence";
+
 // ==================== DATASETS ====================
 
-// 1. Ancient Sequence (with Madagascar added)
+// Note: 'countryName' key added for Choropleth shading
 const ancientSequence = [
     {
-        id: 'taiwan',
-        label: 'Fujian/Taiwan',
-        name: 'The Origin',
-        coords: [], // Start point, no path
-        color: '#3b82f6',
-        year: '~3000 BCE',
+        id: 'taiwan', label: 'Fujian/Taiwan', name: 'The Origin',
+        coords: [], 
+        color: '#3b82f6', year: '~3000 BCE',
         description: 'Villagers in Fujian and Taiwan built the first outrigger canoes.',
+        countryName: 'Taiwan',
         markers: ['Fujian', 'Taiwan']
     },
     {
-        id: 'luzon',
-        label: 'Luzon',
-        name: 'Taiwan → Luzon',
+        id: 'luzon', label: 'Luzon', name: 'Taiwan → Luzon',
         coords: [[25.0, 121.0], [20.0, 121.5], [14.6, 121.0]],
-        color: '#3b82f6',
-        year: '~2500 BCE',
+        color: '#3b82f6', year: '~2500 BCE',
         description: 'First island hop across the Luzon Strait.',
+        countryName: 'Philippines',
         markers: ['Luzon']
     },
     {
-        id: 'sulawesi',
-        label: 'Sulawesi',
-        name: 'Luzon → Sulawesi',
+        id: 'sulawesi', label: 'Sulawesi', name: 'Luzon → Sulawesi',
         coords: [[14.6, 121.0], [10.0, 122.0], [5.0, 120.0], [-2.0, 120.3]],
-        color: '#3b82f6',
-        year: '~2000 BCE',
+        color: '#3b82f6', year: '~2000 BCE',
         description: 'Expansion into the Indonesian archipelago.',
+        countryName: 'Indonesia',
         markers: ['Sulawesi']
     },
     {
-        id: 'fiji',
-        label: 'Fiji',
-        name: 'Sulawesi → Fiji',
+        id: 'fiji', label: 'Fiji', name: 'Sulawesi → Fiji',
         coords: [[-2.0, 120.3], [-5.0, 130.0], [-10.0, 145.0], [-15.0, 165.0], [-17.7, 178.1]],
-        color: '#3b82f6',
-        year: '~1500 BCE',
+        color: '#3b82f6', year: '~1500 BCE',
         description: 'Great leap across open Pacific to Melanesia.',
+        countryName: 'Fiji',
         markers: ['Fiji']
     },
     {
-        id: 'tonga',
-        label: 'Tonga',
-        name: 'Fiji → Tonga',
+        id: 'tonga', label: 'Tonga', name: 'Fiji → Tonga',
         coords: [[-17.7, 178.1], [-21.2, -175.2]],
-        color: '#3b82f6',
-        year: '~1200 BCE',
+        color: '#3b82f6', year: '~1200 BCE',
         description: 'Polynesian heartland established.',
+        countryName: 'Tonga',
         markers: ['Tonga']
     },
     {
-        id: 'samoa',
-        label: 'Samoa',
-        name: 'Tonga → Samoa',
+        id: 'samoa', label: 'Samoa', name: 'Tonga → Samoa',
         coords: [[-21.2, -175.2], [-13.8, -172.1]],
-        color: '#3b82f6',
-        year: '~1000 BCE',
+        color: '#3b82f6', year: '~1000 BCE',
         description: 'The Navigator Hub.',
+        countryName: 'Samoa',
         markers: ['Samoa']
     },
     {
-        id: 'hawaii',
-        label: 'Hawai\'i',
-        name: 'Samoa → Hawai\'i',
+        id: 'hawaii', label: 'Hawai\'i', name: 'Samoa → Hawai\'i',
         coords: [[-13.8, -172.1], [-5.0, -165.0], [5.0, -160.0], [15.0, -157.0], [21.3, -157.8]],
-        color: '#3b82f6',
-        year: '~500 CE',
+        color: '#3b82f6', year: '~500 CE',
         description: 'Northern voyages to Hawaiian islands.',
+        countryName: null, // Skipping USA shading to avoid confusion
         markers: ['Hawai\'i']
     },
     {
-        id: 'nz',
-        label: 'Aotearoa',
-        name: 'Samoa → Aotearoa',
+        id: 'nz', label: 'Aotearoa', name: 'Samoa → Aotearoa',
         coords: [[-13.8, -172.1], [10.0, -165.0], [-10.0, 175.0], [-30.0, 175.0], [-41.3, 174.8]],
-        color: '#3b82f6',
-        year: '~800 CE',
+        color: '#3b82f6', year: '~800 CE',
         description: 'Settlement of New Zealand (Aotearoa).',
+        countryName: 'New Zealand',
         markers: ['Aotearoa']
     },
     {
-        id: 'madagascar',
-        label: 'Madagascar',
-        name: 'Sulawesi → Madagascar',
+        id: 'madagascar', label: 'Madagascar', name: 'Sulawesi → Madagascar',
         coords: [[-2.0, 120.3], [-5.0, 100.0], [-10.0, 80.0], [-15.0, 60.0], [-18.76, 46.86]],
-        color: '#3b82f6',
-        year: '~700 CE',
+        color: '#3b82f6', year: '~700 CE',
         description: 'The western expansion: Outriggers crossing the Indian Ocean.',
+        countryName: 'Madagascar',
         markers: ['Madagascar']
     }
 ];
 
-// 2. Modern BRI Sequence (Provided Data)
 const briSequence = [
     {
-        id: 'start_bri',
-        label: 'China',
-        name: 'BRI Launch',
-        coords: [],
-        color: '#22c55e',
-        year: '2013',
+        id: 'start_bri', label: 'China', name: 'BRI Launch',
+        coords: [], color: '#22c55e', year: '2013',
         description: 'The Belt and Road Initiative begins.',
         markers: ['Beijing']
     },
     { 
-        id: 'bri_tonga',
-        label: 'Tonga',
-        name: 'China → Tonga', 
+        id: 'bri_tonga', label: 'Tonga', name: 'China → Tonga', 
         coords: [[25.0, 121.0], [10.0, 150.0], [-5.0, 170.0], [-21.2, -175.2]], 
-        color: '#22c55e', 
-        year: '2019', 
+        color: '#22c55e', year: '2019', 
         description: 'Courthouse construction & development loans', 
         markers: ['Tonga'] 
     }, 
     { 
-        id: 'bri_samoa',
-        label: 'Samoa',
-        name: 'Tonga → Samoa', 
+        id: 'bri_samoa', label: 'Samoa', name: 'Tonga → Samoa', 
         coords: [[-21.2, -175.2], [-18.0, -174.0], [-13.8, -172.1]], 
-        color: '#22c55e', 
-        year: '2021', 
+        color: '#22c55e', year: '2021', 
         description: 'Police academy construction', 
         markers: ['Samoa'] 
     }, 
     { 
-        id: 'bri_solomons',
-        label: 'Solomon Is.',
-        name: 'Samoa → Solomon Islands', 
+        id: 'bri_solomons', label: 'Solomon Is.', name: 'Samoa → Solomon Islands', 
         coords: [[-13.8, -172.1], [-10.0, -165.0], [-5.0, 160.0], [-9.4, 159.9]], 
-        color: '#22c55e', 
-        year: '2023', 
+        color: '#22c55e', year: '2023', 
         description: 'Major wharf construction project', 
         markers: ['Solomon Islands'] 
     }, 
     { 
-        id: 'bri_kiribati',
-        label: 'Kiribati',
-        name: 'Solomon Islands → Kiribati', 
+        id: 'bri_kiribati', label: 'Kiribati', name: 'Solomon Islands → Kiribati', 
         coords: [[-9.4, 159.9], [-5.0, 165.0], [0.0, 170.0], [1.4, 173.0]], 
-        color: '#22c55e', 
-        year: '2023', 
+        color: '#22c55e', year: '2023', 
         description: 'Fisheries pier development', 
         markers: ['Kiribati'] 
     }, 
     { 
-        id: 'bri_fiji',
-        label: 'Fiji',
-        name: 'Kiribati → Fiji', 
+        id: 'bri_fiji', label: 'Fiji', name: 'Kiribati → Fiji', 
         coords: [[1.4, 173.0], [-5.0, 175.0], [-12.0, 178.0], [-17.7, 178.1]], 
-        color: '#22c55e', 
-        year: '2023', 
+        color: '#22c55e', year: '2023', 
         description: 'Hydropower, roads & "Great Wall" cricket stadium', 
         markers: ['Fiji'] 
     } 
@@ -276,6 +247,9 @@ const briSequence = [
 // ==================== APP LOGIC ====================
 
 let globe;
+let visitedCountries = new Set(); // Tracks countries reached by Blue Scouts
+let animationTimeout;
+let autoPlayActive = true;
 
 async function initGlobe() {
     const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
@@ -287,9 +261,16 @@ async function initGlobe() {
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
         .pointOfView({ lat: 5, lng: 165, altitude: 2.2 })
         .polygonsData(countries)
-        .polygonCapColor(() => 'rgba(30, 41, 59, 0.4)')
+        .polygonCapColor(d => {
+            // Choropleth Logic: If visited by Blue Scout, color it Blue
+            if (visitedCountries.has(d.properties.name)) {
+                return 'rgba(59, 130, 246, 0.6)'; // Blue tint
+            }
+            return 'rgba(30, 41, 59, 0.4)'; // Default dark
+        })
         .polygonSideColor(() => 'rgba(0,0,0,0.2)')
         .polygonStrokeColor(() => '#111')
+        .polygonsTransitionDuration(800)
         .pathPoints('coords')
         .pathPointLat(p => p[0])
         .pathPointLng(p => p[1])
@@ -301,111 +282,133 @@ async function initGlobe() {
         .htmlElementsData([]);
 
     renderNavBar();
-    // Initialize with first Ancient step
-    activateStep('ancient', 0);
+    
+    // Start Automatic Animation Sequence
+    runAnimationSequence();
+}
+
+function runAnimationSequence() {
+    let ancientIndex = 0;
+    
+    function playNextAncient() {
+        if (ancientIndex < ancientSequence.length) {
+            activateStep('ancient', ancientIndex);
+            ancientIndex++;
+            animationTimeout = setTimeout(playNextAncient, 1200); // 1.2 sec delay (flow)
+        } else {
+            // Ancient Done -> Wait -> Start BRI
+            setTimeout(startBRISequence, 1500);
+        }
+    }
+    
+    playNextAncient();
+}
+
+function startBRISequence() {
+    let briIndex = 0;
+    
+    function playNextBRI() {
+        if (briIndex < briSequence.length) {
+            activateStep('modern', briIndex);
+            briIndex++;
+            animationTimeout = setTimeout(playNextBRI, 1200);
+        }
+    }
+    playNextBRI();
 }
 
 function renderNavBar() {
     const ancientRow = document.getElementById('ancient-nav-row');
     const modernRow = document.getElementById('modern-nav-row');
 
-    // Build Ancient Pills
     ancientSequence.forEach((step, index) => {
         const pill = document.createElement('div');
         pill.className = 'nav-pill ancient-pill';
         pill.innerText = step.label;
-        pill.onclick = () => activateStep('ancient', index);
+        pill.onclick = () => { clearTimeout(animationTimeout); activateStep('ancient', index); };
         pill.id = `ancient-btn-${index}`;
         ancientRow.appendChild(pill);
     });
 
-    // Build Modern Pills
     briSequence.forEach((step, index) => {
         const pill = document.createElement('div');
         pill.className = 'nav-pill modern-pill';
         pill.innerText = step.label;
-        pill.onclick = () => activateStep('modern', index);
+        pill.onclick = () => { clearTimeout(animationTimeout); activateStep('modern', index); };
         pill.id = `modern-btn-${index}`;
         modernRow.appendChild(pill);
     });
 }
 
+// Main Logic to Render State
 function activateStep(type, index) {
-    // 1. Determine active data slice
-    let activeData = [];
     let sequence = type === 'ancient' ? ancientSequence : briSequence;
-    
-    // Slice logic: Show all paths up to current index
-    // Note: For Ancient, we assume accumulation. For Modern, also accumulation.
-    activeData = sequence.slice(0, index + 1);
+    let paths = [];
+    let points = [];
 
-    // 2. Prepare paths and points
-    const paths = [];
-    const points = [];
-
-    // Points need to aggregate based on markers in the active slices
-    const uniqueMarkers = new Set();
+    // 1. CHOROPLETH UPDATE (Cumulative)
+    // If we are in 'modern' mode, ensure all ancient countries are colored.
+    // If 'ancient' mode, color up to current index.
     
-    // For path calculation, we iterate through activeData.
-    // However, if type is Ancient, we want to keep previous paths visible 
-    // BUT we need to handle branching logic visualization.
-    // The slice method simply draws all lines from step 0 to step N.
-    
-    activeData.forEach(step => {
-        if (step.coords.length > 0) {
-            paths.push({
-                coords: step.coords,
-                color: step.color
-            });
+    if (type === 'ancient') {
+        // Reset and rebuild set up to this index
+        visitedCountries.clear();
+        for(let i=0; i<=index; i++) {
+            if (ancientSequence[i].countryName) visitedCountries.add(ancientSequence[i].countryName);
         }
-        
-        // Add markers (using last coord of path as dot location if available)
+    } else {
+        // Modern mode: Ensure ALL ancient countries are visited
+        ancientSequence.forEach(s => {
+            if(s.countryName) visitedCountries.add(s.countryName);
+        });
+    }
+    
+    // Trigger Polygon Re-render
+    globe.polygonsData(globe.polygonsData());
+
+    // 2. PATHS UPDATE
+    // If Modern, we show ALL Ancient paths + Modern paths up to index.
+    // If Ancient, we show Ancient paths up to index.
+    
+    const activeAncient = type === 'ancient' ? ancientSequence.slice(0, index + 1) : ancientSequence;
+    const activeModern = type === 'modern' ? briSequence.slice(0, index + 1) : [];
+
+    [...activeAncient, ...activeModern].forEach(step => {
         if (step.coords.length > 0) {
+            paths.push({ coords: step.coords, color: step.color });
+            
+            // Marker at end of path
             const endCoord = step.coords[step.coords.length - 1];
-            points.push({
-                lat: endCoord[0],
-                lng: endCoord[1],
-                color: step.color,
-                label: step.label
-            });
-        } else if (index === 0 && step.id === 'taiwan') {
-            // Special case for Taiwan start dot
-             points.push({ lat: 25.0, lng: 121.0, color: '#3b82f6', label: 'Start' });
-        } else if (index === 0 && step.id === 'start_bri') {
-             points.push({ lat: 39.9, lng: 116.4, color: '#22c55e', label: 'Start' });
+            points.push({ lat: endCoord[0], lng: endCoord[1], color: step.color, label: step.label });
+        } else if (step.id === 'taiwan') {
+             points.push({ lat: 25.0, lng: 121.0, color: '#3b82f6', label: 'Origin' });
+        } else if (step.id === 'start_bri') {
+             points.push({ lat: 39.9, lng: 116.4, color: '#22c55e', label: 'Beijing' });
         }
     });
 
-    // 3. Update Globe
-    globe.pathsData(paths)
-         .htmlElementsData(points.map(p => createMarker(p)));
+    globe.pathsData(paths).htmlElementsData(points.map(p => createMarker(p)));
 
-    // 4. Update UI Panel
+    // 3. UI UPDATE
     const currentStep = sequence[index];
     const panel = document.getElementById('infoPanel');
-    const content = document.getElementById('dynamic-content');
     
-    // Style panel based on type
     panel.style.borderColor = type === 'ancient' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)';
-    
-    document.getElementById('info-title').innerText = currentStep.name;
     document.getElementById('info-title').className = `panel-header ${type === 'ancient' ? 'text-blue-400' : 'text-green-400'}`;
     
+    document.getElementById('info-title').innerText = currentStep.name;
     document.getElementById('info-year').innerText = currentStep.year;
     document.getElementById('info-desc').innerText = currentStep.description;
-    document.getElementById('info-markers').innerText = currentStep.markers.join(', ');
     
-    content.style.opacity = 1;
+    // Set Tech/Cargo based on Type
+    document.getElementById('info-tech').innerText = type === 'ancient' ? TECH_ANCIENT : TECH_MODERN;
+    document.getElementById('info-cargo').innerText = type === 'ancient' ? CARGO_ANCIENT : CARGO_MODERN;
 
-    // 5. Update Nav Button States
-    document.querySelectorAll('.nav-pill').forEach(btn => {
-        btn.classList.remove('ancient-active', 'modern-active');
-    });
-    
-    const activeClass = type === 'ancient' ? 'ancient-active' : 'modern-active';
+    // 4. Nav Highlight
+    document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('ancient-active', 'modern-active'));
     const btnId = `${type}-btn-${index}`;
     const btn = document.getElementById(btnId);
-    if(btn) btn.classList.add(activeClass);
+    if(btn) btn.classList.add(type === 'ancient' ? 'ancient-active' : 'modern-active');
 }
 
 function createMarker(d) {
@@ -413,9 +416,7 @@ function createMarker(d) {
     el.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center;">
             <div style="width:12px; height:12px; background:${d.color}; border:2px solid white; border-radius:50%; box-shadow:0 0 15px ${d.color};"></div>
-            <div style="background:rgba(0,0,0,0.6); color:white; padding:2px 6px; border-radius:4px; font-size:10px; margin-top:4px; white-space:nowrap; pointer-events:none;">
-                ${d.label}
-            </div>
+            <div style="background:rgba(0,0,0,0.6); color:white; padding:2px 6px; border-radius:4px; font-size:10px; margin-top:4px; white-space:nowrap; pointer-events:none;">${d.label}</div>
         </div>
     `;
     return el;
