@@ -16,9 +16,47 @@
             z-index: 1; 
         }
 
+        /* --- TOP BANNER --- */
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(15,18,28,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding: 24px 40px;
+            text-align: center;
+            z-index: 20;
+            border-bottom: 1px solid rgba(70,80,100,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .top-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        .top-subtitle {
+            font-size: 1.1rem;
+            line-height: 1.65;
+            color: #e2e8f0;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
         /* --- LEFT SIDEBAR --- */
         .ui-panel {
-            position: fixed; top: 20px; left: 20px; width: 340px;
+            position: fixed; top: 180px; left: 20px; width: 340px; /* Moved down to accommodate banner */
             background: rgba(15,23,42,0.9); backdrop-filter: blur(12px);
             border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px;
             padding: 24px; z-index: 10; color: white;
@@ -81,6 +119,13 @@
 
 <div id="globeViz"></div>
 
+<div class="top-banner">
+    <div class="top-title">THE WOLF PACK of the South Pacific. 5000 YEARS before Europeans arrived in the PACIFIC</div>
+    <div class="top-subtitle">
+        From outrigger canoes carrying pigs and taro to Belt-and-Road ships carrying cranes and fiber optics the same oceanic paths, the same island stepping stones, separated by 5 millennia
+    </div>
+</div>
+
 <div class="ui-panel" id="infoPanel">
     <div class="panel-header" id="info-title">THE WOLF PACK</div>
     <div class="panel-sub" id="info-sub">Austronesian Expansion</div>
@@ -124,7 +169,6 @@ const CARGO_MODERN = "Concrete, cranes, fiber optics, diplomatic influence";
 
 // ==================== DATASETS ====================
 
-// Note: 'countryName' key added for Choropleth shading
 const ancientSequence = [
     {
         id: 'taiwan', label: 'Fujian/Taiwan', name: 'The Origin',
@@ -179,7 +223,7 @@ const ancientSequence = [
         coords: [[-13.8, -172.1], [-5.0, -165.0], [5.0, -160.0], [15.0, -157.0], [21.3, -157.8]],
         color: '#3b82f6', year: '~500 CE',
         description: 'Northern voyages to Hawaiian islands.',
-        countryName: null, // Skipping USA shading to avoid confusion
+        countryName: null, 
         markers: ['Hawai\'i']
     },
     {
@@ -247,9 +291,10 @@ const briSequence = [
 // ==================== APP LOGIC ====================
 
 let globe;
-let visitedCountries = new Set(); // Tracks countries reached by Blue Scouts
+let visitedCountries = new Set(); 
 let animationTimeout;
-let autoPlayActive = true;
+let displayedPaths = [];
+let displayedMarkers = [];
 
 async function initGlobe() {
     const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
@@ -259,170 +304,5 @@ async function initGlobe() {
     globe = Globe()(document.getElementById('globeViz'))
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-        .pointOfView({ lat: 5, lng: 165, altitude: 2.2 })
-        .polygonsData(countries)
-        .polygonCapColor(d => {
-            // Choropleth Logic: If visited by Blue Scout, color it Blue
-            if (visitedCountries.has(d.properties.name)) {
-                return 'rgba(59, 130, 246, 0.6)'; // Blue tint
-            }
-            return 'rgba(30, 41, 59, 0.4)'; // Default dark
-        })
-        .polygonSideColor(() => 'rgba(0,0,0,0.2)')
-        .polygonStrokeColor(() => '#111')
-        .polygonsTransitionDuration(800)
-        .pathPoints('coords')
-        .pathPointLat(p => p[0])
-        .pathPointLng(p => p[1])
-        .pathColor(d => d.color)
-        .pathStroke(3)
-        .pathDashLength(0.5)
-        .pathDashGap(0.1)
-        .pathDashAnimateTime(2000)
-        .htmlElementsData([]);
-
-    renderNavBar();
-    
-    // Start Automatic Animation Sequence
-    runAnimationSequence();
-}
-
-function runAnimationSequence() {
-    let ancientIndex = 0;
-    
-    function playNextAncient() {
-        if (ancientIndex < ancientSequence.length) {
-            activateStep('ancient', ancientIndex);
-            ancientIndex++;
-            animationTimeout = setTimeout(playNextAncient, 1200); // 1.2 sec delay (flow)
-        } else {
-            // Ancient Done -> Wait -> Start BRI
-            setTimeout(startBRISequence, 1500);
-        }
-    }
-    
-    playNextAncient();
-}
-
-function startBRISequence() {
-    let briIndex = 0;
-    
-    function playNextBRI() {
-        if (briIndex < briSequence.length) {
-            activateStep('modern', briIndex);
-            briIndex++;
-            animationTimeout = setTimeout(playNextBRI, 1200);
-        }
-    }
-    playNextBRI();
-}
-
-function renderNavBar() {
-    const ancientRow = document.getElementById('ancient-nav-row');
-    const modernRow = document.getElementById('modern-nav-row');
-
-    ancientSequence.forEach((step, index) => {
-        const pill = document.createElement('div');
-        pill.className = 'nav-pill ancient-pill';
-        pill.innerText = step.label;
-        pill.onclick = () => { clearTimeout(animationTimeout); activateStep('ancient', index); };
-        pill.id = `ancient-btn-${index}`;
-        ancientRow.appendChild(pill);
-    });
-
-    briSequence.forEach((step, index) => {
-        const pill = document.createElement('div');
-        pill.className = 'nav-pill modern-pill';
-        pill.innerText = step.label;
-        pill.onclick = () => { clearTimeout(animationTimeout); activateStep('modern', index); };
-        pill.id = `modern-btn-${index}`;
-        modernRow.appendChild(pill);
-    });
-}
-
-// Main Logic to Render State
-function activateStep(type, index) {
-    let sequence = type === 'ancient' ? ancientSequence : briSequence;
-    let paths = [];
-    let points = [];
-
-    // 1. CHOROPLETH UPDATE (Cumulative)
-    // If we are in 'modern' mode, ensure all ancient countries are colored.
-    // If 'ancient' mode, color up to current index.
-    
-    if (type === 'ancient') {
-        // Reset and rebuild set up to this index
-        visitedCountries.clear();
-        for(let i=0; i<=index; i++) {
-            if (ancientSequence[i].countryName) visitedCountries.add(ancientSequence[i].countryName);
-        }
-    } else {
-        // Modern mode: Ensure ALL ancient countries are visited
-        ancientSequence.forEach(s => {
-            if(s.countryName) visitedCountries.add(s.countryName);
-        });
-    }
-    
-    // Trigger Polygon Re-render
-    globe.polygonsData(globe.polygonsData());
-
-    // 2. PATHS UPDATE
-    // If Modern, we show ALL Ancient paths + Modern paths up to index.
-    // If Ancient, we show Ancient paths up to index.
-    
-    const activeAncient = type === 'ancient' ? ancientSequence.slice(0, index + 1) : ancientSequence;
-    const activeModern = type === 'modern' ? briSequence.slice(0, index + 1) : [];
-
-    [...activeAncient, ...activeModern].forEach(step => {
-        if (step.coords.length > 0) {
-            paths.push({ coords: step.coords, color: step.color });
-            
-            // Marker at end of path
-            const endCoord = step.coords[step.coords.length - 1];
-            points.push({ lat: endCoord[0], lng: endCoord[1], color: step.color, label: step.label });
-        } else if (step.id === 'taiwan') {
-             points.push({ lat: 25.0, lng: 121.0, color: '#3b82f6', label: 'Origin' });
-        } else if (step.id === 'start_bri') {
-             points.push({ lat: 39.9, lng: 116.4, color: '#22c55e', label: 'Beijing' });
-        }
-    });
-
-    globe.pathsData(paths).htmlElementsData(points.map(p => createMarker(p)));
-
-    // 3. UI UPDATE
-    const currentStep = sequence[index];
-    const panel = document.getElementById('infoPanel');
-    
-    panel.style.borderColor = type === 'ancient' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)';
-    document.getElementById('info-title').className = `panel-header ${type === 'ancient' ? 'text-blue-400' : 'text-green-400'}`;
-    
-    document.getElementById('info-title').innerText = currentStep.name;
-    document.getElementById('info-year').innerText = currentStep.year;
-    document.getElementById('info-desc').innerText = currentStep.description;
-    
-    // Set Tech/Cargo based on Type
-    document.getElementById('info-tech').innerText = type === 'ancient' ? TECH_ANCIENT : TECH_MODERN;
-    document.getElementById('info-cargo').innerText = type === 'ancient' ? CARGO_ANCIENT : CARGO_MODERN;
-
-    // 4. Nav Highlight
-    document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('ancient-active', 'modern-active'));
-    const btnId = `${type}-btn-${index}`;
-    const btn = document.getElementById(btnId);
-    if(btn) btn.classList.add(type === 'ancient' ? 'ancient-active' : 'modern-active');
-}
-
-function createMarker(d) {
-    const el = document.createElement('div');
-    el.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <div style="width:12px; height:12px; background:${d.color}; border:2px solid white; border-radius:50%; box-shadow:0 0 15px ${d.color};"></div>
-            <div style="background:rgba(0,0,0,0.6); color:white; padding:2px 6px; border-radius:4px; font-size:10px; margin-top:4px; white-space:nowrap; pointer-events:none;">${d.label}</div>
-        </div>
-    `;
-    return el;
-}
-
-initGlobe();
-</script>
-</body>
-</html>
+        // Centered on Papua New Guinea
+        .pointOfView({ lat: -8, lng: 145, altitude: 2.5
