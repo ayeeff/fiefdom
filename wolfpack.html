@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wolf Pack: 5000 Years of Pacific Crossings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    
+    <style>
+        #globeViz { 
+            width: 100vw; 
+            height: 100vh; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 1;
+            background: #000;
+        }
+
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(15,18,28,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding: 24px 40px;
+            text-align: center;
+            z-index: 20;
+            border-bottom: 1px solid rgba(70,80,100,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .top-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        .top-subtitle {
+            font-size: 1.1rem;
+            line-height: 1.65;
+            color: #e2e8f0;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            background: rgba(15,20,35,0.98);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(70,80,100,0.4);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .era-btn {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.15rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid rgba(100,116,139,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .era-btn:hover:not(.active) {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .era-btn.active {
+            color: white;
+            box-shadow: 0 0 20px rgba(59,130,246,0.6);
+            transform: translateY(-2px);
+        }
+        .era-btn.wolf-scouts.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        .era-btn.reunion.active {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+        
+        .era-subtitle {
+            font-size: 0.85rem;
+            color: white;
+            margin-top: 4px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .legend h3 {
+            color: #3b82f6;
+            margin: 28px 0 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+            font-size: 0.94rem;
+            color: white;
+        }
+        .legend-color { flex-shrink: 0; }
+
+        .stats-box {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: rgba(15,20,35,0.98);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            padding: 20px 32px;
+            border: 1px solid rgba(70,80,100,0.4);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+            z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 380px;
+        }
+        .stats-box h3 {
+            color: #22c55e;
+            margin: 0 0 12px 0;
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+        .stats-box p {
+            color: #e2e8f0;
+            margin: 8px 0;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .stat-highlight {
+            color: #3b82f6;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div id="globeViz"></div>
+
+<div class="top-banner">
+    <div class="top-title">THE WOLF PACK: 5000 YEARS OF PACIFIC CROSSINGS</div>
+    <div class="top-subtitle">
+        From outrigger canoes carrying pigs and taro to Belt-and-Road ships carrying cranes and fiber optics—the same oceanic paths, the same island stepping stones, separated by 5 millennia
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="era-btn wolf-scouts active" id="tab-scouts" onclick="setEra('scouts')">
+        🛶 THE WOLF SCOUTS DEPART
+        <div class="era-subtitle">~3000 BCE from Fujian/Taiwan</div>
+    </div>
+    <div class="era-btn reunion" id="tab-reunion" onclick="setEra('reunion')">
+        🚢 THE REUNION TOUR
+        <div class="era-subtitle">2019–2024 Belt & Road</div>
+    </div>
+    <div class="era-btn" id="tab-both" onclick="setEra('both')">
+        🌏 SHOW BOTH ERAS
+        <div class="era-subtitle">The full circle journey</div>
+    </div>
+
+    <div class="legend">
+        <h3>Migration Routes</h3>
+        
+        <div style="font-size: 0.8rem; font-weight: bold; color: #94a3b8; margin: 12px 0 8px;">ANCIENT MIGRATION</div>
+        <div class="legend-item">
+            <div class="legend-color" style="width: 36px; height: 3px; background: #3b82f6;"></div>
+            <span>Wolf Scout Routes (~3000 BCE)</span>
+        </div>
+        
+        <div style="font-size: 0.8rem; font-weight: bold; color: #94a3b8; margin: 16px 0 8px;">MODERN RETURN</div>
+        <div class="legend-item">
+            <div class="legend-color" style="width: 36px; height: 3px; background: #22c55e;"></div>
+            <span>Belt & Road (2019–2024)</span>
+        </div>
+
+        <div style="font-size: 0.8rem; font-weight: bold; color: #94a3b8; margin: 16px 0 8px;">WAYPOINTS</div>
+        <div class="legend-item">
+            <div class="legend-color" style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6;"></div>
+            <span>Ancient Settlements</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="width: 24px; height: 24px; border-radius: 50%; background: #22c55e;"></div>
+            <span>BRI Projects (2019–2024)</span>
+        </div>
+    </div>
+</div>
+
+<div class="stats-box" id="stats-box">
+    <h3 id="stats-title">🛶 The Wolf Scouts Depart (~3000 BCE)</h3>
+    <div id="stats-content">
+        <p><span class="stat-highlight">Origin:</span> Fujian & Taiwan coast</p>
+        <p><span class="stat-highlight">Technology:</span> First outrigger canoes</p>
+        <p><span class="stat-highlight">Cargo:</span> Pigs, taro, stone tools</p>
+        <p><span class="stat-highlight">Distance:</span> Madagascar to Easter Island (26,000 km)</p>
+        <p><span class="stat-highlight">Legacy:</span> Haplogroup B4a1a+146 "Polynesian motif"</p>
+    </div>
+</div>
+    
+<script>
+let globe, currentEra = 'scouts';
+
+// Ancient Austronesian migration waypoints
+const ancientSettlements = {
+    'Fujian/Taiwan': {lat: 25.0, lng: 121.0},
+    'Luzon': {lat: 14.6, lng: 121.0},
+    'Sulawesi': {lat: -2.0, lng: 120.3},
+    'Fiji': {lat: -17.7, lng: 178.1},
+    'Tonga': {lat: -21.2, lng: -175.2},
+    'Samoa': {lat: -13.8, lng: -172.1},
+    'Hawai\'i': {lat: 21.3, lng: -157.8},
+    'Aotearoa': {lat: -41.3, lng: 174.8},
+    'Easter Island': {lat: -27.1, lng: -109.4},
+    'Madagascar': {lat: -18.9, lng: 47.5}
+};
+
+// Modern Belt & Road projects
+const briProjects = {
+    'Solomon Islands': {lat: -9.4, lng: 159.9, project: 'Wharf (2023)'},
+    'Samoa': {lat: -13.8, lng: -172.1, project: 'Police academy (2021)'},
+    'Tonga': {lat: -21.2, lng: -175.2, project: 'Courthouse (2019)'},
+    'Kiribati': {lat: 1.4, lng: 173.0, project: 'Fisheries pier'},
+    'Fiji': {lat: -17.7, lng: 178.1, project: 'Stadium & hydropower (2023)'},
+    'Papua New Guinea': {lat: -6.3, lng: 143.9, project: 'Roads & infrastructure'},
+    'Vanuatu': {lat: -17.7, lng: 168.3, project: 'Wharf development'}
+};
+
+// Ancient migration routes (blue)
+const ancientRoutes = [
+    {
+        name: 'Taiwan → Luzon',
+        coords: [[25.0, 121.0], [20.0, 121.5], [14.6, 121.0]],
+        color: '#3b82f6',
+        label: 'First Island Hop (~3000 BCE)'
+    },
+    {
+        name: 'Luzon → Sulawesi',
+        coords: [[14.6, 121.0], [10.0, 122.0], [5.0, 120.0], [-2.0, 120.3]],
+        color: '#3b82f6',
+        label: 'Into Indonesia (~2500 BCE)'
+    },
+    {
+        name: 'Sulawesi → Fiji',
+        coords: [[-2.0, 120.3], [-5.0, 130.0], [-10.0, 145.0], [-15.0, 165.0], [-17.7, 178.1]],
+        color: '#3b82f6',
+        label: 'Crossing to Melanesia (~1500 BCE)'
+    },
+    {
+        name: 'Fiji → Tonga → Samoa',
+        coords: [[-17.7, 178.1], [-19.0, -178.0], [-21.2, -175.2], [-18.0, -174.0], [-13.8, -172.1]],
+        color: '#3b82f6',
+        label: 'Polynesian Heartland (~1200 BCE)'
+    },
+    {
+        name: 'Samoa → Hawai\'i',
+        coords: [[-13.8, -172.1], [-5.0, -165.0], [5.0, -160.0], [15.0, -157.0], [21.3, -157.8]],
+        color: '#3b82f6',
+        label: 'Northern Voyages (~500 CE)'
+    },
+    {
+        name: 'Samoa → Aotearoa',
+        coords: [[-13.8, -172.1], [-20.0, -175.0], [-30.0, 175.0], [-41.3, 174.8]],
+        color: '#3b82f6',
+        label: 'To New Zealand (~800 CE)'
+    },
+    {
+        name: 'Samoa → Easter Island',
+        coords: [[-13.8, -172.1], [-15.0, -160.0], [-20.0, -140.0], [-27.1, -109.4]],
+        color: '#3b82f6',
+        label: 'Easternmost Settlement (~1200 CE)'
+    },
+    {
+        name: 'Sulawesi → Madagascar',
+        coords: [[-2.0, 120.3], [-5.0, 100.0], [-10.0, 70.0], [-18.9, 47.5]],
+        color: '#3b82f6',
+        label: 'Western Expansion (~500 CE)'
+    }
+];
+
+// Modern BRI routes (green)
+const briRoutes = [
+    {
+        name: 'China → Solomon Islands',
+        coords: [[25.0, 121.0], [15.0, 135.0], [0.0, 150.0], [-9.4, 159.9]],
+        color: '#22c55e',
+        label: 'Wharf Construction (2023)'
+    },
+    {
+        name: 'China → Samoa',
+        coords: [[25.0, 121.0], [15.0, 145.0], [0.0, 165.0], [-13.8, -172.1]],
+        color: '#22c55e',
+        label: 'Police Academy (2021)'
+    },
+    {
+        name: 'China → Tonga',
+        coords: [[25.0, 121.0], [10.0, 150.0], [-5.0, 170.0], [-21.2, -175.2]],
+        color: '#22c55e',
+        label: 'Courthouse & Loans (2019)'
+    },
+    {
+        name: 'China → Kiribati',
+        coords: [[25.0, 121.0], [15.0, 145.0], [5.0, 160.0], [1.4, 173.0]],
+        color: '#22c55e',
+        label: 'Fisheries Pier'
+    },
+    {
+        name: 'China → Fiji',
+        coords: [[25.0, 121.0], [10.0, 140.0], [-5.0, 165.0], [-17.7, 178.1]],
+        color: '#22c55e',
+        label: 'Stadium & Hydropower (2023)'
+    },
+    {
+        name: 'China → PNG',
+        coords: [[25.0, 121.0], [15.0, 130.0], [0.0, 140.0], [-6.3, 143.9]],
+        color: '#22c55e',
+        label: 'Roads & Infrastructure'
+    },
+    {
+        name: 'China → Vanuatu',
+        coords: [[25.0, 121.0], [10.0, 140.0], [-5.0, 160.0], [-17.7, 168.3]],
+        color: '#22c55e',
+        label: 'Wharf Development'
+    }
+];
+
+async function initGlobe() {
+    const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
+    const topo = await resp.json();
+    const countries = topojson.feature(topo, topo.objects.countries).features;
+
+    globe = Globe()(document.getElementById('globeViz'))
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+        .pointOfView({ lat: -5, lng: 160, altitude: 2.5 })
+        .polygonsData(countries)
+        .polygonCapColor(() => 'rgba(40,50,70,0.5)')
+        .polygonSideColor(() => 'rgba(0,0,0,0.15)')
+        .polygonStrokeColor(() => '#111')
+        .pathsData(getVisiblePaths())
+        .pathPoints('coords')
+        .pathPointLat(p => p[0])
+        .pathPointLng(p => p[1])
+        .pathColor(d => d.color)
+        .pathLabel(d => `<b>${d.name}</b><br>${d.label}`)
+        .pathStroke(2.5)
+        .pathDashLength(0.3)
+        .pathDashGap(0.1)
+        .pathDashAnimateTime(15000)
+        .htmlElementsData(getVisibleMarkers())
+        .htmlElement(d => {
+            const el = document.createElement('div');
+            const color = d.type === 'ancient' ? '#3b82f6' : '#22c55e';
+            const size = d.type === 'ancient' ? '32px' : '36px';
+            const pulse = d.type === 'bri' ? `animation: pulse 2s infinite;` : '';
+            el.innerHTML = `
+                <div style="width:${size};height:${size};background:${color};border:3px solid white;border-radius:50%;box-shadow:0 0 25px ${color};${pulse}"></div>
+            `;
+            return el;
+        });
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    updateDisplay();
+}
+
+function getVisiblePaths() {
+    if (currentEra === 'scouts') return ancientRoutes;
+    if (currentEra === 'reunion') return briRoutes;
+    return [...ancientRoutes, ...briRoutes];
+}
+
+function getVisibleMarkers() {
+    const markers = [];
+    
+    if (currentEra === 'scouts' || currentEra === 'both') {
+        Object.entries(ancientSettlements).forEach(([name, coords]) => {
+            markers.push({...coords, name, type: 'ancient'});
+        });
+    }
+    
+    if (currentEra === 'reunion' || currentEra === 'both') {
+        Object.entries(briProjects).forEach(([name, data]) => {
+            markers.push({
+                lat: data.lat, 
+                lng: data.lng, 
+                name: `${name}: ${data.project}`, 
+                type: 'bri'
+            });
+        });
+    }
+    
+    return markers;
+}
+
+function updateDisplay() {
+    const titles = {
+        scouts: '🛶 The Wolf Scouts Depart (~3000 BCE)',
+        reunion: '🚢 The Reunion Tour (2019–2024)',
+        both: '🌏 The Full Circle Journey'
+    };
+    
+    const content = {
+        scouts: `
+            <p><span class="stat-highlight">Origin:</span> Fujian & Taiwan coast</p>
+            <p><span class="stat-highlight">Technology:</span> First outrigger canoes</p>
+            <p><span class="stat-highlight">Cargo:</span> Pigs, taro, stone tools</p>
+            <p><span class="stat-highlight">Distance:</span> Madagascar to Easter Island (26,000 km)</p>
+            <p><span class="stat-highlight">Legacy:</span> Haplogroup B4a1a+146 "Polynesian motif"</p>
+        `,
+        reunion: `
+            <p><span class="stat-highlight">Origin:</span> People's Republic of China</p>
+            <p><span class="stat-highlight">Technology:</span> Belt & Road Initiative</p>
+            <p><span class="stat-highlight">Cargo:</span> Concrete, cranes, fiber optics, 5G towers</p>
+            <p><span class="stat-highlight">Investment:</span> Billions in Pacific infrastructure</p>
+            <p><span class="stat-highlight">Legacy:</span> Strategic presence across ancestral routes</p>
+        `,
+        both: `
+            <p><span class="stat-highlight">5000 Years:</span> Same ocean, same islands</p>
+            <p><span class="stat-highlight">Then:</span> Outrigger canoes with taro & pigs</p>
+            <p><span class="stat-highlight">Now:</span> Container ships with concrete & cables</p>
+            <p><span class="stat-highlight">Pattern:</span> Island-hopping strategy unchanged</p>
+            <p><span class="stat-highlight">Connection:</span> Genetic & geopolitical homecoming</p>
+        `
+    };
+    
+    document.getElementById('stats-title').innerHTML = titles[currentEra];
+    document.getElementById('stats-content').innerHTML = content[currentEra];
+    
+    globe.pathsData(getVisiblePaths())
+         .htmlElementsData(getVisibleMarkers());
+}
+
+function setEra(era) {
+    currentEra = era;
+    
+    document.querySelectorAll('.era-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById('tab-' + era).classList.add('active');
+    
+    updateDisplay();
+}
+
+initGlobe();
+</script>
+
+</body>
+</html>
