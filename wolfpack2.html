@@ -3,310 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Wolf Pack Returns · 5000BP – 2024</title>
+    <title>The Wolf Pack Snake Path</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             prefix: 'wolf-',
-            corePlugins: {
-                preflight: false,
-            }
+            corePlugins: { preflight: false }
         }
     </script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     
     <style>
-        /* Scoped styles based on previous template */
         #wolfviz { 
-            width: 100vw; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: 1; 
-            background: #02040a;
+            width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; 
+            z-index: 1; background: #02040a;
         }
-
-        /* Top banner */
-        .wolf-top-banner {
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 1100px;
-            background: rgba(15,23,42,0.96);
-            backdrop-filter: blur(12px);
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            padding: 20px 40px;
-            text-align: center;
-            z-index: 20;
-            border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+        /* UI Styles */
+        .wolf-ui-panel {
+            position: fixed; top: 20px; left: 20px; width: 320px;
+            background: rgba(15,23,42,0.95); backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px;
+            padding: 20px; z-index: 10; font-family: sans-serif; color: white;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            font-family: system-ui, -apple-system, sans-serif;
         }
-        .wolf-top-title {
-            font-size: 2rem;
-            font-weight: 900;
-            color: #38bdf8; /* Blue for Scouts */
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-            line-height: 1.2;
-            text-transform: uppercase;
+        .wolf-title { font-size: 1.2rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px; }
+        .wolf-desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.4; }
+        
+        .wolf-btn {
+            width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px;
+            background: #1e293b; color: #cbd5e1; border: 1px solid #334155;
+            cursor: pointer; text-align: left; transition: all 0.2s;
+            font-weight: 600; display: flex; justify-content: space-between;
         }
-        .wolf-top-title.modern-mode {
-            color: #4ade80; /* Green for Reunion */
-        }
-        .wolf-top-desc {
-            font-size: 1.05rem;
-            line-height: 1.65;
-            color: #e2e8f0;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .wolf-btn:hover { background: #334155; color: white; }
+        .wolf-btn.active-blue { background: #0ea5e9; color: white; border-color: #38bdf8; box-shadow: 0 0 15px rgba(14,165,233,0.4); }
+        .wolf-btn.active-green { background: #22c55e; color: white; border-color: #4ade80; box-shadow: 0 0 15px rgba(34,197,94,0.4); }
 
-        /* Sidebar */
-        .wolf-sidebar {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 300px;
-            background: rgba(15,23,42,0.98);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 20px;
-            padding: 26px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-            z-index: 10;
-            font-family: system-ui, -apple-system, sans-serif;
+        .wolf-progress-bar {
+            height: 4px; background: #334155; border-radius: 2px; margin-top: 15px; overflow: hidden;
         }
-
-        /* Era buttons */
-        .wolf-era-btn {
-            width: 100%;
-            padding: 16px 16px;
-            margin-bottom: 12px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #1e293b;
-            color: #94a3b8;
-            border: 1px solid rgba(100,116,139,0.3);
-            position: relative;
+        .wolf-progress-fill {
+            height: 100%; width: 0%; background: #38bdf8; transition: width 0.5s ease;
         }
-        .wolf-era-btn:hover:not(.active) {
-            background: #334155;
-            color: #e2e8f0;
+        
+        .step-label {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); padding: 10px 24px; border-radius: 30px;
+            border: 1px solid #333; color: #fff; font-weight: bold; font-family: sans-serif;
+            opacity: 0; transition: opacity 0.5s; z-index: 10;
         }
-        .wolf-era-btn.active-blue {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            color: white;
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
-            border-color: #38bdf8;
-        }
-        .wolf-era-btn.active-green {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
-            border-color: #4ade80;
-        }
-        .wolf-sub-text {
-            font-size: 0.85rem;
-            font-weight: 400;
-            opacity: 0.9;
-            display: block;
-            margin-top: 4px;
-        }
-
-        /* Legend */
-        .wolf-legend h3 {
-            color: #94a3b8;
-            margin: 28px 0 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .wolf-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 9px 0;
-            font-size: 0.9rem;
-            color: white;
-        }
-        .wolf-legend-color { flex-shrink: 0; }
-
-        /* Bottom Counter */
-        .wolf-hud-bottom {
-            position: fixed;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15,23,42,0.98);
-            backdrop-filter: blur(12px);
-            border-radius: 18px;
-            padding: 18px 40px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            box-shadow: 0 10px 35px rgba(0,0,0,0.8);
-            z-index: 10;
-            font-family: system-ui, -apple-system, sans-serif;
-            min-width: 600px;
-        }
-        .wolf-stat-title {
-            color: #94a3b8;
-            margin: 0 0 15px 0;
-            font-size: 1rem;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        .wolf-big-num { font-size: 2.5rem; font-weight: 900; line-height: 1; }
-        .wolf-label { font-size: 0.82rem; color: #94a3b8; margin-top: 6px; }
     </style>
 </head>
 <body>
 
 <div id="wolfviz"></div>
 
-<div class="wolf-top-banner">
-    <div class="wolf-top-title" id="main-title">THE WOLF SCOUTS DEPART</div>
-    <div class="wolf-top-desc" id="main-desc">
-        5,000 years ago, on the coast of Fujian, the first outrigger canoes pushed off into the unknown. Every island became a new den for the Wolf Pack.
-    </div>
-</div>
-
-<div class="wolf-sidebar">
-    <div class="wolf-era-btn active-blue" id="btn-ancient" onclick="setEra('ancient')">
-        🛶 5,000 BP
-        <span class="wolf-sub-text">The Wolf Scouts Depart</span>
-    </div>
-    <div class="wolf-era-btn" id="btn-modern" onclick="setEra('modern')">
-        🚢 2019–2024
-        <span class="wolf-sub-text">The Reunion Tour</span>
-    </div>
-
-    <div class="wolf-legend">
-        <h3>Cargo Manifest</h3>
-        <div id="manifest-list">
-            </div>
-    </div>
-</div>
-
-<div class="wolf-hud-bottom">
-    <div class="wolf-stat-title" id="stat-header">Austronesian Expansion Stats</div>
-    <div class="wolf-grid wolf-grid-cols-3 wolf-gap-10 wolf-text-center">
-        <div><div class="wolf-big-num wolf-text-blue-400" id="stat-1">5,000</div><div class="wolf-label" id="label-1">Years Ago</div></div>
-        <div><div class="wolf-big-num wolf-text-purple-400" id="stat-2">B4a1a</div><div class="wolf-label" id="label-2">Haplogroup</div></div>
-        <div><div class="wolf-big-num wolf-text-teal-400" id="stat-3">15k+</div><div class="wolf-label" id="label-3">Miles Traversed</div></div>
-    </div>
-</div>
+<div class="wolf-ui-panel">
+    <div class="wolf-title" id="panel-title">THE WOLF SCOUTS</div>
+    <div class="wolf-desc" id="panel-desc">Tracing the path step-by-step.</div>
     
-<script>
-let globe, currentEra = 'ancient';
-let rotationTimer;
+    <button class="wolf-btn active-blue" id="btn-ancient" onclick="playScenario('ancient')">
+        <span>🛶 Ancient Scouts</span>
+        <span>5000 BP</span>
+    </button>
+    
+    <button class="wolf-btn" id="btn-modern" onclick="playScenario('modern')">
+        <span>🚢 Reunion Tour</span>
+        <span>2019-2024</span>
+    </button>
 
-// ==================== DATA: NARRATIVES ====================
-const narratives = {
+    <div class="wolf-progress-bar">
+        <div class="wolf-progress-fill" id="prog-bar"></div>
+    </div>
+</div>
+
+<div class="step-label" id="step-toast">Departing...</div>
+
+<script>
+let globe;
+let animationInterval;
+let currentPathData = [];
+let currentPointsData = [];
+
+// ==================== SEQUENTIAL DATA ====================
+// These arrays define the "Snake Game" order step-by-step.
+
+const scenarios = {
     ancient: {
+        color: '#38bdf8', // Blue
         title: "THE WOLF SCOUTS DEPART",
-        desc: "From Fujian and Taiwan, the first wolf pack pushed south and east. Every island—Luzon, Sulawesi, Fiji, Tonga—became a new den, carrying the genetic fingerprint B4a1a.",
-        stats: { s1: "5,000", l1: "Years Ago", s2: "B4a1a", l2: "Genetic Marker", s3: "15k+", l3: "Miles Traversed" },
-        manifest: [
-            { col: '#38bdf8', text: "Pigs & Taro Shoots" },
-            { col: '#818cf8', text: "Stone Adzes" },
-            { col: '#c084fc', text: "Outrigger Tech" }
-        ],
-        theme: 'blue'
+        desc: "Step-by-step migration from Taiwan to Aotearoa.",
+        // The sequence of steps
+        steps: [
+            { 
+                label: "Start: Taiwan", 
+                loc: { name: "Taiwan", lat: 23.69, lng: 120.96, desc: "Origin" },
+                path: null // First point has no path leading to it
+            },
+            { 
+                label: "Step 1: To Luzon", 
+                loc: { name: "Luzon", lat: 16.56, lng: 121.26, desc: "Philippines" },
+                path: [[23.69, 120.96], [16.56, 121.26]]
+            },
+            { 
+                label: "Step 2: To Sulawesi", 
+                loc: { name: "Sulawesi", lat: -2.5, lng: 119.5, desc: "Indonesia" },
+                path: [[16.56, 121.26], [5, 125], [-2.5, 119.5]]
+            },
+            { 
+                label: "Step 3: The Long Jump to Fiji", 
+                loc: { name: "Fiji", lat: -17.71, lng: 178.06, desc: "Melanesia" },
+                path: [[-2.5, 119.5], [-5, 145], [-10, 160], [-17.71, 178.06]]
+            },
+            { 
+                label: "Step 4: To Tonga", 
+                loc: { name: "Tonga", lat: -21.17, lng: -175.19, desc: "Polynesia" },
+                path: [[-17.71, 178.06], [-21.17, -175.19]]
+            },
+            { 
+                label: "Step 5: To Samoa", 
+                loc: { name: "Samoa", lat: -13.75, lng: -172.10, desc: "Navigator Hub" },
+                path: [[-21.17, -175.19], [-13.75, -172.10]]
+            },
+            { 
+                label: "Step 6: To Hawai'i", 
+                loc: { name: "Hawai'i", lat: 19.89, lng: -155.58, desc: "Northern Apex" },
+                path: [[-13.75, -172.10], [0, -165], [19.89, -155.58]]
+            },
+            { 
+                label: "Final Step: To Aotearoa", 
+                loc: { name: "Aotearoa", lat: -40.90, lng: 174.88, desc: "Southern Apex" },
+                path: [[19.89, -155.58], [-10, -160], [-40.90, 174.88]] 
+                // Note: Tracing Hawaii to NZ to make it a continuous snake, 
+                // though historically Samoa -> NZ is more direct. 
+                // Use [[-13.75, -172.10], [-40.90, 174.88]] if you want to branch from Samoa.
+            }
+        ]
     },
     modern: {
+        color: '#4ade80', // Green
         title: "THE REUNION TOUR",
-        desc: "The Mother Wolf Pack (PRC) returns to the dens of its descendants. The outriggers are replaced by Belt-and-Road cargo ships carrying concrete, 5G towers, and infrastructure loans.",
-        stats: { s1: "$4.2B", l1: "Aid/Loans", s2: "5", l2: "Key Projects", s3: "Huawei", l3: "Digital Infra" },
-        manifest: [
-            { col: '#4ade80', text: "Concrete & Cranes" },
-            { col: '#facc15', text: "Fiber-Optic Cable" },
-            { col: '#f87171', text: "Police Academies" }
-        ],
-        theme: 'green'
+        desc: "China's infrastructure path through the Pacific (2019-2024).",
+        steps: [
+            { 
+                label: "Start: Beijing", 
+                loc: { name: "Beijing", lat: 39.90, lng: 116.40, desc: "PRC HQ" },
+                path: null 
+            },
+            { 
+                label: "1. To Tonga (Courthouse/Loans)", 
+                loc: { name: "Tonga", lat: -21.17, lng: -175.19, desc: "Loans & Infra" },
+                path: [[39.90, 116.40], [10, 140], [-21.17, -175.19]]
+            },
+            { 
+                label: "2. To Samoa (Police Academy)", 
+                loc: { name: "Samoa", lat: -13.75, lng: -172.10, desc: "Police Academy" },
+                path: [[-21.17, -175.19], [-13.75, -172.10]]
+            },
+            { 
+                label: "3. To Solomon Islands (Wharf)", 
+                loc: { name: "Solomon Is.", lat: -9.64, lng: 160.15, desc: "New Wharf" },
+                path: [[-13.75, -172.10], [-12, 180], [-9.64, 160.15]]
+            },
+            { 
+                label: "4. To Kiribati (Fisheries)", 
+                loc: { name: "Kiribati", lat: 1.87, lng: -157.36, desc: "Fisheries Pier" },
+                path: [[-9.64, 160.15], [0, 170], [1.87, -157.36]]
+            },
+            { 
+                label: "5. To Fiji (Great Wall Stadium)", 
+                loc: { name: "Fiji", lat: -17.71, lng: 178.06, desc: "Stadium/Hydro" },
+                path: [[1.87, -157.36], [-10, 180], [-17.71, 178.06]]
+            }
+        ]
     }
 };
 
-// ==================== DATA: LOCATIONS ====================
-// type: 'ancient' (settlement) or 'modern' (project)
-const locations = [
-    // ANCIENT HUBS
-    { name: "Fujian (Origin)", lat: 26.07, lng: 119.29, type: "ancient", desc: "The Wolf Den" },
-    { name: "Taiwan", lat: 23.69, lng: 120.96, type: "ancient", desc: "Out of Taiwan Model" },
-    { name: "Luzon", lat: 16.56, lng: 121.26, type: "ancient", desc: "First Stop" },
-    { name: "Sulawesi", lat: -2.5, lng: 119.5, type: "ancient", desc: "Genetic Split" },
-    { name: "Fiji", lat: -17.71, lng: 178.06, type: "ancient", desc: "Lapita Culture" },
-    { name: "Tonga", lat: -21.17, lng: -175.19, type: "ancient", desc: "Polynesian Cradle" },
-    { name: "Samoa", lat: -13.75, lng: -172.10, type: "ancient", desc: "The Navigator's Hub" },
-    { name: "Hawai'i", lat: 19.89, lng: -155.58, type: "ancient", desc: "Northern Apex" },
-    { name: "Aotearoa", lat: -40.90, lng: 174.88, type: "ancient", desc: "Southern Apex" },
-    { name: "Madagascar", lat: -18.76, lng: 46.86, type: "ancient", desc: "Western Apex" },
-
-    // MODERN PROJECTS (THE REUNION)
-    { name: "Solomon Islands", lat: -9.64, lng: 160.15, type: "modern", desc: "New Wharf (2023)" },
-    { name: "Samoa (Academy)", lat: -13.83, lng: -171.75, type: "modern", desc: "Police Academy (2021)" },
-    { name: "Tonga (Court)", lat: -21.14, lng: -175.20, type: "modern", desc: "Courthouse & Loans" },
-    { name: "Kiribati", lat: 1.87, lng: -157.36, type: "modern", desc: "Fisheries Pier" }, // Kiritimati
-    { name: "Fiji (Stadium)", lat: -18.14, lng: 178.44, type: "modern", desc: "Great Wall Stadium" },
-    { name: "Beijing", lat: 39.90, lng: 116.40, type: "modern", desc: "The Mother Pack" }
-];
-
-// ==================== DATA: ROUTES ====================
-// color: blue (ancient) or green (modern)
-const routes = {
-    ancient: [
-        { coords: [[26.07, 119.29], [23.69, 120.96]], name: "Fujian -> Taiwan", color: "#38bdf8" },
-        { coords: [[23.69, 120.96], [18, 120.5], [16.56, 121.26]], name: "Taiwan -> Luzon", color: "#38bdf8" },
-        { coords: [[16.56, 121.26], [5, 125], [-2.5, 119.5]], name: "Luzon -> Sulawesi", color: "#38bdf8" },
-        // The Great Migration East
-        { coords: [[-2.5, 119.5], [-5, 145], [-10, 160], [-17.71, 178.06]], name: "Sulawesi -> Melanesia -> Fiji", color: "#38bdf8" },
-        { coords: [[-17.71, 178.06], [-21.17, -175.19]], name: "Fiji -> Tonga", color: "#38bdf8" },
-        { coords: [[-21.17, -175.19], [-13.75, -172.10]], name: "Tonga -> Samoa", color: "#38bdf8" },
-        // The Triangle
-        { coords: [[-13.75, -172.10], [0, -165], [19.89, -155.58]], name: "Samoa -> Hawai'i", color: "#38bdf8" },
-        { coords: [[-13.75, -172.10], [-25, -175], [-40.90, 174.88]], name: "Samoa -> Aotearoa", color: "#38bdf8" },
-        { coords: [[-13.75, -172.10], [-17, -149], [-27, -109]], name: "Samoa -> Tahiti -> Rapa Nui", color: "#38bdf8" },
-        // The Long Shot West
-        { coords: [[-2.5, 119.5], [-10, 100], [-15, 75], [-18.76, 46.86]], name: "Sulawesi -> Madagascar", color: "#38bdf8" }
-    ],
-    modern: [
-        // BRI Routes
-        { coords: [[39.90, 116.40], [25, 125], [10, 135], [-9.64, 160.15]], name: "PRC -> Solomon Islands", color: "#4ade80" },
-        { coords: [[39.90, 116.40], [20, 140], [0, 160], [-18.14, 178.44]], name: "PRC -> Fiji", color: "#4ade80" },
-        { coords: [[-18.14, 178.44], [-13.83, -171.75]], name: "Fiji Hub -> Samoa", color: "#4ade80" },
-        { coords: [[-18.14, 178.44], [-21.14, -175.20]], name: "Fiji Hub -> Tonga", color: "#4ade80" },
-        { coords: [[39.90, 116.40], [25, 150], [1.87, -157.36]], name: "PRC -> Kiribati", color: "#4ade80" }
-    ]
-};
-
-// ==================== UTILS ====================
-function getRegionColor(countryName) {
-    // A simplified logic to highlight Austronesian/Pacific nations
-    const pacific = ['Philippines', 'Indonesia', 'Malaysia', 'Papua New Guinea', 'Solomon Islands', 'Fiji', 'Vanuatu', 'New Caledonia', 'New Zealand', 'Madagascar', 'Taiwan', 'Samoa', 'Tonga', 'Kiribati'];
-    
-    // In ancient mode, highlight the migration path
-    if (currentEra === 'ancient') {
-        if (countryName === 'China') return 'rgba(30, 41, 59, 0.8)'; // Dark
-        if (pacific.includes(countryName)) return 'rgba(56, 189, 248, 0.6)'; // Blue
-    }
-    // In modern mode, highlight China + Targets
-    if (currentEra === 'modern') {
-        if (countryName === 'China') return 'rgba(34, 197, 94, 0.8)'; // Green (Source)
-        if (pacific.includes(countryName)) return 'rgba(34, 197, 94, 0.3)'; // Green tint (Target)
-    }
-    return 'rgba(30, 41, 59, 0.4)';
-}
+// ==================== INITIALIZATION ====================
 
 async function initGlobe() {
     const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
@@ -316,101 +190,112 @@ async function initGlobe() {
     globe = Globe()(document.getElementById('wolfviz'))
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-        .pointOfView({ lat: 5, lng: 160, altitude: 2.2 })
+        .pointOfView({ lat: 5, lng: 165, altitude: 2.2 })
         .polygonsData(countries)
-        .polygonCapColor(f => getRegionColor(f.properties.name))
+        .polygonCapColor(() => 'rgba(30, 41, 59, 0.4)')
         .polygonSideColor(() => 'rgba(0,0,0,0.2)')
         .polygonStrokeColor(() => '#111')
-        .polygonsTransitionDuration(1000)
-        .pathsData(routes[currentEra])
         .pathPoints('coords')
         .pathPointLat(p => p[0])
         .pathPointLng(p => p[1])
         .pathColor(d => d.color)
         .pathStroke(3)
-        .pathDashLength(0.4)
-        .pathDashGap(0.2)
-        .pathDashAnimateTime(6000)
-        .htmlElementsData(getLocations())
+        .pathDashLength(0.5)
+        .pathDashGap(0.1)
+        .pathDashAnimateTime(2000) // Fast dash animation
+        .htmlElementsData([])
         .htmlElement(d => {
             const el = document.createElement('div');
-            const color = d.type === 'ancient' ? '#38bdf8' : '#4ade80';
-            const size = d.name === 'Beijing' || d.name === 'Fujian (Origin)' ? 20 : 12;
-            
-            // Marker
             el.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div style="width:${size}px; height:${size}px; background:${color}; border:2px solid white; border-radius:50%; box-shadow:0 0 15px ${color};"></div>
-                    <div style="background:rgba(0,0,0,0.7); color:${color}; padding:2px 6px; border-radius:4px; font-size:10px; margin-top:4px; white-space:nowrap; border:1px solid ${color};">
-                        <b>${d.name}</b>
-                        <div style="color:white; font-size:9px;">${d.desc}</div>
-                    </div>
-                </div>
+                <div style="width:14px; height:14px; background:${d.color}; border:2px solid white; border-radius:50%; box-shadow:0 0 10px ${d.color};"></div>
+                <div style="color:${d.color}; font-family:sans-serif; font-weight:bold; font-size:12px; margin-top:4px; text-shadow:0 2px 4px black; white-space:nowrap;">${d.name}</div>
             `;
             return el;
         });
 
-    setEra('ancient'); // Initial load
-    startRotationTimer();
+    // Start default scenario
+    playScenario('ancient');
 }
 
-function getLocations() {
-    // Filter locations based on Era
-    if (currentEra === 'ancient') return locations.filter(l => l.type === 'ancient');
-    return locations; // In modern, we can show ancient context faintly? Or just modern? Let's show both but distinct?
-    // Actually simpler: Just show relevant era points.
-    // However, showing Fujian in modern is key context.
-    if (currentEra === 'modern') return locations.filter(l => l.type === 'modern');
-}
+// ==================== ANIMATION ENGINE ====================
 
-function setEra(era) {
-    currentEra = era;
-    const data = narratives[era];
-
-    // UI Updates
-    document.getElementById('btn-ancient').className = `wolf-era-btn ${era === 'ancient' ? 'active-blue' : ''}`;
-    document.getElementById('btn-modern').className = `wolf-era-btn ${era === 'modern' ? 'active-green' : ''}`;
+function playScenario(scenarioKey) {
+    // 1. Reset State
+    if (animationInterval) clearInterval(animationInterval);
+    currentPathData = [];
+    currentPointsData = [];
+    globe.pathsData([]).htmlElementsData([]); // Clear globe
     
-    // Titles
-    const titleEl = document.getElementById('main-title');
-    titleEl.textContent = data.title;
-    titleEl.className = `wolf-top-title ${era === 'modern' ? 'modern-mode' : ''}`;
-    document.getElementById('main-desc').textContent = data.desc;
-
-    // Legend
-    const manifestEl = document.getElementById('manifest-list');
-    manifestEl.innerHTML = data.manifest.map(m => `
-        <div class="wolf-legend-item">
-            <div class="wolf-legend-color wolf-w-4 wolf-h-4 wolf-rounded-full" style="background:${m.col}"></div>
-            <span>${m.text}</span>
-        </div>
-    `).join('');
-
-    // Stats
-    document.getElementById('stat-header').textContent = era === 'ancient' ? "Austronesian Expansion" : "China Aid Projects";
+    // 2. UI Updates
+    const data = scenarios[scenarioKey];
+    document.getElementById('panel-title').innerText = data.title;
+    document.getElementById('panel-title').style.color = data.color;
+    document.getElementById('panel-desc').innerText = data.desc;
+    document.getElementById('prog-bar').children[0].style.backgroundColor = data.color;
+    document.getElementById('prog-bar').children[0].style.width = '0%';
     
-    // Animate Numbers (Simple replace for now)
-    document.getElementById('stat-1').textContent = data.stats.s1;
-    document.getElementById('label-1').textContent = data.stats.l1;
-    document.getElementById('stat-1').className = `wolf-big-num ${era === 'ancient' ? 'wolf-text-blue-400' : 'wolf-text-green-400'}`;
+    // Buttons toggle
+    document.getElementById('btn-ancient').className = `wolf-btn ${scenarioKey === 'ancient' ? 'active-blue' : ''}`;
+    document.getElementById('btn-modern').className = `wolf-btn ${scenarioKey === 'modern' ? 'active-green' : ''}`;
 
-    document.getElementById('stat-2').textContent = data.stats.s2;
-    document.getElementById('label-2').textContent = data.stats.l2;
+    // 3. Start Sequence Loop
+    let stepIndex = 0;
+    
+    // Process Step 0 immediately (The Origin Point)
+    addStep(data, stepIndex);
+    stepIndex++;
 
-    document.getElementById('stat-3').textContent = data.stats.s3;
-    document.getElementById('label-3').textContent = data.stats.l3;
+    animationInterval = setInterval(() => {
+        if (stepIndex >= data.steps.length) {
+            clearInterval(animationInterval);
+            showToast("Destination Reached");
+            return;
+        }
+        addStep(data, stepIndex);
+        stepIndex++;
+        
+        // Update Progress Bar
+        const pct = (stepIndex / data.steps.length) * 100;
+        document.getElementById('prog-bar').children[0].style.width = pct + '%';
 
-    // Globe Updates
-    globe.pathsData(routes[era])
-         .polygonsData(globe.polygonsData()) // Trigger recolor
-         .htmlElementsData(getLocations());
+    }, 2000); // 2 seconds per jump
 }
 
-function startRotationTimer() {
-    if (rotationTimer) clearInterval(rotationTimer);
-    rotationTimer = setInterval(() => {
-        setEra(currentEra === 'ancient' ? 'modern' : 'ancient');
-    }, 12000);
+function addStep(scenarioData, index) {
+    const step = scenarioData.steps[index];
+    
+    // Show Toast
+    showToast(step.label);
+
+    // Add Point
+    if (step.loc) {
+        currentPointsData.push({
+            lat: step.loc.lat,
+            lng: step.loc.lng,
+            name: step.loc.name,
+            color: scenarioData.color
+        });
+        globe.htmlElementsData(currentPointsData);
+    }
+
+    // Add Path (if not start point)
+    if (step.path) {
+        currentPathData.push({
+            coords: step.path,
+            color: scenarioData.color
+        });
+        globe.pathsData(currentPathData);
+    }
+
+    // Optional: Move camera to follow the snake?
+    // globe.pointOfView({ lat: step.loc.lat, lng: step.loc.lng, altitude: 2 }, 1000);
+}
+
+function showToast(text) {
+    const el = document.getElementById('step-toast');
+    el.innerText = text;
+    el.style.opacity = 1;
+    setTimeout(() => { el.style.opacity = 0; }, 1800);
 }
 
 initGlobe();
