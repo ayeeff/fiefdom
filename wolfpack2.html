@@ -3,215 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Austronesian & China Aid</title>
+    <title>Wolf Pack & BRI Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     
     <style>
+        body { margin: 0; padding: 0; overflow: hidden; background: #02040a; font-family: system-ui, -apple-system, sans-serif; }
+        
         #globeViz { 
             width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; 
-            z-index: 1; background: #02040a;
-        }
-        .ui-panel {
-            position: fixed; top: 20px; left: 20px; width: 320px;
-            background: rgba(15,23,42,0.95); backdrop-filter: blur(12px);
-            border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px;
-            padding: 20px; z-index: 10; font-family: sans-serif; color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .title { font-size: 1.2rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px; }
-        .desc { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; line-height: 1.4; }
-        
-        .progress-bar {
-            height: 4px; background: #334155; border-radius: 2px; margin-top: 15px; overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%; width: 0%; background: #38bdf8; transition: width 0.5s ease;
-        }
-        
-        .step-label {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); padding: 10px 24px; border-radius: 30px;
-            border: 1px solid #333; color: #fff; font-weight: bold; font-family: sans-serif;
-            opacity: 0; transition: opacity 0.5s; z-index: 10;
+            z-index: 1; 
         }
 
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
+        /* --- LEFT SIDEBAR --- */
+        .ui-panel {
+            position: fixed; top: 20px; left: 20px; width: 340px;
+            background: rgba(15,23,42,0.9); backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px;
+            padding: 24px; z-index: 10; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
         }
-        .info-title { font-weight: bold; color: #e2e8f0; margin-bottom: 5px; }
-        .info-detail { font-size: 0.85rem; color: #94a3b8; margin-bottom: 3px; }
-        .info-label { font-weight: 600; color: #cbd5e1; }
+
+        .panel-header { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.05em; }
+        .panel-sub { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; }
         
-        .markers-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
+        .info-row { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+        .info-label { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; display: block; margin-bottom: 4px; }
+        .info-val { font-size: 1rem; font-weight: 400; line-height: 1.4; }
+
+        /* --- BOTTOM NAVIGATION BAR --- */
+        .nav-container {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 1000px;
+            background: rgba(15,23,42,0.95); backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 20px;
+            padding: 15px 20px; z-index: 20;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; gap: 12px;
         }
-        .marker-tag {
-            padding: 4px 8px;
-            background: rgba(56, 189, 248, 0.2);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            border-radius: 4px;
-            font-size: 0.75rem;
-            color: #e2e8f0;
+
+        .nav-row {
+            display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 5px;
+            scrollbar-width: thin;
         }
+        .nav-row::-webkit-scrollbar { height: 4px; }
+        .nav-row::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+        .nav-label {
+            font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; 
+            min-width: 80px; text-align: right; margin-right: 10px;
+        }
+
+        /* Nav Pills */
+        .nav-pill {
+            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+            border: 1px solid transparent; background: rgba(30, 41, 59, 0.5); color: #94a3b8;
+        }
+        .nav-pill:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Ancient Active States */
+        .nav-pill.ancient-active {
+            background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Modern Active States */
+        .nav-pill.modern-active {
+            background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #4ade80;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+
     </style>
 </head>
 <body>
 
 <div id="globeViz"></div>
 
-<div class="ui-panel">
-    <div class="title" id="panel-title">THE WOLF SCOUTS</div>
-    <div class="desc" id="panel-desc">Tracing the path step-by-step.</div>
+<div class="ui-panel" id="infoPanel">
+    <div class="panel-header" id="info-title">SELECT A STEP</div>
+    <div class="panel-sub" id="info-sub">Click the timeline below to begin</div>
     
-    <div class="progress-bar">
-        <div class="progress-fill" id="prog-bar"></div>
-    </div>
-
-    <div class="info-box" id="step-info">
-        <div class="info-title" id="step-name"></div>
-        <div class="info-detail"><span class="info-label">Year:</span> <span id="step-year"></span></div>
-        <div class="info-detail"><span class="info-label">Description:</span> <span id="step-desc"></span></div>
-        <div class="info-detail"><span class="info-label">Technology:</span> <span id="step-tech"></span></div>
-        <div class="info-detail"><span class="info-label">Guidance:</span> <span id="step-guide"></span></div>
-        <div class="markers-container" id="step-markers"></div>
+    <div id="dynamic-content" style="opacity: 0.5;">
+        <div class="info-row">
+            <span class="info-label">Year</span>
+            <div class="info-val" id="info-year">--</div>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Description</span>
+            <div class="info-val" id="info-desc">--</div>
+        </div>
+        <div class="info-row" style="border:none;">
+            <span class="info-label">Location Markers</span>
+            <div class="info-val" id="info-markers" style="font-size: 0.85rem; color: #cbd5e1;">--</div>
+        </div>
     </div>
 </div>
 
-<div class="step-label" id="step-toast"></div>
+<div class="nav-container">
+    <div class="nav-row" id="ancient-nav-row">
+        <div class="nav-label text-blue-400">Wolf Scouts</div>
+        </div>
+    
+    <div class="nav-row" id="modern-nav-row">
+        <div class="nav-label text-green-400">Bri Reunion</div>
+        </div>
+</div>
 
 <script>
-let globe;
-let animationInterval;
-let currentPathData = [];
-let currentPointsData = [];
+// ==================== DATASETS ====================
 
-// ==================== SEQUENTIAL DATA ====================
-
+// 1. Ancient Sequence (with Madagascar added)
 const ancientSequence = [
     {
+        id: 'taiwan',
+        label: 'Fujian/Taiwan',
+        name: 'The Origin',
+        coords: [], // Start point, no path
+        color: '#3b82f6',
+        year: '~3000 BCE',
+        description: 'Villagers in Fujian and Taiwan built the first outrigger canoes.',
+        markers: ['Fujian', 'Taiwan']
+    },
+    {
+        id: 'luzon',
+        label: 'Luzon',
         name: 'Taiwan → Luzon',
         coords: [[25.0, 121.0], [20.0, 121.5], [14.6, 121.0]],
         color: '#3b82f6',
-        year: '~3000 BCE',
-        description: 'First island hop across the Luzon Strait',
-        tech: 'Early outrigger canoes, stone adzes',
-        guide: 'Coastal landmarks, currents, swell patterns',
-        markers: ['Fujian/Taiwan', 'Luzon']
+        year: '~2500 BCE',
+        description: 'First island hop across the Luzon Strait.',
+        markers: ['Luzon']
     },
     {
+        id: 'sulawesi',
+        label: 'Sulawesi',
         name: 'Luzon → Sulawesi',
         coords: [[14.6, 121.0], [10.0, 122.0], [5.0, 120.0], [-2.0, 120.3]],
         color: '#3b82f6',
-        year: '~2500 BCE',
-        description: 'Expansion into Indonesian archipelago',
-        tech: 'Refined outriggers, sail technology improvements',
-        guide: 'Stars (basic), cloud formations, bird migration',
-        markers: ['Fujian/Taiwan', 'Luzon', 'Sulawesi']
+        year: '~2000 BCE',
+        description: 'Expansion into the Indonesian archipelago.',
+        markers: ['Sulawesi']
     },
     {
+        id: 'fiji',
+        label: 'Fiji',
         name: 'Sulawesi → Fiji',
         coords: [[-2.0, 120.3], [-5.0, 130.0], [-10.0, 145.0], [-15.0, 165.0], [-17.7, 178.1]],
         color: '#3b82f6',
         year: '~1500 BCE',
-        description: 'Great leap across open Pacific to Melanesia',
-        tech: 'Double-hulled canoes, Lapita pottery',
-        guide: 'Advanced star compass, deep ocean swell reading',
-        markers: ['Fujian/Taiwan', 'Luzon', 'Sulawesi', 'Fiji']
+        description: 'Great leap across open Pacific to Melanesia.',
+        markers: ['Fiji']
     },
     {
-        name: 'Fiji → Tonga → Samoa',
-        coords: [[-17.7, 178.1], [-19.0, -178.0], [-21.2, -175.2], [-18.0, -174.0], [-13.8, -172.1]],
+        id: 'tonga',
+        label: 'Tonga',
+        name: 'Fiji → Tonga',
+        coords: [[-17.7, 178.1], [-21.2, -175.2]],
         color: '#3b82f6',
         year: '~1200 BCE',
-        description: 'Polynesian heartland established',
-        tech: 'Specialized voyaging canoes, horticultural tools',
-        guide: 'Zenith stars, latitude sailing, oral traditions',
-        markers: ['Fujian/Taiwan', 'Luzon', 'Sulawesi', 'Fiji', 'Tonga', 'Samoa']
+        description: 'Polynesian heartland established.',
+        markers: ['Tonga']
     },
     {
+        id: 'samoa',
+        label: 'Samoa',
+        name: 'Tonga → Samoa',
+        coords: [[-21.2, -175.2], [-13.8, -172.1]],
+        color: '#3b82f6',
+        year: '~1000 BCE',
+        description: 'The Navigator Hub.',
+        markers: ['Samoa']
+    },
+    {
+        id: 'hawaii',
+        label: 'Hawai\'i',
         name: 'Samoa → Hawai\'i',
         coords: [[-13.8, -172.1], [-5.0, -165.0], [5.0, -160.0], [15.0, -157.0], [21.3, -157.8]],
         color: '#3b82f6',
         year: '~500 CE',
-        description: 'Northern voyages to Hawaiian islands',
-        tech: 'Large double-hulled voyaging canoes (wa\'a kaulua)',
-        guide: 'Celestial navigation, ocean currents, wind patterns',
-        markers: ['Fujian/Taiwan', 'Luzon', 'Sulawesi', 'Fiji', 'Tonga', 'Samoa', 'Hawai\'i']
+        description: 'Northern voyages to Hawaiian islands.',
+        markers: ['Hawai\'i']
     },
     {
+        id: 'nz',
+        label: 'Aotearoa',
         name: 'Samoa → Aotearoa',
         coords: [[-13.8, -172.1], [10.0, -165.0], [-10.0, 175.0], [-30.0, 175.0], [-41.3, 174.8]],
         color: '#3b82f6',
         year: '~800 CE',
-        description: 'Settlement of New Zealand (Aotearoa)',
-        tech: 'Reinforced voyaging canoes for colder, rougher seas',
-        guide: 'Southern star paths, migrating whales, long-distance swell',
-        markers: ['Fujian/Taiwan', 'Luzon', 'Sulawesi', 'Fiji', 'Tonga', 'Samoa', 'Hawai\'i', 'Aotearoa']
+        description: 'Settlement of New Zealand (Aotearoa).',
+        markers: ['Aotearoa']
+    },
+    {
+        id: 'madagascar',
+        label: 'Madagascar',
+        name: 'Sulawesi → Madagascar',
+        coords: [[-2.0, 120.3], [-5.0, 100.0], [-10.0, 80.0], [-15.0, 60.0], [-18.76, 46.86]],
+        color: '#3b82f6',
+        year: '~700 CE',
+        description: 'The western expansion: Outriggers crossing the Indian Ocean.',
+        markers: ['Madagascar']
     }
 ];
 
+// 2. Modern BRI Sequence (Provided Data)
 const briSequence = [
     {
-        name: 'China → Tonga',
-        coords: [[25.0, 121.0], [10.0, 150.0], [-5.0, 170.0], [-21.2, -175.2]],
+        id: 'start_bri',
+        label: 'China',
+        name: 'BRI Launch',
+        coords: [],
         color: '#22c55e',
-        year: '2019',
-        description: 'Courthouse construction & development loans',
-        tech: 'Modern cargo ships, construction machinery',
-        guide: 'GPS, satellite navigation, digital charts',
-        markers: ['China', 'Tonga']
+        year: '2013',
+        description: 'The Belt and Road Initiative begins.',
+        markers: ['Beijing']
     },
-    {
-        name: 'Tonga → Samoa',
-        coords: [[-21.2, -175.2], [-18.0, -174.0], [-13.8, -172.1]],
-        color: '#22c55e',
-        year: '2021',
-        description: 'Police academy construction',
-        tech: 'Container ships, specialized construction equipment',
-        guide: 'GPS, AIS (Automatic Identification System)',
-        markers: ['China', 'Tonga', 'Samoa']
-    },
-    {
-        name: 'Samoa → Solomon Islands',
-        coords: [[-13.8, -172.1], [-10.0, -165.0], [-5.0, 160.0], [-9.4, 159.9]],
-        color: '#22c55e',
-        year: '2023',
-        description: 'Major wharf construction project',
-        tech: 'Dredging vessels, heavy lift ships',
-        guide: 'GPS, hydrographic surveys',
-        markers: ['China', 'Tonga', 'Samoa', 'Solomon Islands']
-    },
-    {
-        name: 'Solomon Islands → Kiribati',
-        coords: [[-9.4, 159.9], [-5.0, 165.0], [0.0, 170.0], [1.4, 173.0]],
-        color: '#22c55e',
-        year: '2023',
-        description: 'Fisheries pier development',
-        tech: 'Construction barges, pile drivers',
-        guide: 'GPS, satellite imagery',
-        markers: ['China', 'Tonga', 'Samoa', 'Solomon Islands', 'Kiribati']
-    },
-    {
-        name: 'Kiribati → Fiji',
-        coords: [[1.4, 173.0], [-5.0, 175.0], [-12.0, 178.0], [-17.7, 178.1]],
-        color: '#22c55e',
-        year: '2023',
-        description: 'Hydropower, roads & "Great Wall" cricket stadium',
-        tech: 'Bulk carriers (for materials), engineering teams',
-        guide: 'GPS, project management software',
-        markers: ['China', 'Tonga', 'Samoa', 'Solomon Islands', 'Kiribati', 'Fiji']
-    }
+    { 
+        id: 'bri_tonga',
+        label: 'Tonga',
+        name: 'China → Tonga', 
+        coords: [[25.0, 121.0], [10.0, 150.0], [-5.0, 170.0], [-21.2, -175.2]], 
+        color: '#22c55e', 
+        year: '2019', 
+        description: 'Courthouse construction & development loans', 
+        markers: ['Tonga'] 
+    }, 
+    { 
+        id: 'bri_samoa',
+        label: 'Samoa',
+        name: 'Tonga → Samoa', 
+        coords: [[-21.2, -175.2], [-18.0, -174.0], [-13.8, -172.1]], 
+        color: '#22c55e', 
+        year: '2021', 
+        description: 'Police academy construction', 
+        markers: ['Samoa'] 
+    }, 
+    { 
+        id: 'bri_solomons',
+        label: 'Solomon Is.',
+        name: 'Samoa → Solomon Islands', 
+        coords: [[-13.8, -172.1], [-10.0, -165.0], [-5.0, 160.0], [-9.4, 159.9]], 
+        color: '#22c55e', 
+        year: '2023', 
+        description: 'Major wharf construction project', 
+        markers: ['Solomon Islands'] 
+    }, 
+    { 
+        id: 'bri_kiribati',
+        label: 'Kiribati',
+        name: 'Solomon Islands → Kiribati', 
+        coords: [[-9.4, 159.9], [-5.0, 165.0], [0.0, 170.0], [1.4, 173.0]], 
+        color: '#22c55e', 
+        year: '2023', 
+        description: 'Fisheries pier development', 
+        markers: ['Kiribati'] 
+    }, 
+    { 
+        id: 'bri_fiji',
+        label: 'Fiji',
+        name: 'Kiribati → Fiji', 
+        coords: [[1.4, 173.0], [-5.0, 175.0], [-12.0, 178.0], [-17.7, 178.1]], 
+        color: '#22c55e', 
+        year: '2023', 
+        description: 'Hydropower, roads & "Great Wall" cricket stadium', 
+        markers: ['Fiji'] 
+    } 
 ];
 
-// ==================== INITIALIZATION ====================
+// ==================== APP LOGIC ====================
+
+let globe;
 
 async function initGlobe() {
     const resp = await fetch('https://unpkg.com/world-atlas/countries-110m.json');
@@ -234,128 +298,127 @@ async function initGlobe() {
         .pathDashLength(0.5)
         .pathDashGap(0.1)
         .pathDashAnimateTime(2000)
-        .htmlElementsData([])
-        .htmlElement(d => {
-            const el = document.createElement('div');
-            el.innerHTML = `
-                <div style="width:14px; height:14px; background:${d.color}; border:2px solid white; border-radius:50%; box-shadow:0 0 10px ${d.color};"></div>
-                <div style="color:${d.color}; font-family:sans-serif; font-weight:bold; font-size:12px; margin-top:4px; text-shadow:0 2px 4px black; white-space:nowrap;">${d.name}</div>
-            `;
-            return el;
-        });
+        .htmlElementsData([]);
 
-    startAnimation();
+    renderNavBar();
+    // Initialize with first Ancient step
+    activateStep('ancient', 0);
 }
 
-// ==================== ANIMATION ENGINE ====================
+function renderNavBar() {
+    const ancientRow = document.getElementById('ancient-nav-row');
+    const modernRow = document.getElementById('modern-nav-row');
 
-function startAnimation() {
-    if (animationInterval) clearInterval(animationInterval);
+    // Build Ancient Pills
+    ancientSequence.forEach((step, index) => {
+        const pill = document.createElement('div');
+        pill.className = 'nav-pill ancient-pill';
+        pill.innerText = step.label;
+        pill.onclick = () => activateStep('ancient', index);
+        pill.id = `ancient-btn-${index}`;
+        ancientRow.appendChild(pill);
+    });
+
+    // Build Modern Pills
+    briSequence.forEach((step, index) => {
+        const pill = document.createElement('div');
+        pill.className = 'nav-pill modern-pill';
+        pill.innerText = step.label;
+        pill.onclick = () => activateStep('modern', index);
+        pill.id = `modern-btn-${index}`;
+        modernRow.appendChild(pill);
+    });
+}
+
+function activateStep(type, index) {
+    // 1. Determine active data slice
+    let activeData = [];
+    let sequence = type === 'ancient' ? ancientSequence : briSequence;
     
-    // --- Ancient Sequence ---
-    document.getElementById('panel-title').innerText = "THE WOLF SCOUTS DEPART";
-    document.getElementById('panel-title').style.color = '#38bdf8';
-    document.getElementById('panel-desc').innerText = "Step-by-step migration from Taiwan to Aotearoa.";
-    document.getElementById('prog-bar').style.backgroundColor = '#38bdf8';
+    // Slice logic: Show all paths up to current index
+    // Note: For Ancient, we assume accumulation. For Modern, also accumulation.
+    activeData = sequence.slice(0, index + 1);
 
-    let stepIndex = 0;
+    // 2. Prepare paths and points
+    const paths = [];
+    const points = [];
 
-    // Function to play a single sequence
-    function playSequence(sequence, onComplete) {
-        if (stepIndex >= sequence.length) {
-            clearInterval(animationInterval);
-            if (onComplete) onComplete();
-            return;
+    // Points need to aggregate based on markers in the active slices
+    const uniqueMarkers = new Set();
+    
+    // For path calculation, we iterate through activeData.
+    // However, if type is Ancient, we want to keep previous paths visible 
+    // BUT we need to handle branching logic visualization.
+    // The slice method simply draws all lines from step 0 to step N.
+    
+    activeData.forEach(step => {
+        if (step.coords.length > 0) {
+            paths.push({
+                coords: step.coords,
+                color: step.color
+            });
         }
-
-        addStep(sequence, stepIndex);
-        stepIndex++;
         
-        const pct = (stepIndex / sequence.length) * 100;
-        document.getElementById('prog-bar').style.width = pct + '%';
-    }
-
-    // Start Ancient Sequence
-    playSequence(ancientSequence, () => {
-        // On Complete, wait 1 second then start Modern
-        setTimeout(() => {
-            // --- Modern Sequence ---
-            document.getElementById('panel-title').innerText = "THE REUNION TOUR";
-            document.getElementById('panel-title').style.color = '#22c55e';
-            document.getElementById('panel-desc').innerText = "China's infrastructure path through the Pacific (2019-2024).";
-            document.getElementById('prog-bar').style.backgroundColor = '#22c55e';
-            document.getElementById('prog-bar').style.width = '0%';
-            stepIndex = 0; // Reset index for new sequence
-            
-            // Start Modern Sequence
-            animationInterval = setInterval(() => {
-                playSequence(briSequence, () => {
-                     showToast("All Sequences Complete");
-                });
-            }, 2000);
-             playSequence(briSequence, () => {
-                     showToast("All Sequences Complete");
-                });
-
-        }, 1000); // Wait 1 second
+        // Add markers (using last coord of path as dot location if available)
+        if (step.coords.length > 0) {
+            const endCoord = step.coords[step.coords.length - 1];
+            points.push({
+                lat: endCoord[0],
+                lng: endCoord[1],
+                color: step.color,
+                label: step.label
+            });
+        } else if (index === 0 && step.id === 'taiwan') {
+            // Special case for Taiwan start dot
+             points.push({ lat: 25.0, lng: 121.0, color: '#3b82f6', label: 'Start' });
+        } else if (index === 0 && step.id === 'start_bri') {
+             points.push({ lat: 39.9, lng: 116.4, color: '#22c55e', label: 'Start' });
+        }
     });
 
-    animationInterval = setInterval(() => {
-        playSequence(ancientSequence, () => {
-             // This callback is handled above
-        });
-    }, 2000);
+    // 3. Update Globe
+    globe.pathsData(paths)
+         .htmlElementsData(points.map(p => createMarker(p)));
+
+    // 4. Update UI Panel
+    const currentStep = sequence[index];
+    const panel = document.getElementById('infoPanel');
+    const content = document.getElementById('dynamic-content');
+    
+    // Style panel based on type
+    panel.style.borderColor = type === 'ancient' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)';
+    
+    document.getElementById('info-title').innerText = currentStep.name;
+    document.getElementById('info-title').className = `panel-header ${type === 'ancient' ? 'text-blue-400' : 'text-green-400'}`;
+    
+    document.getElementById('info-year').innerText = currentStep.year;
+    document.getElementById('info-desc').innerText = currentStep.description;
+    document.getElementById('info-markers').innerText = currentStep.markers.join(', ');
+    
+    content.style.opacity = 1;
+
+    // 5. Update Nav Button States
+    document.querySelectorAll('.nav-pill').forEach(btn => {
+        btn.classList.remove('ancient-active', 'modern-active');
+    });
+    
+    const activeClass = type === 'ancient' ? 'ancient-active' : 'modern-active';
+    const btnId = `${type}-btn-${index}`;
+    const btn = document.getElementById(btnId);
+    if(btn) btn.classList.add(activeClass);
 }
 
-
-function addStep(sequence, index) {
-    const step = sequence[index];
-    
-    showToast(`Step ${index + 1}: ${step.name}`);
-
-    // Update Info Box
-    document.getElementById('step-name').innerText = step.name;
-    document.getElementById('step-year').innerText = step.year;
-    document.getElementById('step-desc').innerText = step.description;
-    document.getElementById('step-tech').innerText = step.tech;
-    document.getElementById('step-guide').innerText = step.guide;
-    
-    const markersContainer = document.getElementById('step-markers');
-    markersContainer.innerHTML = '';
-    step.markers.forEach(marker => {
-        const tag = document.createElement('span');
-        tag.className = 'marker-tag';
-        tag.innerText = marker;
-        markersContainer.appendChild(tag);
-    });
-
-
-    // Add Point (using last coord of the path)
-    const lastCoord = step.coords[step.coords.length - 1];
-    // Extract name from marker list roughly
-    let locationName = step.markers[step.markers.length - 1];
-
-    currentPointsData.push({
-        lat: lastCoord[0],
-        lng: lastCoord[1],
-        name: locationName,
-        color: step.color
-    });
-    globe.htmlElementsData(currentPointsData);
-
-    // Add Path
-    currentPathData.push({
-        coords: step.coords,
-        color: step.color
-    });
-    globe.pathsData(currentPathData);
-}
-
-function showToast(text) {
-    const el = document.getElementById('step-toast');
-    el.innerText = text;
-    el.style.opacity = 1;
-    setTimeout(() => { el.style.opacity = 0; }, 1800);
+function createMarker(d) {
+    const el = document.createElement('div');
+    el.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div style="width:12px; height:12px; background:${d.color}; border:2px solid white; border-radius:50%; box-shadow:0 0 15px ${d.color};"></div>
+            <div style="background:rgba(0,0,0,0.6); color:white; padding:2px 6px; border-radius:4px; font-size:10px; margin-top:4px; white-space:nowrap; pointer-events:none;">
+                ${d.label}
+            </div>
+        </div>
+    `;
+    return el;
 }
 
 initGlobe();
