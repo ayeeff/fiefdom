@@ -131,11 +131,6 @@
 
 <script>
 // ==================== CONFIGURATION ====================
-const TECH_ANCIENT = "Outrigger canoes";
-const CARGO_ANCIENT = "Pigs, taro, stone tools, navigational knowledge";
-
-const TECH_MODERN = "Modern infrastructure";
-const CARGO_MODERN = "Concrete, cranes, fiber optics, diplomatic influence";
 
 // ==================== DATASETS ====================
 
@@ -362,8 +357,6 @@ function addJengaBlock(step, type) {
     const block = document.createElement('div');
     block.className = `jenga-block ${type === 'ancient' ? 'block-ancient' : 'block-modern'}`;
     
-    const tech = type === 'ancient' ? TECH_ANCIENT : TECH_MODERN;
-    const cargo = type === 'ancient' ? CARGO_ANCIENT : CARGO_MODERN;
 
     block.innerHTML = `
         <div class="block-header">
@@ -371,10 +364,7 @@ function addJengaBlock(step, type) {
             <span class="block-year">${step.year}</span>
         </div>
         <div class="block-desc">${step.description}</div>
-        <div class="block-meta">
-            <span class="meta-item"><strong>Tech:</strong> ${tech}</span>
-            <span class="meta-item"><strong>Cargo:</strong> ${cargo}</span>
-        </div>
+ 
     `;
     
     container.appendChild(block);
