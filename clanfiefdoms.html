@@ -16,95 +16,135 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh; /* Ensure full height */
+            height: 100vh;
         }
-        /* Main container for chart and legend */
-        #main-container {
-            display: flex;
-            flex-direction: row;
-            width: 100vw;
-            height: 90vh; /* Adjust based on header height */
-            align-items: center;
-            justify-content: center;
-        }
-        #chart {
-            flex: 3; /* Chart takes more space */
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #legend {
-            flex: 1; /* Legend takes less space */
-            height: 80%; /* A bit shorter than chart area */
-            overflow-y: auto; /* Scroll if too many items */
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05); /* Subtle background */
-            border-radius: 8px;
-            margin-right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        
         header {
-            height: 10vh;
+            height: 8vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             z-index: 10;
+            background: #1a1a1a;
+            width: 100%;
+            border-bottom: 1px solid #333;
         }
-        h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
-        p { margin: 5px 0 0; font-size: 0.9rem; color: #aaa; }
-        
-        /* Custom Tooltip Styling */
-        .sunburst-tooltip {
-            background: rgba(0, 0, 0, 0.8) !important;
-            border: 1px solid #444;
-            border-radius: 4px;
-            color: #fff;
-            padding: 8px;
-            pointer-events: none;
-            backdrop-filter: blur(4px);
+        h1 { margin: 0; font-size: 1.4rem; letter-spacing: 1px; }
+        p { margin: 2px 0 0; font-size: 0.8rem; color: #aaa; }
+
+        /* Main Layout */
+        #main-container {
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: 92vh;
+            align-items: flex-start;
+            justify-content: center;
         }
 
-        /* Legend Item Styling */
-        .legend-item {
+        #chart {
+            flex: 2.5;
+            height: 100%;
             display: flex;
+            justify-content: center;
             align-items: center;
         }
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            margin-right: 10px;
-            flex-shrink: 0;
+
+        /* Sidebar: Legend + Table */
+        #sidebar {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 1px solid #333;
+            overflow-y: auto;
         }
-        .legend-label {
-            font-size: 0.9rem;
+
+        /* Legend Section */
+        #legend {
+            padding: 20px;
+            flex-shrink: 0; /* Don't shrink the legend */
         }
+
         .legend-clan-header {
             font-weight: bold;
             margin-top: 15px;
-            margin-bottom: 5px;
-            color: #eee;
+            margin-bottom: 8px;
+            color: #fff;
             text-transform: uppercase;
+            font-size: 0.8rem;
+            border-bottom: 2px solid #444;
+            padding-bottom: 2px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .legend-label {
             font-size: 0.85rem;
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
+            color: #ddd;
         }
-        /* Scrollbar styling for the legend */
-        #legend::-webkit-scrollbar {
-            width: 8px;
+
+        /* Table Section */
+        #data-table-container {
+            padding: 20px;
+            border-top: 1px solid #333;
         }
-        #legend::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+        h2 {
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #eee;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background-color: rgba(255,255,255,0.05);
+            color: #aaa;
+            font-weight: 600;
+        }
+        td {
+            color: #ccc;
+        }
+        tr:hover {
+            background-color: rgba(255,255,255,0.03);
+        }
+
+        /* Scrollbar */
+        #sidebar::-webkit-scrollbar { width: 8px; }
+        #sidebar::-webkit-scrollbar-track { background: #1a1a1a; }
+        #sidebar::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        /* Tooltip */
+        .sunburst-tooltip {
+            background: rgba(0, 0, 0, 0.9) !important;
+            border: 1px solid #555;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             border-radius: 4px;
-        }
-        #legend::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+            color: #fff;
+            padding: 10px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -112,17 +152,35 @@
 
     <header>
         <h1>The Chinese EV OS "Civil War"</h1>
-        <p>Inner Ring: Tech Clan | Middle Ring: Fiefdom (Parent) | Outer Ring: Car Brands</p>
+        <p>Inner Ring: Tech Clan | Middle Ring: Fiefdom | Outer Ring: Car Brands</p>
     </header>
 
     <div id="main-container">
         <div id="chart"></div>
-        <div id="legend">
+        
+        <div id="sidebar">
+            <div id="legend">
+                </div>
+            
+            <div id="data-table-container">
+                <h2>The Clans & Fiefdoms of Chinese Auto</h2>
+                <table id="ev-table">
+                    <thead>
+                        <tr>
+                            <th>Clan</th>
+                            <th>Fiefdom</th>
+                            <th>Brands</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
+        </div>
     </div>
 
     <script>
-        // Helper function to lighten a color
+        // --- Color Helper ---
         function lightenColor(color, percent) {
             var num = parseInt(color.replace("#",""),16),
             amt = Math.round(2.55 * percent),
@@ -132,187 +190,179 @@
             return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
         }
 
-        // Base Colors for Clans
+        // --- Data Definitions ---
+        
+        // 1. Clan Base Colors
         const clanColors = {
-            "Huawei HarmonyOS": "#C9171E",
-            "Android Skins": "#3DDC84",
-            "Geely (Meizu)": "#0066CC",
-            "Xiaomi HyperOS": "#FF6900",
-            "NIO SkyOS": "#00BED6"
+            "Huawei HarmonyOS": "#C9171E", // Red
+            "Android Skins": "#00695C",    // Dark Teal Base (will expand into gradient)
+            "Geely (Meizu)": "#0066CC",    // Blue
+            "Xiaomi HyperOS": "#FF6900",   // Orange
+            "NIO SkyOS": "#9C27B0"         // Purple
         };
 
-        // Data Structure with colors assigned to Fiefdoms
-        const data = {
+        // 2. Android Specific Palette (Green to Teal Gradient)
+        const androidPalette = {
+            "BYD Group": "#2E7D32",   // Forest Green
+            "XPeng": "#00897B",       // Teal Green
+            "Li Auto": "#009688",     // Teal
+            "SAIC Group": "#00ACC1",  // Cyan Dark
+            "GAC Group": "#00BCD4",   // Cyan
+            "GWM": "#4DD0E1",         // Light Cyan
+            "Leapmotor": "#80DEEA"    // Pale Cyan
+        };
+
+        // 3. Hierarchy Data
+        const rawData = [
+            {
+                name: "Huawei HarmonyOS",
+                color: clanColors["Huawei HarmonyOS"],
+                children: [
+                    {
+                        name: "HIMA Alliance",
+                        os: "HarmonyOS Cockpit",
+                        children: ["AITO", "Luxeed", "Stelato", "Maextro"]
+                    },
+                    {
+                        name: "Huawei Inside Partners",
+                        os: "HarmonyOS (HI)",
+                        children: ["Avatr (Changan)", "Arcfox (BAIC)", "Voyah (Dongfeng)"]
+                    }
+                ]
+            },
+            {
+                name: "Xiaomi HyperOS",
+                color: clanColors["Xiaomi HyperOS"],
+                children: [
+                    {
+                        name: "Xiaomi Auto",
+                        os: "HyperOS",
+                        children: ["Xiaomi SU7"]
+                    }
+                ]
+            },
+            {
+                name: "NIO SkyOS",
+                color: clanColors["NIO SkyOS"],
+                children: [
+                    {
+                        name: "NIO Inc.",
+                        os: "SkyOS",
+                        children: ["NIO", "Onvo", "Firefly"]
+                    }
+                ]
+            },
+            {
+                name: "Geely (Meizu)",
+                color: clanColors["Geely (Meizu)"],
+                children: [
+                    {
+                        name: "Flyme Auto Core",
+                        os: "Flyme Auto",
+                        children: ["Geely Galaxy", "Lynk & Co", "Polestar China"]
+                    },
+                    {
+                        name: "Custom Skins",
+                        os: "Forked Flyme/Android",
+                        children: ["Zeekr (Zeekr OS)", "Lotus (Hyper OS)"]
+                    }
+                ]
+            },
+            {
+                name: "Android Skins",
+                color: clanColors["Android Skins"], // Base color for center node
+                children: [
+                    // Each child here gets a unique color from androidPalette
+                    { name: "BYD Group", os: "DiLink", children: ["BYD", "Yangwang", "Fang Cheng Bao"] },
+                    { name: "XPeng", os: "Xmart OS", children: ["XPeng", "Mona"] },
+                    { name: "Li Auto", os: "Li OS", children: ["Li Auto"] },
+                    { name: "SAIC Group", os: "IM OS / Banma", children: ["IM Motors", "MG (Domestic)", "Rising Auto"] },
+                    { name: "GAC Group", os: "ADiGO", children: ["Aion", "Hyper"] },
+                    { name: "GWM", os: "Coffee OS", children: ["Ora", "Wey", "Tank"] },
+                    { name: "Leapmotor", os: "Leapmotor OS", children: ["Leapmotor"] }
+                ]
+            }
+        ];
+
+        // --- Process Data for Sunburst ---
+        // We need to recursively calculate colors for children (Fiefdoms) and grandchildren (Brands)
+        
+        function processNode(node, parentColor) {
+            let nodeColor = node.color;
+
+            // IF no explicit color, derive from parent
+            if (!nodeColor && parentColor) {
+                // For Android sub-groups, check the palette first
+                if (androidPalette[node.name]) {
+                    nodeColor = androidPalette[node.name];
+                } else {
+                    // Default lightening for normal children
+                    nodeColor = lightenColor(parentColor, 15);
+                }
+            }
+
+            // Create standard node object
+            const cleanNode = {
+                name: node.name,
+                color: nodeColor,
+                os: node.os,
+                value: node.value || 1 // default value if missing
+            };
+
+            // If it has children, process them
+            if (node.children) {
+                cleanNode.children = node.children.map(child => {
+                    // Normalize child (handle if it's just a string string like "BYD")
+                    const childObj = (typeof child === 'string') 
+                        ? { name: child, value: 10 } 
+                        : { ...child, value: child.value || 20 };
+                    
+                    return processNode(childObj, nodeColor);
+                });
+            }
+            return cleanNode;
+        }
+
+        const chartData = {
             name: "China EV Ecosystem",
             color: "#1a1a1a",
-            children: [
-                {
-                    name: "Huawei HarmonyOS",
-                    color: clanColors["Huawei HarmonyOS"],
-                    children: [
-                        {
-                            name: "HIMA Alliance",
-                            color: lightenColor(clanColors["Huawei HarmonyOS"], 10),
-                            os: "HarmonyOS Cockpit",
-                            children: [
-                                { name: "AITO", value: 40 },
-                                { name: "Luxeed", value: 20 },
-                                { name: "Stelato", value: 15 },
-                                { name: "Maextro", value: 10 }
-                            ]
-                        },
-                        {
-                            name: "Huawei Inside Partners",
-                            color: lightenColor(clanColors["Huawei HarmonyOS"], 25),
-                            os: "HarmonyOS (HI)",
-                            children: [
-                                { name: "Avatr (Changan)", value: 20 },
-                                { name: "Arcfox (BAIC)", value: 15 },
-                                { name: "Voyah (Dongfeng)", value: 15 }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    name: "Android Skins",
-                    color: clanColors["Android Skins"],
-                    children: [
-                        {
-                            name: "BYD Group",
-                            color: lightenColor(clanColors["Android Skins"], 5),
-                            os: "DiLink (Open Android)",
-                            children: [
-                                { name: "BYD", value: 80 },
-                                { name: "Yangwang", value: 10 },
-                                { name: "Fang Cheng Bao", value: 10 }
-                            ]
-                        },
-                        {
-                            name: "XPeng",
-                            color: lightenColor(clanColors["Android Skins"], 12),
-                            os: "Xmart OS (AI Android)",
-                            children: [
-                                { name: "XPeng", value: 30 },
-                                { name: "Mona", value: 15 }
-                            ]
-                        },
-                        {
-                            name: "Li Auto",
-                            color: lightenColor(clanColors["Android Skins"], 19),
-                            os: "Li OS",
-                            children: [
-                                { name: "Li Auto", value: 40 }
-                            ]
-                        },
-                        {
-                            name: "SAIC Group",
-                            color: lightenColor(clanColors["Android Skins"], 26),
-                            os: "IM OS / Banma",
-                            children: [
-                                { name: "IM Motors", value: 15 },
-                                { name: "MG (Domestic)", value: 25 },
-                                { name: "Rising Auto", value: 10 }
-                            ]
-                        },
-                        {
-                            name: "GAC Group",
-                            color: lightenColor(clanColors["Android Skins"], 33),
-                            os: "ADiGO",
-                            children: [
-                                { name: "Aion", value: 35 },
-                                { name: "Hyper", value: 10 }
-                            ]
-                        },
-                        {
-                            name: "GWM",
-                            color: lightenColor(clanColors["Android Skins"], 40),
-                            os: "Coffee OS",
-                            children: [
-                                { name: "Ora", value: 15 },
-                                { name: "Wey", value: 10 },
-                                { name: "Tank", value: 15 }
-                            ]
-                        },
-                        {
-                            name: "Leapmotor",
-                            color: lightenColor(clanColors["Android Skins"], 47),
-                            os: "Leapmotor OS",
-                            children: [
-                                { name: "Leapmotor", value: 20 }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    name: "Geely (Meizu)",
-                    color: clanColors["Geely (Meizu)"],
-                    children: [
-                        {
-                            name: "Flyme Auto Core",
-                            color: lightenColor(clanColors["Geely (Meizu)"], 15),
-                            os: "Flyme Auto",
-                            children: [
-                                { name: "Geely Galaxy", value: 25 },
-                                { name: "Lynk & Co", value: 20 },
-                                { name: "Polestar China", value: 10 }
-                            ]
-                        },
-                        {
-                            name: "Custom Skins",
-                            color: lightenColor(clanColors["Geely (Meizu)"], 30),
-                            os: "Forked Flyme/Android",
-                            children: [
-                                { name: "Zeekr (Zeekr OS)", value: 35 },
-                                { name: "Lotus (Hyper OS)", value: 10 }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    name: "Xiaomi HyperOS",
-                    color: clanColors["Xiaomi HyperOS"],
-                    children: [
-                        {
-                            name: "Xiaomi Auto",
-                            color: lightenColor(clanColors["Xiaomi HyperOS"], 15),
-                            os: "HyperOS",
-                            children: [
-                                { name: "Xiaomi SU7", value: 40 }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    name: "NIO SkyOS",
-                    color: clanColors["NIO SkyOS"],
-                    children: [
-                        {
-                            name: "NIO Inc.",
-                            color: lightenColor(clanColors["NIO SkyOS"], 15),
-                            os: "SkyOS",
-                            children: [
-                                { name: "NIO", value: 40 },
-                                { name: "Onvo", value: 20 },
-                                { name: "Firefly", value: 15 }
-                            ]
-                        }
-                    ]
-                }
-            ]
+            children: rawData.map(d => processNode(d, null))
         };
 
-        // Generate Legend
+
+        // --- Render Chart ---
+        Sunburst()
+            .data(chartData)
+            .color(d => d.color)
+            .minSliceAngle(0.4)
+            .showLabels(true)
+            .tooltipContent((d, node) => {
+                if (!node) return '';
+                let content = `<strong>${node.data.name}</strong>`;
+                if(node.data.os) content += `<br/><span style="color:#aaa; font-size:0.8em">OS: ${node.data.os}</span>`;
+                else if (node.parent && node.parent.data.os) content += `<br/><span style="color:#aaa; font-size:0.8em">Parent OS: ${node.parent.data.os}</span>`;
+                return content;
+            })
+            .labelOrientation('angular')
+            .radiusScaleExponent(1)
+            (document.getElementById('chart'));
+
+
+        // --- Render Legend & Table ---
         const legendContainer = document.getElementById('legend');
+        const tableBody = document.querySelector('#ev-table tbody');
         
-        data.children.forEach(clan => {
-            // Clan Header
+        chartData.children.forEach(clan => {
+            // 1. Legend Clan Header
             const clanHeader = document.createElement('div');
             clanHeader.className = 'legend-clan-header';
+            clanHeader.style.borderColor = clan.color; // color underline with clan color
             clanHeader.textContent = clan.name;
             legendContainer.appendChild(clanHeader);
 
-            // Fiefdom Items
+            // 2. Loop through Fiefdoms
             clan.children.forEach(fiefdom => {
+                // A. Add to Legend
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 
@@ -327,37 +377,31 @@
                 item.appendChild(colorBox);
                 item.appendChild(label);
                 legendContainer.appendChild(item);
+
+                // B. Add to Table
+                const tr = document.createElement('tr');
+                
+                // Clan Cell (only set for first row of clan? nah, keep simple)
+                const tdClan = document.createElement('td');
+                tdClan.textContent = clan.name;
+                tdClan.style.color = clan.color; // color text
+                
+                const tdFiefdom = document.createElement('td');
+                tdFiefdom.textContent = fiefdom.name;
+                
+                const tdBrands = document.createElement('td');
+                // Join brands with comma
+                const brandsList = fiefdom.children ? fiefdom.children.map(c => c.name).join(", ") : "";
+                tdBrands.textContent = brandsList;
+                tdBrands.style.color = "#888";
+
+                tr.appendChild(tdClan);
+                tr.appendChild(tdFiefdom);
+                tr.appendChild(tdBrands);
+                tableBody.appendChild(tr);
             });
         });
 
-
-        Sunburst()
-            .data(data)
-            .color(d => d.color || "#cccccc")
-            .minSliceAngle(0.4)
-            .showLabels(true)
-            .tooltipContent((d, node) => {
-                // Custom tooltip logic
-                if (!node) return '';
-                let content = `<strong>${node.data.name}</strong>`;
-                
-                // Add OS info if available in the parent or current node
-                if(node.data.os) {
-                    content += `<br/>OS: ${node.data.os}`;
-                } else if (node.parent && node.parent.data.os) {
-                    content += `<br/>OS: ${node.parent.data.os}`;
-                }
-                
-                // Add Value info
-                if (node.value) {
-                    content += `<br/><i>Relative Scale: ${node.value}</i>`;
-                }
-                return content;
-            })
-            .labelOrientation('angular')
-            .radiusScaleExponent(1)
-            (document.getElementById('chart'));
-            
     </script>
 </body>
 </html>
