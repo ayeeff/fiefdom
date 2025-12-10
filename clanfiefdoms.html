@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese EV War: Clans & Fiefdoms</title>
+    <script src="//unpkg.com/sunburst-chart"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #chart {
+            width: 100vw;
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        header {
+            height: 10vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+        }
+        h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
+        p { margin: 5px 0 0; font-size: 0.9rem; color: #aaa; }
+        
+        /* Custom Tooltip Styling */
+        .sunburst-tooltip {
+            background: rgba(0, 0, 0, 0.8) !important;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            padding: 8px;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Chinese EV OS "Civil War"</h1>
+        <p>Inner Ring: Tech Clan | Middle Ring: Fiefdom (Parent) | Outer Ring: Car Brands</p>
+    </header>
+
+    <div id="chart"></div>
+
+    <script>
+        // Data Structure: Clan (OS) -> Fiefdom (Corporate Owner) -> Brands
+        const data = {
+            name: "China EV Ecosystem",
+            color: "#1a1a1a",
+            children: [
+                {
+                    name: "Huawei HarmonyOS",
+                    color: "#C9171E", // Huawei Red
+                    children: [
+                        {
+                            name: "HIMA Alliance",
+                            os: "HarmonyOS Cockpit",
+                            children: [
+                                { name: "AITO", value: 40 },
+                                { name: "Luxeed", value: 20 },
+                                { name: "Stelato", value: 15 },
+                                { name: "Maextro", value: 10 }
+                            ]
+                        },
+                        {
+                            name: "Huawei Inside Partners",
+                            os: "HarmonyOS (HI)",
+                            children: [
+                                { name: "Avatr (Changan)", value: 20 },
+                                { name: "Arcfox (BAIC)", value: 15 },
+                                { name: "Voyah (Dongfeng)", value: 15 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Android Skins",
+                    color: "#3DDC84", // Android Green
+                    children: [
+                        {
+                            name: "BYD Group",
+                            os: "DiLink (Open Android)",
+                            children: [
+                                { name: "BYD", value: 80 },
+                                { name: "Yangwang", value: 10 },
+                                { name: "Fang Cheng Bao", value: 10 }
+                            ]
+                        },
+                        {
+                            name: "XPeng",
+                            os: "Xmart OS (AI Android)",
+                            children: [
+                                { name: "XPeng", value: 30 },
+                                { name: "Mona", value: 15 }
+                            ]
+                        },
+                        {
+                            name: "Li Auto",
+                            os: "Li OS",
+                            children: [
+                                { name: "Li Auto", value: 40 }
+                            ]
+                        },
+                        {
+                            name: "SAIC Group",
+                            os: "IM OS / Banma",
+                            children: [
+                                { name: "IM Motors", value: 15 },
+                                { name: "MG (Domestic)", value: 25 },
+                                { name: "Rising Auto", value: 10 }
+                            ]
+                        },
+                        {
+                            name: "GAC Group",
+                            os: "ADiGO",
+                            children: [
+                                { name: "Aion", value: 35 },
+                                { name: "Hyper", value: 10 }
+                            ]
+                        },
+                        {
+                            name: "GWM",
+                            os: "Coffee OS",
+                            children: [
+                                { name: "Ora", value: 15 },
+                                { name: "Wey", value: 10 },
+                                { name: "Tank", value: 15 }
+                            ]
+                        },
+                        {
+                            name: "Leapmotor",
+                            os: "Leapmotor OS",
+                            children: [
+                                { name: "Leapmotor", value: 20 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Geely (Meizu)",
+                    color: "#0066CC", // Geely Blue
+                    children: [
+                        {
+                            name: "Flyme Auto Core",
+                            os: "Flyme Auto",
+                            children: [
+                                { name: "Geely Galaxy", value: 25 },
+                                { name: "Lynk & Co", value: 20 },
+                                { name: "Polestar China", value: 10 }
+                            ]
+                        },
+                        {
+                            name: "Custom Skins",
+                            os: "Forked Flyme/Android",
+                            children: [
+                                { name: "Zeekr (Zeekr OS)", value: 35 },
+                                { name: "Lotus (Hyper OS)", value: 10 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Xiaomi HyperOS",
+                    color: "#FF6900", // Xiaomi Orange
+                    children: [
+                        {
+                            name: "Xiaomi Auto",
+                            os: "HyperOS",
+                            children: [
+                                { name: "Xiaomi SU7", value: 40 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "NIO SkyOS",
+                    color: "#00BED6", // NIO Teal
+                    children: [
+                        {
+                            name: "NIO Inc.",
+                            os: "SkyOS",
+                            children: [
+                                { name: "NIO", value: 40 },
+                                { name: "Onvo", value: 20 },
+                                { name: "Firefly", value: 15 }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        Sunburst()
+            .data(data)
+            .color(d => d.color || "#cccccc")
+            .minSliceAngle(0.4)
+            .showLabels(true)
+            .tooltipContent((d, node) => {
+                // Custom tooltip logic
+                if (!node) return '';
+                let content = `<strong>${node.data.name}</strong>`;
+                
+                // Add OS info if available in the parent or current node
+                if(node.data.os) {
+                    content += `<br/>OS: ${node.data.os}`;
+                } else if (node.parent && node.parent.data.os) {
+                    content += `<br/>OS: ${node.parent.data.os}`;
+                }
+                
+                // Add Value info
+                if (node.value) {
+                    content += `<br/><i>Relative Scale: ${node.value}</i>`;
+                }
+                return content;
+            })
+            .labelOrientation('angular')
+            .radiusScaleExponent(1)
+            (document.getElementById('chart'));
+            
+    </script>
+</body>
+</html>
