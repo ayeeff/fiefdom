@@ -22,12 +22,12 @@
         <table id="ev-table">            <thead><tr><th>Clan</th><th>Fiefdom</th><th>Brands</th><th>OS Name</th><th>Notes</th></tr></thead><tbody></tbody></table>
     </div>
     <script>
-        // --- MODIFIED COLOR MAPS ---
+        // --- MODIFIED COLOR MAPS (Changan Group change) ---
         const clanColors={"Huawei HarmonyOS":"#C9171E","Android Skins":"#00695C","Geely (Meizu)":"#0066CC","Xiaomi HyperOS":"#FF6900","NIO SkyOS":"#9C27B0"};
         const fiefdomColors={
             "SAIC-GM-Wuling":"#E53935",
             "Seres Group":"#EF5350",
-            "Chery Group (Huawei)":"#F44336", // MODIFIED: Added (Huawei) for uniqueness
+            "Chery Group (Huawei)":"#F44336", 
             "BAIC Group":"#FF5252",
             "JAC Group":"#FF6E6E",
             "Dongfeng Group":"#D32F2F",
@@ -39,7 +39,7 @@
             "Hozon Auto":"#2E7D32",
             "BYD Group":"#388E3C",
             "XPeng":"#43A047",
-            "Changan Group":"#66BB6A",
+            "Changan Group (Auto)":"#66BB6A", // MODIFIED: Added (Auto) for uniqueness
             "Chery Group Android":"#81C784",
             "Li Auto":"#00897B",
             "SAIC Group":"#00ACC1",
@@ -49,11 +49,11 @@
         };
         const osColors={"HarmonySpace 5":"#FF4444","HarmonyOS Cockpit":"#FF6E6E","Older OS (Pre-Harmony)":"#C62828","HyperOS":"#FFA726","SkyOS":"#BA68C8","Flyme Auto":"#42A5F5","Forked Flyme/Android":"#64B5F6","Hongqi OS":"#1B5E20","Neta OS / Neta Pilot":"#2E7D32","DiLink":"#388E3C","Xmart OS":"#43A047","Deepal OS 3.0":"#66BB6A","Changan OS":"#66BB6A","iCAR OS":"#81C784","EXEED OS (Falcon System)":"#81C784","Li OS / Halo OS":"#00897B","IM OS / Banma":"#00ACC1","ADiGO OS":"#26C6DA","Coffee OS":"#4DD0E1","Leapmotor OS":"#80DEEA"};
 
-        // --- MODIFIED RAW DATA ---
+        // --- MODIFIED RAW DATA (Changan Group change) ---
         const rawData=[
             {clan:"Huawei HarmonyOS",fiefdom:"SAIC-GM-Wuling",os:"HarmonySpace 5",brands:[{name:"Baojun Huajing S",value:15}],note:"SGMW is a new major partner; uses Huawei's ADS 4 and HarmonySpace 5 smart cockpit."},
             {clan:"Huawei HarmonyOS",fiefdom:"Seres Group",os:"HarmonyOS Cockpit",brands:[{name:"AITO",value:40}],note:"Huawei provides complete solution, tech, and sales channel for HIMA brands."},
-            {clan:"Huawei HarmonyOS",fiefdom:"Chery Group (Huawei)",os:"HarmonyOS Cockpit",brands:[{name:"Luxeed",value:20}],note:"Chery manufactures the Luxeed brand; Huawei provides the software and controls brand definition."}, // MODIFIED: Fiefdom name changed
+            {clan:"Huawei HarmonyOS",fiefdom:"Chery Group (Huawei)",os:"HarmonyOS Cockpit",brands:[{name:"Luxeed",value:20}],note:"Chery manufactures the Luxeed brand; Huawei provides the software and controls brand definition."}, 
             {clan:"Huawei HarmonyOS",fiefdom:"BAIC Group",os:"HarmonyOS Cockpit",brands:[{name:"Stelato",value:15}],note:"Member of the HIMA alliance."},
             {clan:"Huawei HarmonyOS",fiefdom:"JAC Group",os:"HarmonyOS Cockpit",brands:[{name:"Maextro",value:10}],note:"Member of the HIMA alliance."},
             {clan:"Huawei HarmonyOS",fiefdom:"Dongfeng Group",os:"Older OS (Pre-Harmony)",brands:[{name:"Voyah",value:15}],note:"Voyah is Dongfeng's premium EV brand."},
@@ -65,11 +65,10 @@
             {clan:"Android Skins",fiefdom:"Hozon Auto",os:"Neta OS / Neta Pilot",brands:[{name:"Neta V",value:10},{name:"Neta U",value:8},{name:"Neta GT",value:7},{name:"Neta L",value:5}],note:"Uses proprietary OS built on Android/Linux base, focusing on affordability. Neta S models use screens up to 17.6 inches and feature Neta Pilot Lidar systems."},
             {clan:"Android Skins",fiefdom:"BYD Group",os:"DiLink",brands:[{name:"BYD",value:80},{name:"Yangwang",value:10},{name:"Fang Cheng Bao",value:10}],note:"Open Android tablet concept."},
             {clan:"Android Skins",fiefdom:"XPeng",os:"Xmart OS",brands:[{name:"XPeng",value:30},{name:"Mona",value:15}],note:"Heavily modified Android focused on AI and self-driving (XNGP)."},
-            {clan:"Android Skins",fiefdom:"Changan Group",os:"Deepal OS 3.0",brands:[{name:"Deepal",value:35}],note:"Android-based, featuring high-end Qualcomm 8155/8295 chips."},
-            {clan:"Android Skins",fiefdom:"Changan Group",os:"Changan OS",brands:[{name:"Nevo",value:30}],note:"Android-based, featuring high-end Qualcomm 8155/8295 chips."},
+            {clan:"Android Skins",fiefdom:"Changan Group (Auto)",os:"Deepal OS 3.0",brands:[{name:"Deepal",value:35}],note:"Android-based, featuring high-end Qualcomm 8155/8295 chips."}, // MODIFIED: Fiefdom name changed
+            {clan:"Android Skins",fiefdom:"Changan Group (Auto)",os:"Changan OS",brands:[{name:"Nevo",value:30}],note:"Android-based, featuring high-end Qualcomm 8155/8295 chips."}, // MODIFIED: Fiefdom name changed
             {clan:"Android Skins",fiefdom:"Chery Group Android",os:"iCAR OS",brands:[{name:"iCAR",value:18}],note:"Premium Android skins, Exeed models use Qualcomm 8295P chips and dual NVIDIA ORIN chips for the Falcon Smart Drive system."},
-            {clan:"Android Skins",fiefdom:"Chery Group Android",os:"EXEED OS (Falcon System)",brands:[{name:"Exeed",value:10},{name:"Sterra",value:12}],note:"Premium Android skins, Exeed models use Qualcomm 8295P chips and dual NVIDIA ORIN chips for the Falcon Smart Drive system."},
-            {clan:"Android Skins",fiefdom:"Li Auto",os:"Li OS / Halo OS",brands:[{name:"Li Auto",value:40}],note:"Open Source Android fork."},
+            {clan:"Android Skins",fiefdom:"Chery Group Android",os:"EXEED OS (Falcon System)",brands:[{name:"Exeed",value:10},{name:"Sterra",value:12}],note:"Premium Android skins, Exeed models use Qualcomm 8295P chips and dual NVIDIA ORIN chips for the Falcon Smart Drive system."},{clan:"Android Skins",fiefdom:"Li Auto",os:"Li OS / Halo OS",brands:[{name:"Li Auto",value:40}],note:"Open Source Android fork."},
             {clan:"Android Skins",fiefdom:"SAIC Group",os:"IM OS / Banma",brands:[{name:"IM Motors",value:15},{name:"MG (Domestic)",value:25},{name:"Rising Auto",value:10}],note:"Android/AliOS based."},
             {clan:"Android Skins",fiefdom:"GAC Group",os:"ADiGO OS",brands:[{name:"Aion",value:35},{name:"Hyper",value:10}],note:"Android-based."},
             {clan:"Android Skins",fiefdom:"GWM",os:"Coffee OS",brands:[{name:"Ora",value:15},{name:"Wey",value:10},{name:"Tank",value:15}],note:"Android-based."},
