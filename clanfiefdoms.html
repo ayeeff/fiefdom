@@ -16,13 +16,35 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 100vh; /* Ensure full height */
+        }
+        /* Main container for chart and legend */
+        #main-container {
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: 90vh; /* Adjust based on header height */
+            align-items: center;
+            justify-content: center;
         }
         #chart {
-            width: 100vw;
-            height: 90vh;
+            flex: 3; /* Chart takes more space */
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        #legend {
+            flex: 1; /* Legend takes less space */
+            height: 80%; /* A bit shorter than chart area */
+            overflow-y: auto; /* Scroll if too many items */
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05); /* Subtle background */
+            border-radius: 8px;
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         header {
             height: 10vh;
@@ -46,6 +68,44 @@
             pointer-events: none;
             backdrop-filter: blur(4px);
         }
+
+        /* Legend Item Styling */
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .legend-label {
+            font-size: 0.9rem;
+        }
+        .legend-clan-header {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #eee;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        /* Scrollbar styling for the legend */
+        #legend::-webkit-scrollbar {
+            width: 8px;
+        }
+        #legend::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        #legend::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -55,20 +115,44 @@
         <p>Inner Ring: Tech Clan | Middle Ring: Fiefdom (Parent) | Outer Ring: Car Brands</p>
     </header>
 
-    <div id="chart"></div>
+    <div id="main-container">
+        <div id="chart"></div>
+        <div id="legend">
+            </div>
+    </div>
 
     <script>
-        // Data Structure: Clan (OS) -> Fiefdom (Corporate Owner) -> Brands
+        // Helper function to lighten a color
+        function lightenColor(color, percent) {
+            var num = parseInt(color.replace("#",""),16),
+            amt = Math.round(2.55 * percent),
+            R = (num >> 16) + amt,
+            B = (num >> 8 & 0x00FF) + amt,
+            G = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
+        }
+
+        // Base Colors for Clans
+        const clanColors = {
+            "Huawei HarmonyOS": "#C9171E",
+            "Android Skins": "#3DDC84",
+            "Geely (Meizu)": "#0066CC",
+            "Xiaomi HyperOS": "#FF6900",
+            "NIO SkyOS": "#00BED6"
+        };
+
+        // Data Structure with colors assigned to Fiefdoms
         const data = {
             name: "China EV Ecosystem",
             color: "#1a1a1a",
             children: [
                 {
                     name: "Huawei HarmonyOS",
-                    color: "#C9171E", // Huawei Red
+                    color: clanColors["Huawei HarmonyOS"],
                     children: [
                         {
                             name: "HIMA Alliance",
+                            color: lightenColor(clanColors["Huawei HarmonyOS"], 10),
                             os: "HarmonyOS Cockpit",
                             children: [
                                 { name: "AITO", value: 40 },
@@ -79,6 +163,7 @@
                         },
                         {
                             name: "Huawei Inside Partners",
+                            color: lightenColor(clanColors["Huawei HarmonyOS"], 25),
                             os: "HarmonyOS (HI)",
                             children: [
                                 { name: "Avatr (Changan)", value: 20 },
@@ -90,10 +175,11 @@
                 },
                 {
                     name: "Android Skins",
-                    color: "#3DDC84", // Android Green
+                    color: clanColors["Android Skins"],
                     children: [
                         {
                             name: "BYD Group",
+                            color: lightenColor(clanColors["Android Skins"], 5),
                             os: "DiLink (Open Android)",
                             children: [
                                 { name: "BYD", value: 80 },
@@ -103,6 +189,7 @@
                         },
                         {
                             name: "XPeng",
+                            color: lightenColor(clanColors["Android Skins"], 12),
                             os: "Xmart OS (AI Android)",
                             children: [
                                 { name: "XPeng", value: 30 },
@@ -111,6 +198,7 @@
                         },
                         {
                             name: "Li Auto",
+                            color: lightenColor(clanColors["Android Skins"], 19),
                             os: "Li OS",
                             children: [
                                 { name: "Li Auto", value: 40 }
@@ -118,6 +206,7 @@
                         },
                         {
                             name: "SAIC Group",
+                            color: lightenColor(clanColors["Android Skins"], 26),
                             os: "IM OS / Banma",
                             children: [
                                 { name: "IM Motors", value: 15 },
@@ -127,6 +216,7 @@
                         },
                         {
                             name: "GAC Group",
+                            color: lightenColor(clanColors["Android Skins"], 33),
                             os: "ADiGO",
                             children: [
                                 { name: "Aion", value: 35 },
@@ -135,6 +225,7 @@
                         },
                         {
                             name: "GWM",
+                            color: lightenColor(clanColors["Android Skins"], 40),
                             os: "Coffee OS",
                             children: [
                                 { name: "Ora", value: 15 },
@@ -144,6 +235,7 @@
                         },
                         {
                             name: "Leapmotor",
+                            color: lightenColor(clanColors["Android Skins"], 47),
                             os: "Leapmotor OS",
                             children: [
                                 { name: "Leapmotor", value: 20 }
@@ -153,10 +245,11 @@
                 },
                 {
                     name: "Geely (Meizu)",
-                    color: "#0066CC", // Geely Blue
+                    color: clanColors["Geely (Meizu)"],
                     children: [
                         {
                             name: "Flyme Auto Core",
+                            color: lightenColor(clanColors["Geely (Meizu)"], 15),
                             os: "Flyme Auto",
                             children: [
                                 { name: "Geely Galaxy", value: 25 },
@@ -166,6 +259,7 @@
                         },
                         {
                             name: "Custom Skins",
+                            color: lightenColor(clanColors["Geely (Meizu)"], 30),
                             os: "Forked Flyme/Android",
                             children: [
                                 { name: "Zeekr (Zeekr OS)", value: 35 },
@@ -176,10 +270,11 @@
                 },
                 {
                     name: "Xiaomi HyperOS",
-                    color: "#FF6900", // Xiaomi Orange
+                    color: clanColors["Xiaomi HyperOS"],
                     children: [
                         {
                             name: "Xiaomi Auto",
+                            color: lightenColor(clanColors["Xiaomi HyperOS"], 15),
                             os: "HyperOS",
                             children: [
                                 { name: "Xiaomi SU7", value: 40 }
@@ -189,10 +284,11 @@
                 },
                 {
                     name: "NIO SkyOS",
-                    color: "#00BED6", // NIO Teal
+                    color: clanColors["NIO SkyOS"],
                     children: [
                         {
                             name: "NIO Inc.",
+                            color: lightenColor(clanColors["NIO SkyOS"], 15),
                             os: "SkyOS",
                             children: [
                                 { name: "NIO", value: 40 },
@@ -204,6 +300,36 @@
                 }
             ]
         };
+
+        // Generate Legend
+        const legendContainer = document.getElementById('legend');
+        
+        data.children.forEach(clan => {
+            // Clan Header
+            const clanHeader = document.createElement('div');
+            clanHeader.className = 'legend-clan-header';
+            clanHeader.textContent = clan.name;
+            legendContainer.appendChild(clanHeader);
+
+            // Fiefdom Items
+            clan.children.forEach(fiefdom => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = fiefdom.color;
+                
+                const label = document.createElement('span');
+                label.className = 'legend-label';
+                label.textContent = fiefdom.name;
+                
+                item.appendChild(colorBox);
+                item.appendChild(label);
+                legendContainer.appendChild(item);
+            });
+        });
+
 
         Sunburst()
             .data(data)
