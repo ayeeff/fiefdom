@@ -11,11 +11,22 @@
 <body>
     <header>
         <h1>The Full Stack: US Complexity vs China Uniformity (with Cost Estimates)</h1>
-        <p class="subtitle">
-            Expanding the view to the metal—and adding the numbers. 
-            <span class="highlight-us">The US</span> spends fragmented billions across clouds ($9B JWCC), chips ($3.5B Intel), licenses ($100M+ Oracle/SAP), networks (DISA/SIPRNet), middleware chaos, and a $10B Palantir integration layer just to make it work.
-            <span class="highlight-cn">China</span> achieves end-to-end control with state-subsidized domestic tech: Inspur, Huawei, Kylin, Dameng—all vertically integrated under military-civil fusion at lower total cost.
-        </p>
+        <div style="max-width:1100px;margin:20px auto;padding:25px;background:#1a202c;border:2px solid #3b82f6;border-radius:12px;">
+            <h2 style="color:#60a5fa;font-size:1.5rem;margin:0 0 15px 0;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.8rem;">💡</span> The Palantir Problem
+            </h2>
+            <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;margin-bottom:18px;">
+                <strong style="color:#60a5fa">Palantir is the symptom, not the solution.</strong> The US needs a $10B integration layer because:
+            </p>
+            <ul style="font-size:1rem;line-height:1.9;color:#cbd5e1;margin:0 0 20px 25px;padding:0;">
+                <li style="margin-bottom:10px;"><strong style="color:#15803d">Army</strong> runs SAP on Windows with Custom ESB over DISA</li>
+                <li style="margin-bottom:10px;"><strong style="color:#1e40af">Navy</strong> runs SAP on Linux with MuleSoft over SIPRNet</li>
+                <li style="margin-bottom:10px;"><strong style="color:#0ea5e9">Air Force</strong> splits between Azure/AWS with IBM MQ and different middleware</li>
+            </ul>
+            <p style="font-size:1rem;line-height:1.8;color:#94a3b8;border-left:3px solid #f87171;padding-left:15px;margin:0;font-style:italic;">
+                <span class="highlight-cn">China</span> built analytics <strong style="color:#f87171">into their unified stack from day one</strong>. They don't need a Palantir equivalent because there's nothing to integrate—it's all one pipeline.
+            </p>
+        </div>
     </header>
 
     <div id="main-container">
@@ -41,16 +52,22 @@
             </div>
             <div id="chart-us" class="sankey-container"></div>
             <div class="cost-box">
-                <strong>Estimated Annual Costs (US):</strong><br>
-                • Cloud (JWCC): ~$9B contract (AWS, Azure, Google, Oracle)<br>
-                • Chips: $3.5B Intel Secure Enclave + commercial procurement<br>
-                • OS: $200M+ (Windows/RHEL licenses & support)<br>
-                • Database: $500M+ (Oracle EE ~$47.5K/processor, SAP HANA, SQL Server, 22% annual maintenance)<br>
-                • Network: $2B+ (DISA operations, SIPRNet infrastructure, commercial ISP contracts)<br>
-                • Middleware: $300M+ (MuleSoft, IBM MQ, custom ESB development & maintenance)<br>
-                • API Integration: $100M+ (EDI systems, manual processes, contractor support)<br>
-                • Analytics: <strong>$10B+ Palantir consolidation</strong> (75 contracts unified into one Enterprise Agreement)<br>
-                <strong>Total Stack Cost: ~$26B+ annually</strong> (not including personnel)
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+                    <strong style="font-size:1.1rem;color:#60a5fa;">Layer Costs (Annual)</strong>
+                    <strong style="font-size:1.3rem;color:#60a5fa;">Total: ~$26B+</strong>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.88rem;">
+                    <div>• Cloud: <strong>$9B</strong> JWCC</div>
+                    <div>• Network: <strong>$2B+</strong> DISA/SIPRNet</div>
+                    <div>• Chips: <strong>$3.5B</strong> Intel Enclave</div>
+                    <div>• Middleware: <strong>$300M+</strong> MuleSoft/IBM</div>
+                    <div>• Database: <strong>$500M+</strong> Oracle/SAP</div>
+                    <div>• API: <strong>$100M+</strong> EDI/Manual</div>
+                    <div>• OS: <strong>$200M+</strong> Win/RHEL</div>
+                    <div style="grid-column:span 2;margin-top:8px;padding-top:8px;border-top:1px solid rgba(59,130,246,0.3);">
+                        • Analytics: <strong style="color:#60a5fa;font-size:1.05rem;">$10B+ Palantir</strong> (75 contracts consolidated)
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -76,37 +93,31 @@
             </div>
             <div id="chart-cn" class="sankey-container"></div>
             <div class="cost-box cost-box-cn">
-                <strong>Estimated Annual Costs (China):</strong><br>
-                • Cloud: Heavily state-subsidized Inspur Military Cloud (cost opacity via military-civil fusion)<br>
-                • Chips: Huawei Kunpeng & Hygon Dhyana manufactured domestically (subsidized via industrial policy)<br>
-                • OS: Kylin V10 (state-developed, minimal licensing cost)<br>
-                • Database: Dameng DB (domestic, controlled pricing for military)<br>
-                • Network: Military Backbone (state infrastructure, integrated cost)<br>
-                • Middleware: Unified Integration Platform (single vendor, no middleware chaos)<br>
-                • API: Unified Fusion (JD Logistics/SF Express drafted directly, minimal integration cost)<br>
-                • Analytics: <strong>Built into platform</strong> (no separate $10B integration layer needed)<br>
-                <strong>Total Stack Cost: Estimated $8-12B annually</strong> (50-60% lower via purchasing power parity, state subsidies, and vertical integration)<br>
-                <em style="color:#94a3b8">Note: True costs obscured by military-civil fusion and state ownership. Official 2025 military budget: $246B, but excludes R&D, space, paramilitary forces.</em>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+                    <strong style="font-size:1.1rem;color:#f87171;">Unified Stack Costs (Annual)</strong>
+                    <strong style="font-size:1.3rem;color:#f87171;">Total: ~$8-12B</strong>
+                </div>
+                <div style="font-size:0.88rem;line-height:1.7;">
+                    <div style="margin-bottom:10px;">
+                        • <strong>Everything state-subsidized</strong> via military-civil fusion<br>
+                        • Cloud, Chips, OS, DB, Network, Middleware: <strong>Vertically integrated domestic stack</strong><br>
+                        • Analytics: <strong style="color:#f87171;">Built-in</strong> (no $10B integration layer needed)
+                    </div>
+                    <div style="padding:10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid #f87171;">
+                        <strong style="color:#fbbf24;">50-60% cost advantage</strong> through:<br>
+                        • State subsidies & purchasing power parity<br>
+                        • Zero middleware translation overhead<br>
+                        • Single-vendor negotiation leverage
+                    </div>
+                    <div style="margin-top:10px;font-size:0.82rem;color:#94a3b8;font-style:italic;">
+                        Note: True costs obscured by military-civil fusion. Official 2025 military budget: $246B (excludes R&D, space, paramilitary).
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="data-table-container" style="background:#1a202c;border:2px solid #3b82f6;padding:30px;margin-bottom:40px;">
-        <h2 style="color:#60a5fa;font-size:1.6rem;margin-bottom:15px;">💡 The Palantir Problem</h2>
-        <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;margin-bottom:20px;">
-            <strong style="color:#60a5fa">Palantir is the symptom, not the solution.</strong> The US needs a $10B integration layer because:
-        </p>
-        <ul style="font-size:1rem;line-height:1.8;color:#cbd5e1;margin-left:20px;margin-bottom:20px;">
-            <li style="margin-bottom:12px;"><strong style="color:#15803d">Army</strong> runs SAP on Windows with Custom ESB over DISA</li>
-            <li style="margin-bottom:12px;"><strong style="color:#1e40af">Navy</strong> runs SAP on Linux with MuleSoft over SIPRNet</li>
-            <li style="margin-bottom:12px;"><strong style="color:#0ea5e9">Air Force</strong> splits between Azure/AWS with IBM MQ and different middleware</li>
-        </ul>
-        <p style="font-size:1rem;line-height:1.8;color:#94a3b8;border-left:3px solid #f87171;padding-left:15px;font-style:italic;">
-            China built analytics <strong style="color:#f87171">into their unified stack from day one</strong>. They don't need a Palantir equivalent because there's nothing to integrate—it's all one pipeline.
-        </p>
-    </div>
-
-    <div id="data-table-container">
+    <div id="data-table-container" style="margin-top:50px;">
         <h2>Full Stack Layer Comparison with Technology Details</h2>
         <table id="tech-table">
             <thead>
