@@ -3,54 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Stack War: US vs China</title>
+    <title>Deep Stack War: US vs China (with Costs)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
-    <style>body{margin:0;padding:0;background-color:#0b1120;color:#e2e8f0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;min-height:100vh}header{width:100%;padding:25px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#111827;border-bottom:1px solid #1f2937;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3)}h1{margin:0;font-size:2.2rem;letter-spacing:1px;color:#f8fafc;font-weight:700}.subtitle{max-width:900px;margin:15px auto;line-height:1.6;font-size:1rem;color:#94a3b8}.highlight-us{color:#60a5fa;font-weight:bold}.highlight-cn{color:#f87171;font-weight:bold}#main-container{display:flex;flex-direction:column;width:95%;max-width:1800px;margin-top:30px;gap:50px}.chart-section{display:flex;flex-direction:column;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:25px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.2)}.chart-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:15px;margin-bottom:20px}.chart-title{font-size:1.5rem;font-weight:600;display:flex;align-items:center;gap:10px}.chart-desc{font-size:0.9rem;color:#cbd5e1;max-width:600px;text-align:right;line-height:1.4}.sankey-container{width:100%;height:600px;display:flex;justify-content:center;position:relative}.column-labels{display:flex;justify-content:space-between;margin-bottom:10px;padding:0 10px;font-size:0.75rem;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:0.05em}.col-label{text-align:center;width:12.5%}#data-table-container{width:95%;max-width:1800px;margin:40px auto;padding:25px;background:#1e293b;border-radius:16px;border:1px solid #334155}h2{font-size:1.4rem;margin-top:0;margin-bottom:20px;color:#f1f5f9;border-bottom:1px solid #334155;padding-bottom:10px}table{width:100%;border-collapse:collapse;font-size:0.9rem}th,td{text-align:left;padding:14px;border-bottom:1px solid #334155}th{background-color:rgba(0,0,0,0.2);color:#94a3b8;font-weight:700;text-transform:uppercase;font-size:0.8rem}td{color:#cbd5e1}tr:hover{background-color:rgba(255,255,255,0.03)}svg text{fill:#e2e8f0;font-family:'Segoe UI',sans-serif;font-size:11px;font-weight:600;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.9)}.tooltip{position:absolute;background:rgba(15,23,42,0.98);border:1px solid #475569;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border-radius:8px;color:#fff;padding:12px;font-family:'Segoe UI',sans-serif;font-size:0.9rem;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;max-width:320px;line-height:1.4}.node rect{stroke:#0f172a;stroke-width:1;shape-rendering:crispEdges;cursor:pointer;transition:fill-opacity 0.2s}.node rect:hover{fill-opacity:0.8}.link{fill:none;stroke-opacity:0.25;transition:stroke-opacity 0.3s;cursor:pointer}.link:hover{stroke-opacity:0.6}.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:800;letter-spacing:0.05em}.badge-us{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}.badge-cn{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}.layer-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}</style>
+    <style>body{margin:0;padding:0;background-color:#0b1120;color:#e2e8f0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;min-height:100vh}header{width:100%;padding:25px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#111827;border-bottom:1px solid #1f2937;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3)}h1{margin:0;font-size:2.2rem;letter-spacing:1px;color:#f8fafc;font-weight:700}.subtitle{max-width:1000px;margin:15px auto;line-height:1.6;font-size:1rem;color:#94a3b8}.highlight-us{color:#60a5fa;font-weight:bold}.highlight-cn{color:#f87171;font-weight:bold}#main-container{display:flex;flex-direction:column;width:95%;max-width:1800px;margin-top:30px;gap:50px}.chart-section{display:flex;flex-direction:column;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:25px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.2)}.chart-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:15px;margin-bottom:20px}.chart-title{font-size:1.5rem;font-weight:600;display:flex;align-items:center;gap:10px}.chart-desc{font-size:0.9rem;color:#cbd5e1;max-width:650px;text-align:right;line-height:1.4}.sankey-container{width:100%;height:650px;display:flex;justify-content:center;position:relative}.column-labels{display:flex;justify-content:space-between;margin-bottom:10px;padding:0 10px;font-size:0.7rem;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:0.05em}.col-label{text-align:center;width:11.11%}#data-table-container{width:95%;max-width:1800px;margin:40px auto;padding:25px;background:#1e293b;border-radius:16px;border:1px solid #334155}h2{font-size:1.4rem;margin-top:0;margin-bottom:20px;color:#f1f5f9;border-bottom:1px solid #334155;padding-bottom:10px}table{width:100%;border-collapse:collapse;font-size:0.9rem}th,td{text-align:left;padding:14px;border-bottom:1px solid #334155}th{background-color:rgba(0,0,0,0.2);color:#94a3b8;font-weight:700;text-transform:uppercase;font-size:0.8rem}td{color:#cbd5e1}tr:hover{background-color:rgba(255,255,255,0.03)}svg text{fill:#e2e8f0;font-family:'Segoe UI',sans-serif;font-size:10px;font-weight:600;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.9)}.tooltip{position:absolute;background:rgba(15,23,42,0.98);border:1px solid #475569;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border-radius:8px;color:#fff;padding:12px;font-family:'Segoe UI',sans-serif;font-size:0.9rem;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;max-width:320px;line-height:1.4}.node rect{stroke:#0f172a;stroke-width:1;shape-rendering:crispEdges;cursor:pointer;transition:fill-opacity 0.2s}.node rect:hover{fill-opacity:0.8}.link{fill:none;stroke-opacity:0.25;transition:stroke-opacity 0.3s;cursor:pointer}.link:hover{stroke-opacity:0.6}.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:800;letter-spacing:0.05em}.badge-us{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}.badge-cn{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}.layer-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.cost-box{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:15px;margin-top:20px;font-size:0.85rem;line-height:1.6}.cost-box strong{color:#60a5fa}.cost-box-cn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}.cost-box-cn strong{color:#f87171}</style>
 </head>
 <body>
     <header>
-        <h1>The Full Stack: US Complexity vs China Uniformity</h1>
-        <p class="subtitle">Expanding the view to the metal—and the wires between. <span class="highlight-us">The US</span> manages a chaotic mix of commercial clouds (AWS/Azure), diverse chips (Intel/AMD), competing OS/DB standards, fragmented networks (DISA/SIPRNet/Commercial), and incompatible middleware. <span class="highlight-cn">China</span> has consolidated the entire vertical: from the sand (Chips) through unified networks to a single integration layer, all managed by JLSF.</p>
+        <h1>The Full Stack: US Complexity vs China Uniformity (with Cost Estimates)</h1>
+        <p class="subtitle">
+            Expanding the view to the metal—and adding the numbers. 
+            <span class="highlight-us">The US</span> spends fragmented billions across clouds ($9B JWCC), chips ($3.5B Intel), licenses ($100M+ Oracle/SAP), networks (DISA/SIPRNet), middleware chaos, and a $10B Palantir integration layer just to make it work.
+            <span class="highlight-cn">China</span> achieves end-to-end control with state-subsidized domestic tech: Inspur, Huawei, Kylin, Dameng—all vertically integrated under military-civil fusion at lower total cost.
+        </p>
     </header>
+
     <div id="main-container">
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title"><span class="badge badge-us">USA</span> The "Best of Breed" Tangle</div>
-                <div class="chart-desc"><strong>Fragmentation at Every Layer:</strong> Notice how the lines cross everywhere. The Army runs SAP/Windows with custom ESB over DISA; the Air Force splits between Azure/AWS with IBM MQ and MuleSoft. Three different networks, three middleware platforms—every integration is bespoke.</div>
+                <div class="chart-desc">
+                    <strong>Fragmentation Everywhere:</strong> 
+                    Lines cross at every layer. Army on SAP/Windows/DISA/Custom ESB; Navy on AWS/Linux/SIPRNet/MuleSoft; Air Force split between Azure & AWS. 
+                    Then Palantir sits on top trying to unify the chaos—for $10B.
+                </div>
             </div>
             <div class="column-labels">
                 <div class="col-label">BRANCH</div>
-                <div class="col-label">CLOUD INFRA</div>
-                <div class="col-label">SILICON</div>
+                <div class="col-label">CLOUD</div>
+                <div class="col-label">CHIPS</div>
                 <div class="col-label">OS</div>
                 <div class="col-label">DATABASE</div>
                 <div class="col-label">NETWORK</div>
                 <div class="col-label">MIDDLEWARE</div>
                 <div class="col-label">API</div>
+                <div class="col-label">ANALYTICS</div>
             </div>
             <div id="chart-us" class="sankey-container"></div>
+            <div class="cost-box">
+                <strong>Estimated Annual Costs (US):</strong><br>
+                • Cloud (JWCC): ~$9B contract (AWS, Azure, Google, Oracle)<br>
+                • Chips: $3.5B Intel Secure Enclave + commercial procurement<br>
+                • OS: $200M+ (Windows/RHEL licenses & support)<br>
+                • Database: $500M+ (Oracle EE ~$47.5K/processor, SAP HANA, SQL Server, 22% annual maintenance)<br>
+                • Network: $2B+ (DISA operations, SIPRNet infrastructure, commercial ISP contracts)<br>
+                • Middleware: $300M+ (MuleSoft, IBM MQ, custom ESB development & maintenance)<br>
+                • API Integration: $100M+ (EDI systems, manual processes, contractor support)<br>
+                • Analytics: <strong>$10B+ Palantir consolidation</strong> (75 contracts unified into one Enterprise Agreement)<br>
+                <strong>Total Stack Cost: ~$26B+ annually</strong> (not including personnel)
+            </div>
         </div>
+
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title"><span class="badge badge-cn">CHINA</span> The "Xinchuang" Pipeline</div>
-                <div class="chart-desc"><strong>Vertical Integration:</strong> Notice the perfectly straight lines. The JLSF forces all branches into one stack: Inspur Cloud → Huawei Chips → Kylin OS → Dameng DB → Military Backbone → Unified Integration. Zero translation layers. One API drafts all civilian logistics (JD/SF).</div>
+                <div class="chart-desc">
+                    <strong>Perfect Vertical Integration:</strong> 
+                    Straight lines all the way down. JLSF mandates one stack: Inspur Cloud → Huawei/Hygon → Kylin → Dameng → Military Backbone → Unified Integration → Built-in Analytics. 
+                    No translation layers. No Palantir needed.
+                </div>
             </div>
             <div class="column-labels">
                 <div class="col-label">BRANCH</div>
-                <div class="col-label">CLOUD INFRA</div>
-                <div class="col-label">SILICON</div>
+                <div class="col-label">CLOUD</div>
+                <div class="col-label">CHIPS</div>
                 <div class="col-label">OS</div>
                 <div class="col-label">DATABASE</div>
                 <div class="col-label">NETWORK</div>
                 <div class="col-label">MIDDLEWARE</div>
                 <div class="col-label">API</div>
+                <div class="col-label">ANALYTICS</div>
             </div>
             <div id="chart-cn" class="sankey-container"></div>
+            <div class="cost-box cost-box-cn">
+                <strong>Estimated Annual Costs (China):</strong><br>
+                • Cloud: Heavily state-subsidized Inspur Military Cloud (cost opacity via military-civil fusion)<br>
+                • Chips: Huawei Kunpeng & Hygon Dhyana manufactured domestically (subsidized via industrial policy)<br>
+                • OS: Kylin V10 (state-developed, minimal licensing cost)<br>
+                • Database: Dameng DB (domestic, controlled pricing for military)<br>
+                • Network: Military Backbone (state infrastructure, integrated cost)<br>
+                • Middleware: Unified Integration Platform (single vendor, no middleware chaos)<br>
+                • API: Unified Fusion (JD Logistics/SF Express drafted directly, minimal integration cost)<br>
+                • Analytics: <strong>Built into platform</strong> (no separate $10B integration layer needed)<br>
+                <strong>Total Stack Cost: Estimated $8-12B annually</strong> (50-60% lower via purchasing power parity, state subsidies, and vertical integration)<br>
+                <em style="color:#94a3b8">Note: True costs obscured by military-civil fusion and state ownership. Official 2025 military budget: $246B, but excludes R&D, space, paramilitary forces.</em>
+            </div>
         </div>
     </div>
+
+    <div id="data-table-container" style="background:#1a202c;border:2px solid #3b82f6;padding:30px;margin-bottom:40px;">
+        <h2 style="color:#60a5fa;font-size:1.6rem;margin-bottom:15px;">💡 The Palantir Problem</h2>
+        <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;margin-bottom:20px;">
+            <strong style="color:#60a5fa">Palantir is the symptom, not the solution.</strong> The US needs a $10B integration layer because:
+        </p>
+        <ul style="font-size:1rem;line-height:1.8;color:#cbd5e1;margin-left:20px;margin-bottom:20px;">
+            <li style="margin-bottom:12px;"><strong style="color:#15803d">Army</strong> runs SAP on Windows with Custom ESB over DISA</li>
+            <li style="margin-bottom:12px;"><strong style="color:#1e40af">Navy</strong> runs SAP on Linux with MuleSoft over SIPRNet</li>
+            <li style="margin-bottom:12px;"><strong style="color:#0ea5e9">Air Force</strong> splits between Azure/AWS with IBM MQ and different middleware</li>
+        </ul>
+        <p style="font-size:1rem;line-height:1.8;color:#94a3b8;border-left:3px solid #f87171;padding-left:15px;font-style:italic;">
+            China built analytics <strong style="color:#f87171">into their unified stack from day one</strong>. They don't need a Palantir equivalent because there's nothing to integrate—it's all one pipeline.
+        </p>
+    </div>
+
     <div id="data-table-container">
-        <h2>Deep Stack Layer Comparison</h2>
+        <h2>Full Stack Layer Comparison with Technology Details</h2>
         <table id="tech-table">
             <thead>
                 <tr>
@@ -61,12 +118,90 @@
                     <th>Database</th>
                     <th>Network</th>
                     <th>Middleware</th>
-                    <th>Logistics API</th>
+                    <th>API</th>
+                    <th>Analytics</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
-    <script>const colors={"Army":"#15803d","Navy":"#1e40af","Air Force":"#0ea5e9","Marines":"#b91c1c","AWS GovCloud":"#f59e0b","Azure Gov":"#00a4ef","On-Prem Legacy":"#475569","Intel Xeon":"#0071c5","AMD EPYC":"#84cc16","Windows Server":"#00a4ef","Red Hat Enterprise":"#cc0000","Oracle DB":"#c74634","SQL Server":"#a3a3a3","SAP HANA":"#0f172a","SIPRNet":"#64748b","DISA":"#475569","Commercial ISP":"#94a3b8","IBM MQ":"#0f62fe","MuleSoft":"#00a0df","Custom ESB":"#71717a","Fragmented (EDI)":"#94a3b8","Manual / Email":"#64748b","PLA Army":"#991b1b","PLA Navy":"#7f1d1d","PLA Air Force":"#b91c1c","PLA Rocket Force":"#ef4444","Inspur Military Cloud":"#dc2626","Huawei Kunpeng":"#ef4444","Hygon Dhyana":"#f87171","Kylin V10":"#fbbf24","Dameng (DM) DB":"#f59e0b","Military Backbone":"#dc2626","Unified Integration":"#d97706","Unified Fusion (JD/SF)":"#d97706"};const usDataRaw=[{branch:"Army",cloud:"On-Prem Legacy",chips:"Intel Xeon",os:"Windows Server",db:"SAP HANA",network:"DISA",middleware:"Custom ESB",api:"Fragmented (EDI)",value:30,desc:"GCSS-Army: Massive SAP instance, largely on-prem/hybrid with custom integration."},{branch:"Navy",cloud:"AWS GovCloud",chips:"Intel Xeon",os:"Red Hat Enterprise",db:"SAP HANA",network:"SIPRNet",middleware:"MuleSoft",api:"Fragmented (EDI)",value:25,desc:"Navy ERP: Migrating to AWS with MuleSoft for integration."},{branch:"Air Force",cloud:"Azure Gov",chips:"AMD EPYC",os:"Red Hat Enterprise",db:"Oracle DB",network:"Commercial ISP",middleware:"IBM MQ",api:"Manual / Email",value:20,desc:"Cloud One: Multi-vendor middleware creates integration complexity."},{branch:"Air Force",cloud:"AWS GovCloud",chips:"Intel Xeon",os:"Red Hat Enterprise",db:"Oracle DB",network:"DISA",middleware:"Custom ESB",api:"Manual / Email",value:15,desc:"Cloud One: Dual-cloud with different integration stacks."},{branch:"Marines",cloud:"On-Prem Legacy",chips:"Intel Xeon",os:"Windows Server",db:"Oracle DB",network:"SIPRNet",middleware:"IBM MQ",api:"Manual / Email",value:15,desc:"GCSS-MC: Legacy middleware struggling with modern APIs."}];const cnDataRaw=[{branch:"PLA Army",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",value:30,desc:"Single pipeline: no translation layers needed."},{branch:"PLA Navy",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",value:30,desc:"Identical stack enables seamless joint operations."},{branch:"PLA Air Force",cloud:"Inspur Military Cloud",chips:"Hygon Dhyana",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",value:30,desc:"Even x86 compatibility flows through unified middleware."},{branch:"PLA Rocket Force",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",value:20,desc:"Pure domestic vertical: zero foreign dependencies."}];function processData(rawData,type){const nodes=[];const links=[];const nodeMap=new Map();let nodeIndex=0;function getOrCreateNode(name,layer){const key=name+'_'+layer;if(!nodeMap.has(key)){let color=colors[name]||'#64748b';nodes.push({name:name,layer:layer,color:color,id:nodeIndex++});nodeMap.set(key,nodes[nodes.length-1])}return nodeMap.get(key)}rawData.forEach(d=>{const branch=getOrCreateNode(d.branch,'branch');const cloud=getOrCreateNode(d.cloud,'cloud');const chips=getOrCreateNode(d.chips,'chips');const os=getOrCreateNode(d.os,'os');const db=getOrCreateNode(d.db,'db');const network=getOrCreateNode(d.network,'network');const middleware=getOrCreateNode(d.middleware,'middleware');const api=getOrCreateNode(d.api,'api');const flow=[branch,cloud,chips,os,db,network,middleware,api];for(let i=0;i<flow.length-1;i++){links.push({source:flow[i].id,target:flow[i+1].id,value:d.value,color:flow[i].color})}});const linkMap=new Map();const consolidatedLinks=[];links.forEach(l=>{const key=`${l.source}-${l.target}`;if(linkMap.has(key)){linkMap.get(key).value+=l.value}else{const newLink={...l};linkMap.set(key,newLink);consolidatedLinks.push(newLink)}});return{nodes,links:consolidatedLinks}}function drawSankey(containerId,graphData,width=1400,height=600){const margin={top:20,right:20,bottom:20,left:20};const svg=d3.select(containerId).append('svg').attr('width','100%').attr('height','100%').attr('viewBox',`0 0 ${width} ${height}`).style('overflow','visible');const sankey=d3.sankey().nodeId(d=>d.id).nodeWidth(15).nodePadding(25).extent([[margin.left,margin.top],[width-margin.right,height-margin.bottom]]);const{nodes,links}=sankey({nodes:graphData.nodes.map(d=>Object.assign({},d)),links:graphData.links.map(d=>Object.assign({},d))});const tooltip=d3.select('body').append('div').attr('class','tooltip');svg.append('g').selectAll('path').data(links).join('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width)).attr('stroke',d=>d.color).on('mouseover',function(event,d){d3.select(this).style('stroke-opacity',0.8);tooltip.transition().duration(200).style('opacity',1);tooltip.html(`<div style="font-weight:bold; margin-bottom:5px;">${d.source.name} → ${d.target.name}</div><div>Flow Volume: ${d.value}</div>`).style('left',(event.pageX+15)+'px').style('top',(event.pageY-28)+'px')}).on('mouseout',function(){d3.select(this).style('stroke-opacity',0.25);tooltip.transition().duration(500).style('opacity',0)});const node=svg.append('g').selectAll('g').data(nodes).join('g');node.append('rect').attr('x',d=>d.x0).attr('y',d=>d.y0).attr('height',d=>d.y1-d.y0).attr('width',d=>d.x1-d.x0).attr('fill',d=>d.color).attr('rx',3).on('mouseover',function(event,d){d3.select(this).attr('opacity',0.8);tooltip.transition().duration(200).style('opacity',1);tooltip.html(`<strong>${d.name}</strong><br><span style="color:#aaa;font-size:0.8em">Layer: ${d.layer}</span>`).style('left',(event.pageX+15)+'px').style('top',(event.pageY-28)+'px')}).on('mouseout',function(){d3.select(this).attr('opacity',1);tooltip.transition().duration(500).style('opacity',0)});node.append('text').attr('x',d=>d.x0<width/2?d.x1+6:d.x0-6).attr('y',d=>(d.y1+d.y0)/2).attr('dy','0.35em').attr('text-anchor',d=>d.x0<width/2?'start':'end').text(d=>d.name).style('fill','#e2e8f0').style('font-size','10px')}const usGraph=processData(usDataRaw,'us');drawSankey('#chart-us',usGraph);const cnGraph=processData(cnDataRaw,'cn');drawSankey('#chart-cn',cnGraph);const tableBody=document.querySelector('#tech-table tbody');const allData=[...usDataRaw.map(d=>({...d,region:'USA'})),...cnDataRaw.map(d=>({...d,region:'CHN'}))];allData.forEach(d=>{const tr=document.createElement('tr');const badge=`<span class="badge ${d.region==='USA'?'badge-us':'badge-cn'}">${d.region}</span>`;tr.innerHTML=`<td>${badge} ${d.branch}</td><td><span class="layer-indicator" style="background:${colors[d.cloud]||'#fff'}"></span>${d.cloud}</td><td><span class="layer-indicator" style="background:${colors[d.chips]||'#fff'}"></span>${d.chips}</td><td><span class="layer-indicator" style="background:${colors[d.os]||'#fff'}"></span>${d.os}</td><td><span class="layer-indicator" style="background:${colors[d.db]||'#fff'}"></span>${d.db}</td><td><span class="layer-indicator" style="background:${colors[d.network]||'#fff'}"></span>${d.network}</td><td><span class="layer-indicator" style="background:${colors[d.middleware]||'#fff'}"></span>${d.middleware}</td><td><span class="layer-indicator" style="background:${colors[d.api]||'#fff'}"></span>${d.api}</td>`;tableBody.appendChild(tr)});</script>
+
+    <script>
+const colors={"Army":"#15803d","Navy":"#1e40af","Air Force":"#0ea5e9","Marines":"#b91c1c","AWS GovCloud":"#f59e0b","Azure Gov":"#00a4ef","On-Prem Legacy":"#475569","Intel Xeon":"#0071c5","AMD EPYC":"#84cc16","Windows Server":"#00a4ef","Red Hat Enterprise":"#cc0000","Oracle DB":"#c74634","SQL Server":"#a3a3a3","SAP HANA":"#0f172a","SIPRNet":"#64748b","DISA":"#475569","Commercial ISP":"#94a3b8","IBM MQ":"#0f62fe","MuleSoft":"#00a0df","Custom ESB":"#71717a","Fragmented (EDI)":"#94a3b8","Manual / Email":"#64748b","Palantir Foundry":"#3b82f6","Tableau/PowerBI":"#6366f1","PLA Army":"#991b1b","PLA Navy":"#7f1d1d","PLA Air Force":"#b91c1c","PLA Rocket Force":"#ef4444","Inspur Military Cloud":"#dc2626","Huawei Kunpeng":"#ef4444","Hygon Dhyana":"#f87171","Kylin V10":"#fbbf24","Dameng (DM) DB":"#f59e0b","Military Backbone":"#dc2626","Unified Integration":"#d97706","Unified Fusion (JD/SF)":"#d97706","Built-in Analytics":"#b91c1c"};
+
+const usDataRaw=[
+    {branch:"Army",cloud:"On-Prem Legacy",chips:"Intel Xeon",os:"Windows Server",db:"SAP HANA",network:"DISA",middleware:"Custom ESB",api:"Fragmented (EDI)",analytics:"Palantir Foundry",value:30},
+    {branch:"Navy",cloud:"AWS GovCloud",chips:"Intel Xeon",os:"Red Hat Enterprise",db:"SAP HANA",network:"SIPRNet",middleware:"MuleSoft",api:"Fragmented (EDI)",analytics:"Palantir Foundry",value:25},
+    {branch:"Air Force",cloud:"Azure Gov",chips:"AMD EPYC",os:"Red Hat Enterprise",db:"Oracle DB",network:"Commercial ISP",middleware:"IBM MQ",api:"Manual / Email",analytics:"Tableau/PowerBI",value:20},
+    {branch:"Air Force",cloud:"AWS GovCloud",chips:"Intel Xeon",os:"Red Hat Enterprise",db:"Oracle DB",network:"DISA",middleware:"Custom ESB",api:"Manual / Email",analytics:"Palantir Foundry",value:15},
+    {branch:"Marines",cloud:"On-Prem Legacy",chips:"Intel Xeon",os:"Windows Server",db:"Oracle DB",network:"SIPRNet",middleware:"IBM MQ",api:"Manual / Email",analytics:"Tableau/PowerBI",value:15}
+];
+
+const cnDataRaw=[
+    {branch:"PLA Army",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",analytics:"Built-in Analytics",value:30},
+    {branch:"PLA Navy",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",analytics:"Built-in Analytics",value:30},
+    {branch:"PLA Air Force",cloud:"Inspur Military Cloud",chips:"Hygon Dhyana",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",analytics:"Built-in Analytics",value:30},
+    {branch:"PLA Rocket Force",cloud:"Inspur Military Cloud",chips:"Huawei Kunpeng",os:"Kylin V10",db:"Dameng (DM) DB",network:"Military Backbone",middleware:"Unified Integration",api:"Unified Fusion (JD/SF)",analytics:"Built-in Analytics",value:20}
+];
+
+function processData(rawData){
+    const nodes=[];const links=[];const nodeMap=new Map();let nodeIndex=0;
+    function getOrCreateNode(name,layer){
+        const key=name+'_'+layer;
+        if(!nodeMap.has(key)){
+            let color=colors[name]||'#64748b';
+            nodes.push({name:name,layer:layer,color:color,id:nodeIndex++});
+            nodeMap.set(key,nodes[nodes.length-1]);
+        }
+        return nodeMap.get(key);
+    }
+    rawData.forEach(d=>{
+        const branch=getOrCreateNode(d.branch,'branch');
+        const cloud=getOrCreateNode(d.cloud,'cloud');
+        const chips=getOrCreateNode(d.chips,'chips');
+        const os=getOrCreateNode(d.os,'os');
+        const db=getOrCreateNode(d.db,'db');
+        const network=getOrCreateNode(d.network,'network');
+        const middleware=getOrCreateNode(d.middleware,'middleware');
+        const api=getOrCreateNode(d.api,'api');
+        const analytics=getOrCreateNode(d.analytics,'analytics');
+        const flow=[branch,cloud,chips,os,db,network,middleware,api,analytics];
+        for(let i=0;i<flow.length-1;i++){
+            links.push({source:flow[i].id,target:flow[i+1].id,value:d.value,color:flow[i].color});
+        }
+    });
+    const linkMap=new Map();const consolidatedLinks=[];
+    links.forEach(l=>{
+        const key=`${l.source}-${l.target}`;
+        if(linkMap.has(key)){linkMap.get(key).value+=l.value;}
+        else{const newLink={...l};linkMap.set(key,newLink);consolidatedLinks.push(newLink);}
+    });
+    return{nodes,links:consolidatedLinks};
+}
+
+function drawSankey(containerId,graphData,width=1400,height=650){
+    const margin={top:20,right:20,bottom:20,left:20};
+    const svg=d3.select(containerId).append('svg').attr('width','100%').attr('height','100%').attr('viewBox',`0 0 ${width} ${height}`).style('overflow','visible');
+    const sankey=d3.sankey().nodeId(d=>d.id).nodeWidth(12).nodePadding(22).extent([[margin.left,margin.top],[width-margin.right,height-margin.bottom]]);
+    const{nodes,links}=sankey({nodes:graphData.nodes.map(d=>Object.assign({},d)),links:graphData.links.map(d=>Object.assign({},d))});
+    const tooltip=d3.select('body').append('div').attr('class','tooltip');
+    svg.append('g').selectAll('path').data(links).join('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width)).attr('stroke',d=>d.color).on('mouseover',function(event,d){d3.select(this).style('stroke-opacity',0.8);tooltip.transition().duration(200).style('opacity',1);tooltip.html(`<div style="font-weight:bold;margin-bottom:5px;">${d.source.name} → ${d.target.name}</div><div>Flow Volume: ${d.value}</div>`).style('left',(event.pageX+15)+'px').style('top',(event.pageY-28)+'px');}).on('mouseout',function(){d3.select(this).style('stroke-opacity',0.25);tooltip.transition().duration(500).style('opacity',0);});
+    const node=svg.append('g').selectAll('g').data(nodes).join('g');
+    node.append('rect').attr('x',d=>d.x0).attr('y',d=>d.y0).attr('height',d=>d.y1-d.y0).attr('width',d=>d.x1-d.x0).attr('fill',d=>d.color).attr('rx',3).on('mouseover',function(event,d){d3.select(this).attr('opacity',0.8);tooltip.transition().duration(200).style('opacity',1);tooltip.html(`<strong>${d.name}</strong><br><span style="color:#aaa;font-size:0.8em">Layer: ${d.layer}</span>`).style('left',(event.pageX+15)+'px').style('top',(event.pageY-28)+'px');}).on('mouseout',function(){d3.select(this).attr('opacity',1);tooltip.transition().duration(500).style('opacity',0);});
+    node.append('text').attr('x',d=>d.x0<width/2?d.x1+6:d.x0-6).attr('y',d=>(d.y1+d.y0)/2).attr('dy','0.35em').attr('text-anchor',d=>d.x0<width/2?'start':'end').text(d=>d.name).style('fill','#e2e8f0').style('font-size','9px');
+}
+
+const usGraph=processData(usDataRaw);drawSankey('#chart-us',usGraph);
+const cnGraph=processData(cnDataRaw);drawSankey('#chart-cn',cnGraph);
+
+const tableBody=document.querySelector('#tech-table tbody');
+const allData=[...usDataRaw.map(d=>({...d,region:'USA'})),...cnDataRaw.map(d=>({...d,region:'CHN'}))];
+allData.forEach(d=>{
+    const tr=document.createElement('tr');
+    const badge=`<span class="badge ${d.region==='USA'?'badge-us':'badge-cn'}">${d.region}</span>`;
+    tr.innerHTML=`<td>${badge} ${d.branch}</td><td><span class="layer-indicator" style="background:${colors[d.cloud]||'#fff'}"></span>${d.cloud}</td><td><span class="layer-indicator" style="background:${colors[d.chips]||'#fff'}"></span>${d.chips}</td><td><span class="layer-indicator" style="background:${colors[d.os]||'#fff'}"></span>${d.os}</td><td><span class="layer-indicator" style="background:${colors[d.db]||'#fff'}"></span>${d.db}</td><td><span class="layer-indicator" style="background:${colors[d.network]||'#fff'}"></span>${d.network}</td><td><span class="layer-indicator" style="background:${colors[d.middleware]||'#fff'}"></span>${d.middleware}</td><td><span class="layer-indicator" style="background:${colors[d.api]||'#fff'}"></span>${d.api}</td><td><span class="layer-indicator" style="background:${colors[d.analytics]||'#fff'}"></span>${d.analytics}</td>`;
+    tableBody.appendChild(tr);
+});
+    </script>
 </body>
 </html>
