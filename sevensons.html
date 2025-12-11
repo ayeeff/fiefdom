@@ -33,6 +33,21 @@
             <p class="text-red-400 text-sm tracking-widest uppercase font-semibold">MIIT Universities & Defense Industrial Base</p>
         </div>
 
+        <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in mb-6">
+            <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">The Strategic "Pipeline" Explained</h2>
+            <div class="text-gray-400 space-y-4 text-sm leading-relaxed columns-1 md:columns-2 gap-8">
+                <p>The <strong>"Seven Sons of National Defense"</strong> (国防七子) are a cluster of universities administered by the Ministry of Industry and Information Technology (MIIT) rather than the Ministry of Education. This administrative distinction creates a direct pipeline from the classroom to the factory floor of China's defense industry.</p>
+                
+                <p><strong>The Aviation Pipeline (AVIC):</strong> This is the most robust network. <span class="text-blue-400">Beihang University</span> (Beijing) provides high-level aerodynamic research, while <span class="text-blue-400">NPU</span> (Xi'an) specializes in drone swarms and stealth structures. <span class="text-blue-400">NUAA</span> (Nanjing) supplements this with helicopter and transport expertise. This triad feeds the Aviation Industry Corporation of China.</p>
+                
+                <p><strong>The Space & Missile Pipeline (CASC/CASIC):</strong> <span class="text-purple-400">HIT</span> (Harbin) serves as the primary engineering engine for China's space program, focusing on welding, robotics, and materials for vacuum environments. Combined with Beihang's rocketry departments, they supply the talent for the China Aerospace Science and Technology Corporation.</p>
+                
+                <p><strong>The Naval Pipeline (CSSC):</strong> <span class="text-teal-400">Harbin Engineering University (HEU)</span>—formerly the Military Engineering Institute—is the singular giant for naval power. It feeds the China State Shipbuilding Corporation with specialists in nuclear propulsion, underwater acoustics (sonar), and deep-sea submersibles.</p>
+
+                <p><strong>The Ground/Arsenal Pipeline:</strong> <span class="text-orange-400">BIT</span> (Beijing) and <span class="text-orange-400">NUST</span> (Nanjing) focus on what is known as "hard kill" technologies—tanks, artillery, radar, and explosives—feeding the NORINCO group.</p>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
                 <h2 class="text-xl font-semibold text-white mb-4 tracking-wide flex items-center gap-2">
@@ -85,31 +100,16 @@
                  </div>
             </div>
         </div>
-
-        <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
-            <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">The Strategic "Pipeline" Explained</h2>
-            <div class="text-gray-400 space-y-4 text-sm leading-relaxed columns-1 md:columns-2 gap-8">
-                <p>The <strong>"Seven Sons of National Defense"</strong> (国防七子) are a cluster of universities administered by the Ministry of Industry and Information Technology (MIIT) rather than the Ministry of Education. This administrative distinction creates a direct pipeline from the classroom to the factory floor of China's defense industry.</p>
-                
-                <p><strong>The Aviation Pipeline (AVIC):</strong> This is the most robust network. <span class="text-blue-400">Beihang University</span> (Beijing) provides high-level aerodynamic research, while <span class="text-blue-400">NPU</span> (Xi'an) specializes in drone swarms and stealth structures. <span class="text-blue-400">NUAA</span> (Nanjing) supplements this with helicopter and transport expertise. This triad feeds the Aviation Industry Corporation of China.</p>
-                
-                <p><strong>The Space & Missile Pipeline (CASC/CASIC):</strong> <span class="text-purple-400">HIT</span> (Harbin) serves as the primary engineering engine for China's space program, focusing on welding, robotics, and materials for vacuum environments. Combined with Beihang's rocketry departments, they supply the talent for the China Aerospace Science and Technology Corporation.</p>
-                
-                <p><strong>The Naval Pipeline (CSSC):</strong> <span class="text-teal-400">Harbin Engineering University (HEU)</span>—formerly the Military Engineering Institute—is the singular giant for naval power. It feeds the China State Shipbuilding Corporation with specialists in nuclear propulsion, underwater acoustics (sonar), and deep-sea submersibles.</p>
-
-                <p><strong>The Ground/Arsenal Pipeline:</strong> <span class="text-orange-400">BIT</span> (Beijing) and <span class="text-orange-400">NUST</span> (Nanjing) focus on what is known as "hard kill" technologies—tanks, artillery, radar, and explosives—feeding the NORINCO group.</p>
-            </div>
-        </div>
     </div>
 
     <script>
-        // The Seven Sons Data
+        // The Seven Sons Data - Coordinates slightly jittered to prevent visual overlap
         const universities = [
             {
                 name: "Beihang University (BUAA)",
                 city: "Beijing",
                 lat: 39.98,
-                lon: 116.34,
+                lon: 116.10, // Shifted West slightly
                 pipeline: "AVIC (Aviation) & CASC (Space)",
                 focus: "Missiles, Aerodynamics, Jet Engines",
                 color: "#3b82f6" // Blue
@@ -118,7 +118,7 @@
                 name: "Beijing Institute of Tech (BIT)",
                 city: "Beijing",
                 lat: 39.95,
-                lon: 116.31,
+                lon: 116.65, // Shifted East slightly
                 pipeline: "Norinco (Ground Arms)",
                 focus: "Tanks, Radar, Explosives",
                 color: "#f97316" // Orange
@@ -127,7 +127,7 @@
                 name: "Harbin Institute of Tech (HIT)",
                 city: "Harbin",
                 lat: 45.74,
-                lon: 126.63,
+                lon: 126.30, // Shifted West
                 pipeline: "CASC (Space & Missiles)",
                 focus: "Spaceflight, Robotics, Welding",
                 color: "#a855f7" // Purple
@@ -136,7 +136,7 @@
                 name: "Harbin Engineering Univ (HEU)",
                 city: "Harbin",
                 lat: 45.77,
-                lon: 126.67,
+                lon: 126.90, // Shifted East
                 pipeline: "CSSC (Shipbuilding)",
                 focus: "Nuclear Subs, Sonar, Ship Design",
                 color: "#14b8a6" // Teal
@@ -145,7 +145,7 @@
                 name: "Northwestern Polytech (NPU)",
                 city: "Xi'an",
                 lat: 34.24,
-                lon: 108.91,
+                lon: 108.91, // Alone, no shift needed
                 pipeline: "AVIC (Aviation) & UUVs",
                 focus: "Drones (UAVs), Torpedoes, Stealth",
                 color: "#3b82f6" // Blue
@@ -154,7 +154,7 @@
                 name: "Nanjing Univ of Aero (NUAA)",
                 city: "Nanjing",
                 lat: 32.03,
-                lon: 118.80,
+                lon: 118.50, // Shifted West
                 pipeline: "AVIC (Helicopters)",
                 focus: "Helicopters, Transport Aircraft",
                 color: "#3b82f6" // Blue
@@ -163,7 +163,7 @@
                 name: "Nanjing Univ of Sci & Tech (NUST)",
                 city: "Nanjing",
                 lat: 32.02,
-                lon: 118.85,
+                lon: 119.10, // Shifted East
                 pipeline: "Norinco (Artillery)",
                 focus: "Artillery, Optics, Ballistics",
                 color: "#f97316" // Orange
