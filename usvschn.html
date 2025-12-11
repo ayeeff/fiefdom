@@ -3,88 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MilTech Stack War: US vs China</title>
+    <title>Deep Stack War: US vs China</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        header { width: 100%; padding: 20px 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: #1e293b; border-bottom: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; color: #f8fafc; }
+        body { margin: 0; padding: 0; background-color: #0b1120; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        header { width: 100%; padding: 25px 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: #111827; border-bottom: 1px solid #1f2937; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+        h1 { margin: 0; font-size: 2.2rem; letter-spacing: 1px; color: #f8fafc; font-weight: 700; }
         .subtitle { max-width: 900px; margin: 15px auto; line-height: 1.6; font-size: 1rem; color: #94a3b8; }
         .highlight-us { color: #60a5fa; font-weight: bold; }
         .highlight-cn { color: #f87171; font-weight: bold; }
         
-        #main-container { display: flex; flex-direction: column; width: 95%; max-width: 1600px; margin-top: 20px; gap: 40px; }
+        #main-container { display: flex; flex-direction: column; width: 95%; max-width: 1800px; margin-top: 30px; gap: 50px; }
         
-        .chart-section { display: flex; flex-direction: column; background: rgba(30, 41, 59, 0.5); border-radius: 12px; border: 1px solid #334155; padding: 20px; }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 15px; margin-bottom: 20px; }
-        .chart-title { font-size: 1.5rem; font-weight: 600; }
-        .chart-desc { font-size: 0.9rem; color: #cbd5e1; max-width: 600px; text-align: right; }
+        .chart-section { display: flex; flex-direction: column; background: #1e293b; border-radius: 16px; border: 1px solid #334155; padding: 25px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .chart-title { font-size: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .chart-desc { font-size: 0.9rem; color: #cbd5e1; max-width: 600px; text-align: right; line-height: 1.4; }
         
-        .sankey-container { width: 100%; height: 500px; display: flex; justify-content: center; }
+        .sankey-container { width: 100%; height: 600px; display: flex; justify-content: center; position: relative; }
         
-        #data-table-container { width: 95%; max-width: 1600px; margin: 40px auto; padding: 20px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; border: 1px solid #334155; }
-        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 15px; color: #f1f5f9; border-bottom: 1px solid #475569; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
-        th { background-color: rgba(0, 0, 0, 0.2); color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+        /* Column Labels */
+        .column-labels { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 10px; font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+        .col-label { text-align: center; width: 16%; }
+
+        #data-table-container { width: 95%; max-width: 1800px; margin: 40px auto; padding: 25px; background: #1e293b; border-radius: 16px; border: 1px solid #334155; }
+        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 20px; color: #f1f5f9; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 14px; border-bottom: 1px solid #334155; }
+        th { background-color: rgba(0, 0, 0, 0.2); color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         td { color: #cbd5e1; }
         tr:hover { background-color: rgba(255, 255, 255, 0.03); }
         
         /* D3 Styles */
-        svg text { fill: #e2e8f0; font-family: 'Segoe UI', sans-serif; font-size: 11px; font-weight: 500; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-        .tooltip { position: absolute; background: rgba(15, 23, 42, 0.95); border: 1px solid #475569; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border-radius: 6px; color: #fff; padding: 12px; font-family: 'Segoe UI', sans-serif; font-size: 0.9rem; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000; max-width: 300px; }
-        .node rect { stroke: #0f172a; stroke-width: 1; shape-rendering: crispEdges; cursor: pointer; }
-        .link { fill: none; stroke-opacity: 0.3; transition: stroke-opacity 0.3s; cursor: pointer; }
-        .link:hover { stroke-opacity: 0.7; }
+        svg text { fill: #e2e8f0; font-family: 'Segoe UI', sans-serif; font-size: 11px; font-weight: 600; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+        .tooltip { position: absolute; background: rgba(15, 23, 42, 0.98); border: 1px solid #475569; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); border-radius: 8px; color: #fff; padding: 12px; font-family: 'Segoe UI', sans-serif; font-size: 0.9rem; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000; max-width: 320px; line-height: 1.4; }
+        .node rect { stroke: #0f172a; stroke-width: 1; shape-rendering: crispEdges; cursor: pointer; transition: fill-opacity 0.2s; }
+        .node rect:hover { fill-opacity: 0.8; }
+        .link { fill: none; stroke-opacity: 0.25; transition: stroke-opacity 0.3s; cursor: pointer; }
+        .link:hover { stroke-opacity: 0.6; }
 
-        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 5px; font-weight: bold; }
-        .badge-us { background: rgba(96, 165, 250, 0.2); color: #60a5fa; border: 1px solid #60a5fa; }
-        .badge-cn { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid #f87171; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; }
+        .badge-us { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-cn { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        /* Legend indicators */
+        .layer-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
     </style>
 </head>
 <body>
     <header>
-        <h1>The Military Tech Stack Divide</h1>
+        <h1>The Full Stack: US Complexity vs China Uniformity</h1>
         <p class="subtitle">
-            A visual comparison of two opposing philosophies. <br>
-            The <span class="highlight-us">US Model</span> is defined by "Title 10" fragmentation, relying on diverse commercial vendors (Oracle, SAP, AWS) creating siloed "Best of Breed" systems. <br>
-            The <span class="highlight-cn">China Model</span> is defined by "Civil-Military Fusion," enforcing a unified, sovereign "Red Stack" (Kylin, Dameng, Inspur) across all branches.
+            Expanding the view to the metal. 
+            <span class="highlight-us">The US</span> manages a chaotic mix of commercial clouds (AWS/Azure), diverse chips (Intel/AMD), and competing OS/DB standards.
+            <span class="highlight-cn">China</span> has consolidated the entire vertical: from the sand (Chips) to the software (OS/DB), managed by a single Logistics Force (JLSF).
         </p>
     </header>
 
     <div id="main-container">
         <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title"><span class="badge badge-us">USA</span> Fragmented Commercial Integration</div>
+                <div class="chart-title"><span class="badge badge-us">USA</span> The "Best of Breed" Tangle</div>
                 <div class="chart-desc">
-                    <strong>The "Silo" Effect:</strong> Each branch acts as an independent buyer. Data is fragmented across different ERPs (SAP vs Oracle) and clouds.
+                    <strong>Fragmentation at Every Layer:</strong> 
+                    Notice how the lines cross. The Army runs SAP on Windows; the Air Force runs Oracle on Linux. 
+                    They use different clouds (AWS vs Azure) and rely on fragmented APIs (Email/EDI) to talk to FedEx.
                 </div>
+            </div>
+            <div class="column-labels">
+                <div class="col-label">BRANCH</div>
+                <div class="col-label">CLOUD INFRA</div>
+                <div class="col-label">SILICON (CHIPS)</div>
+                <div class="col-label">OS PLATFORM</div>
+                <div class="col-label">DATABASE</div>
+                <div class="col-label">LOGISTICS API</div>
             </div>
             <div id="chart-us" class="sankey-container"></div>
         </div>
 
         <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title"><span class="badge badge-cn">CHINA</span> Unified Sovereign Stack</div>
+                <div class="chart-title"><span class="badge badge-cn">CHINA</span> The "Xinchuang" Pipeline</div>
                 <div class="chart-desc">
-                    <strong>The "Fusion" Effect:</strong> The JLSF centralizes logistics. All branches are forced onto a single domestic tech stack (Xinchuang).
+                    <strong>Vertical Integration:</strong> 
+                    Notice the straight lines. The JLSF forces all branches into one stack: Inspur Cloud -> Huawei Chips -> Kylin OS -> Dameng DB. 
+                    This creates a unified "Fusion" API that drafts civilian logistics (JD/SF) directly.
                 </div>
+            </div>
+            <div class="column-labels">
+                <div class="col-label">BRANCH</div>
+                <div class="col-label">CLOUD INFRA</div>
+                <div class="col-label">SILICON (CHIPS)</div>
+                <div class="col-label">OS PLATFORM</div>
+                <div class="col-label">DATABASE</div>
+                <div class="col-label">LOGISTICS API</div>
             </div>
             <div id="chart-cn" class="sankey-container"></div>
         </div>
     </div>
 
     <div id="data-table-container">
-        <h2>Tech Stack Comparison Details</h2>
+        <h2>Deep Stack Layer Comparison</h2>
         <table id="tech-table">
             <thead>
                 <tr>
-                    <th>Branch (Clan)</th>
-                    <th>Fiefdom (Vendor)</th>
-                    <th>Core Tech (OS/DBMS)</th>
-                    <th>Brand (System)</th>
-                    <th>Strategy Note</th>
+                    <th>Branch</th>
+                    <th>Cloud</th>
+                    <th>Chips</th>
+                    <th>OS</th>
+                    <th>Database</th>
+                    <th>Logistics API</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -95,35 +124,120 @@
         // --- Data Definitions ---
 
         // Color Palettes
-        const usColors = {
+        const colors = {
+            // US Nodes
             "Army": "#15803d", "Navy": "#1e40af", "Air Force": "#0ea5e9", "Marines": "#b91c1c",
-            "SAP": "#003366", "Oracle": "#c74634", "Microsoft": "#00a4ef",
-            "SAP HANA": "#003366", "Oracle DB": "#c74634", "Cloud One (AWS/Azure)": "#f59e0b", "AWS GovCloud": "#ff9900",
-            "GCSS-Army": "#4ade80", "Navy ERP": "#60a5fa", "MROi & DEAMS": "#38bdf8", "GCSS-MC": "#fca5a5"
+            "AWS GovCloud": "#f59e0b", "Azure Gov": "#00a4ef", "On-Prem Legacy": "#475569",
+            "Intel Xeon": "#0071c5", "AMD EPYC": "#84cc16",
+            "Windows Server": "#00a4ef", "Red Hat Enterprise": "#cc0000",
+            "Oracle DB": "#c74634", "SQL Server": "#a3a3a3", "SAP HANA": "#0f172a",
+            "Fragmented (EDI)": "#94a3b8", "Manual / Email": "#64748b",
+
+            // China Nodes
+            "PLA Army": "#991b1b", "PLA Navy": "#7f1d1d", "PLA Air Force": "#b91c1c", "PLA Rocket Force": "#ef4444",
+            "Inspur Military Cloud": "#dc2626",
+            "Huawei Kunpeng": "#ef4444", "Hygon Dhyana": "#f87171",
+            "Kylin V10": "#fbbf24",
+            "Dameng (DM) DB": "#f59e0b",
+            "Unified Fusion (JD/SF)": "#d97706"
         };
 
-        const cnColors = {
-            "PLA Army": "#991b1b", "PLA Navy": "#991b1b", "PLA Air Force": "#991b1b", "PLA Rocket Force": "#991b1b",
-            "CEC (China Electronics)": "#dc2626", "Inspur": "#b91c1c", "JLSF (Joint Logistics)": "#7f1d1d",
-            "Kylin OS / Dameng DB": "#fbbf24", "Huawei Kunpeng": "#ef4444",
-            "Integrated Command Platform": "#fcd34d", "Civil-Military API": "#f59e0b"
-        };
-
-        // US Data: Fragmented
+        // US Data: Showing diversity and fragmentation
         const usDataRaw = [
-            { clan: "Army", fiefdom: "SAP", os: "SAP HANA / Windows", brand: "GCSS-Army", value: 40, note: "World's largest SAP ERP deployment. Tracks tanks & ammo." },
-            { clan: "Navy", fiefdom: "SAP", os: "AWS GovCloud", brand: "Navy ERP", value: 35, note: "Moved massive SAP instance to AWS to modernize." },
-            { clan: "Air Force", fiefdom: "Oracle", os: "Cloud One (AWS/Azure)", brand: "MROi & DEAMS", value: 30, note: "Moved legacy Oracle apps to mixed cloud environment." },
-            { clan: "Marines", fiefdom: "Oracle", os: "Oracle DB", brand: "GCSS-MC", value: 15, note: "Stuck in older Oracle ecosystem due to size/budget." }
+            { 
+                branch: "Army", 
+                cloud: "On-Prem Legacy", 
+                chips: "Intel Xeon", 
+                os: "Windows Server", 
+                db: "SAP HANA", 
+                api: "Fragmented (EDI)",
+                value: 30,
+                desc: "GCSS-Army: Massive SAP instance, largely on-prem/hybrid."
+            },
+            { 
+                branch: "Navy", 
+                cloud: "AWS GovCloud", 
+                chips: "Intel Xeon", 
+                os: "Red Hat Enterprise", 
+                db: "SAP HANA", 
+                api: "Fragmented (EDI)",
+                value: 25,
+                desc: "Navy ERP: Migrating heavily to AWS to modernize logistics."
+            },
+            { 
+                branch: "Air Force", 
+                cloud: "Azure Gov", 
+                chips: "AMD EPYC", 
+                os: "Red Hat Enterprise", 
+                db: "Oracle DB", 
+                api: "Manual / Email",
+                value: 20,
+                desc: "Cloud One: Uses Azure for some MROi workloads."
+            },
+            { 
+                branch: "Air Force", 
+                cloud: "AWS GovCloud", 
+                chips: "Intel Xeon", 
+                os: "Red Hat Enterprise", 
+                db: "Oracle DB", 
+                api: "Manual / Email",
+                value: 15,
+                desc: "Cloud One: Uses AWS for other workloads (Multi-cloud complexity)."
+            },
+            { 
+                branch: "Marines", 
+                cloud: "On-Prem Legacy", 
+                chips: "Intel Xeon", 
+                os: "Windows Server", 
+                db: "Oracle DB", 
+                api: "Manual / Email",
+                value: 15,
+                desc: "GCSS-MC: Stuck on older Oracle stack."
+            }
         ];
 
-        // China Data: Converged
-        // Note: Branches flow into the Central Logistics Force, which flows to the Tech Stack
+        // China Data: Showing uniformity (JLSF Pipeline)
         const cnDataRaw = [
-            { clan: "PLA Army", fiefdom: "JLSF (Joint Logistics)", os: "Kylin OS / Dameng DB", brand: "Integrated Command Platform", value: 30, note: "Logistics authority stripped from Army and centralized." },
-            { clan: "PLA Navy", fiefdom: "JLSF (Joint Logistics)", os: "Kylin OS / Dameng DB", brand: "Integrated Command Platform", value: 30, note: "Uses unified stack to coordinate with civilian shipping." },
-            { clan: "PLA Air Force", fiefdom: "JLSF (Joint Logistics)", os: "Kylin OS / Dameng DB", brand: "Integrated Command Platform", value: 30, note: "Data fused with Army/Navy via CEC backbone." },
-            { clan: "PLA Rocket Force", fiefdom: "JLSF (Joint Logistics)", os: "Kylin OS / Dameng DB", brand: "Integrated Command Platform", value: 20, note: "High security requirement mandates domestic code." }
+            { 
+                branch: "PLA Army", 
+                cloud: "Inspur Military Cloud", 
+                chips: "Huawei Kunpeng", 
+                os: "Kylin V10", 
+                db: "Dameng (DM) DB", 
+                api: "Unified Fusion (JD/SF)",
+                value: 30,
+                desc: "Logistics centralized under JLSF."
+            },
+            { 
+                branch: "PLA Navy", 
+                cloud: "Inspur Military Cloud", 
+                chips: "Huawei Kunpeng", 
+                os: "Kylin V10", 
+                db: "Dameng (DM) DB", 
+                api: "Unified Fusion (JD/SF)",
+                value: 30,
+                desc: "Standardized stack for port logistics."
+            },
+            { 
+                branch: "PLA Air Force", 
+                cloud: "Inspur Military Cloud", 
+                chips: "Hygon Dhyana", 
+                os: "Kylin V10", 
+                db: "Dameng (DM) DB", 
+                api: "Unified Fusion (JD/SF)",
+                value: 30,
+                desc: "Hygon used for x86 compatibility in older apps."
+            },
+            { 
+                branch: "PLA Rocket Force", 
+                cloud: "Inspur Military Cloud", 
+                chips: "Huawei Kunpeng", 
+                os: "Kylin V10", 
+                db: "Dameng (DM) DB", 
+                api: "Unified Fusion (JD/SF)",
+                value: 20,
+                desc: "Highest security tier, pure domestic stack."
+            }
         ];
 
         // --- Logic to Render Charts ---
@@ -137,10 +251,7 @@
             function getOrCreateNode(name, layer) {
                 const key = name + '_' + layer;
                 if (!nodeMap.has(key)) {
-                    let color = '#888';
-                    if (type === 'us') color = usColors[name] || '#64748b';
-                    if (type === 'cn') color = cnColors[name] || '#ef4444';
-                    
+                    let color = colors[name] || '#64748b';
                     nodes.push({ name: name, layer: layer, color: color, id: nodeIndex++ });
                     nodeMap.set(key, nodes[nodes.length - 1]);
                 }
@@ -148,22 +259,29 @@
             }
 
             rawData.forEach(d => {
-                const clan = getOrCreateNode(d.clan, 'clan');
-                const fiefdom = getOrCreateNode(d.fiefdom, 'fiefdom');
+                const branch = getOrCreateNode(d.branch, 'branch');
+                const cloud = getOrCreateNode(d.cloud, 'cloud');
+                const chips = getOrCreateNode(d.chips, 'chips');
                 const os = getOrCreateNode(d.os, 'os');
-                const brand = getOrCreateNode(d.brand, 'brand');
+                const db = getOrCreateNode(d.db, 'db');
+                const api = getOrCreateNode(d.api, 'api');
 
-                // Link 1: Clan -> Fiefdom
-                links.push({ source: clan.id, target: fiefdom.id, value: d.value, color: clan.color });
-                // Link 2: Fiefdom -> OS
-                links.push({ source: fiefdom.id, target: os.id, value: d.value, color: fiefdom.color });
-                // Link 3: OS -> Brand
-                links.push({ source: os.id, target: brand.id, value: d.value, color: os.color });
+                // Create the chain: Branch -> Cloud -> Chips -> OS -> DB -> API
+                const flow = [branch, cloud, chips, os, db, api];
+                
+                for (let i = 0; i < flow.length - 1; i++) {
+                    links.push({
+                        source: flow[i].id,
+                        target: flow[i+1].id,
+                        value: d.value,
+                        color: flow[i].color // Color link by source for traceability
+                    });
+                }
             });
 
-            // Consolidate links (sum values for same source-target)
-            const consolidatedLinks = [];
+            // Consolidate duplicate links
             const linkMap = new Map();
+            const consolidatedLinks = [];
 
             links.forEach(l => {
                 const key = `${l.source}-${l.target}`;
@@ -179,7 +297,7 @@
             return { nodes, links: consolidatedLinks };
         }
 
-        function drawSankey(containerId, graphData, width = 1200, height = 500) {
+        function drawSankey(containerId, graphData, width = 1400, height = 600) {
             const margin = { top: 20, right: 20, bottom: 20, left: 20 };
             const svg = d3.select(containerId).append('svg')
                 .attr('width', '100%')
@@ -189,10 +307,11 @@
 
             const sankey = d3.sankey()
                 .nodeId(d => d.id)
-                .nodeWidth(20)
-                .nodePadding(20)
+                .nodeWidth(15)
+                .nodePadding(25) // More padding for cleaner vertical separation
                 .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]]);
 
+            // Relax iterations for better layout with complex flows
             const { nodes, links } = sankey({
                 nodes: graphData.nodes.map(d => Object.assign({}, d)),
                 links: graphData.links.map(d => Object.assign({}, d))
@@ -214,13 +333,13 @@
                     tooltip.transition().duration(200).style('opacity', 1);
                     tooltip.html(`
                         <div style="font-weight:bold; margin-bottom:5px;">${d.source.name} → ${d.target.name}</div>
-                        <div>Volume: ${d.value}</div>
+                        <div>Flow Volume: ${d.value}</div>
                     `)
                     .style('left', (event.pageX + 15) + 'px')
                     .style('top', (event.pageY - 28) + 'px');
                 })
                 .on('mouseout', function() {
-                    d3.select(this).style('stroke-opacity', 0.3);
+                    d3.select(this).style('stroke-opacity', 0.25);
                     tooltip.transition().duration(500).style('opacity', 0);
                 });
 
@@ -240,7 +359,7 @@
                 .on('mouseover', function(event, d) {
                     d3.select(this).attr('opacity', 0.8);
                     tooltip.transition().duration(200).style('opacity', 1);
-                    tooltip.html(`<strong>${d.name}</strong>`)
+                    tooltip.html(`<strong>${d.name}</strong><br><span style="color:#aaa;font-size:0.8em">Layer: ${d.layer}</span>`)
                         .style('left', (event.pageX + 15) + 'px')
                         .style('top', (event.pageY - 28) + 'px');
                 })
@@ -251,25 +370,13 @@
 
             // Text Labels
             node.append('text')
-                .attr('x', d => d.x0 < width / 2 ? d.x1 + 10 : d.x0 - 10)
+                .attr('x', d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
                 .attr('y', d => (d.y1 + d.y0) / 2)
                 .attr('dy', '0.35em')
                 .attr('text-anchor', d => d.x0 < width / 2 ? 'start' : 'end')
                 .text(d => d.name)
                 .style('fill', '#e2e8f0')
-                .style('font-weight', 'bold')
-                .style('font-size', '13px');
-                
-            // Column Headers (Manual placement based on sankey structure)
-            const headers = ["Branch (Clan)", "Fiefdom (Vendor)", "Tech Layer", "End System"];
-            const headerY = margin.top - 10;
-            const sectionWidth = (width - margin.left - margin.right) / 3;
-            
-            // Just drawing text at top approximation
-            svg.append("text").attr("x", margin.left).attr("y", 10).text("CLAN / BRANCH").style("fill", "#64748b").style("font-size", "10px");
-            svg.append("text").attr("x", margin.left + sectionWidth).attr("y", 10).text("FIEFDOM / VENDOR").style("fill", "#64748b").style("font-size", "10px");
-            svg.append("text").attr("x", margin.left + (sectionWidth*2)).attr("y", 10).text("CORE TECH").style("fill", "#64748b").style("font-size", "10px");
-            svg.append("text").attr("x", width - margin.right).attr("y", 10).attr("text-anchor", "end").text("SYSTEM BRAND").style("fill", "#64748b").style("font-size", "10px");
+                .style('font-size', '10px');
         }
 
         // Initialize Charts
@@ -286,29 +393,16 @@
         allData.forEach(d => {
             const tr = document.createElement('tr');
             
-            const tdClan = document.createElement('td');
-            tdClan.innerHTML = `<span class="badge ${d.region === 'USA' ? 'badge-us' : 'badge-cn'}">${d.region}</span> ${d.clan}`;
+            const badge = `<span class="badge ${d.region === 'USA' ? 'badge-us' : 'badge-cn'}">${d.region}</span>`;
             
-            const tdFiefdom = document.createElement('td');
-            tdFiefdom.textContent = d.fiefdom;
-            tdFiefdom.style.color = d.region === 'USA' ? (usColors[d.fiefdom] || '#ccc') : (cnColors[d.fiefdom] || '#ccc');
-            
-            const tdTech = document.createElement('td');
-            tdTech.textContent = d.os;
-            
-            const tdBrand = document.createElement('td');
-            tdBrand.textContent = d.brand;
-            
-            const tdNote = document.createElement('td');
-            tdNote.textContent = d.note;
-            tdNote.style.fontSize = '0.85rem';
-            tdNote.style.color = '#94a3b8';
-
-            tr.appendChild(tdClan);
-            tr.appendChild(tdFiefdom);
-            tr.appendChild(tdTech);
-            tr.appendChild(tdBrand);
-            tr.appendChild(tdNote);
+            tr.innerHTML = `
+                <td>${badge} ${d.branch}</td>
+                <td><span class="layer-indicator" style="background:${colors[d.cloud]||'#fff'}"></span>${d.cloud}</td>
+                <td><span class="layer-indicator" style="background:${colors[d.chips]||'#fff'}"></span>${d.chips}</td>
+                <td><span class="layer-indicator" style="background:${colors[d.os]||'#fff'}"></span>${d.os}</td>
+                <td><span class="layer-indicator" style="background:${colors[d.db]||'#fff'}"></span>${d.db}</td>
+                <td><span class="layer-indicator" style="background:${colors[d.api]||'#fff'}"></span>${d.api}</td>
+            `;
             tableBody.appendChild(tr);
         });
 
