@@ -103,13 +103,13 @@
     </div>
 
     <script>
-        // The Seven Sons Data - Coordinates slightly jittered to prevent visual overlap
+        // The Seven Sons Data - Coordinates HEAVILY jittered for clear separation at Zoom 4
         const universities = [
             {
                 name: "Beihang University (BUAA)",
                 city: "Beijing",
                 lat: 39.98,
-                lon: 116.10, // Shifted West slightly
+                lon: 115.50, // Shifted West significantly (was 116.10)
                 pipeline: "AVIC (Aviation) & CASC (Space)",
                 focus: "Missiles, Aerodynamics, Jet Engines",
                 color: "#3b82f6" // Blue
@@ -118,7 +118,7 @@
                 name: "Beijing Institute of Tech (BIT)",
                 city: "Beijing",
                 lat: 39.95,
-                lon: 116.65, // Shifted East slightly
+                lon: 117.20, // Shifted East significantly (was 116.65)
                 pipeline: "Norinco (Ground Arms)",
                 focus: "Tanks, Radar, Explosives",
                 color: "#f97316" // Orange
@@ -127,7 +127,7 @@
                 name: "Harbin Institute of Tech (HIT)",
                 city: "Harbin",
                 lat: 45.74,
-                lon: 126.30, // Shifted West
+                lon: 125.40, // Shifted West significantly (was 126.30)
                 pipeline: "CASC (Space & Missiles)",
                 focus: "Spaceflight, Robotics, Welding",
                 color: "#a855f7" // Purple
@@ -136,7 +136,7 @@
                 name: "Harbin Engineering Univ (HEU)",
                 city: "Harbin",
                 lat: 45.77,
-                lon: 126.90, // Shifted East
+                lon: 127.80, // Shifted East significantly (was 126.90)
                 pipeline: "CSSC (Shipbuilding)",
                 focus: "Nuclear Subs, Sonar, Ship Design",
                 color: "#14b8a6" // Teal
@@ -154,7 +154,7 @@
                 name: "Nanjing Univ of Aero (NUAA)",
                 city: "Nanjing",
                 lat: 32.03,
-                lon: 118.50, // Shifted West
+                lon: 117.70, // Shifted West significantly (was 118.50)
                 pipeline: "AVIC (Helicopters)",
                 focus: "Helicopters, Transport Aircraft",
                 color: "#3b82f6" // Blue
@@ -163,22 +163,23 @@
                 name: "Nanjing Univ of Sci & Tech (NUST)",
                 city: "Nanjing",
                 lat: 32.02,
-                lon: 119.10, // Shifted East
+                lon: 119.90, // Shifted East significantly (was 119.10)
                 pipeline: "Norinco (Artillery)",
                 focus: "Artillery, Optics, Ballistics",
                 color: "#f97316" // Orange
             }
         ];
 
-        // Initialize map with variable name 'sevensons' as requested
+        // Initialize map with variable name 'sevensons'
         const sevensons = L.map('mapContainer', {
             zoomControl: false,
             attributionControl: false
         }).setView([37, 110], 4);
         
-        // Dark Mode Map Tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
+        // DAY MODE: OpenStreetMap tiles to show province lines clearly
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(sevensons);
 
         // Add markers
@@ -188,25 +189,25 @@
             const markerHtml = `
                 <div style="
                     background-color: ${u.color}; 
-                    width: 16px; 
-                    height: 16px; 
+                    width: 18px; 
+                    height: 18px; 
                     border-radius: 50%; 
-                    border: 2px solid white; 
-                    box-shadow: 0 0 15px ${u.color};
+                    border: 3px solid white; 
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
                     animation: pulse 2s infinite;
                 "></div>`;
             
             const customIcon = L.divIcon({
                 html: markerHtml,
                 className: 'custom-marker',
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
             });
             
             const popupContent = `
                 <div style="color: #333; font-family: sans-serif; min-width: 200px;">
-                    <h3 style="font-weight: 800; margin: 0 0 5px 0; color: ${u.color};">${u.name}</h3>
-                    <div style="font-size: 12px; line-height: 1.4;">
+                    <h3 style="font-weight: 800; margin: 0 0 5px 0; color: ${u.color}; text-shadow: none;">${u.name}</h3>
+                    <div style="font-size: 12px; line-height: 1.4; color: #444;">
                         <strong>City:</strong> ${u.city}<br>
                         <strong>Pipeline:</strong> ${u.pipeline}<br>
                         <strong>Focus:</strong> ${u.focus}
