@@ -6,41 +6,11 @@
     <title>Deep Stack War: US vs China (with Costs)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
-    <style>body{margin:0;padding:0;background-color:#0b1120;color:#e2e8f0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;min-height:100vh}header{width:100%;padding:25px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#111827;border-bottom:1px solid #1f2937;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3)}h1{margin:0;font-size:2.2rem;letter-spacing:1px;color:#f8fafc;font-weight:700}.subtitle{max-width:1000px;margin:15px auto;line-height:1.6;font-size:1rem;color:#94a3b8}.highlight-us{color:#60a5fa;font-weight:bold}.highlight-cn{color:#f87171;font-weight:bold}#main-container{display:flex;flex-direction:column;width:95%;max-width:1800px;margin-top:30px;gap:50px}.chart-section{display:flex;flex-direction:column;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:25px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.2)}.chart-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:15px;margin-bottom:20px}.chart-title{font-size:1.5rem;font-weight:600;display:flex;align-items:center;gap:10px}.chart-desc{font-size:0.9rem;color:#cbd5e1;max-width:650px;text-align:right;line-height:1.4}.sankey-container{width:100%;height:650px;display:flex;justify-content:center;position:relative}.sankey-container-compact{height:350px}.column-labels{display:flex;justify-content:space-between;margin-bottom:10px;padding:0 10px;font-size:0.7rem;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:0.05em}.col-label{text-align:center;width:11.11%}#data-table-container{width:95%;max-width:1800px;margin:40px auto;padding:25px;background:#1e293b;border-radius:16px;border:1px solid #334155}h2{font-size:1.4rem;margin-top:0;margin-bottom:20px;color:#f1f5f9;border-bottom:1px solid #334155;padding-bottom:10px}table{width:100%;border-collapse:collapse;font-size:0.9rem}th,td{text-align:left;padding:14px;border-bottom:1px solid #334155}th{background-color:rgba(0,0,0,0.2);color:#94a3b8;font-weight:700;text-transform:uppercase;font-size:0.8rem}td{color:#cbd5e1}tr:hover{background-color:rgba(255,255,255,0.03)}svg text{fill:#e2e8f0;font-family:'Segoe UI',sans-serif;font-size:10px;font-weight:600;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.9)}.tooltip{position:absolute;background:rgba(15,23,42,0.98);border:1px solid #475569;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border-radius:8px;color:#fff;padding:12px;font-family:'Segoe UI',sans-serif;font-size:0.9rem;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;max-width:320px;line-height:1.4}.node rect{stroke:#0f172a;stroke-width:1;shape-rendering:crispEdges;cursor:pointer;transition:fill-opacity 0.2s}.node rect:hover{fill-opacity:0.8}.link{fill:none;stroke-opacity:0.25;transition:stroke-opacity 0.3s;cursor:pointer}.link:hover{stroke-opacity:0.6}.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:800;letter-spacing:0.05em}.badge-us{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}.badge-cn{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}.layer-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.cost-box{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:15px;margin-top:20px;font-size:0.85rem;line-height:1.6}.cost-box strong{color:#60a5fa}.cost-box-cn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}.cost-box-cn strong{color:#f87171}</style>
+    <style>body{margin:0;padding:0;background-color:#0b1120;color:#e2e8f0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;min-height:100vh}header{width:100%;padding:25px 0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:#111827;border-bottom:1px solid #1f2937;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3)}h1{margin:0;font-size:2.2rem;letter-spacing:1px;color:#f8fafc;font-weight:700}.subtitle{max-width:1000px;margin:15px auto;line-height:1.6;font-size:1rem;color:#94a3b8}.highlight-us{color:#60a5fa;font-weight:bold}.highlight-cn{color:#f87171;font-weight:bold}#main-container{display:flex;flex-direction:column;width:95%;max-width:1800px;margin-top:30px;gap:50px}.chart-section{display:flex;flex-direction:column;background:#1e293b;border-radius:16px;border:1px solid #334155;padding:25px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.2)}.chart-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:15px;margin-bottom:20px}.chart-title{font-size:1.5rem;font-weight:600;display:flex;align-items:center;gap:10px}.chart-desc{font-size:0.9rem;color:#cbd5e1;max-width:650px;text-align:right;line-height:1.4}.chart-split{display:flex;gap:30px;align-items:flex-start}.chart-left{flex:0 0 85%;width:85%;min-width:0}.chart-right{flex:0 0 15%;width:15%;display:flex;flex-direction:column;justify-content:center;font-size:0.85rem;line-height:1.5;padding-top:40px}.sidebar-title{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#f1f5f9;border-bottom:1px solid #334155;padding-bottom:5px}.sidebar-text{color:#cbd5e1;margin-bottom:15px}.sidebar-list{list-style:none;padding:0;margin:0}.sidebar-list li{margin-bottom:10px;position:relative;padding-left:10px;border-left:2px solid #334155}.sankey-container{width:100%;height:650px;display:flex;justify-content:center;position:relative}.sankey-container-compact{height:350px}.column-labels{display:flex;justify-content:space-between;margin-bottom:10px;padding:0 10px;font-size:0.7rem;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:0.05em}.col-label{text-align:center;width:11.11%}#data-table-container{width:95%;max-width:1800px;margin:40px auto;padding:25px;background:#1e293b;border-radius:16px;border:1px solid #334155}h2{font-size:1.4rem;margin-top:0;margin-bottom:20px;color:#f1f5f9;border-bottom:1px solid #334155;padding-bottom:10px}table{width:100%;border-collapse:collapse;font-size:0.9rem}th,td{text-align:left;padding:14px;border-bottom:1px solid #334155}th{background-color:rgba(0,0,0,0.2);color:#94a3b8;font-weight:700;text-transform:uppercase;font-size:0.8rem}td{color:#cbd5e1}tr:hover{background-color:rgba(255,255,255,0.03)}svg text{fill:#e2e8f0;font-family:'Segoe UI',sans-serif;font-size:10px;font-weight:600;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.9)}.tooltip{position:absolute;background:rgba(15,23,42,0.98);border:1px solid #475569;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border-radius:8px;color:#fff;padding:12px;font-family:'Segoe UI',sans-serif;font-size:0.9rem;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:1000;max-width:320px;line-height:1.4}.node rect{stroke:#0f172a;stroke-width:1;shape-rendering:crispEdges;cursor:pointer;transition:fill-opacity 0.2s}.node rect:hover{fill-opacity:0.8}.link{fill:none;stroke-opacity:0.25;transition:stroke-opacity 0.3s;cursor:pointer}.link:hover{stroke-opacity:0.6}.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:800;letter-spacing:0.05em}.badge-us{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}.badge-cn{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}.layer-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.cost-box{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:15px;margin-top:20px;font-size:0.85rem;line-height:1.6}.cost-box strong{color:#60a5fa}.cost-box-cn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}.cost-box-cn strong{color:#f87171}</style>
 </head>
 <body>
     <header>
         <h1>The Full Stack: US Complexity vs China Uniformity (with Cost Estimates)</h1>
-        <div style="width:95%; max-width:1800px; margin:30px auto 0; background:#1e293b; border-radius:16px; border:1px solid #334155; padding:25px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; border-bottom:1px solid #334155; padding-bottom:15px;">
-                <span style="font-size:1.8rem;">💡</span>
-                <h2 style="color:#f1f5f9; font-size:1.5rem; margin:0; border:none; padding:0;">The Palantir Problem</h2>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
-                <div>
-                    <p style="font-size:1.05rem; line-height:1.6; color:#e2e8f0; margin-top:0;">
-                        <strong style="color:#60a5fa;">Palantir isn’t the solution—it’s the symptom.</strong> 
-                        America needs a <span style="color:#fbbf24; font-weight:700;">$10B “integration layer”</span> because:
-                    </p>
-                    <ul style="font-size:0.95rem; line-height:1.8; color:#cbd5e1; margin:15px 0 0 0; padding:0 0 0 20px; list-style-type: disc;">
-                        <li style="margin-bottom:8px; padding-left:5px;"><strong style="color:#15803d; font-weight:700;">Army</strong>: SAP on Windows, custom ESB, routed through DISA</li>
-                        <li style="margin-bottom:8px; padding-left:5px;"><strong style="color:#1e40af; font-weight:700;">Navy</strong>: SAP on Linux, MuleSoft, flowing over SIPRNet</li>
-                        <li style="margin-bottom:8px; padding-left:5px;"><strong style="color:#0ea5e9; font-weight:700;">Air Force</strong>: Split across Azure and AWS, using IBM MQ and multiple incompatible middleware stacks</li>
-                    </ul>
-                </div>
-                <div style="background:rgba(248, 113, 113, 0.05); padding:20px; border-radius:8px; border:1px solid rgba(248,113,113,0.2);">
-                    <p style="font-size:1rem; line-height:1.6; color:#cbd5e1; margin:0;">
-                        <strong style="color:#f87171; font-size:1.1rem; display:block; margin-bottom:10px;">China’s Advantage:</strong>
-                        Beijing baked analytics <strong style="color:#fbbf24;">into a single, unified tech stack from day one</strong>. 
-                        No fragmentation. No cross-branch middleware zoo. No Palantir-equivalent required—because there’s <strong>nothing to integrate</strong>.
-                    </p>
-                    <div style="margin-top:15px; padding-top:12px; border-top:1px solid rgba(248,113,113,0.2); font-size:0.9rem; color:#94a3b8; display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1.2rem;">💰</span> 
-                        <span><strong>Result:</strong> ~$10B+ saved on integration layer alone</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </header>
 
     <div id="main-container">
@@ -53,34 +23,57 @@
                     Then Palantir sits on top trying to unify the chaos—for $10B.
                 </div>
             </div>
-            <div class="column-labels">
-                <div class="col-label">BRANCH</div>
-                <div class="col-label">CLOUD</div>
-                <div class="col-label">CHIPS</div>
-                <div class="col-label">OS</div>
-                <div class="col-label">DATABASE</div>
-                <div class="col-label">NETWORK</div>
-                <div class="col-label">MIDDLEWARE</div>
-                <div class="col-label">API</div>
-                <div class="col-label">ANALYTICS</div>
-            </div>
-            <div id="chart-us" class="sankey-container"></div>
-            <div class="cost-box">
-                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-                    <strong style="font-size:1.1rem;color:#60a5fa;">Layer Costs (Annual)</strong>
-                    <strong style="font-size:1.3rem;color:#60a5fa;">Total: ~$26B+</strong>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.88rem;">
-                    <div>• Cloud: <strong>$9B</strong> JWCC</div>
-                    <div>• Network: <strong>$2B+</strong> DISA/SIPRNet</div>
-                    <div>• Chips: <strong>$3.5B</strong> Intel Enclave</div>
-                    <div>• Middleware: <strong>$300M+</strong> MuleSoft/IBM</div>
-                    <div>• Database: <strong>$500M+</strong> Oracle/SAP</div>
-                    <div>• API: <strong>$100M+</strong> EDI/Manual</div>
-                    <div>• OS: <strong>$200M+</strong> Win/RHEL</div>
-                    <div style="grid-column:span 2;margin-top:8px;padding-top:8px;border-top:1px solid rgba(59,130,246,0.3);">
-                        • Analytics: <strong style="color:#60a5fa;font-size:1.05rem;">$10B+ Palantir</strong> (75 contracts consolidated)
+            
+            <div class="chart-split">
+                <div class="chart-left">
+                    <div class="column-labels">
+                        <div class="col-label">BRANCH</div>
+                        <div class="col-label">CLOUD</div>
+                        <div class="col-label">CHIPS</div>
+                        <div class="col-label">OS</div>
+                        <div class="col-label">DATABASE</div>
+                        <div class="col-label">NETWORK</div>
+                        <div class="col-label">MIDDLEWARE</div>
+                        <div class="col-label">API</div>
+                        <div class="col-label">ANALYTICS</div>
                     </div>
+                    <div id="chart-us" class="sankey-container"></div>
+                    <div class="cost-box">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+                            <strong style="font-size:1.1rem;color:#60a5fa;">Layer Costs (Annual)</strong>
+                            <strong style="font-size:1.3rem;color:#60a5fa;">Total: ~$26B+</strong>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.88rem;">
+                            <div>• Cloud: <strong>$9B</strong> JWCC</div>
+                            <div>• Network: <strong>$2B+</strong> DISA/SIPRNet</div>
+                            <div>• Chips: <strong>$3.5B</strong> Intel Enclave</div>
+                            <div>• Middleware: <strong>$300M+</strong> MuleSoft/IBM</div>
+                            <div>• Database: <strong>$500M+</strong> Oracle/SAP</div>
+                            <div>• API: <strong>$100M+</strong> EDI/Manual</div>
+                            <div>• OS: <strong>$200M+</strong> Win/RHEL</div>
+                            <div style="grid-column:span 2;margin-top:8px;padding-top:8px;border-top:1px solid rgba(59,130,246,0.3);">
+                                • Analytics: <strong style="color:#60a5fa;font-size:1.05rem;">$10B+ Palantir</strong> (75 contracts consolidated)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-right">
+                    <div class="sidebar-title" style="color:#60a5fa;">The Palantir Problem</div>
+                    <div class="sidebar-text">
+                        Palantir isn’t the solution—it’s the symptom. America needs a <strong style="color:#fbbf24;">$10B “integration layer”</strong> because:
+                    </div>
+                    <ul class="sidebar-list">
+                        <li style="border-color:#15803d;">
+                            <strong style="color:#15803d;">Army:</strong> SAP on Windows, custom ESB, routed through DISA
+                        </li>
+                        <li style="border-color:#1e40af;">
+                            <strong style="color:#1e40af;">Navy:</strong> SAP on Linux, MuleSoft, flowing over SIPRNet
+                        </li>
+                        <li style="border-color:#0ea5e9;">
+                            <strong style="color:#0ea5e9;">Air Force:</strong> Split across Azure and AWS, using IBM MQ and multiple incompatible middleware stacks
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -94,37 +87,48 @@
                     No translation layers. No Palantir needed.
                 </div>
             </div>
-            <div class="column-labels">
-                <div class="col-label">BRANCH</div>
-                <div class="col-label">CLOUD</div>
-                <div class="col-label">CHIPS</div>
-                <div class="col-label">OS</div>
-                <div class="col-label">DATABASE</div>
-                <div class="col-label">NETWORK</div>
-                <div class="col-label">MIDDLEWARE</div>
-                <div class="col-label">API</div>
-                <div class="col-label">ANALYTICS</div>
-            </div>
-            <div id="chart-cn" class="sankey-container sankey-container-compact"></div>
-            <div class="cost-box cost-box-cn">
-                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-                    <strong style="font-size:1.1rem;color:#f87171;">Unified Stack Costs (Annual)</strong>
-                    <strong style="font-size:1.3rem;color:#f87171;">Total: ~$8-12B</strong>
+            
+            <div class="chart-split">
+                <div class="chart-left">
+                    <div class="column-labels">
+                        <div class="col-label">BRANCH</div>
+                        <div class="col-label">CLOUD</div>
+                        <div class="col-label">CHIPS</div>
+                        <div class="col-label">OS</div>
+                        <div class="col-label">DATABASE</div>
+                        <div class="col-label">NETWORK</div>
+                        <div class="col-label">MIDDLEWARE</div>
+                        <div class="col-label">API</div>
+                        <div class="col-label">ANALYTICS</div>
+                    </div>
+                    <div id="chart-cn" class="sankey-container sankey-container-compact"></div>
+                    <div class="cost-box cost-box-cn">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+                            <strong style="font-size:1.1rem;color:#f87171;">Unified Stack Costs (Annual)</strong>
+                            <strong style="font-size:1.3rem;color:#f87171;">Total: ~$8-12B</strong>
+                        </div>
+                        <div style="font-size:0.88rem;line-height:1.7;">
+                            <div style="margin-bottom:10px;">
+                                • <strong>Everything state-subsidized</strong> via military-civil fusion<br>
+                                • Cloud, Chips, OS, DB, Network, Middleware: <strong>Vertically integrated domestic stack</strong><br>
+                                • Analytics: <strong style="color:#f87171;">Built-in</strong> (no $10B integration layer needed)
+                            </div>
+                            <div style="margin-top:10px;font-size:0.82rem;color:#94a3b8;font-style:italic;">
+                                Note: True costs obscured by military-civil fusion. Official 2025 military budget: $246B (excludes R&D, space, paramilitary).
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size:0.88rem;line-height:1.7;">
-                    <div style="margin-bottom:10px;">
-                        • <strong>Everything state-subsidized</strong> via military-civil fusion<br>
-                        • Cloud, Chips, OS, DB, Network, Middleware: <strong>Vertically integrated domestic stack</strong><br>
-                        • Analytics: <strong style="color:#f87171;">Built-in</strong> (no $10B integration layer needed)
+
+                <div class="chart-right">
+                    <div class="sidebar-title" style="color:#f87171;">China’s Advantage</div>
+                    <div class="sidebar-text">
+                        Beijing baked analytics <strong style="color:#fbbf24;">into a single, unified tech stack</strong> from day one. No fragmentation. No cross-branch middleware zoo. No Palantir-equivalent required—because there’s <strong>nothing to integrate</strong>.
                     </div>
-                    <div style="padding:10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid #f87171;">
-                        <strong style="color:#fbbf24;">50-60% cost advantage</strong> through:<br>
-                        • State subsidies & purchasing power parity<br>
-                        • Zero middleware translation overhead<br>
-                        • Single-vendor negotiation leverage
-                    </div>
-                    <div style="margin-top:10px;font-size:0.82rem;color:#94a3b8;font-style:italic;">
-                        Note: True costs obscured by military-civil fusion. Official 2025 military budget: $246B (excludes R&D, space, paramilitary).
+                    <div style="padding:15px;background:rgba(251, 191, 36, 0.1);border-radius:6px;border:1px solid rgba(251, 191, 36, 0.3);">
+                        <div style="font-size:1.2rem;margin-bottom:5px;">💰</div>
+                        <strong style="color:#fbbf24;">Result:</strong><br>
+                        ~$10B+ saved on integration layer alone
                     </div>
                 </div>
             </div>
