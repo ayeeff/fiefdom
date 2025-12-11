@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>China's Defense Education Pipeline</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .custom-marker { background: none; border: none; }
+        
+        /* Requested CSS Class */
+        .SevenSons {
+            border: 1px solid #374151;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen p-6 font-sans text-gray-200">
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-950 rounded-lg shadow-2xl p-8 mb-6 border-l-4 border-red-600 fade-in">
+            <h1 class="text-4xl font-bold text-white mb-2 tracking-wide">The "Seven Sons" Pipeline</h1>
+            <p class="text-red-400 text-sm tracking-widest uppercase font-semibold">MIIT Universities & Defense Industrial Base</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
+                <h2 class="text-xl font-semibold text-white mb-4 tracking-wide flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span> Strategic Locations
+                </h2>
+                <div id="mapContainer" class="h-96 rounded-lg overflow-hidden shadow-lg SevenSons"></div>
+            </div>
+
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
+                <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">The Academic Arsenal</h2>
+                <div class="overflow-x-auto h-96 custom-scrollbar">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs uppercase bg-black/40 sticky top-0 backdrop-blur-sm">
+                            <tr>
+                                <th class="px-4 py-3 text-gray-400 font-medium">University</th>
+                                <th class="px-4 py-3 text-gray-400 font-medium">Pipeline Target</th>
+                                <th class="px-4 py-3 text-gray-400 font-medium">City</th>
+                            </tr>
+                        </thead>
+                        <tbody id="siteTable" class="text-gray-300 divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
+                <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">Domain Specialization</h2>
+                <div id="domainChart" class="h-80"></div>
+            </div>
+
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in flex flex-col justify-center">
+                 <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">The "Big Three" Conglomerates</h2>
+                 <div class="space-y-4">
+                    <div class="p-4 bg-blue-900/20 border-l-2 border-blue-500 rounded-r">
+                        <h3 class="text-blue-400 font-bold text-sm uppercase">AVIC (Aviation Industry Corp)</h3>
+                        <p class="text-xs text-gray-400 mt-1">Responsible for the J-20 Fighter and Y-20 Transport.</p>
+                        <p class="text-xs text-white mt-1">Feeder Schools: <span class="font-bold">Beihang, NPU, NUAA</span></p>
+                    </div>
+                    <div class="p-4 bg-purple-900/20 border-l-2 border-purple-500 rounded-r">
+                        <h3 class="text-purple-400 font-bold text-sm uppercase">CASC / CASIC (Space & Missiles)</h3>
+                        <p class="text-xs text-gray-400 mt-1">Responsible for the Long March Rockets and DF-41 ICBMs.</p>
+                        <p class="text-xs text-white mt-1">Feeder Schools: <span class="font-bold">HIT, Beihang</span></p>
+                    </div>
+                    <div class="p-4 bg-teal-900/20 border-l-2 border-teal-500 rounded-r">
+                        <h3 class="text-teal-400 font-bold text-sm uppercase">CSSC (Shipbuilding)</h3>
+                        <p class="text-xs text-gray-400 mt-1">Responsible for Type 003 Carriers and Nuclear Subs.</p>
+                        <p class="text-xs text-white mt-1">Feeder Schools: <span class="font-bold">HEU (Harbin Engineering)</span></p>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-lg p-6 border border-slate-800 fade-in">
+            <h2 class="text-xl font-semibold text-white mb-4 tracking-wide">The Strategic "Pipeline" Explained</h2>
+            <div class="text-gray-400 space-y-4 text-sm leading-relaxed columns-1 md:columns-2 gap-8">
+                <p>The <strong>"Seven Sons of National Defense"</strong> (国防七子) are a cluster of universities administered by the Ministry of Industry and Information Technology (MIIT) rather than the Ministry of Education. This administrative distinction creates a direct pipeline from the classroom to the factory floor of China's defense industry.</p>
+                
+                <p><strong>The Aviation Pipeline (AVIC):</strong> This is the most robust network. <span class="text-blue-400">Beihang University</span> (Beijing) provides high-level aerodynamic research, while <span class="text-blue-400">NPU</span> (Xi'an) specializes in drone swarms and stealth structures. <span class="text-blue-400">NUAA</span> (Nanjing) supplements this with helicopter and transport expertise. This triad feeds the Aviation Industry Corporation of China.</p>
+                
+                <p><strong>The Space & Missile Pipeline (CASC/CASIC):</strong> <span class="text-purple-400">HIT</span> (Harbin) serves as the primary engineering engine for China's space program, focusing on welding, robotics, and materials for vacuum environments. Combined with Beihang's rocketry departments, they supply the talent for the China Aerospace Science and Technology Corporation.</p>
+                
+                <p><strong>The Naval Pipeline (CSSC):</strong> <span class="text-teal-400">Harbin Engineering University (HEU)</span>—formerly the Military Engineering Institute—is the singular giant for naval power. It feeds the China State Shipbuilding Corporation with specialists in nuclear propulsion, underwater acoustics (sonar), and deep-sea submersibles.</p>
+
+                <p><strong>The Ground/Arsenal Pipeline:</strong> <span class="text-orange-400">BIT</span> (Beijing) and <span class="text-orange-400">NUST</span> (Nanjing) focus on what is known as "hard kill" technologies—tanks, artillery, radar, and explosives—feeding the NORINCO group.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // The Seven Sons Data
+        const universities = [
+            {
+                name: "Beihang University (BUAA)",
+                city: "Beijing",
+                lat: 39.98,
+                lon: 116.34,
+                pipeline: "AVIC (Aviation) & CASC (Space)",
+                focus: "Missiles, Aerodynamics, Jet Engines",
+                color: "#3b82f6" // Blue
+            },
+            {
+                name: "Beijing Institute of Tech (BIT)",
+                city: "Beijing",
+                lat: 39.95,
+                lon: 116.31,
+                pipeline: "Norinco (Ground Arms)",
+                focus: "Tanks, Radar, Explosives",
+                color: "#f97316" // Orange
+            },
+            {
+                name: "Harbin Institute of Tech (HIT)",
+                city: "Harbin",
+                lat: 45.74,
+                lon: 126.63,
+                pipeline: "CASC (Space & Missiles)",
+                focus: "Spaceflight, Robotics, Welding",
+                color: "#a855f7" // Purple
+            },
+            {
+                name: "Harbin Engineering Univ (HEU)",
+                city: "Harbin",
+                lat: 45.77,
+                lon: 126.67,
+                pipeline: "CSSC (Shipbuilding)",
+                focus: "Nuclear Subs, Sonar, Ship Design",
+                color: "#14b8a6" // Teal
+            },
+            {
+                name: "Northwestern Polytech (NPU)",
+                city: "Xi'an",
+                lat: 34.24,
+                lon: 108.91,
+                pipeline: "AVIC (Aviation) & UUVs",
+                focus: "Drones (UAVs), Torpedoes, Stealth",
+                color: "#3b82f6" // Blue
+            },
+            {
+                name: "Nanjing Univ of Aero (NUAA)",
+                city: "Nanjing",
+                lat: 32.03,
+                lon: 118.80,
+                pipeline: "AVIC (Helicopters)",
+                focus: "Helicopters, Transport Aircraft",
+                color: "#3b82f6" // Blue
+            },
+            {
+                name: "Nanjing Univ of Sci & Tech (NUST)",
+                city: "Nanjing",
+                lat: 32.02,
+                lon: 118.85,
+                pipeline: "Norinco (Artillery)",
+                focus: "Artillery, Optics, Ballistics",
+                color: "#f97316" // Orange
+            }
+        ];
+
+        // Initialize map with variable name 'sevensons' as requested
+        const sevensons = L.map('mapContainer', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([37, 110], 4);
+        
+        // Dark Mode Map Tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(sevensons);
+
+        // Add markers
+        const bounds = L.latLngBounds(universities.map(u => [u.lat, u.lon]));
+        
+        universities.forEach((u, index) => {
+            const markerHtml = `
+                <div style="
+                    background-color: ${u.color}; 
+                    width: 16px; 
+                    height: 16px; 
+                    border-radius: 50%; 
+                    border: 2px solid white; 
+                    box-shadow: 0 0 15px ${u.color};
+                    animation: pulse 2s infinite;
+                "></div>`;
+            
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-marker',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            const popupContent = `
+                <div style="color: #333; font-family: sans-serif; min-width: 200px;">
+                    <h3 style="font-weight: 800; margin: 0 0 5px 0; color: ${u.color};">${u.name}</h3>
+                    <div style="font-size: 12px; line-height: 1.4;">
+                        <strong>City:</strong> ${u.city}<br>
+                        <strong>Pipeline:</strong> ${u.pipeline}<br>
+                        <strong>Focus:</strong> ${u.focus}
+                    </div>
+                </div>
+            `;
+            
+            L.marker([u.lat, u.lon], { icon: customIcon })
+                .bindPopup(popupContent)
+                .addTo(sevensons);
+        });
+
+        sevensons.fitBounds(bounds, { padding: [50, 50] });
+
+        // Populate table
+        const tableBody = document.getElementById('siteTable');
+        universities.forEach(u => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-800/50 transition-colors';
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium text-white">${u.name}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" style="background-color: ${u.color}20; color: ${u.color}">
+                        ${u.pipeline.split('(')[0]}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-400">${u.city}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Domain Chart
+        const domainData = [
+            {values: [3, 2, 1, 1], labels: ['Aviation (AVIC)', 'Ground/Arms (Norinco)', 'Space (CASC)', 'Naval (CSSC)'], type: 'pie',
+            marker: { colors: ['#3b82f6', '#f97316', '#a855f7', '#14b8a6'] },
+            textinfo: 'label+percent',
+            textposition: 'outside',
+            hole: 0.5
+            }
+        ];
+
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#94a3b8' },
+            showlegend: false,
+            margin: { t: 0, b: 0, l: 0, r: 0 }
+        };
+
+        Plotly.newPlot('domainChart', domainData, layout, {displayModeBar: false});
+    </script>
+</body>
+</html>
