@@ -18,26 +18,47 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .top-title{font-size:2.2rem;font-weight:900;text-transform:uppercase;background:linear-gradient(90deg,#8e44ad 0%,#ffffff 50%,#dc143c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:12px;line-height:1.1}
 .top-subtitle{font-size:1.0rem;line-height:1.6;color:#c5c6c7;max-width:950px;margin:0 auto;font-weight:400;border-top:1px solid #333;padding-top:10px}
 
-/* --- NEW BOTTOM NAV STYLING FOR BLOCKS --- */
-.bottom-nav-container {
+/* --- NEW WRAPPER CONTAINER FOR ALL BOTTOM ELEMENTS --- */
+.bottom-wrapper {
     position: absolute;
-    bottom: 30px; /* Adjusted to sit above the main nav */
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 95%;
     max-width: 1000px;
     z-index: 30;
     display: flex;
-    flex-direction: column; /* Stacks the two era rows */
-    gap: 10px; /* Space between the two era rows */
-    padding-bottom: 70px; /* Make space for the original nav pills */
+    flex-direction: column; 
+    gap: 10px; /* Space between nav and blocks */
+    padding-bottom: 20px; /* Padding at the very bottom */
 }
 
+/* Original Nav Container (Now at the top of the bottom wrapper) */
+.nav-container{
+    position: relative; /* Changed from absolute to relative */
+    left: auto;
+    transform: none;
+    width: 100%;
+    background:rgba(11,12,16,0.95);
+    backdrop-filter:blur(12px);
+    border:1px solid #333;
+    border-radius:10px;
+    padding:12px 20px;
+    z-index: 35;
+    box-shadow:0 10px 40px rgba(0,0,0,1);
+    display:flex;
+    justify-content:center;
+    gap:20px
+}
+.nav-pill{padding:10px 20px;border-radius:5px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;border:1px solid #444;background:rgba(255,255,255,0.05);color:#888;text-transform:uppercase;letter-spacing:1px}
+.nav-pill:hover{background:rgba(255,255,255,0.15);color:white;border-color:#666}
+.nav-pill.active{background:#dc143c;border-color:#ff6b6b;color:#fff;box-shadow:0 0 10px rgba(220,20,60,0.5)}
+
+/* Era Blocks Container (Now below the nav pills) */
 .era-blocks-row {
     display: flex;
     gap: 10px;
-    overflow-x: auto; /* Allows horizontal scrolling if needed */
-    padding: 10px 0;
+    overflow-x: auto; 
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #dc143c transparent;
@@ -48,10 +69,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
     padding: 10px;
 }
 
-/* JENGA BLOCK: BASE STYLE (NOW IN ROW) */
+/* JENGA BLOCK STYLING */
 .jenga-block{
-    flex-shrink: 0; /* Prevents blocks from shrinking */
-    width: 280px; /* Fixed width for each block in the row */
+    flex-shrink: 0; 
+    width: 280px; 
     min-height: 80px;
     background:rgba(11,12,16,0.9);
     backdrop-filter:blur(10px);
@@ -68,18 +89,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .jenga-block:hover{transform:translateY(-2px);background:rgba(30,30,40,0.95);border-left-width:10px}
 .jenga-block:active{transform:scale(0.98)}
 
-/* NEW VISUALIZATION CLASS: GREY BACKGROUND, RED TEXT */
 .jenga-block.active-betrayal {
-    background: rgba(35, 35, 45, 0.95); /* Slightly grey background */
-    border-left-color: #dc143c !important; /* Emphasize with Yankee red border */
-    transform: scale(1.02); /* Pop out slightly when active */
+    background: rgba(35, 35, 45, 0.95); 
+    border-left-color: #dc143c !important; 
+    transform: scale(1.02); 
 }
 
 .jenga-block.active-betrayal .block-name {
-    color: #dc143c; /* Red text for the name */
+    color: #dc143c; 
 }
 .jenga-block.active-betrayal .block-desc {
-    color: #ffbaba; /* Lighter red description text */
+    color: #ffbaba; 
 }
 
 .block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:3px}
@@ -97,25 +117,20 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .block-russia{border-left-color:#ffffff}
 .block-russia .block-year{color:#ffffff;border:1px solid #999;background:#333}
 
-/* Original Nav Container (Moved up to accommodate the new rows) */
-.nav-container{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);width:95%;max-width:1000px;background:rgba(11,12,16,0.95);backdrop-filter:blur(12px);border:1px solid #333;border-radius:10px;padding:12px 20px;z-index:35;box-shadow:0 10px 40px rgba(0,0,0,1);display:flex;justify-content:center;gap:20px}
-.nav-pill{padding:10px 20px;border-radius:5px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;border:1px solid #444;background:rgba(255,255,255,0.05);color:#888;text-transform:uppercase;letter-spacing:1px}
-.nav-pill:hover{background:rgba(255,255,255,0.15);color:white;border-color:#666}
-.nav-pill.active{background:#dc143c;border-color:#ff6b6b;color:#fff;box-shadow:0 0 10px rgba(220,20,60,0.5)}
 .center-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:5rem;font-weight:900;text-transform:uppercase;color:#dc143c;text-shadow:0 0 30px rgba(0,0,0,1), 0 0 10px #000;pointer-events:none;opacity:0;transition:opacity 0.5s ease-in-out;z-index:100;text-align:center;letter-spacing:5px;width:100%;line-height:1}
 .center-overlay.visible{opacity:1;animation:pulse 2s infinite}@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}100%{transform:translate(-50%,-50%) scale(1)}}
 
 /* Responsive adjustments for the new layout */
 @media screen and (max-width:1024px){
-    .jenga-block { width: 200px; } /* Smaller width on smaller screens */
+    .jenga-block { width: 200px; }
 }
 @media screen and (max-width:782px){
     .YankeeBetrayal{height:600px}
     .top-title{font-size:1.4rem}
     .center-overlay{font-size:2.5rem}
-    .bottom-nav-container { bottom: 80px; padding-bottom: 0; }
-    .nav-container { bottom: 10px; padding: 8px 10px; }
-    .era-blocks-row { gap: 5px; }
+    .bottom-wrapper { padding-bottom: 10px; }
+    .nav-container { padding: 8px 10px; }
+    .era-blocks-row { gap: 5px; padding: 8px; }
     .jenga-block { width: 180px; padding: 8px 10px; }
     .block-name { font-size: 0.8rem; }
     .block-desc { font-size: 0.7rem; }
@@ -131,20 +146,23 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 <div class="top-subtitle"><strong>From the Crimean War to NATO’s push east</strong>, the U.S. has long played the same game: using the promise of <strong>Russia’s boundless energy wealth</strong> to drag Europe into self-defeating wars that drain its economies & feed the <strong>U.S. military-industrial complex</strong>.</div>
 </div>
 
-<div class="bottom-nav-container">
-    <div class="era-blocks-row" id="era-0-blocks">
-        <span class="block-name" style="color:#8e44ad; padding: 10px 15px; flex-shrink: 0; align-self: center;">CRIMEA ERA (1850s)</span>
+<div class="bottom-wrapper">
+    
+    <div class="nav-container">
+        <div class="nav-pill active" id="btn-era-0" onclick="manualJump(0)">1. Crimea Era (1850s)</div>
+        <div class="nav-pill" id="btn-era-1" onclick="manualJump(1)">2. NATO Era (2025)</div>
     </div>
-    <div class="era-blocks-row" id="era-1-blocks">
-        <span class="block-name" style="color:#4fa3ff; padding: 10px 15px; flex-shrink: 0; align-self: center;">NATO ERA (2025)</span>
+    
+    <div class="era-blocks-container">
+        <div class="era-blocks-row" id="era-0-blocks">
+            <span class="block-name" style="color:#8e44ad; padding: 10px 15px; flex-shrink: 0; align-self: center;">CRIMEA ERA (1850s)</span>
+        </div>
+        <div class="era-blocks-row" id="era-1-blocks">
+            <span class="block-name" style="color:#4fa3ff; padding: 10px 15px; flex-shrink: 0; align-self: center;">NATO ERA (2025)</span>
+        </div>
     </div>
 </div>
 
-<div class="nav-container">
-<div class="nav-pill active" id="btn-era-0" onclick="manualJump(0)">1. Crimea Era (1850s)</div>
-<div class="nav-pill" id="btn-era-1" onclick="manualJump(1)">2. NATO Era (2025)</div>
-</div>
-</div>
 <script>
 (function(){const e1=[{type:'british',name:'The Crimean War',year:'1853-1856',description:'Coalition war: UK, France & Ottomans vs Russia. <strong>Mission:</strong> Contain Russian expansion. Britain bleeds to hold the line.',pathCoords:[[51.5,-0.1],[36.1,-5.3],[35.9,14.4],[44.6,33.5]],pathColor:'#8e44ad',markers:[{lat:51.5,lng:-0.1,label:'London',color:'#8e44ad'},{lat:48.8,lng:2.3,label:'Paris',color:'#8e44ad'},{lat:44.6,lng:33.5,label:'Sevastopol',color:'#8e44ad'}],highlightCountries:['United Kingdom','France','Turkey','Italy','Russia','United States of America'],highlightColor:'rgba(142,68,173,0.7)',showLabel:false,multiColor:{'United Kingdom':'rgba(142,68,173,0.7)','France':'rgba(142,68,173,0.7)','Turkey':'rgba(142,68,173,0.7)','Italy':'rgba(142,68,173,0.7)','United States of America':'rgba(255,255,255,0.8)','Russia':'rgba(255,255,255,0.8)'}},{type:'yankee',name:'The St. Petersburg Railway',year:'1842-1851',description:'<strong>George Whistler (US):</strong> While Britain prepares for war, West Point engineers build Russia\'s logistics backbone. 5-foot gauge chosen to block European invasion.',pathCoords:[[59.9,30.3],[55.7,37.6]],pathColor:'#ffffff',markers:[{lat:59.9,lng:30.3,label:'St. Petersburg',color:'#ffffff'},{lat:55.7,lng:37.6,label:'Moscow',color:'#ffffff'}],highlightCountries:['United Kingdom','France','Turkey','Italy','Russia','United States of America'],highlightColor:'rgba(142,68,173,0.7)',showLabel:false,multiColor:{'United Kingdom':'rgba(142,68,173,0.7)','France':'rgba(142,68,173,0.7)','Turkey':'rgba(142,68,173,0.7)','Italy':'rgba(142,68,173,0.7)','United States of America':'rgba(255,255,255,0.8)','Russia':'rgba(255,255,255,0.8)'}},{type:'yankee',name:'The Colt Revolver',year:'1854',description:'<strong>Samuel Colt (Hartford):</strong> Sells 3,000 revolvers to the Tsar during the height of the Siege of Sevastopol. "I am a merchant, not a diplomat."',pathCoords:[[41.7,-72.6],[55.7,37.6]],pathColor:'#ffffff',markers:[{lat:41.7,lng:-72.6,label:'Hartford (Colt)',color:'#ffffff'},{lat:55.7,lng:37.6,label:'Moscow',color:'#ffffff'}],highlightCountries:['United Kingdom','France','Turkey','Italy','Russia','United States of America'],highlightColor:'rgba(142,68,173,0.7)',showLabel:false,multiColor:{'United Kingdom':'rgba(142,68,173,0.7)','France':'rgba(142,68,173,0.7)','Turkey':'rgba(142,68,173,0.7)','Italy':'rgba(142,68,173,0.7)','United States of America':'rgba(255,255,255,0.8)','Russia':'rgba(255,255,255,0.8)'}},{type:'yankee',name:'The General Admiral',year:'1858',description:'<strong>William Webb (NYC):</strong> Builds the world\'s fastest steam frigate for Russia immediately after the war. American tech neutralizes British naval supremacy.',pathCoords:[[40.7,-74.0],[55.0,-30.0],[59.9,30.3]],pathColor:'#ffffff',markers:[{lat:40.7,lng:-74.0,label:'New York (Webb)',color:'#ffffff'},{lat:59.9,lng:30.3,label:'Kronstadt',color:'#ffffff'}],highlightCountries:['United Kingdom','France','Turkey','Italy','Russia','United States of America'],highlightColor:'rgba(142,68,173,0.7)',showLabel:false,multiColor:{'United Kingdom':'rgba(142,68,173,0.7)','France':'rgba(142,68,173,0.7)','Turkey':'rgba(142,68,173,0.7)','Italy':'rgba(142,68,173,0.7)','United States of America':'rgba(255,255,255,0.8)','Russia':'rgba(255,255,255,0.8)'}},{type:'yankee',name:'The Winans Locomotives',year:'1860s',description:'<strong>Winans Family (Baltimore):</strong> Mass-produces "Camel" locomotives for Russia. The final piece of the puzzle. The Betrayal is complete: US industry has modernized Britain\'s enemy.',pathCoords:[[39.3,-76.6],[55.0,-30.0],[59.9,30.3]],pathColor:'#dc143c',markers:[{lat:39.3,lng:-76.6,label:'Baltimore (Winans)',color:'#dc143c'},{lat:55.7,lng:37.6,label:'Moscow Rail Hub',color:'#dc143c'}],highlightCountries:['United Kingdom','France','Turkey','Italy','Russia','United States of America'],highlightColor:'rgba(142,68,173,0.7)',showLabel:true,multiColor:{'United Kingdom':'rgba(142,68,173,0.7)','France':'rgba(142,68,173,0.7)','Turkey':'rgba(142,68,173,0.7)','Italy':'rgba(142,68,173,0.7)','United States of America':'rgba(220,20,60,0.7)','Russia':'rgba(255,255,255,0.8)'}}];const e2=[{type:'nato',name:'NATO Expansion Phase',year:'1999-2004',description:'Eastern Europe joins NATO. US enforces "interoperability" standards, systematically displacing indigenous European defense industries.',pathCoords:[],pathColor:'#4fa3ff',markers:[{lat:50.8,lng:4.3,label:'NATO HQ (Brussels)',color:'#4fa3ff'},{lat:52.2,lng:21.0,label:'Warsaw',color:'#4fa3ff'},{lat:59.4,lng:24.7,label:'Tallinn',color:'#4fa3ff'}],highlightCountries:['Poland','Hungary','Czechia','Estonia','Latvia','Lithuania','Romania','Bulgaria','Slovakia','Slovenia','Germany','France','United Kingdom','Italy','Spain','Netherlands','Belgium','Greece','Portugal','Denmark','Norway','Croatia','Russia','United States of America'],highlightColor:'rgba(79,163,255,0.7)',showLabel:false,multiColor:{'Poland':'rgba(79,163,255,0.7)','Hungary':'rgba(79,163,255,0.7)','Czechia':'rgba(79,163,255,0.7)','Estonia':'rgba(79,163,255,0.7)','Latvia':'rgba(79,163,255,0.7)','Lithuania':'rgba(79,163,255,0.7)','Romania':'rgba(79,163,255,0.7)','Bulgaria':'rgba(79,163,255,0.7)','Slovakia':'rgba(79,163,255,0.7)','Slovenia':'rgba(79,163,255,0.7)','Germany':'rgba(79,163,255,0.7)','France':'rgba(79,163,255,0.7)','United Kingdom':'rgba(79,163,255,0.7)','Italy':'rgba(79,163,255,0.7)','Spain':'rgba(79,163,255,0.7)','Netherlands':'rgba(79,163,255,0.7)','Belgium':'rgba(79,163,255,0.7)','Greece':'rgba(79,163,255,0.7)','Portugal':'rgba(79,163,255,0.7)','Denmark':'rgba(79,163,255,0.7)','Norway':'rgba(79,163,255,0.7)','Croatia':'rgba(79,163,255,0.7)','Russia':'rgba(255,255,255,0.8)','United States of America':'rgba(79,163,255,0.7)'}},{type:'yankee',name:'Phase 1: Hollow Force',year:'1999-2020',description:'<strong>De-industrialization via F-35 Program:</strong> Why build Eurofighter when you can buy American? Europe outsources sovereignty for convenience. Lockheed, Raytheon, Boeing displace indigenous capacity.',pathCoords:[[38.9,-77.0],[45.0,-30.0],[50.8,4.3]],pathColor:'#dc143c',markers:[{lat:38.9,lng:-77.0,label:'Washington',color:'#dc143c'},{lat:38.8,lng:-77.0,label:'Pentagon',color:'#dc143c'}],highlightCountries:['Poland','Hungary','Czechia','Estonia','Latvia','Lithuania','Romania','Bulgaria','Slovakia','Slovenia','Germany','France','United Kingdom','Italy','Spain','Netherlands','Belgium','Greece','Portugal','Denmark','Norway','Croatia','Russia','United States of America'],highlightColor:'rgba(79,163,255,0.7)',showLabel:false,multiColor:{'Poland':'rgba(79,163,255,0.7)','Hungary':'rgba(79,163,255,0.7)','Czechia':'rgba(79,163,255,0.7)','Estonia':'rgba(79,163,255,0.7)','Latvia':'rgba(79,163,255,0.7)','Lithuania':'rgba(79,163,255,0.7)','Romania':'rgba(79,163,255,0.7)','Bulgaria':'rgba(79,163,255,0.7)','Slovakia':'rgba(79,163,255,0.7)','Slovenia':'rgba(79,163,255,0.7)','Germany':'rgba(79,163,255,0.7)','France':'rgba(79,163,255,0.7)','United Kingdom':'rgba(79,163,255,0.7)','Italy':'rgba(79,163,255,0.7)','Spain':'rgba(79,163,255,0.7)','Netherlands':'rgba(79,163,255,0.7)','Belgium':'rgba(79,163,255,0.7)','Greece':'rgba(79,163,255,0.7)','Portugal':'rgba(79,163,255,0.7)','Denmark':'rgba(79,163,255,0.7)','Norway':'rgba(79,163,255,0.7)','Croatia':'rgba(79,163,255,0.7)','Russia':'rgba(255,255,255,0.8)','United States of America':'rgba(79,163,255,0.7)'}},{type:'nato',name:'Phase 2: The Fire Sale',year:'2022-2024',description:'<strong>Ukraine War as Clearinghouse:</strong> European nations empty stockpiles to aid Kyiv. No factories left to replenish. Forced to buy American "off-the-shelf" solutions for 30-year lock-in.',pathCoords:[],pathColor:'#4fa3ff',markers:[{lat:50.4,lng:30.5,label:'Kyiv',color:'#ffaa00'},{lat:52.5,lng:13.4,label:'Berlin',color:'#4fa3ff'},{lat:48.8,lng:2.3,label:'Paris',color:'#4fa3ff'}],highlightCountries:['Poland','Hungary','Czechia','Estonia','Latvia','Lithuania','Romania','Bulgaria','Slovakia','Slovenia','Germany','France','United Kingdom','Italy','Spain','Netherlands','Belgium','Greece','Portugal','Denmark','Norway','Croatia','Russia','United States of America'],highlightColor:'rgba(79,163,255,0.7)',showLabel:false,multiColor:{'Poland':'rgba(79,163,255,0.7)','Hungary':'rgba(79,163,255,0.7)','Czechia':'rgba(79,163,255,0.7)','Estonia':'rgba(79,163,255,0.7)','Latvia':'rgba(79,163,255,0.7)','Lithuania':'rgba(79,163,255,0.7)','Romania':'rgba(79,163,255,0.7)','Bulgaria':'rgba(79,163,255,0.7)','Slovakia':'rgba(79,163,255,0.7)','Slovenia':'rgba(79,163,255,0.7)','Germany':'rgba(79,163,255,0.7)','France':'rgba(79,163,255,0.7)','United Kingdom':'rgba(79,163,255,0.7)','Italy':'rgba(79,163,255,0.7)','Spain':'rgba(79,163,255,0.7)','Netherlands':'rgba(79,163,255,0.7)','Belgium':'rgba(79,163,255,0.7)','Greece':'rgba(79,163,255,0.7)','Portugal':'rgba(79,163,255,0.7)','Denmark':'rgba(79,163,255,0.7)','Norway':'rgba(79,163,255,0.7)','Croatia':'rgba(79,163,255,0.7)','Russia':'rgba(255,255,255,0.8)','United States of America':'rgba(79,163,255,0.7)'}},{type:'yankee',name:'Phase 3: The Hague Rug-Pull',year:'2025',description:'<strong>5% GDP Demand:</strong> With client addicted and disarmed, vendor raises price. Structurally impossible for European welfare states without dismantling social models.',pathCoords:[[38.9,-77.0],[50.0,-30.0],[52.0,4.3]],pathColor:'#dc143c',markers:[{lat:38.9,lng:-77.0,label:'Washington',color:'#dc143c'},{lat:52.0,lng:4.3,label:'The Hague',color:'#dc143c'}],highlightCountries:['Poland','Hungary','Czechia','Estonia','Latvia','Lithuania','Romania','Bulgaria','Slovakia','Slovenia','Germany','France','United Kingdom','Italy','Spain','Netherlands','Belgium','Greece','Portugal','Denmark','Norway','Croatia','Russia','United States of America'],highlightColor:'rgba(79,163,255,0.7)',showLabel:false,multiColor:{'Poland':'rgba(79,163,255,0.7)','Hungary':'rgba(79,163,255,0.7)','Czechia':'rgba(79,163,255,0.7)','Estonia':'rgba(79,163,255,0.7)','Latvia':'rgba(79,163,255,0.7)','Lithuania':'rgba(79,163,255,0.7)','Romania':'rgba(79,163,255,0.7)','Bulgaria':'rgba(79,163,255,0.7)','Slovakia':'rgba(79,163,255,0.7)','Slovenia':'rgba(79,163,255,0.7)','Germany':'rgba(79,163,255,0.7)','France':'rgba(79,163,255,0.7)','United Kingdom':'rgba(79,163,255,0.7)','Italy':'rgba(79,163,255,0.7)','Spain':'rgba(79,163,255,0.7)','Netherlands':'rgba(79,163,255,0.7)','Belgium':'rgba(79,163,255,0.7)','Greece':'rgba(79,163,255,0.7)','Portugal':'rgba(79,163,255,0.7)','Denmark':'rgba(79,163,255,0.7)','Norway':'rgba(79,163,255,0.7)','Croatia':'rgba(79,163,255,0.7)','Russia':'rgba(255,255,255,0.8)','United States of America':'rgba(79,163,255,0.7)'}},{type:'nato',name:'Mercenary Feudalism',year:'2025',description:'<strong>Protection Racket Complete:</strong> Alliance converted from partnership to subscription service. Message: Pay tribute or face Bear alone with empty factories. F-35 = software subscription; US holds kill switch.',pathCoords:[],pathColor:'#4fa3ff',markers:[{lat:55.7,lng:37.6,label:'Moscow (Threat)',color:'#ffffff'}],highlightCountries:['Poland','Hungary','Czechia','Estonia','Latvia','Lithuania','Romania','Bulgaria','Slovakia','Slovenia','Germany','France','United Kingdom','Italy','Spain','Netherlands','Belgium','Greece','Portugal','Denmark','Norway','Croatia','United States of America','Russia'],highlightColor:'rgba(79,163,255,0.7)',showLabel:true,multiColor:{'Poland':'rgba(79,163,255,0.7)','Hungary':'rgba(79,163,255,0.7)','Czechia':'rgba(79,163,255,0.7)','Estonia':'rgba(79,163,255,0.7)','Latvia':'rgba(79,163,255,0.7)','Lithuania':'rgba(79,163,255,0.7)','Romania':'rgba(79,163,255,0.7)','Bulgaria':'rgba(79,163,255,0.7)','Slovakia':'rgba(79,163,255,0.7)','Slovenia':'rgba(79,163,255,0.7)','Germany':'rgba(79,163,255,0.7)','France':'rgba(79,163,255,0.7)','United Kingdom':'rgba(79,163,255,0.7)','Italy':'rgba(79,163,255,0.7)','Spain':'rgba(79,163,255,0.7)','Netherlands':'rgba(79,163,255,0.7)','Belgium':'rgba(79,163,255,0.7)','Greece':'rgba(79,163,255,0.7)','Portugal':'rgba(79,163,255,0.7)','Denmark':'rgba(79,163,255,0.7)','Norway':'rgba(79,163,255,0.7)','Croatia':'rgba(79,163,255,0.7)','United States of America':'rgba(220,20,60,0.7)','Russia':'rgba(255,255,255,0.8)'}}];let globe,activeCountries=new Set(),activeHighlightColor='rgba(255,255,255,0.1)',currentMultiColor=null,currentPaths=[],currentMarkers=[],animTimeout;
 
