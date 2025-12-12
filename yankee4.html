@@ -13,29 +13,31 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .text-yankee{color:#dc143c}
 .text-nato{color:#4fa3ff}
 .YankeeBetrayal{position:relative;width:100vw;height:100vh;background:#0b0c10;overflow:hidden}
+/* 1. Ensure the Globe takes the full screen and is behind all UI elements */
 #YankeeBetrayal-globe{width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
 .top-banner{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:1200px;background:rgba(11,12,16,0.95);backdrop-filter:blur(16px);border-bottom-left-radius:20px;border-bottom-right-radius:20px;padding:24px 30px;text-align:center;z-index:30;border-bottom:2px solid #dc143c;box-shadow:0 10px 40px rgba(0,0,0,0.9)}
 .top-title{font-size:2.2rem;font-weight:900;text-transform:uppercase;background:linear-gradient(90deg,#8e44ad 0%,#ffffff 50%,#dc143c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:12px;line-height:1.1}
 .top-subtitle{font-size:1.0rem;line-height:1.6;color:#c5c6c7;max-width:950px;margin:0 auto;font-weight:400;border-top:1px solid #333;padding-top:10px}
 
-/* --- NEW WRAPPER CONTAINER FOR ALL BOTTOM ELEMENTS --- */
+/* 2. Set the bottom wrapper to a fixed position at the bottom (z-index 30) */
 .bottom-wrapper {
-    position: absolute;
+    position: fixed; /* Use fixed to ensure it stays on top and separate from the globe drawing area */
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 95%;
     max-width: 1000px;
-    z-index: 30;
+    z-index: 30; 
     display: flex;
     flex-direction: column; 
-    gap: 10px; /* Space between nav and blocks */
-    padding-bottom: 20px; /* Padding at the very bottom */
+    gap: 10px; 
+    padding: 10px 0 20px 0; /* Adjusted padding */
+    background: #0b0c10; /* Solid background to prevent globe shine-through */
 }
 
-/* Original Nav Container (Now at the top of the bottom wrapper) */
+/* Original Nav Container */
 .nav-container{
-    position: relative; /* Changed from absolute to relative */
+    position: relative; 
     left: auto;
     transform: none;
     width: 100%;
@@ -54,7 +56,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .nav-pill:hover{background:rgba(255,255,255,0.15);color:white;border-color:#666}
 .nav-pill.active{background:#dc143c;border-color:#ff6b6b;color:#fff;box-shadow:0 0 10px rgba(220,20,60,0.5)}
 
-/* Era Blocks Container (Now below the nav pills) */
+/* Era Blocks Container */
 .era-blocks-row {
     display: flex;
     gap: 10px;
@@ -120,7 +122,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .center-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:5rem;font-weight:900;text-transform:uppercase;color:#dc143c;text-shadow:0 0 30px rgba(0,0,0,1), 0 0 10px #000;pointer-events:none;opacity:0;transition:opacity 0.5s ease-in-out;z-index:100;text-align:center;letter-spacing:5px;width:100%;line-height:1}
 .center-overlay.visible{opacity:1;animation:pulse 2s infinite}@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}100%{transform:translate(-50%,-50%) scale(1)}}
 
-/* Responsive adjustments for the new layout */
+/* Responsive adjustments */
 @media screen and (max-width:1024px){
     .jenga-block { width: 200px; }
 }
@@ -128,7 +130,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
     .YankeeBetrayal{height:600px}
     .top-title{font-size:1.4rem}
     .center-overlay{font-size:2.5rem}
-    .bottom-wrapper { padding-bottom: 10px; }
+    .bottom-wrapper { padding: 10px 0 10px 0; }
     .nav-container { padding: 8px 10px; }
     .era-blocks-row { gap: 5px; padding: 8px; }
     .jenga-block { width: 180px; padding: 8px 10px; }
@@ -172,14 +174,42 @@ async function initGlobe(){
     const resp=await fetch('https://unpkg.com/world-atlas/countries-110m.json');
     const topo=await resp.json();
     const countries=topojson.feature(topo,topo.objects.countries).features;
-    globe=Globe()(document.getElementById('YankeeBetrayal-globe')).globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg').backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png').pointOfView({lat:48,lng:-12,altitude:2.2}).polygonsData(countries).polygonCapColor(d=>{const countryName=d.properties.name||d.properties.name_long;if(currentMultiColor&&currentMultiColor[countryName]){return currentMultiColor[countryName]}if(activeCountries.has(countryName)){return activeHighlightColor}return 'rgba(20,20,25,0.8)'}).polygonSideColor(()=>'rgba(0,0,0,0)').polygonStrokeColor(()=>'#222').polygonsTransitionDuration(800).pathPoints('coords').pathPointLat(p=>p[0]).pathPointLng(p=>p[1]).pathColor(d=>d.color).pathStroke(3).pathDashLength(0.5).pathDashGap(0.1).pathDashAnimateTime(2000).htmlElementsData([]).htmlLat(d=>d.lat).htmlLng(d=>d.lng).htmlElement(d=>createMarker(d));
     
-    // ENSURE BOTH ERA ROWS ARE LOADED ON INITIAL PAGE LOAD
+    // Calculate initial point of view for centering the globe higher up
+    const viewportHeight = window.innerHeight;
+    // Set altitude based on desired globe size and keep POV slightly above the visual center to clear the bottom UI.
+    const initialAltitude = 2.2; 
+    const initialLat = 48;
+    const initialLng = -12;
+
+    globe=Globe()(document.getElementById('YankeeBetrayal-globe'))
+    .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+    .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+    .pointOfView({lat:initialLat,lng:initialLng,altitude:initialAltitude}) // Set initial POV
+    .polygonsData(countries)
+    .polygonCapColor(d=>{const countryName=d.properties.name||d.properties.name_long;if(currentMultiColor&&currentMultiColor[countryName]){return currentMultiColor[countryName]}if(activeCountries.has(countryName)){return activeHighlightColor}return 'rgba(20,20,25,0.8)'})
+    .polygonSideColor(()=>'rgba(0,0,0,0)')
+    .polygonStrokeColor(()=>'#222')
+    .polygonsTransitionDuration(800)
+    .pathPoints('coords').pathPointLat(p=>p[0]).pathPointLng(p=>p[1]).pathColor(d=>d.color).pathStroke(3).pathDashLength(0.5).pathDashGap(0.1).pathDashAnimateTime(2000)
+    .htmlElementsData([]).htmlLat(d=>d.lat).htmlLng(d=>d.lng).htmlElement(d=>createMarker(d));
+    
+    // Add resize handler to recenter globe when window size changes
+    window.addEventListener('resize', updateGlobeCenter);
+
     loadEraBlocks(0); 
     loadEraBlocks(1);
     
-    runSequence(0,0) // Start the animation on Era 0
+    runSequence(0,0); // Start the animation on Era 0
 }
+
+function updateGlobeCenter() {
+    // This function can be used if explicit centering adjustments are needed beyond the initial POV
+    // For now, the initial altitude is used and the CSS ensures the canvas is full screen.
+    // However, we can re-evaluate the altitude or camera position on resize if needed.
+    // For simplicity with this library, relying on the initial POV and full-screen canvas is usually sufficient.
+}
+
 
 function loadEraBlocks(eraIndex) {
     const sequence = eraIndex === 0 ? e1 : e2;
