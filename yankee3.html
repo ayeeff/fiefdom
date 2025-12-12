@@ -16,15 +16,14 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 #YankeeBetrayal-globe{width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
 .top-banner{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:1200px;background:rgba(11,12,16,0.95);backdrop-filter:blur(16px);border-bottom-left-radius:20px;border-bottom-right-radius:20px;padding:24px 30px;text-align:center;z-index:30;border-bottom:2px solid #dc143c;box-shadow:0 10px 40px rgba(0,0,0,0.9)}
 .top-title{font-size:2.2rem;font-weight:900;text-transform:uppercase;background:linear-gradient(90deg,#8e44ad 0%,#ffffff 50%,#dc143c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:12px;line-height:1.1}
-/* REVISED SUBTITLE TEXT */
 .top-subtitle{font-size:1.0rem;line-height:1.6;color:#c5c6c7;max-width:950px;margin:0 auto;font-weight:400;border-top:1px solid #333;padding-top:10px}
 
-/* TOWER CONTAINER (REMAINS OVERFLOW: HIDDEN) */
+/* TOWER CONTAINER */
 .tower-container{position:absolute;top:180px;bottom:120px;width:400px;overflow-y:hidden;z-index:20;display:flex;flex-direction:column;gap:10px;padding:0 8px;scrollbar-width:thin;scrollbar-color:#dc143c transparent}
 .tower-left{left:30px}
 .tower-right{right:30px}
 
-/* JENGA BLOCK: INSTANTLY VISIBLE */
+/* JENGA BLOCK: BASE STYLE (INSTANTLY VISIBLE) */
 .jenga-block{
     background:rgba(11,12,16,0.9);
     backdrop-filter:blur(10px);
@@ -34,39 +33,32 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
     color:white;
     box-shadow:5px 5px 20px rgba(0,0,0,0.6);
     transition:all 0.3s ease;
-    opacity: 1; /* INSTANTLY VISIBLE */
+    opacity: 1; 
     cursor:pointer;
     position:relative
 }
 .jenga-block:hover{transform:translateX(5px);background:rgba(30,30,40,0.95);border-left-width:10px}
 .jenga-block:active{transform:scale(0.98)}
 
-/* SNAKE ANIMATION CSS - Ensures visibility */
-.jenga-block.snake-active {
-    position: relative;
-    overflow: hidden; 
+/* NEW VISUALIZATION CLASS: GREY BACKGROUND, RED TEXT */
+.jenga-block.active-betrayal {
+    background: rgba(35, 35, 45, 0.95); /* Slightly grey background */
+    border-left-color: #dc143c !important; /* Emphasize with Yankee red border */
 }
-.jenga-block.snake-active::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent 0%, rgba(220, 20, 60, 0.5) 50%, transparent 100%);
-    animation: slideDownSnake 1.5s ease-out forwards;
-    transform: translateY(-100%);
-    pointer-events: none;
+
+.jenga-block.active-betrayal .block-name {
+    color: #dc143c; /* Red text for the name */
 }
-@keyframes slideDownSnake {
-    from { transform: translateY(-100%); opacity: 0.5; }
-    to { transform: translateY(0%); opacity: 0; }
+.jenga-block.active-betrayal .block-desc {
+    color: #ffbaba; /* Lighter red description text */
 }
 
 .block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:3px}
-.block-name{font-weight:800;font-size:0.9rem;letter-spacing:0.05em;color:#fff;text-transform:uppercase}
+.block-name{font-weight:800;font-size:0.9rem;letter-spacing:0.05em;color:#fff;text-transform:uppercase; transition: color 0.3s;}
 .block-year{font-size:0.7rem;font-weight:700;padding:1px 6px;border-radius:4px;background:#222}
-.block-desc{font-size:0.8rem;color:#cbd5e1;line-height:1.4}
+.block-desc{font-size:0.8rem;color:#cbd5e1;line-height:1.4; transition: color 0.3s;}
+
+/* Color coding for borders/years */
 .block-british{border-left-color:#8e44ad}
 .block-british .block-year{color:#8e44ad;border:1px solid #8e44ad}
 .block-yankee{border-left-color:#dc143c}
@@ -75,6 +67,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0b0c10;color:#c5
 .block-nato .block-year{color:#4fa3ff;border:1px solid #4fa3ff;background:#001a33}
 .block-russia{border-left-color:#ffffff}
 .block-russia .block-year{color:#ffffff;border:1px solid #999;background:#333}
+
 .nav-container{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);width:95%;max-width:1000px;background:rgba(11,12,16,0.95);backdrop-filter:blur(12px);border:1px solid #333;border-radius:10px;padding:12px 20px;z-index:30;box-shadow:0 10px 40px rgba(0,0,0,1);display:flex;justify-content:center;gap:20px}
 .nav-pill{padding:10px 20px;border-radius:5px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;border:1px solid #444;background:rgba(255,255,255,0.05);color:#888;text-transform:uppercase;letter-spacing:1px}
 .nav-pill:hover{background:rgba(255,255,255,0.15);color:white;border-color:#666}
@@ -146,16 +139,20 @@ function runSequence(eraIndex, stepIndex){
         // Loop logic for switching eras
         if(eraIndex === 0){
             console.log('Era 1 Complete. Waiting 8s...');
+            // Clean up last block's highlight before switching eras
+            if (blocks.length > 0) blocks[blocks.length - 1].classList.remove('active-betrayal');
             animTimeout=setTimeout(()=>{
                 resetMapState();
-                updateNav(1); // Set NATO button active
+                updateNav(1); 
                 runSequence(1,0)
             },8000)
         } else {
             console.log('Era 2 Complete. Looping back to Era 1 in 8s...');
+            // Clean up last block's highlight before looping
+            if (blocks.length > 0) blocks[blocks.length - 1].classList.remove('active-betrayal');
             animTimeout=setTimeout(()=>{
                 resetMapState();
-                updateNav(0); // Set Crimea button active
+                updateNav(0); 
                 runSequence(0,0)
             },8000)
         }
@@ -164,48 +161,44 @@ function runSequence(eraIndex, stepIndex){
 
     const step = sequence[stepIndex];
     
-    // Apply snake animation to the currently processed block
+    // 1. Highlight the current block
     const currentBlock = blocks[stepIndex];
     if (currentBlock) {
-        currentBlock.classList.add('snake-active');
-        // IMPORTANT: Ensure the previous block's snake-active class is removed to clean up
-        if (stepIndex > 0) {
-            blocks[stepIndex - 1].classList.remove('snake-active');
-        } else if (eraIndex === 1 && stepIndex === 0) {
-            // Special case: remove snake from the last block of the previous era
-             const leftBlocks = document.getElementById('YankeeBetrayal-leftTower').children;
-             if (leftBlocks.length > 0) {
-                 leftBlocks[leftBlocks.length - 1].classList.remove('snake-active');
-             }
-        }
-        
-        setTimeout(() => {
-            currentBlock.classList.remove('snake-active');
-        }, 1500); // 1.5s duration
+        currentBlock.classList.add('active-betrayal');
     }
 
+    // 2. Un-highlight the previous block in the sequence
+    if (stepIndex > 0) {
+        blocks[stepIndex - 1].classList.remove('active-betrayal');
+    }
+    
+    // 3. Update the map visualization
     updateMap(step);
+    
     animTimeout=setTimeout(()=>{runSequence(eraIndex,stepIndex+1)},3000)
 }
 
 function updateMap(step){
-    // Reset map state to only show paths/markers for current step
-    if(currentPaths.length > 0) currentPaths = [];
-    if(currentMarkers.length > 0) currentMarkers = [];
+    // Determine the step index and sequence based on the current step object
+    const eraIndex = e1.includes(step) ? 0 : 1;
+    const sequence = eraIndex === 0 ? e1 : e2;
+    const currentStepIndex = sequence.indexOf(step);
+
+    // Reset map state before rebuilding for all steps up to the current one
+    currentPaths = [];
+    currentMarkers = [];
     activeCountries.clear();
     
     // Build path/marker/highlight data up to the current step in the sequence
-    const eraIndex = document.querySelector('.nav-pill.active').id === 'btn-era-0' ? 0 : 1;
-    const sequence = eraIndex === 0 ? e1 : e2;
-    const currentStepIndex = sequence.indexOf(step);
-    
     for (let i = 0; i <= currentStepIndex; i++) {
         const s = sequence[i];
         if(s.pathCoords.length>0) currentPaths.push({coords:s.pathCoords,color:s.pathColor});
         if(s.markers) s.markers.forEach(m=>currentMarkers.push(m));
-        activeHighlightColor=s.highlightColor;
-        currentMultiColor=s.multiColor||null;
+        
+        // Accumulate country highlights
         s.highlightCountries.forEach(c=>activeCountries.add(c));
+        activeHighlightColor=s.highlightColor; // Use the most recent highlight color
+        currentMultiColor=s.multiColor||null;
     }
 
     globe.pathsData([...currentPaths]);
@@ -225,9 +218,9 @@ function resetMapState(){
     globe.polygonsData(globe.polygonsData());
     document.getElementById('yankee-text-overlay').classList.remove('visible');
     
-    // Also remove any active snake from all blocks
+    // Remove active-betrayal class from all blocks
     document.querySelectorAll('.jenga-block').forEach(block => {
-        block.classList.remove('snake-active');
+        block.classList.remove('active-betrayal');
     });
 }
 
@@ -253,8 +246,7 @@ window.jumpToStep=function(eraIndex,stepIndex){
     clearTimeout(animTimeout);
     resetMapState();
     
-    // Ensure all blocks for the target era are loaded first
-    // This is mostly for safety, as they should be loaded on init/manualJump
+    // Re-load to ensure structure is fresh
     loadEraBlocks(0);
     loadEraBlocks(1);
 
@@ -265,18 +257,22 @@ window.jumpToStep=function(eraIndex,stepIndex){
     const container = document.getElementById(eraIndex===0?'YankeeBetrayal-leftTower':'YankeeBetrayal-rightTower');
     const blocks = container.children;
 
-    // Build the map state up to the clicked step
+    // Build the map state up to the clicked step and highlight the final block
     for(let i=0; i <= stepIndex; i++){
-        updateMap(sequence[i])
+        const step = sequence[i];
+        updateMap(step)
+        
+        // Highlight all previous steps for context when jumping, but only the current one should remain active in runSequence
+        if (blocks[i]) {
+            blocks[i].classList.add('active-betrayal');
+        }
     }
-
-    // Apply snake animation only to the final step being jumped to for visual feedback
-    const finalBlock = blocks[stepIndex];
-    if (finalBlock) {
-         finalBlock.classList.add('snake-active');
-         setTimeout(() => {
-            finalBlock.classList.remove('snake-active');
-         }, 1500); 
+    
+    // Ensure only the final block is active-betrayal before proceeding to the next step (which will clear the previous one)
+    for(let i=0; i < stepIndex; i++){
+         if (blocks[i]) {
+            blocks[i].classList.remove('active-betrayal');
+        }
     }
     
     // Continue the sequence from the next step
