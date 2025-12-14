@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Airline Connectivity Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            background-color: #0F172A; /* Slate 900 */
+            color: #E2E8F0; /* Slate 200 */
+            overflow: hidden;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        #globeCanvas {
+            display: block;
+        }
+        .orbitron {
+            font-family: 'Orbitron', sans-serif; /* Assuming Orbitron is available or linked */
+        }
+        .speed-card {
+            border: 1px solid rgba(51, 65, 85, 0.5); /* Slate 700 with opacity */
+        }
+        /* Custom scrollbar for better visibility */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5); /* Darker track */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6; /* Blue thumb */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb; /* Darker blue on hover */
+        }
+        .country-list-item:hover {
+            background-color: rgba(51, 65, 85, 0.9) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="globe-container" class="fixed top-0 left-0 w-full h-full z-0">
+        <canvas id="globeCanvas"></canvas>
+    </div>
+
+    <div class="fixed top-0 left-0 w-full h-full flex pointer-events-none z-10">
+        <div class="w-1/4 h-full p-6 pointer-events-auto overflow-y-auto">
+            <div class="speed-card p-4 rounded-xl shadow-2xl mb-6 bg-slate-800/80" style="backdrop-filter: blur(10px);">
+                <h2 class="text-xl font-black orbitron text-blue-400 mb-2">Connectivity Score</h2>
+                <p class="text-sm text-gray-400 mb-3">Top 50 Countries Ranked by Major Airlines</p>
+                <div id="top50List" class="max-h-[80vh] overflow-y-auto pr-2">
+                    <div class="text-center py-10 text-gray-500">Loading data...</div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-grow h-full relative">
+            </div>
+    </div>
+    
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-slate-900 p-6 rounded-xl shadow-2xl w-full max-w-2xl border border-slate-700 pointer-events-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 id="modalTitle" class="text-3xl font-bold text-white orbitron"></h3>
+                    <p id="modalSubtitle" class="text-sm text-blue-400"></p>
+                </div>
+                <button onclick="document.getElementById('infoModal').classList.add('hidden')" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div id="modalContent" class="space-y-4 text-gray-300">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        let airlinesByCountryMap = {};
+        let top50Data = [];
+
+        // --- New Data Loading for Connectivity Score and Airlines By Country ---
+        // Load top_50_connectivity_score.csv
+        Papa.parse('top_50_connectivity_score.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                // Filter out bad rows and ensure data is loaded
+                top50Data = results.data.filter(d => d.Country && typeof d.Unique_Airlines === 'number');
+                displayTop50List(top50Data);
+            }
+        });
+
+        // Load airlines_by_country.csv
+        Papa.parse('airlines_by_country.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                // Build the map: {'Country Served': ['Airline 1', 'Airline 2', ...]}
+                results.data.filter(d => d.Airline && d['Country Served']).forEach(row => {
+                    const country = row['Country Served'];
+                    const airline = row.Airline;
+                    if (!airlinesByCountryMap[country]) {
+                        airlinesByCountryMap[country] = [];
+                    }
+                    if (!airlinesByCountryMap[country].includes(airline)) {
+                        airlinesByCountryMap[country].push(airline);
+                    }
+                });
+            }
+        });
+
+        // --- New Function to Display Top 50 List (Connectivity Score) ---
+        function displayTop50List(data) {
+            const container = document.getElementById('top50List');
+            if (!container) return;
+
+            const htmlContent = data.map((d, index) => {
+                return `
+                    <div onclick="showCountryModal('${d.Country.replace(/'/g, "\\'")}')"
+                         class="flex justify-between items-center p-3 my-1 rounded-lg cursor-pointer transition-colors duration-200 country-list-item"
+                         style="background-color: rgba(30, 41, 59, 0.7); border-left: 5px solid #3b82f6;">
+                        <div class="flex-grow">
+                            <span class="text-xs text-gray-400 mr-2">#${index + 1}</span>
+                            <span class="font-semibold text-white">${d.Country}</span>
+                        </div>
+                        <div class="text-lg font-black orbitron text-blue-400">${d.Unique_Airlines}</div>
+                    </div>
+                `;
+            }).join('');
+            container.innerHTML = htmlContent;
+        }
+
+        // --- Modified showCountryModal to use new data structure ---
+        function showCountryModal(countryName) {
+            // Get connectivity score
+            const scoreObj = top50Data.find(d => d.Country === countryName);
+            const connectivityScore = scoreObj ? scoreObj.Unique_Airlines : 'N/A';
+            const airlines = airlinesByCountryMap[countryName] || [];
+
+            document.getElementById('modalTitle').textContent = countryName;
+            document.getElementById('modalSubtitle').textContent = 'Connectivity Score: ' + connectivityScore + ' • Served by ' + airlines.length + ' Major Airlines';
+
+            let content = '';
+
+            if (airlines.length === 0) {
+                content = `<div class="text-center py-10 text-gray-400">No major airlines found serving ${countryName} in the dataset.</div>`;
+            } else {
+                const sortedAirlines = airlines.sort();
+
+                // List of airlines (clickable to show airline details)
+                content = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">`;
+                content += sortedAirlines.map(airline => {
+                    // Find the original airline object to get 'Country of Origin' for the modal call
+                    const airlineObj = airlineData.find(a => a.Airline === airline);
+                    const origin = airlineObj ? airlineObj['Country of Origin'] : 'Unknown Origin';
+
+                    // Using the existing showAirlineModal structure to keep the original dashboard's interactivity
+                    return `<div onclick="showAirlineModal('${airline.replace(/'/g, "\\'")}', '${origin.replace(/'/g, "\\'")}')" class="modal-item px-3 py-2 bg-slate-700/50 border border-slate-600/30 rounded text-sm text-center hover:bg-slate-700/80 cursor-pointer">${airline}</div>`;
+                }).join('');
+                content += `</div>`;
+            }
+
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+        
+        // --- End of new code block ---
+
+        let scene, camera, renderer, controls, globe, airlineData = [];
+        const countries = {};
+        const countryMarkers = new THREE.Group();
+
+        function initGlobe() {
+            // Setup scene
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('globeCanvas'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.z = 10;
+
+            // Globe
+            const globeRadius = 3;
+            const globeGeometry = new THREE.SphereGeometry(globeRadius, 64, 64);
+            const globeTexture = new THREE.TextureLoader().load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/world.jpg');
+            const globeMaterial = new THREE.MeshBasicMaterial({ map: globeTexture });
+            globe = new THREE.Mesh(globeGeometry, globeMaterial);
+            scene.add(globe);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 5;
+            controls.maxDistance = 20;
+
+            // Lights
+            scene.add(new THREE.AmbientLight(0x404040));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 3, 5).normalize();
+            scene.add(directionalLight);
+            
+            scene.add(countryMarkers);
+
+            window.addEventListener('resize', onWindowResize, false);
+            renderer.domElement.addEventListener('click', onGlobeClick, false);
+            
+            // Start the loading process
+            loadDataAndAnimate();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            // A subtle rotation
+            globe.rotation.y += 0.0005; 
+            renderer.render(scene, camera);
+        }
+        
+        function loadDataAndAnimate() {
+            // Load the main airline data
+            Papa.parse('air.csv', {
+                download: true,
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    airlineData = results.data.filter(d => d.Airline);
+                    console.log('Airline Data Loaded:', airlineData.length);
+                    // Since we do not have geographic data (lat/lng) in the provided files, 
+                    // the globe interactivity (markers) is purely illustrative based on the original structure.
+                    // For a real globe, we'd load country coordinates here.
+                    animate();
+                }
+            });
+        }
+        
+        // Illustrative function to convert lat/lng to 3D coordinates (place a placeholder marker)
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+
+            const x = -((radius) * Math.sin(phi) * Math.cos(theta));
+            const z = ((radius) * Math.sin(phi) * Math.sin(theta));
+            const y = ((radius) * Math.cos(phi));
+
+            return new THREE.Vector3(x, y, z);
+        }
+
+        function onGlobeClick(event) {
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check for intersection with the globe itself to get the clicked country (illustrative)
+            const intersects = raycaster.intersectObject(globe);
+
+            if (intersects.length > 0) {
+                // In a real application, you would use the UV coordinates (intersects[0].uv) 
+                // and a country map texture to determine the clicked country.
+                // Since that is not available, we will rely on the list view.
+                
+                // For demonstration, let's just show a modal for a default top country
+                const defaultCountry = top50Data.length > 0 ? top50Data[0].Country : 'United States';
+                if (defaultCountry) {
+                    // showCountryModal(defaultCountry); // Disabled to prevent confusion, relying on the list
+                }
+            }
+        }
+        
+        function showAirlineModal(airlineName, countryOfOrigin) {
+            // Find the full details for the selected airline
+            const airlineDetails = airlineData.find(a => a.Airline === airlineName);
+
+            if (!airlineDetails) return;
+
+            document.getElementById('modalTitle').textContent = airlineName;
+            document.getElementById('modalSubtitle').textContent = `Based in ${countryOfOrigin} • Serving ${airlineDetails['Number of Countries']} Countries`;
+
+            let content = `<div class="text-lg font-semibold mb-3 text-white">Countries Served:</div>`;
+            
+            const countriesServedList = airlineDetails['Countries Served'].split(',').map(c => c.trim()).sort();
+
+            // List of countries served
+            content += `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-sm">`;
+            content += countriesServedList.map(country => {
+                return `<div class="px-3 py-2 bg-slate-700/50 rounded">${country}</div>`;
+            }).join('');
+            content += `</div>`;
+
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+
+        // Initialize the globe on window load
+        window.onload = initGlobe;
+    </script>
+</body>
+</html>
