@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Most Popular Airline Routes 2024</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/globe.gl"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; }
+        #globeViz { position: absolute; top: 0; left: 0; right: 400px; bottom: 0; }
+        #infoPanel { position: absolute; top: 0; right: 0; width: 400px; height: 100vh; background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); backdrop-filter: blur(10px); overflow-y: auto; border-left: 2px solid rgba(59, 130, 246, 0.3); }
+        .route-card { transition: all 0.3s ease; cursor: pointer; border-left: 3px solid transparent; }
+        .route-card:hover { background: rgba(59, 130, 246, 0.2); border-left-color: #3b82f6; transform: translateX(-4px); }
+        .route-card.domestic { border-left-color: #10b981; }
+        .route-card.international { border-left-color: #ef4444; }
+        .section-header { position: sticky; top: 0; z-index: 10; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); } 50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); } }
+        .title-glow { animation: pulse-glow 3s infinite; }
+        .flag-icon { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; }
+        .seats-badge { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .route-card { animation: slideIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-900">
+    <div id="globeViz"></div>
+    <div id="infoPanel" class="text-white">
+        <div class="section-header p-6 border-b border-slate-700">
+            <h1 class="text-3xl font-black mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent title-glow">Popular Routes 2024</h1>
+            <p class="text-sm text-gray-400">Top 20 busiest airline routes worldwide</p>
+            <div class="flex gap-4 mt-4 text-xs">
+                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-green-500"></div><span>Domestic</span></div>
+                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><span>International</span></div>
+            </div>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-3 text-green-400 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    Domestic Routes
+                </h2>
+                <div id="domesticRoutes" class="space-y-2"></div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-bold mb-3 text-red-400 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    International Routes
+                </h2>
+                <div id="internationalRoutes" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const routes = [
+            {rank: 1, route: "Jeju ↔ Seoul Gimpo", country: "South Korea", seats: "14.18M", type: "Domestic", from: {city: "Jeju", lat: 33.5097, lon: 126.4919}, to: {city: "Seoul", lat: 37.5665, lon: 126.9780}, code: "KR"},
+            {rank: 2, route: "Sapporo ↔ Tokyo Haneda", country: "Japan", seats: "11.93M", type: "Domestic", from: {city: "Sapporo", lat: 43.0642, lon: 141.3469}, to: {city: "Tokyo", lat: 35.6762, lon: 139.6503}, code: "JP"},
+            {rank: 3, route: "Fukuoka ↔ Tokyo Haneda", country: "Japan", seats: "11.34M", type: "Domestic", from: {city: "Fukuoka", lat: 33.5904, lon: 130.4017}, to: {city: "Tokyo", lat: 35.6762, lon: 139.6503}, code: "JP"},
+            {rank: 4, route: "Hanoi ↔ Ho Chi Minh City", country: "Vietnam", seats: "10.63M", type: "Domestic", from: {city: "Hanoi", lat: 21.0285, lon: 105.8542}, to: {city: "Ho Chi Minh City", lat: 10.8231, lon: 106.6297}, code: "VN"},
+            {rank: 5, route: "Sydney ↔ Melbourne", country: "Australia", seats: "9.22M", type: "Domestic", from: {city: "Sydney", lat: -33.8688, lon: 151.2093}, to: {city: "Melbourne", lat: -37.8136, lon: 144.9631}, code: "AU"},
+            {rank: 6, route: "Jeddah ↔ Riyadh", country: "Saudi Arabia", seats: "8.70M", type: "Domestic", from: {city: "Jeddah", lat: 21.5433, lon: 39.1728}, to: {city: "Riyadh", lat: 24.7136, lon: 46.6753}, code: "SA"},
+            {rank: 7, route: "Tokyo Haneda ↔ Okinawa", country: "Japan", seats: "8.03M", type: "Domestic", from: {city: "Tokyo", lat: 35.6762, lon: 139.6503}, to: {city: "Okinawa", lat: 26.2124, lon: 127.6809}, code: "JP"},
+            {rank: 8, route: "Mumbai ↔ Delhi", country: "India", seats: "7.96M", type: "Domestic", from: {city: "Mumbai", lat: 19.0760, lon: 72.8777}, to: {city: "Delhi", lat: 28.7041, lon: 77.1025}, code: "IN"},
+            {rank: 9, route: "Beijing ↔ Shanghai Hongqiao", country: "China", seats: "7.71M", type: "Domestic", from: {city: "Beijing", lat: 39.9042, lon: 116.4074}, to: {city: "Shanghai", lat: 31.2304, lon: 121.4737}, code: "CN"},
+            {rank: 10, route: "Guangzhou ↔ Shanghai Hongqiao", country: "China", seats: "7.01M", type: "Domestic", from: {city: "Guangzhou", lat: 23.1291, lon: 113.2644}, to: {city: "Shanghai", lat: 31.2304, lon: 121.4737}, code: "CN"},
+            {rank: 11, route: "Hong Kong ↔ Taipei", country: "Hong Kong / Taiwan", seats: "6.78M", type: "International", from: {city: "Hong Kong", lat: 22.3193, lon: 114.1694}, to: {city: "Taipei", lat: 25.0330, lon: 121.5654}, code: "HK", code2: "TW"},
+            {rank: 12, route: "Cairo ↔ Jeddah", country: "Egypt / Saudi Arabia", seats: "5.47M", type: "International", from: {city: "Cairo", lat: 30.0444, lon: 31.2357}, to: {city: "Jeddah", lat: 21.5433, lon: 39.1728}, code: "EG", code2: "SA"},
+            {rank: 13, route: "Seoul Incheon ↔ Tokyo Narita", country: "South Korea / Japan", seats: "5.41M", type: "International", from: {city: "Seoul", lat: 37.5665, lon: 126.9780}, to: {city: "Tokyo", lat: 35.6762, lon: 139.6503}, code: "KR", code2: "JP"},
+            {rank: 14, route: "Kuala Lumpur ↔ Singapore", country: "Malaysia / Singapore", seats: "5.38M", type: "International", from: {city: "Kuala Lumpur", lat: 3.1390, lon: 101.6869}, to: {city: "Singapore", lat: 1.3521, lon: 103.8198}, code: "MY", code2: "SG"},
+            {rank: 15, route: "Seoul Incheon ↔ Osaka Kansai", country: "South Korea / Japan", seats: "4.98M", type: "International", from: {city: "Seoul", lat: 37.5665, lon: 126.9780}, to: {city: "Osaka", lat: 34.6937, lon: 135.5023}, code: "KR", code2: "JP"},
+            {rank: 16, route: "Dubai ↔ Riyadh", country: "UAE / Saudi Arabia", seats: "4.31M", type: "International", from: {city: "Dubai", lat: 25.2048, lon: 55.2708}, to: {city: "Riyadh", lat: 24.7136, lon: 46.6753}, code: "AE", code2: "SA"},
+            {rank: 17, route: "Bangkok ↔ Hong Kong", country: "Thailand / Hong Kong", seats: "4.20M", type: "International", from: {city: "Bangkok", lat: 13.7563, lon: 100.5018}, to: {city: "Hong Kong", lat: 22.3193, lon: 114.1694}, code: "TH", code2: "HK"},
+            {rank: 18, route: "Jakarta ↔ Singapore", country: "Indonesia / Singapore", seats: "4.07M", type: "International", from: {city: "Jakarta", lat: -6.2088, lon: 106.8456}, to: {city: "Singapore", lat: 1.3521, lon: 103.8198}, code: "ID", code2: "SG"},
+            {rank: 19, route: "Bangkok ↔ Singapore", country: "Thailand / Singapore", seats: "4.03M", type: "International", from: {city: "Bangkok", lat: 13.7563, lon: 100.5018}, to: {city: "Singapore", lat: 1.3521, lon: 103.8198}, code: "TH", code2: "SG"},
+            {rank: 20, route: "New York JFK ↔ London Heathrow", country: "USA / UK", seats: "4.01M", type: "International", from: {city: "New York", lat: 40.7128, lon: -74.0060}, to: {city: "London", lat: 51.5074, lon: -0.1278}, code: "US", code2: "GB"}
+        ];
+
+        let globe;
+
+        function initGlobe() {
+            const container = document.getElementById('globeViz');
+            
+            globe = Globe()(container)
+                .width(window.innerWidth - 400)
+                .height(window.innerHeight)
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+                .arcsData(routes)
+                .arcStartLat(d => d.from.lat)
+                .arcStartLng(d => d.from.lon)
+                .arcEndLat(d => d.to.lat)
+                .arcEndLng(d => d.to.lon)
+                .arcColor(d => d.type === 'Domestic' ? ['rgba(16, 185, 129, 0.6)', 'rgba(16, 185, 129, 0.3)'] : ['rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.3)'])
+                .arcDashLength(0.4)
+                .arcDashGap(0.2)
+                .arcDashAnimateTime(4000)
+                .arcStroke(0.5)
+                .arcsTransitionDuration(1000)
+                .pointsData(routes.flatMap(r => [
+                    {lat: r.from.lat, lng: r.from.lon, city: r.from.city, type: r.type},
+                    {lat: r.to.lat, lng: r.to.lon, city: r.to.city, type: r.type}
+                ]))
+                .pointColor(d => d.type === 'Domestic' ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)')
+                .pointAltitude(0.01)
+                .pointRadius(0.15)
+                .pointLabel(d => `<div style="background: rgba(15, 23, 42, 0.95); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.5);"><div style="font-weight: bold; color: white;">${d.city}</div><div style="font-size: 11px; color: #93c5fd;">${d.type}</div></div>`);
+
+            globe.controls().autoRotate = true;
+            globe.controls().autoRotateSpeed = 0.5;
+            globe.pointOfView({ altitude: 2.5 });
+
+            window.addEventListener('resize', () => {
+                globe.width(window.innerWidth - 400);
+                globe.height(window.innerHeight);
+            });
+        }
+
+        function renderRoutes() {
+            const domestic = routes.filter(r => r.type === 'Domestic');
+            const international = routes.filter(r => r.type === 'International');
+
+            const domesticContainer = document.getElementById('domesticRoutes');
+            const internationalContainer = document.getElementById('internationalRoutes');
+
+            domesticContainer.innerHTML = domestic.map((route, idx) => `
+                <div class="route-card domestic p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50" style="animation-delay: ${idx * 0.05}s" onmouseenter="highlightRoute(${route.rank - 1})" onmouseleave="unhighlightRoute()">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold text-green-400">#${route.rank}</span>
+                                <img src="https://flagcdn.com/w80/${route.code.toLowerCase()}.png" class="flag-icon" alt="${route.code}">
+                                <span class="text-xs font-mono text-gray-400">${route.code}</span>
+                            </div>
+                            <div class="text-sm font-semibold text-white mb-1">${route.route}</div>
+                            <div class="text-xs text-gray-400">${route.country}</div>
+                        </div>
+                        <div class="seats-badge px-2 py-1 rounded text-xs font-bold text-white whitespace-nowrap">
+                            ${route.seats}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            internationalContainer.innerHTML = international.map((route, idx) => `
+                <div class="route-card international p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50" style="animation-delay: ${(domestic.length + idx) * 0.05}s" onmouseenter="highlightRoute(${route.rank - 1})" onmouseleave="unhighlightRoute()">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold text-red-400">#${route.rank}</span>
+                                <img src="https://flagcdn.com/w80/${route.code.toLowerCase()}.png" class="flag-icon" alt="${route.code}">
+                                <span class="text-xs font-mono text-gray-400">${route.code}</span>
+                                ${route.code2 ? `
+                                    <span class="text-gray-500">↔</span>
+                                    <img src="https://flagcdn.com/w80/${route.code2.toLowerCase()}.png" class="flag-icon" alt="${route.code2}">
+                                    <span class="text-xs font-mono text-gray-400">${route.code2}</span>
+                                ` : ''}
+                            </div>
+                            <div class="text-sm font-semibold text-white mb-1">${route.route}</div>
+                            <div class="text-xs text-gray-400">${route.country}</div>
+                        </div>
+                        <div class="seats-badge px-2 py-1 rounded text-xs font-bold text-white whitespace-nowrap">
+                            ${route.seats}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function highlightRoute(index) {
+            // Could implement arc highlighting here
+        }
+
+        function unhighlightRoute() {
+            // Could implement arc unhighlighting here
+        }
+
+        initGlobe();
+        renderRoutes();
+    </script>
+</body>
+</html>
