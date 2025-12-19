@@ -99,7 +99,13 @@
                 .arcStartLng(d => d.from.lon)
                 .arcEndLat(d => d.to.lat)
                 .arcEndLng(d => d.to.lon)
-                .arcColor(d => d.type === 'Domestic' ? ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.5)'] : ['rgba(239, 68, 68, 0.8)', 'rgba(239, 68, 68, 0.5)'])
+                .arcColor(d => {
+                    const routeIdx = routes.findIndex(r => r.rank === d.rank);
+                    if (selectedRouteIndex !== null && routeIdx === selectedRouteIndex) {
+                        return ['rgba(255, 255, 255, 0.9)', 'rgba(255, 255, 255, 0.7)'];
+                    }
+                    return d.type === 'Domestic' ? ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.5)'] : ['rgba(239, 68, 68, 0.8)', 'rgba(239, 68, 68, 0.5)'];
+                })
                 .arcDashLength(0.3)
                 .arcDashGap(0.15)
                 .arcDashAnimateTime(3000)
@@ -127,6 +133,33 @@
             });
         }
 
+        let selectedRouteIndex = null;
+
+        function focusOnRoute(routeIndex) {
+            const route = routes[routeIndex];
+            selectedRouteIndex = routeIndex;
+            
+            // Calculate midpoint between two cities
+            const midLat = (route.from.lat + route.to.lat) / 2;
+            const midLng = (route.from.lon + route.to.lon) / 2;
+            
+            // Stop auto-rotation and focus on route
+            globe.controls().autoRotate = false;
+            globe.pointOfView({ lat: midLat, lng: midLng, altitude: 1.5 }, 1000);
+            
+            // Update arc colors
+            globe.arcsData(routes);
+            
+            // Update active state on cards
+            document.querySelectorAll('.route-card').forEach((card, idx) => {
+                if (idx === routeIndex) {
+                    card.classList.add('ring-2', 'ring-white', 'bg-slate-700/80');
+                } else {
+                    card.classList.remove('ring-2', 'ring-white', 'bg-slate-700/80');
+                }
+            });
+        }
+
         function renderRoutes() {
             const domestic = routes.filter(r => r.type === 'Domestic');
             const international = routes.filter(r => r.type === 'International');
@@ -134,8 +167,10 @@
             const domesticContainer = document.getElementById('domesticRoutes');
             const internationalContainer = document.getElementById('internationalRoutes');
 
-            domesticContainer.innerHTML = domestic.map((route, idx) => `
-                <div class="route-card p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-green-500/20" style="animation-delay: ${idx * 0.05}s">
+            domesticContainer.innerHTML = domestic.map((route, idx) => {
+                const routeIndex = routes.findIndex(r => r.rank === route.rank);
+                return `
+                <div class="route-card p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-green-500/20" style="animation-delay: ${idx * 0.05}s" onclick="focusOnRoute(${routeIndex})">
                     <div class="flex items-start gap-2 mb-2">
                         <span class="text-xs font-bold text-green-400 bg-green-500/20 px-2 py-0.5 rounded">#${route.rank}</span>
                         <div class="flex items-center gap-1.5">
@@ -149,10 +184,12 @@
                         ${route.seats}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
-            internationalContainer.innerHTML = international.map((route, idx) => `
-                <div class="route-card p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-red-500/20" style="animation-delay: ${(domestic.length + idx) * 0.05}s">
+            internationalContainer.innerHTML = international.map((route, idx) => {
+                const routeIndex = routes.findIndex(r => r.rank === route.rank);
+                return `
+                <div class="route-card p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-red-500/20" style="animation-delay: ${(domestic.length + idx) * 0.05}s" onclick="focusOnRoute(${routeIndex})">
                     <div class="flex items-start gap-2 mb-2">
                         <span class="text-xs font-bold text-red-400 bg-red-500/20 px-2 py-0.5 rounded">#${route.rank}</span>
                         <div class="flex items-center gap-1">
@@ -171,7 +208,7 @@
                         ${route.seats}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         initGlobe();
