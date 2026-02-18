@@ -1,46 +1,46 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,3760.0
-META,Alphabet,public,3700.0
-META,Microsoft,public,2980.0
+META,Apple,public,3870.0
+META,Alphabet,public,3660.0
+META,Microsoft,public,2950.0
 META,Meta,public,1620.0
-META,Netflix,public,324.6
-META,AMD,public,236.6
+META,Netflix,public,325.1
+META,AMD,public,231.8
+META,Salesforce,public,172.7
+META,Uber,public,145.2
 META,Databricks,private,121.5
-META,Intel,public,116.9
-META,Snowflake,public,0.0
-META,Salesforce,public,0.0
+META,Intel,public,115.3
+META,Snowflake,public,60.6
 META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
-META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1413.0
+MUSK,Tesla,public,1386.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,313.2
-MUSK,RTX (Raytheon),public,214.8
+MUSK,Palantir,public,318.1
+MUSK,RTX (Raytheon),public,218.5
+MUSK,General Electric,public,205.8
 MUSK,xAI,private,200.0
-MUSK,General Electric,public,198.5
+MUSK,Lockheed Martin,public,119.6
 MUSK,Anduril,private,66.0
+MUSK,Rocket Lab,public,37.3
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
-MUSK,Rocket Lab,public,0.0
-MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,2886.0
-STARGATE,Amazon / AWS,public,2130.0
-STARGATE,Broadcom,public,1540.0
-STARGATE,JPMorgan Chase,public,816.0
-STARGATE,Oracle,public,460.3
+STARGATE,Nvidia,public,2918.5
+STARGATE,Amazon / AWS,public,2160.0
+STARGATE,Broadcom,public,1580.0
+STARGATE,JPMorgan Chase,public,828.3
+STARGATE,Oracle,public,442.5
 STARGATE,Cisco Systems,public,303.6
-STARGATE,Goldman Sachs,public,284.0
+STARGATE,Goldman Sachs,public,287.4
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,132.3
+STARGATE,SoftBank,public,165.1
+STARGATE,General Electric,public,137.2
 STARGATE,Stripe,private,92.0
+STARGATE,Arista Networks,public,71.7
+STARGATE,Qualcomm,public,60.9
 STARGATE,Revolut,private,45.0
+STARGATE,Affirm,public,17.2
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,SoftBank,public,0.0
-STARGATE,Affirm,public,0.0
-STARGATE,Plug Power,public,0.0
-STARGATE,Qualcomm,public,0.0
-STARGATE,Arista Networks,public,0.0
+STARGATE,Plug Power,public,2.5
 STARGATE,State Department,gov,0.0
