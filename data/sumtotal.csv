@@ -1,27 +1,27 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,3880.0
+META,Apple,public,3830.0
 META,Alphabet,public,3670.0
-META,Microsoft,public,2970.0
+META,Microsoft,public,2960.0
 META,Meta,public,1630.0
-META,Netflix,public,329.3
-META,AMD,public,228.4
-META,Salesforce,public,176.0
-META,Uber,public,149.8
+META,Netflix,public,325.1
+META,AMD,public,232.1
+META,Salesforce,public,173.6
+META,Uber,public,150.1
 META,Databricks,private,121.5
-META,Intel,public,113.5
-META,Snowflake,public,60.2
+META,Intel,public,111.4
+META,Snowflake,public,61.3
 META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Governor of California,gov,0.0
 MUSK,Tesla,public,1386.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,323.8
-MUSK,RTX (Raytheon),public,219.9
-MUSK,General Electric,public,207.4
+MUSK,Palantir,public,322.6
+MUSK,RTX (Raytheon),public,220.6
+MUSK,General Electric,public,210.6
 MUSK,xAI,private,200.0
-MUSK,Lockheed Martin,public,119.6
+MUSK,Lockheed Martin,public,122.7
 MUSK,Anduril,private,66.0
-MUSK,Rocket Lab,public,39.8
+MUSK,Rocket Lab,public,40.9
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
 MUSK,Dept Gov Efficiency,gov,0.0
@@ -29,18 +29,18 @@ MUSK,Office of VP,gov,0.0
 STARGATE,Nvidia,public,2970.5
 STARGATE,Amazon / AWS,public,2200.0
 STARGATE,Broadcom,public,1580.0
-STARGATE,JPMorgan Chase,public,832.8
-STARGATE,Oracle,public,448.9
-STARGATE,Cisco Systems,public,308.8
-STARGATE,Goldman Sachs,public,292.9
+STARGATE,JPMorgan Chase,public,830.8
+STARGATE,Oracle,public,449.9
+STARGATE,Cisco Systems,public,310.3
+STARGATE,Goldman Sachs,public,287.6
 STARGATE,Anthropic,private,183.0
-STARGATE,SoftBank,public,159.7
-STARGATE,General Electric,public,138.3
+STARGATE,SoftBank,public,163.3
+STARGATE,General Electric,public,140.4
 STARGATE,Stripe,private,92.0
-STARGATE,Arista Networks,public,70.1
-STARGATE,Qualcomm,public,61.1
+STARGATE,Arista Networks,public,69.0
+STARGATE,Qualcomm,public,60.3
 STARGATE,Revolut,private,45.0
-STARGATE,Affirm,public,17.2
+STARGATE,Affirm,public,17.3
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,Plug Power,public,2.5
+STARGATE,Plug Power,public,2.6
 STARGATE,State Department,gov,0.0
