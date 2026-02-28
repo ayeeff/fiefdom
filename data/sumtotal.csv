@@ -1,46 +1,46 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4010.0
-META,Alphabet,public,3720.0
-META,Microsoft,public,2980.0
-META,Meta,public,1660.0
-META,Netflix,public,357.1
-META,AMD,public,232.5
-META,Salesforce,public,186.9
-META,Uber,public,153.9
+META,Apple,public,3880.0
+META,Alphabet,public,3770.0
+META,Microsoft,public,2920.0
+META,Meta,public,1640.0
+META,Netflix,public,406.3
+META,AMD,public,228.5
+META,Salesforce,public,182.5
+META,Uber,public,155.2
 META,Databricks,private,121.5
-META,Intel,public,113.5
-META,Snowflake,public,59.2
+META,Intel,public,113.9
+META,Snowflake,public,57.6
 META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1377.0
+MUSK,Tesla,public,1359.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,325.1
-MUSK,General Electric,public,214.5
-MUSK,RTX (Raytheon),public,212.2
+MUSK,Palantir,public,328.1
+MUSK,RTX (Raytheon),public,217.6
+MUSK,General Electric,public,215.4
 MUSK,xAI,private,200.0
-MUSK,Lockheed Martin,public,118.1
+MUSK,Lockheed Martin,public,121.1
 MUSK,Anduril,private,66.0
-MUSK,Rocket Lab,public,38.8
+MUSK,Rocket Lab,public,36.9
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,2918.5
-STARGATE,Amazon / AWS,public,2230.0
-STARGATE,Broadcom,public,1530.0
-STARGATE,JPMorgan Chase,public,825.6
-STARGATE,Oracle,public,432.0
-STARGATE,Cisco Systems,public,308.5
-STARGATE,Goldman Sachs,public,291.4
+STARGATE,Nvidia,public,2801.5
+STARGATE,Amazon / AWS,public,2250.0
+STARGATE,Broadcom,public,1520.0
+STARGATE,JPMorgan Chase,public,809.9
+STARGATE,Oracle,public,417.9
+STARGATE,Cisco Systems,public,313.9
+STARGATE,Goldman Sachs,public,265.1
 STARGATE,Anthropic,private,183.0
-STARGATE,SoftBank,public,153.2
-STARGATE,General Electric,public,143.0
+STARGATE,SoftBank,public,149.3
+STARGATE,General Electric,public,143.6
 STARGATE,Stripe,private,92.0
-STARGATE,Arista Networks,public,65.5
-STARGATE,Qualcomm,public,62.1
+STARGATE,Arista Networks,public,67.1
+STARGATE,Qualcomm,public,60.8
 STARGATE,Revolut,private,45.0
-STARGATE,Affirm,public,16.8
+STARGATE,Affirm,public,15.7
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,Plug Power,public,2.6
+STARGATE,Plug Power,public,2.5
 STARGATE,State Department,gov,0.0
