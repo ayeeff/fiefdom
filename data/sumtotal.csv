@@ -1,10 +1,10 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,3670.0
-META,Alphabet,public,3650.0
-META,Microsoft,public,2940.0
-META,Meta,public,1550.0
-META,Netflix,public,402.4
-META,AMD,public,220.7
+META,Apple,public,3710.0
+META,Alphabet,public,3680.0
+META,Microsoft,public,2970.0
+META,Meta,public,1590.0
+META,Netflix,public,401.9
+META,AMD,public,224.4
 META,Databricks,private,121.5
 META,Intel,public,114.3
 META,Snowflake,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1323.0
+MUSK,Tesla,public,1332.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,361.0
-MUSK,RTX (Raytheon),public,219.6
+MUSK,Palantir,public,365.3
+MUSK,RTX (Raytheon),public,221.3
 MUSK,xAI,private,200.0
-MUSK,General Electric,public,188.6
+MUSK,General Electric,public,191.3
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,15 +26,15 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,2847.0
-STARGATE,Amazon / AWS,public,2230.0
-STARGATE,Broadcom,public,1530.0
-STARGATE,JPMorgan Chase,public,764.5
-STARGATE,Oracle,public,446.1
-STARGATE,Cisco Systems,public,309.4
-STARGATE,Goldman Sachs,public,232.1
+STARGATE,Nvidia,public,2892.5
+STARGATE,Amazon / AWS,public,2270.0
+STARGATE,Broadcom,public,1540.0
+STARGATE,JPMorgan Chase,public,771.8
+STARGATE,Oracle,public,448.6
+STARGATE,Cisco Systems,public,311.6
+STARGATE,Goldman Sachs,public,235.8
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,125.7
+STARGATE,General Electric,public,127.5
 STARGATE,Stripe,private,92.0
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
