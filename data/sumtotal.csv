@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Alphabet,public,4120.0
-META,Apple,public,3970.0
-META,Microsoft,public,3140.0
-META,Meta,public,1750.0
-META,Netflix,public,409.8
-META,AMD,public,317.7
-META,Intel,public,172.0
+META,Alphabet,public,4010.0
+META,Apple,public,3910.0
+META,Microsoft,public,3150.0
+META,Meta,public,1700.0
+META,Netflix,public,389.8
+META,AMD,public,324.7
+META,Intel,public,166.3
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1350.0
+MUSK,Tesla,public,1305.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,350.1
-MUSK,RTX (Raytheon),public,211.5
+MUSK,Palantir,public,349.1
+MUSK,RTX (Raytheon),public,201.5
 MUSK,xAI,private,200.0
-MUSK,General Electric,public,190.7
+MUSK,General Electric,public,179.5
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,21 +26,21 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3185.0
+STARGATE,Nvidia,public,3159.0
 STARGATE,Amazon / AWS,public,2690.0
-STARGATE,Broadcom,public,1920.0
-STARGATE,JPMorgan Chase,public,831.4
-STARGATE,Oracle,public,503.5
-STARGATE,Cisco Systems,public,340.7
-STARGATE,Goldman Sachs,public,283.9
+STARGATE,Broadcom,public,1900.0
+STARGATE,JPMorgan Chase,public,838.7
+STARGATE,Oracle,public,521.0
+STARGATE,Cisco Systems,public,354.3
+STARGATE,Goldman Sachs,public,284.1
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,127.1
+STARGATE,General Electric,public,119.7
 STARGATE,Stripe,private,92.0
+STARGATE,Arista Networks,public,87.1
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
 STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Qualcomm,public,0.0
-STARGATE,Arista Networks,public,0.0
 STARGATE,State Department,gov,0.0
