@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Alphabet,public,4100.0
-META,Apple,public,4010.0
-META,Microsoft,public,3210.0
-META,Meta,public,1710.0
-META,Netflix,public,392.6
-META,AMD,public,346.3
-META,Intel,public,163.9
+META,Alphabet,public,4230.0
+META,Apple,public,3930.0
+META,Microsoft,public,3150.0
+META,Meta,public,1720.0
+META,Netflix,public,384.7
+META,AMD,public,381.9
+META,Intel,public,213.6
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1305.0
+MUSK,Tesla,public,1278.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,365.0
+MUSK,Palantir,public,343.0
 MUSK,xAI,private,200.0
-MUSK,RTX (Raytheon),public,194.9
-MUSK,General Electric,public,173.0
+MUSK,RTX (Raytheon),public,186.8
+MUSK,General Electric,public,178.1
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,20 +26,20 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3198.0
-STARGATE,Amazon / AWS,public,2750.0
-STARGATE,Broadcom,public,2000.0
-STARGATE,JPMorgan Chase,public,838.7
-STARGATE,Oracle,public,539.3
-STARGATE,Cisco Systems,public,354.7
-STARGATE,Goldman Sachs,public,286.6
+STARGATE,Nvidia,public,3419.0
+STARGATE,Amazon / AWS,public,2810.0
+STARGATE,Broadcom,public,1980.0
+STARGATE,JPMorgan Chase,public,835.0
+STARGATE,Oracle,public,497.4
+STARGATE,Cisco Systems,public,348.6
+STARGATE,Goldman Sachs,public,287.5
+STARGATE,SoftBank,public,209.1
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,115.3
+STARGATE,General Electric,public,118.8
 STARGATE,Stripe,private,92.0
-STARGATE,Arista Networks,public,89.5
+STARGATE,Arista Networks,public,86.9
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Qualcomm,public,0.0
