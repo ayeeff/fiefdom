@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Alphabet,public,4230.0
-META,Apple,public,3980.0
-META,Microsoft,public,2990.0
+META,Alphabet,public,4670.0
+META,Apple,public,4330.0
+META,Microsoft,public,3030.0
 META,Meta,public,1530.0
-META,Netflix,public,389.9
-META,AMD,public,388.0
-META,Intel,public,232.0
+META,AMD,public,511.7
+META,Netflix,public,369.1
+META,Intel,public,303.1
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1260.0
+MUSK,Tesla,public,1467.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,333.4
+MUSK,Palantir,public,326.0
 MUSK,xAI,private,200.0
-MUSK,RTX (Raytheon),public,188.7
-MUSK,General Electric,public,181.0
+MUSK,RTX (Raytheon),public,192.7
+MUSK,General Electric,public,186.2
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,21 +26,21 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3159.0
-STARGATE,Amazon / AWS,public,2780.0
-STARGATE,Broadcom,public,1920.0
-STARGATE,JPMorgan Chase,public,839.1
-STARGATE,Oracle,public,464.4
-STARGATE,Cisco Systems,public,356.4
-STARGATE,Goldman Sachs,public,281.6
+STARGATE,Nvidia,public,3484.0
+STARGATE,Amazon / AWS,public,2860.0
+STARGATE,Broadcom,public,1990.0
+STARGATE,JPMorgan Chase,public,816.9
+STARGATE,Oracle,public,537.3
+STARGATE,Cisco Systems,public,392.2
+STARGATE,Goldman Sachs,public,290.0
+STARGATE,SoftBank,public,216.3
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,120.7
+STARGATE,General Electric,public,124.1
 STARGATE,Stripe,private,92.0
-STARGATE,Arista Networks,public,84.9
+STARGATE,Qualcomm,public,88.7
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
-STARGATE,Qualcomm,public,0.0
+STARGATE,Arista Networks,public,0.0
 STARGATE,State Department,gov,0.0
