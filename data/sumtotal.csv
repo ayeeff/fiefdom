@@ -1,5 +1,5 @@
 CAMP,company,status,equity($bn)
-META,Alphabet,public,4860.0
+META,Alphabet,public,4790.0
 META,Apple,public,4410.0
 META,Microsoft,public,3130.0
 META,Meta,public,1560.0
@@ -33,7 +33,7 @@ STARGATE,JPMorgan Chase,public,798.0
 STARGATE,Oracle,public,554.9
 STARGATE,Cisco Systems,public,466.9
 STARGATE,Goldman Sachs,public,290.8
-STARGATE,SoftBank,public,208.3
+STARGATE,SoftBank,public,206.3
 STARGATE,Anthropic,private,183.0
 STARGATE,General Electric,public,117.5
 STARGATE,Stripe,private,92.0
