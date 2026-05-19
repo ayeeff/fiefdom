@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
 META,Alphabet,public,4790.0
-META,Apple,public,4410.0
-META,Microsoft,public,3130.0
-META,Meta,public,1560.0
-META,AMD,public,484.1
-META,Netflix,public,366.4
-META,Intel,public,273.3
+META,Apple,public,4370.0
+META,Microsoft,public,3150.0
+META,Meta,public,1550.0
+META,AMD,public,480.5
+META,Netflix,public,377.5
+META,Intel,public,271.8
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1431.0
+MUSK,Tesla,public,1386.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,321.2
+MUSK,Palantir,public,324.0
 MUSK,xAI,private,200.0
-MUSK,RTX (Raytheon),public,184.4
-MUSK,General Electric,public,176.2
+MUSK,RTX (Raytheon),public,189.6
+MUSK,General Electric,public,179.0
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,20 +26,20 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3549.0
-STARGATE,Amazon / AWS,public,2840.0
-STARGATE,Broadcom,public,2010.0
-STARGATE,JPMorgan Chase,public,798.0
-STARGATE,Oracle,public,554.9
-STARGATE,Cisco Systems,public,466.9
-STARGATE,Goldman Sachs,public,290.8
-STARGATE,SoftBank,public,206.3
+STARGATE,Nvidia,public,3497.0
+STARGATE,Amazon / AWS,public,2850.0
+STARGATE,Broadcom,public,1990.0
+STARGATE,JPMorgan Chase,public,805.8
+STARGATE,Oracle,public,536.7
+STARGATE,Cisco Systems,public,469.6
+STARGATE,Goldman Sachs,public,290.2
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,117.5
+STARGATE,General Electric,public,119.4
 STARGATE,Stripe,private,92.0
-STARGATE,Qualcomm,public,84.9
+STARGATE,Qualcomm,public,85.9
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
+STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Arista Networks,public,0.0
