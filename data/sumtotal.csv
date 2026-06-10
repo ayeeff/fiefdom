@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4430.0
-META,Alphabet,public,4420.0
-META,Microsoft,public,3060.0
-META,Meta,public,1490.0
-META,AMD,public,559.7
-META,Netflix,public,348.0
-META,Intel,public,277.1
+META,Alphabet,public,4430.0
+META,Apple,public,4270.0
+META,Microsoft,public,3000.0
+META,Meta,public,1480.0
+META,AMD,public,542.8
+META,Netflix,public,342.8
+META,Intel,public,271.2
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,12 +13,12 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1386.0
+MUSK,Tesla,public,1341.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,327.2
-MUSK,General Electric,public,201.6
+MUSK,Palantir,public,316.6
+MUSK,General Electric,public,206.9
 MUSK,xAI,private,200.0
-MUSK,RTX (Raytheon),public,192.5
+MUSK,RTX (Raytheon),public,195.6
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
@@ -26,21 +26,21 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3282.5
-STARGATE,Amazon / AWS,public,2640.0
-STARGATE,Broadcom,public,1880.0
-STARGATE,JPMorgan Chase,public,833.6
-STARGATE,Oracle,public,609.2
-STARGATE,Cisco Systems,public,489.3
-STARGATE,Goldman Sachs,public,320.4
-STARGATE,SoftBank,public,248.3
+STARGATE,Nvidia,public,3276.0
+STARGATE,Amazon / AWS,public,2630.0
+STARGATE,Broadcom,public,1870.0
+STARGATE,JPMorgan Chase,public,837.9
+STARGATE,Oracle,public,591.9
+STARGATE,Cisco Systems,public,474.4
+STARGATE,Goldman Sachs,public,316.4
+STARGATE,SoftBank,public,250.6
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,134.4
+STARGATE,General Electric,public,137.9
 STARGATE,Stripe,private,92.0
-STARGATE,Qualcomm,public,91.8
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
+STARGATE,Qualcomm,public,0.0
 STARGATE,Arista Networks,public,0.0
 STARGATE,State Department,gov,0.0
