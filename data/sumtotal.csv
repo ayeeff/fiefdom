@@ -6,12 +6,12 @@ META,Meta,public,1700.0
 META,AMD,public,636.8
 META,Netflix,public,308.9
 META,Intel,public,276.0
+META,Uber,public,151.7
+META,Salesforce,public,133.8
 META,Databricks,private,121.5
-META,Snowflake,public,0.0
-META,Salesforce,public,0.0
+META,Snowflake,public,90.6
 META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
-META,Uber,public,0.0
 META,Governor of California,gov,0.0
 MUSK,Tesla,public,1377.0
 MUSK,SpaceX,private,400.0
@@ -19,11 +19,11 @@ MUSK,Palantir,public,304.0
 MUSK,General Electric,public,224.9
 MUSK,RTX (Raytheon),public,211.1
 MUSK,xAI,private,200.0
+MUSK,Lockheed Martin,public,96.5
 MUSK,Anduril,private,66.0
+MUSK,Rocket Lab,public,48.5
 MUSK,Scale AI,private,29.0
 MUSK,C3.ai,public,2.5
-MUSK,Rocket Lab,public,0.0
-MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
 STARGATE,Nvidia,public,3321.5
@@ -33,14 +33,14 @@ STARGATE,JPMorgan Chase,public,901.6
 STARGATE,Cisco Systems,public,478.1
 STARGATE,Oracle,public,405.1
 STARGATE,Goldman Sachs,public,323.5
+STARGATE,SoftBank,public,224.8
 STARGATE,Anthropic,private,183.0
 STARGATE,General Electric,public,149.9
+STARGATE,Arista Networks,public,94.2
 STARGATE,Stripe,private,92.0
+STARGATE,Qualcomm,public,79.7
 STARGATE,Revolut,private,45.0
+STARGATE,Affirm,public,27.9
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,SoftBank,public,0.0
-STARGATE,Affirm,public,0.0
-STARGATE,Plug Power,public,0.0
-STARGATE,Qualcomm,public,0.0
-STARGATE,Arista Networks,public,0.0
+STARGATE,Plug Power,public,3.1
 STARGATE,State Department,gov,0.0
