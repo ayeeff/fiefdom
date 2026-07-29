@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4950.0
-META,Alphabet,public,3990.0
-META,Microsoft,public,2890.0
+META,Apple,public,4990.0
+META,Alphabet,public,4080.0
+META,Microsoft,public,2920.0
 META,Meta,public,1510.0
-META,AMD,public,564.9
-META,Netflix,public,293.1
-META,Intel,public,231.2
+META,AMD,public,518.9
+META,Netflix,public,301.4
+META,Intel,public,217.7
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,11 +13,11 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1098.0
+MUSK,Tesla,public,1089.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,315.3
-MUSK,RTX (Raytheon),public,235.5
-MUSK,General Electric,public,225.1
+MUSK,Palantir,public,296.1
+MUSK,RTX (Raytheon),public,235.7
+MUSK,General Electric,public,226.3
 MUSK,xAI,private,200.0
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
@@ -26,21 +26,21 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3094.0
-STARGATE,Amazon / AWS,public,2490.0
-STARGATE,Broadcom,public,1820.0
-STARGATE,JPMorgan Chase,public,946.9
-STARGATE,Cisco Systems,public,451.6
-STARGATE,Oracle,public,345.4
-STARGATE,Goldman Sachs,public,321.4
+STARGATE,Nvidia,public,3100.5
+STARGATE,Amazon / AWS,public,2480.0
+STARGATE,Broadcom,public,1810.0
+STARGATE,JPMorgan Chase,public,949.8
+STARGATE,Cisco Systems,public,455.6
+STARGATE,Oracle,public,345.5
+STARGATE,Goldman Sachs,public,316.8
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,150.1
+STARGATE,General Electric,public,150.9
 STARGATE,Stripe,private,92.0
-STARGATE,Arista Networks,public,86.0
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
 STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Qualcomm,public,0.0
+STARGATE,Arista Networks,public,0.0
 STARGATE,State Department,gov,0.0
