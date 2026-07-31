@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4970.0
-META,Alphabet,public,4110.0
-META,Microsoft,public,2900.0
-META,Meta,public,1490.0
-META,AMD,public,490.3
-META,Netflix,public,306.6
-META,Intel,public,206.5
+META,Apple,public,4900.0
+META,Alphabet,public,4080.0
+META,Microsoft,public,3350.0
+META,Meta,public,1370.0
+META,AMD,public,554.0
+META,Netflix,public,304.7
+META,Intel,public,229.8
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,11 +13,11 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1062.0
+MUSK,Tesla,public,1098.0
 MUSK,SpaceX,private,400.0
-MUSK,Palantir,public,294.9
-MUSK,RTX (Raytheon),public,232.1
-MUSK,General Electric,public,218.3
+MUSK,Palantir,public,293.1
+MUSK,RTX (Raytheon),public,231.1
+MUSK,General Electric,public,221.0
 MUSK,xAI,private,200.0
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
@@ -26,21 +26,21 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,2990.0
-STARGATE,Amazon / AWS,public,2440.0
-STARGATE,Broadcom,public,1760.0
-STARGATE,JPMorgan Chase,public,916.3
-STARGATE,Cisco Systems,public,443.3
-STARGATE,Oracle,public,339.1
-STARGATE,Goldman Sachs,public,300.7
+STARGATE,Nvidia,public,3068.0
+STARGATE,Amazon / AWS,public,2530.0
+STARGATE,Broadcom,public,1850.0
+STARGATE,JPMorgan Chase,public,932.6
+STARGATE,Cisco Systems,public,447.6
+STARGATE,Oracle,public,367.4
+STARGATE,Goldman Sachs,public,314.2
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,145.5
+STARGATE,General Electric,public,147.4
 STARGATE,Stripe,private,92.0
+STARGATE,Arista Networks,public,86.1
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
 STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Qualcomm,public,0.0
-STARGATE,Arista Networks,public,0.0
 STARGATE,State Department,gov,0.0
