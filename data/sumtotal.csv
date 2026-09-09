@@ -1,11 +1,11 @@
 CAMP,company,status,equity($bn)
-META,Apple,public,4670.0
+META,Apple,public,4610.0
 META,Alphabet,public,4120.0
-META,Microsoft,public,3710.0
-META,Meta,public,1570.0
-META,AMD,public,545.7
-META,Netflix,public,325.8
-META,Intel,public,251.7
+META,Microsoft,public,3670.0
+META,Meta,public,1560.0
+META,AMD,public,577.9
+META,Netflix,public,319.7
+META,Intel,public,274.5
 META,Databricks,private,121.5
 META,Snowflake,public,0.0
 META,Salesforce,public,0.0
@@ -13,11 +13,11 @@ META,LinkedIn-Greylock,private,0.0
 META,Salesforce founder,private,0.0
 META,Uber,public,0.0
 META,Governor of California,gov,0.0
-MUSK,Tesla,public,1260.0
-MUSK,Palantir,public,418.9
+MUSK,Tesla,public,1305.0
+MUSK,Palantir,public,409.2
 MUSK,SpaceX,private,400.0
-MUSK,RTX (Raytheon),public,216.5
-MUSK,General Electric,public,209.9
+MUSK,RTX (Raytheon),public,214.4
+MUSK,General Electric,public,208.5
 MUSK,xAI,private,200.0
 MUSK,Anduril,private,66.0
 MUSK,Scale AI,private,29.0
@@ -26,20 +26,20 @@ MUSK,Rocket Lab,public,0.0
 MUSK,Lockheed Martin,public,0.0
 MUSK,Dept Gov Efficiency,gov,0.0
 MUSK,Office of VP,gov,0.0
-STARGATE,Nvidia,public,3614.0
-STARGATE,Amazon / AWS,public,2790.0
-STARGATE,Broadcom,public,1700.0
-STARGATE,JPMorgan Chase,public,953.3
-STARGATE,Oracle,public,457.4
-STARGATE,Cisco Systems,public,430.5
-STARGATE,Goldman Sachs,public,314.5
+STARGATE,Nvidia,public,3542.5
+STARGATE,Amazon / AWS,public,2770.0
+STARGATE,Broadcom,public,1750.0
+STARGATE,JPMorgan Chase,public,939.7
+STARGATE,Oracle,public,468.1
+STARGATE,Cisco Systems,public,430.4
+STARGATE,Goldman Sachs,public,313.8
+STARGATE,SoftBank,public,242.3
 STARGATE,Anthropic,private,183.0
-STARGATE,General Electric,public,139.9
-STARGATE,Arista Networks,public,97.8
+STARGATE,General Electric,public,139.0
+STARGATE,Arista Networks,public,98.4
 STARGATE,Stripe,private,92.0
 STARGATE,Revolut,private,45.0
 STARGATE,Terawatt Infra,private,5.0
-STARGATE,SoftBank,public,0.0
 STARGATE,Affirm,public,0.0
 STARGATE,Plug Power,public,0.0
 STARGATE,Qualcomm,public,0.0
